@@ -71,8 +71,9 @@ def extract_video_info(video_id : String)
 
     # Stop here if video is not a scheduled livestream or
     # for LOGIN_REQUIRED when videoDetails element is not found because retrying won't help
-    if !{"LIVE_STREAM_OFFLINE", "LOGIN_REQUIRED"}.any?(playability_status) ||
-       playability_status == "LOGIN_REQUIRED" && !player_response.dig?("videoDetails")
+    if (!{"LIVE_STREAM_OFFLINE", "LOGIN_REQUIRED"}.any?(playability_status) ||
+       playability_status == "LOGIN_REQUIRED" && !player_response.dig?("videoDetails")) &&
+       CONFIG.invidious_companion.nil?
       return {
         "version" => JSON::Any.new(Video::SCHEMA_VERSION.to_i64),
         "reason"  => JSON::Any.new(reason),
@@ -96,7 +97,7 @@ def extract_video_info(video_id : String)
   end
 
   # Don't fetch the next endpoint if the video is unavailable.
-  if {"OK", "LIVE_STREAM_OFFLINE", "LOGIN_REQUIRED"}.any?(playability_status)
+  if {"OK", "LIVE_STREAM_OFFLINE", "LOGIN_REQUIRED"}.any?(playability_status) || CONFIG.invidious_companion
     next_response = YoutubeAPI.next({"videoId": video_id, "params": ""})
     player_response = player_response.merge(next_response)
   end
@@ -104,42 +105,44 @@ def extract_video_info(video_id : String)
   params = parse_video_info(video_id, player_response)
   params["reason"] = JSON::Any.new(reason) if reason
 
-  new_player_response = nil
+  if CONFIG.invidious_companion.nil?
+    new_player_response = nil
 
-  # Second try in case WEB_CREATOR doesn't work with po_token.
-  # Only trigger if reason found and po_token configured.
-  if reason && CONFIG.po_token
-    client_config.client_type = YoutubeAPI::ClientType::WebEmbeddedPlayer
-    new_player_response = try_fetch_streaming_data(video_id, client_config)
-  end
+    # Second try in case WEB_CREATOR doesn't work with po_token.
+    # Only trigger if reason found and po_token configured.
+    if reason && CONFIG.po_token
+      client_config.client_type = YoutubeAPI::ClientType::WebEmbeddedPlayer
+      new_player_response = try_fetch_streaming_data(video_id, client_config)
+    end
 
-  # Don't use Android client if po_token is passed because po_token doesn't
-  # work for Android client.
-  if reason.nil? && CONFIG.po_token.nil?
-    # Fetch the video streams using an Android client in order to get the
-    # decrypted URLs and maybe fix throttling issues (#2194). See the
-    # following issue for an explanation about decrypted URLs:
-    # https://github.com/TeamNewPipe/NewPipeExtractor/issues/562
-    client_config.client_type = YoutubeAPI::ClientType::AndroidTestSuite
-    new_player_response = try_fetch_streaming_data(video_id, client_config)
-  end
+    # Don't use Android client if po_token is passed because po_token doesn't
+    # work for Android client.
+    if reason.nil? && CONFIG.po_token.nil?
+      # Fetch the video streams using an Android client in order to get the
+      # decrypted URLs and maybe fix throttling issues (#2194). See the
+      # following issue for an explanation about decrypted URLs:
+      # https://github.com/TeamNewPipe/NewPipeExtractor/issues/562
+      client_config.client_type = YoutubeAPI::ClientType::AndroidTestSuite
+      new_player_response = try_fetch_streaming_data(video_id, client_config)
+    end
 
-  # Last hope
-  # Only trigger if reason found or didn't work wth Android client.
-  # TvHtml5ScreenEmbed now requires sig helper for it to work but doesn't work with po_token.
-  if reason && CONFIG.po_token.nil?
-    client_config.client_type = YoutubeAPI::ClientType::TvHtml5ScreenEmbed
-    new_player_response = try_fetch_streaming_data(video_id, client_config)
-  end
+    # Last hope
+    # Only trigger if reason found or didn't work wth Android client.
+    # TvHtml5ScreenEmbed now requires sig helper for it to work but doesn't work with po_token.
+    if reason && CONFIG.po_token.nil?
+      client_config.client_type = YoutubeAPI::ClientType::TvHtml5ScreenEmbed
+      new_player_response = try_fetch_streaming_data(video_id, client_config)
+    end
 
-  # Replace player response and reset reason
-  if !new_player_response.nil?
-    # Preserve captions & storyboard data before replacement
-    new_player_response["storyboards"] = player_response["storyboards"] if player_response["storyboards"]?
-    new_player_response["captions"] = player_response["captions"] if player_response["captions"]?
+    # Replace player response and reset reason
+    if !new_player_response.nil?
+      # Preserve captions & storyboard data before replacement
+      new_player_response["storyboards"] = player_response["storyboards"] if player_response["storyboards"]?
+      new_player_response["captions"] = player_response["captions"] if player_response["captions"]?
 
-    player_response = new_player_response
-    params.delete("reason")
+      player_response = new_player_response
+      params.delete("reason")
+    end
   end
 
   {"captions", "playabilityStatus", "playerConfig", "storyboards"}.each do |f|

@@ -138,6 +138,9 @@ class Config
   # poToken for passing bot attestation
   property po_token : String? = nil
 
+  # Invidious companion
+  property invidious_companion : String? = nil
+
   # Saved cookies in "name1=value1; name2=value2..." format
   @[YAML::Field(converter: Preferences::StringToCookies)]
   property cookies : HTTP::Cookies = HTTP::Cookies.new
