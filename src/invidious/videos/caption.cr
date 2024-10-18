@@ -123,6 +123,7 @@ module Invidious::Videos
       "Esperanto",
       "Estonian",
       "Filipino",
+      "Filipino (auto-generated)",
       "Finnish",
       "French",
       "French (auto-generated)",
