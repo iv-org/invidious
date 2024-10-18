@@ -75,7 +75,7 @@ module Invidious::Search
       @type : Type = Type::All,
       @duration : Duration = Duration::None,
       @features : Features = Features::None,
-      @sort : Sort = Sort::Relevance
+      @sort : Sort = Sort::Relevance,
     )
     end
 
