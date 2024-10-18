@@ -106,7 +106,7 @@ ul.vjs-menu-content::-webkit-scrollbar {
 }
 
 .vjs-quality-selector,
-.video-js .vjs-http-source-selector {
+.video-js .vjs-quality-menu-wrapper {
   order: 4;
 }
 
@@ -134,10 +134,6 @@ ul.vjs-menu-content::-webkit-scrollbar {
 
 .vjs-control-bar::-webkit-scrollbar {
   display: none;
-}
-
-.video-js .vjs-icon-cog {
-  font-size: 18px;
 }
 
 .video-js .vjs-control-bar,
@@ -218,7 +214,7 @@ ul.vjs-menu-content::-webkit-scrollbar {
 }
 
 .player-dimensions.vjs-fluid {
-  padding-top: 82vh;
+  padding-top: 82vh !important;
 }
 
 video.video-js {
