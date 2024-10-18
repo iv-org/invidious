@@ -23,6 +23,7 @@ require "kilt"
 require "./ext/kemal_content_for.cr"
 require "./ext/kemal_static_file_handler.cr"
 
+require "http_proxy"
 require "athena-negotiation"
 require "openssl/hmac"
 require "option_parser"

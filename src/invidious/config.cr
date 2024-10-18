@@ -55,6 +55,15 @@ struct ConfigPreferences
   end
 end
 
+struct HTTPProxyConfig
+  include YAML::Serializable
+
+  property user : String
+  property password : String
+  property host : String
+  property port : Int32
+end
+
 class Config
   include YAML::Serializable
 
@@ -129,6 +138,8 @@ class Config
   property host_binding : String = "0.0.0.0"
   # Pool size for HTTP requests to youtube.com and ytimg.com (each domain has a separate pool of `pool_size`)
   property pool_size : Int32 = 100
+  # HTTP Proxy configuration
+  property http_proxy : HTTPProxyConfig? = nil
 
   # Use Innertube's transcripts API instead of timedtext for closed captions
   property use_innertube_for_captions : Bool = false
