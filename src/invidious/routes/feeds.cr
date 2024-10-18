@@ -143,24 +143,16 @@ module Invidious::Routes::Feeds
   # RSS feeds
 
   def self.rss_channel(env)
-    locale = env.get("preferences").as(Preferences).locale
-
     env.response.headers["Content-Type"] = "application/atom+xml"
     env.response.content_type = "application/atom+xml"
 
-    ucid = env.params.url["ucid"]
+    if env.params.url["ucid"].matches?(/^[\w-]+$/)
+      ucid = env.params.url["ucid"]
+    else
+      return error_atom(400, InfoException.new("Invalid channel ucid provided."))
+    end
 
     params = HTTP::Params.parse(env.params.query["params"]? || "")
-
-    begin
-      channel = get_about_info(ucid, locale)
-    rescue ex : ChannelRedirect
-      return env.redirect env.request.resource.gsub(ucid, ex.channel_id)
-    rescue ex : NotFoundException
-      return error_atom(404, ex)
-    rescue ex
-      return error_atom(500, ex)
-    end
 
     namespaces = {
       "yt"      => "http://www.youtube.com/xml/schemas/2015",
@@ -168,7 +160,8 @@ module Invidious::Routes::Feeds
       "default" => "http://www.w3.org/2005/Atom",
     }
 
-    response = YT_POOL.client &.get("/feeds/videos.xml?channel_id=#{channel.ucid}")
+    response = YT_POOL.client &.get("/feeds/videos.xml?channel_id=#{ucid}")
+    return error_atom(404, NotFoundException.new("Channel does not exist.")) if response.status_code == 404
     rss = XML.parse(response.body)
 
     videos = rss.xpath_nodes("//default:feed/default:entry", namespaces).map do |entry|
@@ -179,7 +172,7 @@ module Invidious::Routes::Feeds
       updated = Time.parse_rfc3339(entry.xpath_node("default:updated", namespaces).not_nil!.content)
 
       author = entry.xpath_node("default:author/default:name", namespaces).not_nil!.content
-      ucid = entry.xpath_node("yt:channelId", namespaces).not_nil!.content
+      video_ucid = entry.xpath_node("yt:channelId", namespaces).not_nil!.content
       description_html = entry.xpath_node("media:group/media:description", namespaces).not_nil!.to_s
       views = entry.xpath_node("media:group/media:community/media:statistics", namespaces).not_nil!.["views"].to_i64
 
@@ -187,7 +180,7 @@ module Invidious::Routes::Feeds
         title:              title,
         id:                 video_id,
         author:             author,
-        ucid:               ucid,
+        ucid:               video_ucid,
         published:          published,
         views:              views,
         description_html:   description_html,
@@ -198,30 +191,32 @@ module Invidious::Routes::Feeds
       })
     end
 
+    author = ""
+    author = videos[0].author if videos.size > 0
+
     XML.build(indent: "  ", encoding: "UTF-8") do |xml|
       xml.element("feed", "xmlns:yt": "http://www.youtube.com/xml/schemas/2015",
         "xmlns:media": "http://search.yahoo.com/mrss/", xmlns: "http://www.w3.org/2005/Atom",
         "xml:lang": "en-US") do
         xml.element("link", rel: "self", href: "#{HOST_URL}#{env.request.resource}")
-        xml.element("id") { xml.text "yt:channel:#{channel.ucid}" }
-        xml.element("yt:channelId") { xml.text channel.ucid }
-        xml.element("icon") { xml.text channel.author_thumbnail }
-        xml.element("title") { xml.text channel.author }
-        xml.element("link", rel: "alternate", href: "#{HOST_URL}/channel/#{channel.ucid}")
+        xml.element("id") { xml.text "yt:channel:#{ucid}" }
+        xml.element("yt:channelId") { xml.text ucid }
+        xml.element("title") { author }
+        xml.element("link", rel: "alternate", href: "#{HOST_URL}/channel/#{ucid}")
 
         xml.element("author") do
-          xml.element("name") { xml.text channel.author }
-          xml.element("uri") { xml.text "#{HOST_URL}/channel/#{channel.ucid}" }
+          xml.element("name") { xml.text author }
+          xml.element("uri") { xml.text "#{HOST_URL}/channel/#{ucid}" }
         end
 
         xml.element("image") do
-          xml.element("url") { xml.text channel.author_thumbnail }
-          xml.element("title") { xml.text channel.author }
+          xml.element("url") { xml.text "" }
+          xml.element("title") { xml.text author }
           xml.element("link", rel: "self", href: "#{HOST_URL}#{env.request.resource}")
         end
 
         videos.each do |video|
-          video.to_xml(channel.auto_generated, params, xml)
+          video.to_xml(false, params, xml)
         end
       end
     end
@@ -309,8 +304,9 @@ module Invidious::Routes::Feeds
     end
 
     response = YT_POOL.client &.get("/feeds/videos.xml?playlist_id=#{plid}")
-    document = XML.parse(response.body)
+    return error_atom(404, NotFoundException.new("Playlist does not exist.")) if response.status_code == 404
 
+    document = XML.parse(response.body)
     document.xpath_nodes(%q(//*[@href]|//*[@url])).each do |node|
       node.attributes.each do |attribute|
         case attribute.name
