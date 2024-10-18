@@ -175,8 +175,9 @@ module Invidious::SigHelper
     @queue = {} of TransactionID => Transaction
 
     @conn : Connection
+    @uri_or_path : String
 
-    def initialize(uri_or_path)
+    def initialize(@uri_or_path)
       @conn = Connection.new(uri_or_path)
       listen
     end
@@ -186,10 +187,26 @@ module Invidious::SigHelper
 
       LOGGER.debug("SigHelper: Multiplexor listening")
 
-      # TODO: reopen socket if unexpectedly closed
       spawn do
         loop do
-          receive_data
+          begin
+            receive_data
+          rescue ex
+            LOGGER.info("SigHelper: Connection to helper died with '#{ex.message}' trying to reconnect...")
+            # We close the socket because for some reason is not closed.
+            @conn.close
+            loop do
+              begin
+                @conn = Connection.new(@uri_or_path)
+                LOGGER.info("SigHelper: Reconnected to SigHelper!")
+              rescue ex
+                LOGGER.debug("SigHelper: Reconnection to helper unsuccessful with error '#{ex.message}'. Retrying")
+                sleep 500.milliseconds
+                next
+              end
+              break if !@conn.closed?
+            end
+          end
           Fiber.yield
         end
       end
