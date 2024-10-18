@@ -392,7 +392,7 @@ module Invidious::Routes::API::V1::Videos
 
     env.response.content_type = "application/json"
 
-    clip_id = env.params.url["id"]
+    clip_id = URI.encode_www_form(env.params.url["id"])
     region = env.params.query["region"]?
     proxy = {"1", "true"}.any? &.== env.params.query["local"]?
 

@@ -332,4 +332,53 @@ module Invidious::Routes::Watch
       return error_template(400, "Invalid label or itag")
     end
   end
+
+  # used for fetching replies/ fetching more comments when js is disabled.
+  def self.comments(env)
+    locale = env.get("preferences").as(Preferences).locale
+    region = env.params.query["region"]?
+
+    id = URI.encode_www_form(env.params.query["id"])
+    continuation = env.params.query["continuation"]?
+
+    source = env.params.query["source"]? || "youtube"
+
+    thin_mode = env.params.query["thin_mode"]? == "true"
+    comment_type = env.params.query["type"]? || "video"
+
+    parent_comment = nil
+    if comment_type == "community"
+      # community posts
+      comment_html = JSON.parse(fetch_channel_community(id, continuation, locale, "html", thin_mode))["contentHtml"]
+    elsif comment_type == "post"
+      # replies to a community post
+      ucid = env.params.query["ucid"]?
+      if ucid.nil?
+        response = YoutubeAPI.resolve_url("https://www.youtube.com/post/#{id}")
+        return error_json(400, "Invalid post ID") if response["error"]?
+        ucid = URI.encode_www_form(response.dig("endpoint", "browseEndpoint", "browseId").as_s)
+      else
+        ucid = URI.encode_www_form(ucid.to_s)
+      end
+      case continuation
+      when nil, ""
+        comments = Comments.fetch_community_post_comments(ucid, id)
+      else
+        comments = YoutubeAPI.browse(continuation: continuation)
+      end
+      comment_html = JSON.parse(Comments.parse_youtube(id, comments, "html", locale, thin_mode, type: "post", ucid: ucid))["contentHtml"]
+    else
+      # video comments
+      if source == "youtube"
+        comment_html = JSON.parse(Comments.fetch_youtube(id, continuation, "html", locale, thin_mode, region))["contentHtml"]
+      elsif source == "reddit"
+        comments, reddit_thread = Comments.fetch_reddit(id)
+        comment_html = Frontend::Comments.template_reddit(comments, locale)
+
+        comment_html = Comments.fill_links(comment_html, "https", "www.reddit.com")
+        comment_html = Comments.replace_links(comment_html)
+      end
+    end
+    templated "comments_no_js"
+  end
 end
