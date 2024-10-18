@@ -211,7 +211,7 @@ module YoutubeAPI
     def initialize(
       *,
       @client_type = ClientType::Web,
-      @region = "US"
+      @region = "US",
     )
     end
 
@@ -371,7 +371,7 @@ module YoutubeAPI
     browse_id : String,
     *, # Force the following parameters to be passed by name
     params : String,
-    client_config : ClientConfig | Nil = nil
+    client_config : ClientConfig | Nil = nil,
   )
     # JSON Request data, required by the API
     data = {
@@ -465,7 +465,7 @@ module YoutubeAPI
     video_id : String,
     *, # Force the following parameters to be passed by name
     params : String,
-    client_config : ClientConfig | Nil = nil
+    client_config : ClientConfig | Nil = nil,
   )
     # Playback context, separate because it can be different between clients
     playback_ctx = {
@@ -558,7 +558,7 @@ module YoutubeAPI
   def search(
     search_query : String,
     params : String,
-    client_config : ClientConfig | Nil = nil
+    client_config : ClientConfig | Nil = nil,
   )
     # JSON Request data, required by the API
     data = {
@@ -584,7 +584,7 @@ module YoutubeAPI
 
   def get_transcript(
     params : String,
-    client_config : ClientConfig | Nil = nil
+    client_config : ClientConfig | Nil = nil,
   ) : Hash(String, JSON::Any)
     data = {
       "context" => self.make_context(client_config),
@@ -606,7 +606,7 @@ module YoutubeAPI
   def _post_json(
     endpoint : String,
     data : Hash,
-    client_config : ClientConfig | Nil
+    client_config : ClientConfig | Nil,
   ) : Hash(String, JSON::Any)
     # Use the default client config if nil is passed
     client_config ||= DEFAULT_CLIENT_CONFIG
