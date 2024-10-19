@@ -109,6 +109,9 @@
 
 - You will need a default redis install ```apt install -y redis-server```
 - You still need postgresql
+- You still need sighelper
+- You still need to figure out how to update the tokens in config file (with bash script or otherwise)
+- Invidious will automatically reload the tokens from the config file
 - [Follow the installation instructions](https://docs.invidious.io/installation/)
 
 
