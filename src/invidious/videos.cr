@@ -305,7 +305,7 @@ def get_video(id, refresh = true, region = nil, force_refresh = false)
        video.schema_version != Video::SCHEMA_VERSION # cache control
       begin
         video = fetch_video(id, region)
-        Invidious::Database::Videos.update(video)
+        Invidious::Database::Videos.insert(video)
       rescue ex
         Invidious::Database::Videos.delete(id)
         raise ex
