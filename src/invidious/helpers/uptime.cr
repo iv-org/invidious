@@ -7,7 +7,6 @@ class Invidious::Uptime
     # get the uptime
     uptime_cmd = "/usr/bin/uptime"
     uptime_args = "-p"
-    
     process = Process.new(uptime_cmd, [uptime_args], output: Process::Redirect::Pipe)
     
     str_uptime = process.output.gets_to_end
