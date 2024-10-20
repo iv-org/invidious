@@ -1,8 +1,7 @@
 <%
-  Require "../uptime.cr"
   locale = env.get("preferences").as(Preferences).locale
   dark_mode = env.get("preferences").as(Preferences).dark_mode
-  str_uptime = UpTime.get_uptime
+  str_uptime = Invidious::UpTime.get_uptime
 %>
 <!DOCTYPE html>
 <html lang="<%= locale %>">
