@@ -648,11 +648,11 @@ module YoutubeAPI
       puts "invidious companion section"
       puts invidious_companion_urls[Random.rand(invidious_companion_urls.size)]
       begin
-        response = make_client(URI.parse(invidious_companion_urls[Random.rand(invidious_companion_urls.size)]),
+        invidious_companion_response = make_client(URI.parse(invidious_companion_urls[Random.rand(invidious_companion_urls.size)]),
           &.post(endpoint, headers: headers, body: data.to_json))
-        body = response.body
-        if (response.status_code != 200)
-          raise Exception.new("status code: " + response.status_code.to_s + " and body: " + body)
+        body = invidious_companion_response.body
+        if (invidious_companion_response.status_code != 200)
+          raise Exception.new("status code: " + invidious_companion_response.status_code.to_s + " and body: " + body)
         end
       rescue ex
         raise InfoException.new("Error while communicating with Invidious companion: " + (ex.message || "no extra info found"))
