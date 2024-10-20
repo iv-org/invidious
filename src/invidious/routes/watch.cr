@@ -192,7 +192,7 @@ module Invidious::Routes::Watch
       captions: video.captions
     )
 
-    if (CONFIG.invidious_companion && env.params.query["local"] == true)
+    if (CONFIG.invidious_companion && (preferences.local || preferences.quality == "dash"))
       env.response.headers["Content-Security-Policy"] =
         env.response.headers["Content-Security-Policy"]
           .gsub("media-src", "media-src " + video.invidious_companion["baseUrl"].as_s)
