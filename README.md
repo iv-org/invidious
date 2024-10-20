@@ -70,6 +70,7 @@
 **Patches**
 - revert d9df90b
 - add redis patch
+- add proxy patch
 - sig helper reconnect patch
 - token updater patch (mooleshacat)
 
@@ -115,16 +116,23 @@
 - [Follow the installation instructions](https://docs.invidious.io/installation/)
 
 
-## inv_sig_helper
+## inv_sig_helper notes
 
 You will need an installation of sig helper. https://github.com/catspeed-cc/inv_sig_helper or https://github.com/iv-org/inv_sig_helper will do fine. I personally set up miltiple sig helpers, one for each process. Sometimes it will crash and you need to make a crontab entry to restart inv_sig_helper and invidious. You will notice the processer usage and memory usage spike now and then. You can control that with service file cpu limits.
 
 
-## redis-server
+## redis-server notes
 
 You will need a default installation of redis-server ```apt install -y redis-server```
 
 _You still need postgresql. If you've followed the installation instructions it should still be there. Do not uninstall it._
+
+
+## proxy patch notes
+
+There is proxy support in this version. You may use privoxy, or any proxy. If you have proton vpn you can use https://github.com/catspeed-cc/proton-privoxy. The walterl fork https://github.com/walterl/proton-privoxy does not have a line in the config increasing the max connections or an installer script so maybe use mine.
+
+Keep in mind especially on Proton Vpn if you restart a container, you will temporarily have 1 extra connection. So if you have 10 connections allowed, I would keep a few extra available in case a container needs restarting. I am not sure how long it takes for the stale connection to fix itself.
 
 
 ## po_token and visitor_data
