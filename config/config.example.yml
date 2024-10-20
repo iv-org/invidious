@@ -54,6 +54,22 @@ db:
 ##
 #signature_server:
 
+##
+## Path to the Invidious companion.
+## An external program for loading the video streams from YouTube servers.
+##
+## When this setting is commented out, Invidious companion is not used.
+##
+## When this setting is configured and "external_port" is used then
+## you need to configure Invidious companion routes into your reverse proxy.
+## If "external_port" is not configured then Invidious will proxy the requests
+## to Invidious companion.
+##
+## Accepted values: "http(s)://<IP-HOSTNAME>:<Port>"
+## Default: <none>
+##
+#invidious_companion:
+
 
 #########################################
 #

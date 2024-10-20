@@ -108,27 +108,30 @@ def extract_video_info(video_id : String)
   params = parse_video_info(video_id, player_response)
   params["reason"] = JSON::Any.new(reason) if reason
 
-  new_player_response = nil
+  if CONFIG.invidious_companion.nil?
+    new_player_response = nil
 
-  # Don't use Android test suite client if po_token is passed because po_token doesn't
-  # work for Android test suite client.
-  if reason.nil? && CONFIG.po_token.nil?
-    # Fetch the video streams using an Android client in order to get the
-    # decrypted URLs and maybe fix throttling issues (#2194). See the
-    # following issue for an explanation about decrypted URLs:
-    # https://github.com/TeamNewPipe/NewPipeExtractor/issues/562
-    client_config.client_type = YoutubeAPI::ClientType::AndroidTestSuite
-    new_player_response = try_fetch_streaming_data(video_id, client_config)
-  end
+    # Don't use Android test suite client if po_token is passed because po_token doesn't
+    # work for Android test suite client.
+    if reason.nil? && CONFIG.po_token.nil?
+      # Fetch the video streams using an Android client in order to get the
+      # decrypted URLs and maybe fix throttling issues (#2194). See the
+      # following issue for an explanation about decrypted URLs:
+      # https://github.com/TeamNewPipe/NewPipeExtractor/issues/562
+      client_config.client_type = YoutubeAPI::ClientType::AndroidTestSuite
+      new_player_response = try_fetch_streaming_data(video_id, client_config)
+    end
 
-  # Replace player response and reset reason
-  if !new_player_response.nil?
-    # Preserve captions & storyboard data before replacement
-    new_player_response["storyboards"] = player_response["storyboards"] if player_response["storyboards"]?
-    new_player_response["captions"] = player_response["captions"] if player_response["captions"]?
+    # Replace player response and reset reason
+    if !new_player_response.nil?
+      # Preserve captions & storyboard data before replacement
+      new_player_response["storyboards"] = player_response["storyboards"] if player_response["storyboards"]?
+      new_player_response["captions"] = player_response["captions"] if player_response["captions"]?
 
-    player_response = new_player_response
-    params.delete("reason")
+        player_response = new_player_response
+        params.delete("reason")
+      end
+    end
   end
 
   {"captions", "playabilityStatus", "playerConfig", "storyboards"}.each do |f|
