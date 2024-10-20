@@ -138,7 +138,7 @@ There is proxy support in this version. You may use privoxy, or any proxy. If yo
 
 Keep in mind especially on Proton Vpn if you restart a container, you will temporarily have 1 extra connection. So if you have 10 connections allowed, I would keep a few extra available in case a container needs restarting. I am not sure how long it takes for the stale connection to fix itself.
 
-Restarting container (or changing servers) more than 1 time per hour can cause problems. Especially if you use 4-6 connections.
+Restarting container (or changing servers) more than 1 time per hour can cause problems. Especially if you use 4-6 connections/containers.
 
 
 ## po_token and visitor_data
