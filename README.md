@@ -99,6 +99,9 @@
 - Does not use official YouTube APIs
 - No Contributor License Agreement (CLA)
 
+**Support**
+- create a support ticket here https://github.com/catspeed-cc/invidious/issues please do not create tickets elsewhere.
+
 
 ## Quick start
 
