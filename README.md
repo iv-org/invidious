@@ -140,6 +140,8 @@ Keep in mind especially on Proton Vpn if you restart a container, you will tempo
 
 Restarting container (or changing servers) more than 1 time per hour can cause problems. Especially if you use 4-6 connections/containers.
 
+I'll just leave this here https://pr.tn/ref/04PN5S3WMGBG
+
 
 ## po_token and visitor_data
 
