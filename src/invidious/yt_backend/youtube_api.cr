@@ -641,15 +641,21 @@ module YoutubeAPI
     LOGGER.trace("YoutubeAPI: ClientConfig: #{client_config}")
     LOGGER.trace("YoutubeAPI: POST data: #{data}")
 
-    invidious_companion_url = CONFIG.invidious_companion
+    invidious_companion_urls = CONFIG.invidious_companion
 
     # Send the POST request
-    if invidious_companion_url && endpoint == "/youtubei/v1/player"
+    if invidious_companion_urls && endpoint == "/youtubei/v1/player"
+      puts "invidious companion section"
+      puts invidious_companion_urls[Random.rand(invidious_companion_urls.size)]
       begin
-        body = make_client(URI.parse(invidious_companion_url),
-          &.post(endpoint, headers: headers, body: data.to_json).body)
-      rescue
-        raise InfoException.new("Unable to communicate with Invidious companion.")
+        response = make_client(URI.parse(invidious_companion_urls[Random.rand(invidious_companion_urls.size)]),
+          &.post(endpoint, headers: headers, body: data.to_json))
+        body = response.body
+        if (response.status_code != 200)
+          raise Exception.new("status code: " + response.status_code.to_s + " and body: " + body)
+        end
+      rescue ex
+        raise InfoException.new("Error while communicating with Invidious companion: " + (ex.message || "no extra info found"))
       end
     else
       body = YT_POOL.client() do |client|
@@ -664,8 +670,8 @@ module YoutubeAPI
       end
     end
 
-    if body.nil? && invidious_companion_url
-      raise InfoException.new("Unable to communicate with Invidious companion.")
+    if body.nil? && CONFIG.invidious_companion
+      raise InfoException.new("Error while communicating with Invidious companion: no response data.")
     end
 
     # Convert result to Hash

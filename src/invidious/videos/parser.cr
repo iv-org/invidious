@@ -149,6 +149,10 @@ def extract_video_info(video_id : String)
     params["streamingData"] = streaming_data
   end
 
+  if CONFIG.invidious_companion
+    params["invidiousCompanion"] = player_response["invidiousCompanion"]
+  end
+
   # Data structure version, for cache control
   params["version"] = JSON::Any.new(Video::SCHEMA_VERSION.to_i64)
 
@@ -457,11 +461,12 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     # Music section
     "music" => JSON.parse(music_list.to_json),
     # Author infos
-    "author"          => JSON::Any.new(author || ""),
-    "ucid"            => JSON::Any.new(ucid || ""),
-    "authorThumbnail" => JSON::Any.new(author_thumbnail.try &.as_s || ""),
-    "authorVerified"  => JSON::Any.new(author_verified || false),
-    "subCountText"    => JSON::Any.new(subs_text || "-"),
+    "author"             => JSON::Any.new(author || ""),
+    "ucid"               => JSON::Any.new(ucid || ""),
+    "authorThumbnail"    => JSON::Any.new(author_thumbnail.try &.as_s || ""),
+    "authorVerified"     => JSON::Any.new(author_verified || false),
+    "subCountText"       => JSON::Any.new(subs_text || "-"),
+    "invidiousCompanion" => JSON::Any.new(subs_text),
   }
 
   return params

@@ -297,6 +297,9 @@ module Invidious::Routes::VideoPlayback
     end
 
     if local
+      if (CONFIG.invidious_companion)
+        return env.redirect "#{video.invidious_companion["baseUrl"].as_s}#{env.request.path}?#{env.request.query}"
+      end
       url = URI.parse(url).request_target.not_nil!
       url += "&title=#{URI.encode_www_form(title, space_to_plus: false)}" if title
     end

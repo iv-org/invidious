@@ -192,6 +192,13 @@ module Invidious::Routes::Watch
       captions: video.captions
     )
 
+    if (CONFIG.invidious_companion && env.params.query["local"] == true)
+      env.response.headers["Content-Security-Policy"] =
+        env.response.headers["Content-Security-Policy"]
+          .gsub("media-src", "media-src " + video.invidious_companion["baseUrl"].as_s)
+          .gsub("connect-src", "connect-src " + video.invidious_companion["baseUrl"].as_s)
+    end
+
     templated "watch"
   end
 

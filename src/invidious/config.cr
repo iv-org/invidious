@@ -161,7 +161,7 @@ class Config
   property po_token : String? = nil
 
   # Invidious companion
-  property invidious_companion : String? = nil
+  property invidious_companion : Array(String)? = nil
 
   # Saved cookies in "name1=value1; name2=value2..." format
   @[YAML::Field(converter: Preferences::StringToCookies)]

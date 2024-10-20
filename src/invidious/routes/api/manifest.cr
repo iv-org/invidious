@@ -20,6 +20,10 @@ module Invidious::Routes::API::Manifest
       haltf env, status_code: 403
     end
 
+    if local && CONFIG.invidious_companion
+      return env.redirect "#{video.invidious_companion["baseUrl"].as_s}#{env.request.path}?#{env.request.query}"
+    end
+
     if dashmpd = video.dash_manifest_url
       response = YT_POOL.client &.get(URI.parse(dashmpd).request_target)
 
