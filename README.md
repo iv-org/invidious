@@ -115,6 +115,25 @@
 - [Follow the installation instructions](https://docs.invidious.io/installation/)
 
 
+## inv_sig_helper
+
+You will need an installation of sig helper. https://github.com/catspeed-cc/inv_sig_helper or https://github.com/iv-org/inv_sig_helper will do fine. I personally set up miltiple sig helpers, one for each process. Sometimes it will crash and you need to make a crontab entry to restart inv_sig_helper and invidious. You will notice the processer usage and memory usage spike now and then. You can control that with service file cpu limits.
+
+
+## redis-server
+
+You will need a default installation of redis-server ```apt install -y redis-server```
+
+_You still need postgresql. If you've followed the installation instructions it should still be there. Do not uninstall it._
+
+
+## po_token and visitor_data
+
+This branch has the token monitor patch from myself (mooleshacat) which will check every 1 minute your config file for updated tokens. Now all you have to do is make a shell script that updates the tokens in the config file. No longer do you have to restart invidious service for the tokens to update.
+
+This patch is a temporary workaround until inv_sig_helper itself can get the tokens for us. unixfox (invidious dev) raised this idea to techmetx11 (inv_sig_helper dev) and they are working on an implementation that will eventually make this patch useless. This is OK, as it is only a patch and that setup would be better performance wise than my current implementations. You can read about it here https://github.com/iv-org/inv_sig_helper/issues/10
+
+
 ## Documentation
 
 The full documentation can be accessed online at https://docs.invidious.io/
