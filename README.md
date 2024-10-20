@@ -38,6 +38,11 @@
   <a href="#contribute">Contribute</a>
   &nbsp;•&nbsp;
   <a href="https://invidious.io/donate/">Donate</a>
+ <center>
+    <a href="https://catspeed.cc/donate/">Donate to catspeed.cc</a>
+    &nbsp;•&nbsp;
+    <a href="https://pr.tn/ref/04PN5S3WMGBG">Get ProtonVPN</a>
+ </center>
 
   <h5>Chat with us:</h5>
   <a href="https://matrix.to/#/#invidious:matrix.org">
@@ -136,7 +141,7 @@ _You still need postgresql. If you've followed the installation instructions it 
 
 There is proxy support in this version. You may use privoxy, or any proxy. If you have proton vpn you can use https://github.com/catspeed-cc/proton-privoxy. The walterl fork https://github.com/walterl/proton-privoxy does not have a line in the config increasing the max connections or an installer script so maybe use mine.
 
-Keep in mind especially on Proton Vpn if you restart a container, you will temporarily have 1 extra connection. So if you have 10 connections allowed, I would keep a few extra available in case a container needs restarting. I am not sure how long it takes for the stale connection to fix itself.
+Keep in mind especially on ProtonVPN if you restart a container, you will temporarily have 1 extra connection. So if you have 10 connections allowed, I would keep a few extra available in case a container needs restarting. I am not sure how long it takes for the stale connection to fix itself.
 
 Restarting container (or changing servers) more than 1 time per hour can cause problems. Especially if you use 4-6 connections/containers.
 
