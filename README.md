@@ -135,6 +135,8 @@ I personally use proton VPN, you can get it along with your email here: https://
 
 I use one invidious instance, one sig helper, and one proton-privoxy per core. Each connection to nginx is routed to the least connected backend (currently I have 4) . If you only have 1 core, use 2 processes so you can restart one at a time, minimizing downtime. I hope this is helpful to instance owners having troubles.
 
+Public and private instance owners: if you need help with anything, create an issue ticket here - https://github.com/catspeed-cc/invidious/issues I do not mind, I will try and help best I can.
+
 
 ## inv_sig_helper notes
 
