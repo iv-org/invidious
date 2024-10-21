@@ -131,7 +131,7 @@ It appears the working solution currently is to use:
 - po_token & visitor_data
 - a VPN proxy (privoxy, proton-privoxy, etc.)
 
-I personally use proton VPN, you can get it along with your email here: https://pr.tn/ref/04PN5S3WMGBG - if you want VPN only you can try to get it there or just go to protonvpn.com. You can get a working proton-privoxy from https://github.com/catspeed-cc/proton-privoxy .
+I personally use proton VPN, you can get it along with your email here: https://pr.tn/ref/04PN5S3WMGBG - if you want VPN only you can try to get it there or just go to https://protonvpn.com . You can get a working proton-privoxy from https://github.com/catspeed-cc/proton-privoxy .
 
 I use one invidious instance, one sig helper, and one proton-privoxy per core. Each connection to nginx is routed to the least connected backend (currently I have 4) . If you only have 1 core, use 2 processes so you can restart one at a time, minimizing downtime. I hope this is helpful to instance owners having troubles.
 
