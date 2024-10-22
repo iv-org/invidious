@@ -23,6 +23,9 @@ module YoutubeAPI
 
   private WINDOWS_VERSION = "10.0"
 
+  pot = ""
+  vdata = ""
+
   # Enumerate used to select one of the clients supported by the API
   enum ClientType
     Web
@@ -273,6 +276,17 @@ module YoutubeAPI
   # youtube API endpoints.
   #
   private def make_context(client_config : ClientConfig | Nil, video_id = "dQw4w9WgXcQ") : Hash
+    # determine po_token and visitor_data
+    if CONFIG.tokenmon_enabled
+      # get the pot/vdata for usage later
+      pot = ReloadTokens.pot.as(String)
+      vdata = ReloadTokens.vdata.as(String)
+    else
+      # Use the configured pot
+      pot = CONFIG.po_token.as(String)
+      vdata = CONFIG.visitor_data.as(String)       
+    end
+
     # Use the default client config if nil is passed
     client_config ||= DEFAULT_CLIENT_CONFIG
 
@@ -320,8 +334,8 @@ module YoutubeAPI
       client_context["client"]["platform"] = platform
     end
 
-    if ReloadTokens.vdata.is_a?(String)
-      client_context["client"]["visitorData"] = ReloadTokens.vdata.as(String)
+    if vdata.is_a?(String)
+      client_context["client"]["visitorData"] = vdata
     end
 
     return client_context
@@ -469,6 +483,17 @@ module YoutubeAPI
       end
     end
 
+    # determine po_token and visitor_data
+    if CONFIG.tokenmon_enabled
+      # get the pot/vdata for usage later
+      pot = ReloadTokens.pot.as(String)
+      vdata = ReloadTokens.vdata.as(String)
+    else
+      # Use the configured pot
+      pot = CONFIG.po_token.as(String)
+      vdata = CONFIG.visitor_data.as(String)       
+    end
+
     # JSON Request data, required by the API
     data = {
       "contentCheckOk" => true,
@@ -482,7 +507,7 @@ module YoutubeAPI
         "contentPlaybackContext" => playback_ctx,
       },
       "serviceIntegrityDimensions" => {
-        "poToken" => ReloadTokens.pot.as(String),
+        "poToken" => pot,
       },
     }
 
@@ -616,8 +641,19 @@ module YoutubeAPI
       headers["User-Agent"] = user_agent
     end
 
-    if ReloadTokens.vdata.is_a?(String)
-      headers["X-Goog-Visitor-Id"] = ReloadTokens.vdata.as(String)
+    # determine po_token and visitor_data
+    if CONFIG.tokenmon_enabled
+      # get the pot/vdata for usage later
+      pot = ReloadTokens.pot.as(String)
+      vdata = ReloadTokens.vdata.as(String)
+    else
+      # Use the configured pot
+      pot = CONFIG.po_token.as(String)
+      vdata = CONFIG.visitor_data.as(String)       
+    end
+
+    if vdata.is_a?(String)
+      headers["X-Goog-Visitor-Id"] = vdata
     end
 
     # Logging

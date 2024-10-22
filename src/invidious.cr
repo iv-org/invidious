@@ -196,7 +196,9 @@ Invidious::Jobs.register Invidious::Jobs::NotificationJob.new(CONNECTION_CHANNEL
 
 Invidious::Jobs.register Invidious::Jobs::ClearExpiredItemsJob.new
 
-Invidious::Jobs.register Invidious::Jobs::MonitorCfgTokensJob.new()
+if CONFIG.tokenmon_enabled
+  Invidious::Jobs.register Invidious::Jobs::MonitorCfgTokensJob.new()
+end
 
 Invidious::Jobs.register Invidious::Jobs::InstanceListRefreshJob.new
 
