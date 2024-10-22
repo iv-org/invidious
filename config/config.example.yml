@@ -247,6 +247,40 @@ tokenmon_enabled: true
 # -----------------------------
 
 ##
+## Enable/Disable catspeed branding.
+##
+## Accepted values: true, false
+## Default: true
+##
+#catspeed_branding_enabled: false
+
+##
+## Enable/Disable showing the catspeed donation link (please :3c)
+##
+## Accepted values: true, false
+## Default: true
+##
+#catspeed_donolink_enabled: false
+
+##
+## Enable/Disable showing the invidious donation link (please :3c)
+##
+## Accepted values: true, false
+## Default: true
+##
+#invidious_donolink_enabled: false
+
+##
+## Enable/Disable showing your custom donation link
+##
+## Accepted values: true, false
+## Default: false
+##
+#custom_donolink_enabled: true
+#custom_donolink_text: "Donate to mysite.com"
+#custom_donolink_link: "https://mysite.com/donate/"
+
+##
 ## Enable/Disable showing the uptime on the main page.
 ##
 ## Accepted values: true, false
