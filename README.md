@@ -171,7 +171,7 @@ This patch is a temporary workaround until inv_sig_helper itself can get the tok
 
 ## uptime status patch
 
-This branch has the uptime patch made from myself (mooleshacat) which if enabled in the config, will show the uptime on the page. Please note, if everyone can see your uptime, so could a theoretical attacker. This may or may not be a good idea, you be the judge.
+This branch has the uptime patch from myself (mooleshacat) which if enabled in the config, will show the uptime on the page. Please note, if everyone can see your uptime, so could a theoretical attacker. This may or may not be a good idea, you be the judge.
 
 
 ## Documentation
