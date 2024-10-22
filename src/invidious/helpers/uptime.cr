@@ -7,10 +7,7 @@ class Invidious::Uptime
     if CONFIG.uptime_enabled
           
       # get the uptime
-      uptime_cmd = "/usr/bin/uptime"
-      uptime_args = "-p"
-      process = Process.new(uptime_cmd, [uptime_args], output: Process::Redirect::Pipe)
-      str_uptime = process.output.gets_to_end
+      str_uptime = `/usr/bin/uptime -p`
       
     else
       str_uptime = ""
