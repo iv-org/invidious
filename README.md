@@ -145,7 +145,7 @@ Public and private instance owners: if you need help with anything, create an is
 You will need an installation of sig helper. https://github.com/catspeed-cc/inv_sig_helper or https://github.com/iv-org/inv_sig_helper will do fine. I personally set up miltiple sig helpers, one for each process. Sometimes it will crash and you need to make a crontab entry to restart inv_sig_helper and invidious. You will notice the processer usage and memory usage spike now and then. You can control that with service file cpu limits.
 
 
-## redis-server notes
+## redis patch notes
 
 You will need a default installation of redis-server ```apt install -y redis-server```
 
