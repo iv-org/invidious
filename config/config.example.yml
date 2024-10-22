@@ -239,6 +239,14 @@ http_proxy:
 # -----------------------------
 
 ##
+## Enable/Disable showing the uptime on the main page.
+##
+## Accepted values: true, false
+## Default: false
+##
+#uptime_enabled: true
+
+##
 ## Enable/Disable the "Popular" tab on the main page.
 ##
 ## Accepted values: true, false
