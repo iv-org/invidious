@@ -12,7 +12,7 @@ class Invidious::Loadavg
       #process = Process.new(loadavg_cmd, [loadavg_args], output: Process::Redirect::Pipe)
       #str_loadavg = process.output.gets_to_end
       
-      str_loadavg = "test"
+      str_loadavg = `/usr/bin/cat /proc/loadavg  | awk -F'[ ]' '{print $1" "$2" "$3}'`
       
     else
       str_loadavg = ""
