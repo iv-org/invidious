@@ -216,7 +216,7 @@ http_proxy:
 ## Accepted values: true, false
 ## Default: true
 ##
-tokenmon_enabled : true
+tokenmon_enabled: true
 
 # -----------------------------
 #  Logging
