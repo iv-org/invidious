@@ -279,8 +279,8 @@ module YoutubeAPI
     # determine po_token and visitor_data
     if CONFIG.tokenmon_enabled
       # get the pot/vdata for usage later
-      pot = ReloadTokens.pot.as(String)
-      vdata = ReloadTokens.vdata.as(String)
+      pot = Invidious::TokenMon.pot.as(String)
+      vdata = Invidious::TokenMon.vdata.as(String)
     else
       # Use the configured pot
       pot = CONFIG.po_token.as(String)
@@ -486,8 +486,8 @@ module YoutubeAPI
     # determine po_token and visitor_data
     if CONFIG.tokenmon_enabled
       # get the pot/vdata for usage later
-      pot = ReloadTokens.pot.as(String)
-      vdata = ReloadTokens.vdata.as(String)
+      pot = Invidious::TokenMon.pot.as(String)
+      vdata = Invidious::TokenMon.vdata.as(String)
     else
       # Use the configured pot
       pot = CONFIG.po_token.as(String)
@@ -644,8 +644,8 @@ module YoutubeAPI
     # determine po_token and visitor_data
     if CONFIG.tokenmon_enabled
       # get the pot/vdata for usage later
-      pot = ReloadTokens.pot.as(String)
-      vdata = ReloadTokens.vdata.as(String)
+      pot = Invidious::TokenMon.pot.as(String)
+      vdata = Invidious::TokenMon.vdata.as(String)
     else
       # Use the configured pot
       pot = CONFIG.po_token.as(String)
