@@ -103,6 +103,7 @@ class Config
   property use_pubsub_feeds : Bool | Int32 = false
   property popular_enabled : Bool = true
   property uptime_enabled : Bool = false
+  property loadavg_enabled : Bool = false
   property captcha_enabled : Bool = true
   property login_enabled : Bool = true
   property registration_enabled : Bool = true

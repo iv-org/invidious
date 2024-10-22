@@ -78,6 +78,7 @@
 - add proxy patch
 - sig helper reconnect patch
 - uptime status patch (mooleshacat)
+- loadavg status patch (mooleshacat)
 - token monitor patch (mooleshacat)
 
 **User features**
@@ -169,9 +170,9 @@ This branch has the token monitor patch from myself (mooleshacat) which will che
 This patch is a temporary workaround until inv_sig_helper itself can get the tokens for us. unixfox (invidious dev) raised this idea to techmetx11 (inv_sig_helper dev) and they are working on an implementation that will eventually make this patch useless. This is OK, as it is only a patch and that setup would be better performance wise than my current implementations. You can read about it here https://github.com/iv-org/inv_sig_helper/issues/10
 
 
-## uptime status patch notes
+## uptime & loadavg status patch notes
 
-This branch has the uptime patch from myself (mooleshacat) which if enabled in the config, will show the uptime on the page. Please note, if everyone can see your uptime, so could a theoretical attacker. This may or may not be a good idea, you be the judge.
+This branch has the uptime & loadavg patch from myself (mooleshacat) which if enabled in the config, will show the uptime and/or loadavg on the page. Please note, if everyone can see your uptime or loadavg, so could a theoretical attacker. This may or may not be a good idea, you be the judge.
 
 
 ## Documentation
