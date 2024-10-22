@@ -1,3 +1,7 @@
+# Notice
+I have pulled development into master, now we have a stable branch. If you choose, you can stay on the development branch. Just be warned, it can be unstable. Otherwise please ```git checkout master```.
+
+-------
 <div align="center">
   <img src="assets/invidious-colored-vector.svg" width="192" height="192" alt="Invidious logo">
   <h1>Invidious</h1>
