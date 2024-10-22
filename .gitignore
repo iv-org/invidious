@@ -1,5 +1,8 @@
 1
 *~
+copy-bins.sh
+copy-backup-bin.sh
+update-backup-bin.sh
 /docs/
 /dev/
 /lib/
