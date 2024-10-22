@@ -16,6 +16,7 @@
 
 require "digest/md5"
 require "file_utils"
+require "process"
 
 # Require kemal, kilt, then our own overrides
 require "kemal"
