@@ -162,14 +162,14 @@ Restarting container (or changing servers) more than 1 time per hour can cause p
 I'll just leave this here https://pr.tn/ref/04PN5S3WMGBG
 
 
-## po_token and visitor_data
+## po_token and visitor_data notes
 
 This branch has the token monitor patch from myself (mooleshacat) which will check every 1 minute your config file for updated tokens. Now all you have to do is make a bash script that updates the tokens in the config file and a cronjob to execute it at the desired interval. No longer do you have to restart invidious service for the tokens to update.
 
 This patch is a temporary workaround until inv_sig_helper itself can get the tokens for us. unixfox (invidious dev) raised this idea to techmetx11 (inv_sig_helper dev) and they are working on an implementation that will eventually make this patch useless. This is OK, as it is only a patch and that setup would be better performance wise than my current implementations. You can read about it here https://github.com/iv-org/inv_sig_helper/issues/10
 
 
-## uptime status patch
+## uptime status patch notes
 
 This branch has the uptime patch from myself (mooleshacat) which if enabled in the config, will show the uptime on the page. Please note, if everyone can see your uptime, so could a theoretical attacker. This may or may not be a good idea, you be the judge.
 
