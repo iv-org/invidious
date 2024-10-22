@@ -210,6 +210,14 @@ http_proxy:
 # po_token: ""
 # visitor_data: ""
 
+##
+## Monitor config for tokens each 1 minute
+##
+## Accepted values: true, false
+## Default: true
+##
+tokenmon_enabled : true
+
 # -----------------------------
 #  Logging
 # -----------------------------
