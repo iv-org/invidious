@@ -49,6 +49,9 @@ struct YoutubeConnectionPool
       conn.family = CONFIG.force_resolve
       conn.family = Socket::Family::INET if conn.family == Socket::Family::UNSPEC
       conn.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
+      if CONFIG.log_level <= LogLevel::Debug
+        conn.before_request { |r| LOGGER.debug(to_curl(url, r)) }
+      end
       conn
     end
   end
@@ -63,6 +66,9 @@ def make_client(url : URI, region = nil, force_resolve : Bool = false)
   end
 
   client.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
+  if CONFIG.log_level <= LogLevel::Debug
+    client.before_request { |r| LOGGER.debug(to_curl(url, r)) }
+  end
   client.read_timeout = 10.seconds
   client.connect_timeout = 10.seconds
 
@@ -76,4 +82,23 @@ def make_client(url : URI, region = nil, force_resolve : Bool = false, &)
   ensure
     client.close
   end
+end
+
+def to_curl(url : URI, request : HTTP::Request)
+  full_url = url.dup
+  full_url.path = request.path
+  full_url.query = request.query
+
+  curl = "curl -X #{request.method} '#{full_url}'"
+  request.headers.each do |key, value|
+    # skip compression to receive uncompressed json, easier to debug
+    next if key == "Accept-Encoding"
+    # skip content-length, curl will add it automatically
+    next if key == "Content-Length"
+    curl += " -H '#{key}: #{value.join(", ")}'" if value.is_a?(Array)
+    curl += " -H '#{key}: #{value}'" unless value.is_a?(Array)
+  end
+  curl += " --http2" if request.version == "HTTP/2.0"
+  curl += " -d '#{request.body}'" if request.body
+  curl
 end
