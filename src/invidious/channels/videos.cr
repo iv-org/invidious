@@ -146,10 +146,13 @@ module Invidious::Channel::Tabs
   # -------------------
 
   def get_livestreams(channel : AboutChannel, continuation : String? = nil, sort_by = "newest")
-    continuation ||= make_initial_content_ctoken(channel.ucid, "livestreams", sort_by)
-
-    initial_data = YoutubeAPI.browse(continuation: continuation)
-
+    if continuation.nil?
+      # EgdzdHJlYW1z8gYECgJ6AA%3D%3D is the protobuf object to load "streams"
+      # TODO: try to extract the continuation tokens that allows other sorting options
+      initial_data = YoutubeAPI.browse(channel.ucid, params: "EgdzdHJlYW1z8gYECgJ6AA%3D%3D")
+    else
+      initial_data = YoutubeAPI.browse(continuation: continuation)
+    end
     return extract_items(initial_data, channel.author, channel.ucid)
   end
 
