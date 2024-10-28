@@ -23,29 +23,57 @@ def produce_channel_content_continuation(ucid, content_type, page = 1, auto_gene
     else                    15 # Fallback to "videos"
     end
 
-  sort_by_numerical =
-    case sort_by
-    when "newest"  then 1_i64
-    when "popular" then 2_i64
-    when "oldest"  then 4_i64
-    else                1_i64 # Fallback to "newest"
-    end
+  if content_type == "livestreams"
+    sort_by_numerical =
+      case sort_by
+      when "newest"  then 12_i64
+      when "popular" then 14_i64
+      when "oldest"  then 13_i64
+      else                12_i64 # Fallback to "newest"
+      end
+  else
+    sort_by_numerical =
+      case sort_by
+      when "newest"  then 1_i64
+      when "popular" then 2_i64
+      when "oldest"  then 4_i64
+      else                1_i64 # Fallback to "newest"
+      end
+  end
 
-  object_inner_1 = {
-    "110:embedded" => {
-      "3:embedded" => {
-        "#{content_type_numerical}:embedded" => {
-          "1:embedded" => {
-            "1:string" => object_inner_2_encoded,
+  if content_type == "livestreams"
+    object_inner_1 = {
+      "110:embedded" => {
+        "3:embedded" => {
+          "#{content_type_numerical}:embedded" => {
+            "1:embedded" => {
+              "1:string" => object_inner_2_encoded,
+            },
+            "2:embedded" => {
+              "1:string" => "00000000-0000-0000-0000-000000000000",
+            },
+            "5:varint" => sort_by_numerical,
           },
-          "2:embedded" => {
-            "1:string" => "00000000-0000-0000-0000-000000000000",
-          },
-          "3:varint" => sort_by_numerical,
         },
       },
-    },
-  }
+    }
+  else
+    object_inner_1 = {
+      "110:embedded" => {
+        "3:embedded" => {
+          "#{content_type_numerical}:embedded" => {
+            "1:embedded" => {
+              "1:string" => object_inner_2_encoded,
+            },
+            "2:embedded" => {
+              "1:string" => "00000000-0000-0000-0000-000000000000",
+            },
+            "3:varint" => sort_by_numerical,
+          },
+        },
+      },
+    }
+  end
 
   object_inner_1_encoded = object_inner_1
     .try { |i| Protodec::Any.cast_json(i) }
