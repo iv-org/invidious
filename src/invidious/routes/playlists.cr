@@ -304,23 +304,6 @@ module Invidious::Routes::Playlists
       end
     end
 
-    if env.params.query["action_create_playlist"]?
-      action = "action_create_playlist"
-    elsif env.params.query["action_delete_playlist"]?
-      action = "action_delete_playlist"
-    elsif env.params.query["action_edit_playlist"]?
-      action = "action_edit_playlist"
-    elsif env.params.query["action_add_video"]?
-      action = "action_add_video"
-      video_id = env.params.query["video_id"]
-    elsif env.params.query["action_remove_video"]?
-      action = "action_remove_video"
-    elsif env.params.query["action_move_video_before"]?
-      action = "action_move_video_before"
-    else
-      return env.redirect referer
-    end
-
     begin
       playlist_id = env.params.query["playlist_id"]
       playlist = get_playlist(playlist_id).as(InvidiousPlaylist)
@@ -335,12 +318,8 @@ module Invidious::Routes::Playlists
       end
     end
 
-    email = user.email
-
-    case action
-    when "action_edit_playlist"
-      # TODO: Playlist stub
-    when "action_add_video"
+    case action = env.params.query["action"]?
+    when "add_video"
       if playlist.index.size >= CONFIG.playlist_length_limit
         if redirect
           return error_template(400, "Playlist cannot have more than #{CONFIG.playlist_length_limit} videos")
@@ -377,12 +356,14 @@ module Invidious::Routes::Playlists
 
       Invidious::Database::PlaylistVideos.insert(playlist_video)
       Invidious::Database::Playlists.update_video_added(playlist_id, playlist_video.index)
-    when "action_remove_video"
+    when "remove_video"
       index = env.params.query["set_video_id"]
       Invidious::Database::PlaylistVideos.delete(index)
       Invidious::Database::Playlists.update_video_removed(playlist_id, index)
-    when "action_move_video_before"
+    when "move_video_before"
       # TODO: Playlist stub
+    when nil
+      return error_json(400, "Missing action")
     else
       return error_json(400, "Unsupported action #{action}")
     end
