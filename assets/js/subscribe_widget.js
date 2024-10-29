@@ -16,7 +16,7 @@ function subscribe() {
     subscribe_button.onclick = unsubscribe;
     subscribe_button.innerHTML = '<b>' + subscribe_data.unsubscribe_text + ' | ' + subscribe_data.sub_count_text + '</b>';
 
-    var url = '/subscription_ajax?action_create_subscription_to_channel=1&redirect=false' +
+    var url = '/subscription_ajax?action=create_subscription_to_channel&redirect=false' +
         '&c=' + subscribe_data.ucid;
 
     helpers.xhr('POST', url, {payload: payload, retries: 5, entity_name: 'subscribe request'}, {
@@ -32,7 +32,7 @@ function unsubscribe() {
     subscribe_button.onclick = subscribe;
     subscribe_button.innerHTML = '<b>' + subscribe_data.subscribe_text + ' | ' + subscribe_data.sub_count_text + '</b>';
 
-    var url = '/subscription_ajax?action_remove_subscriptions=1&redirect=false' +
+    var url = '/subscription_ajax?action=remove_subscriptions&redirect=false' +
         '&c=' + subscribe_data.ucid;
 
     helpers.xhr('POST', url, {payload: payload, retries: 5, entity_name: 'unsubscribe request'}, {

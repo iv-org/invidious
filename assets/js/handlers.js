@@ -111,7 +111,7 @@
         var count = document.getElementById('count');
         count.textContent--;
 
-        var url = '/subscription_ajax?action_remove_subscriptions=1&redirect=false' +
+        var url = '/subscription_ajax?action=remove_subscriptions&redirect=false' +
             '&referer=' + encodeURIComponent(location.href) +
             '&c=' + target.getAttribute('data-ucid');
 
