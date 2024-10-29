@@ -128,7 +128,7 @@
 
                 <div class="top-left-overlay">
                     <%- if env.get? "show_watched" -%>
-                        <form data-onsubmit="return_false" action="/watch_ajax?action_mark_watched=1&id=<%= item.id %>&referer=<%= env.get("current_page") %>" method="post">
+                        <form data-onsubmit="return_false" action="/watch_ajax?action=mark_watched&id=<%= item.id %>&referer=<%= env.get("current_page") %>" method="post">
                             <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
                             <button type="submit" class="pure-button pure-button-secondary low-profile"
                                     data-onclick="mark_watched" data-id="<%= item.id %>">
