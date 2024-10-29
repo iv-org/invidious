@@ -91,7 +91,7 @@
         var count = document.getElementById('count');
         count.textContent--;
 
-        var url = '/token_ajax?action_revoke_token=1&redirect=false' +
+        var url = '/token_ajax?action=revoke_token&redirect=false' +
             '&referer=' + encodeURIComponent(location.href) +
             '&session=' + target.getAttribute('data-session');
 
