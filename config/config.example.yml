@@ -173,6 +173,17 @@ https_only: false
 ##
 #force_resolve:
 
+##
+## Configuration for using a HTTP proxy
+##
+## If unset, then no HTTP proxy will be used.
+## 
+http_proxy:
+  user:
+  password:
+  host:
+  port:
+
 
 ##
 ## Use Innertube's transcripts API instead of timedtext for closed captions
