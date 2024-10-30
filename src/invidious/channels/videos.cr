@@ -23,6 +23,13 @@ def produce_channel_content_continuation(ucid, content_type, page = 1, auto_gene
     else                    15 # Fallback to "videos"
     end
 
+  sort_type_numerical =
+    case content_type
+    when "videos"      then 3
+    when "livestreams" then 5
+    else                    3 # Fallback to "videos"
+    end
+
   if content_type == "livestreams"
     sort_by_numerical =
       case sort_by
@@ -41,39 +48,21 @@ def produce_channel_content_continuation(ucid, content_type, page = 1, auto_gene
       end
   end
 
-  if content_type == "livestreams"
-    object_inner_1 = {
-      "110:embedded" => {
-        "3:embedded" => {
-          "#{content_type_numerical}:embedded" => {
-            "1:embedded" => {
-              "1:string" => object_inner_2_encoded,
-            },
-            "2:embedded" => {
-              "1:string" => "00000000-0000-0000-0000-000000000000",
-            },
-            "5:varint" => sort_by_numerical,
+  object_inner_1 = {
+    "110:embedded" => {
+      "3:embedded" => {
+        "#{content_type_numerical}:embedded" => {
+          "1:embedded" => {
+            "1:string" => object_inner_2_encoded,
           },
+          "2:embedded" => {
+            "1:string" => "00000000-0000-0000-0000-000000000000",
+          },
+          "#{sort_type_numerical}:varint" => sort_by_numerical,
         },
       },
-    }
-  else
-    object_inner_1 = {
-      "110:embedded" => {
-        "3:embedded" => {
-          "#{content_type_numerical}:embedded" => {
-            "1:embedded" => {
-              "1:string" => object_inner_2_encoded,
-            },
-            "2:embedded" => {
-              "1:string" => "00000000-0000-0000-0000-000000000000",
-            },
-            "3:varint" => sort_by_numerical,
-          },
-        },
-      },
-    }
-  end
+    },
+  }
 
   object_inner_1_encoded = object_inner_1
     .try { |i| Protodec::Any.cast_json(i) }
