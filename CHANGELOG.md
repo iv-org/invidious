@@ -5,6 +5,12 @@
 
 ### Full list of pull requests merged since the last release (newest first)
 
+* Add "Filipino (auto-generated)" to the list of caption languages ([#4995], by @SamantazFox)
+* Makefile: Add MT option to enable the 'preview_mt' flag ([#4993], by @SamantazFox)
+* SigHelper: Reconnect to signature helper ([#4991], thanks @Fijxu)
+* Fix player menus hiding onHover ready ([#4750], thanks @giacomocerquone)
+* Use connection pools when requesting images from YouTube ([#4326], thanks @syeopite)
+* Add support for using Invidious through a HTTP Proxy ([#4270], thanks @syeopite)
 * Search: Fix 'youtu.be' URLs in sanitizer ([#4894], by @SamantazFox)
 * Ameba: Disable Style/RedundantNext rule ([#4888], thanks @syeopite)
 * Playlists: Fix 'invalid byte sequence' error when subscribing ([#4887], thanks @DmitrySandalov)
@@ -22,7 +28,10 @@
 
 [#4122]: https://github.com/iv-org/invidious/pull/4122
 [#4193]: https://github.com/iv-org/invidious/pull/4193
+[#4270]: https://github.com/iv-org/invidious/pull/4270
+[#4326]: https://github.com/iv-org/invidious/pull/4326
 [#4652]: https://github.com/iv-org/invidious/pull/4652
+[#4750]: https://github.com/iv-org/invidious/pull/4750
 [#4850]: https://github.com/iv-org/invidious/pull/4850
 [#4862]: https://github.com/iv-org/invidious/pull/4862
 [#4863]: https://github.com/iv-org/invidious/pull/4863
@@ -33,6 +42,9 @@
 [#4928]: https://github.com/iv-org/invidious/pull/4928
 [#4930]: https://github.com/iv-org/invidious/pull/4930
 [#4942]: https://github.com/iv-org/invidious/pull/4942
+[#4991]: https://github.com/iv-org/invidious/pull/4991
+[#4993]: https://github.com/iv-org/invidious/pull/4993
+[#4995]: https://github.com/iv-org/invidious/pull/4995
 
 
 ## v2.20240825.2 (2024-08-26)
