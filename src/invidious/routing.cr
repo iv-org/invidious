@@ -270,11 +270,6 @@ module Invidious::Routing
 
       # Authenticated
 
-      # The notification APIs cannot be extracted yet! They require the *local* notifications constant defined in invidious.cr
-      #
-      # Invidious::Routing.get "/api/v1/auth/notifications", {{namespace}}::Authenticated, :notifications
-      # Invidious::Routing.post "/api/v1/auth/notifications", {{namespace}}::Authenticated, :notifications
-
       get "/api/v1/auth/preferences", {{namespace}}::Authenticated, :get_preferences
       post "/api/v1/auth/preferences", {{namespace}}::Authenticated, :set_preferences
 
