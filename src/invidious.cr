@@ -161,6 +161,12 @@ Invidious::Database.check_integrity(CONFIG)
   {% puts "\nDone checking player dependencies, now compiling Invidious...\n" %}
 {% end %}
 
+# invidious_companion and signature_server can't work together
+if CONFIG.signature_server && CONFIG.invidious_companion
+  puts "You can not run inv_sig_helper and invidious_companion at the same time."
+  exit(1)
+end
+
 # Misc
 
 DECRYPT_FUNCTION =
