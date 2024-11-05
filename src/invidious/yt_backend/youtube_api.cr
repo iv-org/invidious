@@ -648,7 +648,7 @@ module YoutubeAPI
       puts "invidious companion section"
       puts invidious_companion_urls[Random.rand(invidious_companion_urls.size)]
       begin
-        invidious_companion_response = make_client(URI.parse(invidious_companion_urls[Random.rand(invidious_companion_urls.size)]),
+        invidious_companion_response = make_client(URI.parse(invidious_companion_urls.sample),
           &.post(endpoint, headers: headers, body: data.to_json))
         body = invidious_companion_response.body
         if (invidious_companion_response.status_code != 200)
