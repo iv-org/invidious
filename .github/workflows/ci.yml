@@ -154,7 +154,7 @@ jobs:
             shards install
           fi
 
-      - name: Run Crystal linter
+      - name: Check Crystal formatter compliance
         run: |
           if ! crystal tool format --check; then
             crystal tool format
