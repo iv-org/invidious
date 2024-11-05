@@ -645,8 +645,6 @@ module YoutubeAPI
 
     # Send the POST request
     if invidious_companion_urls && endpoint == "/youtubei/v1/player"
-      puts "invidious companion section"
-      puts invidious_companion_urls[Random.rand(invidious_companion_urls.size)]
       begin
         invidious_companion_response = make_client(URI.parse(invidious_companion_urls.sample),
           &.post(endpoint, headers: headers, body: data.to_json))
