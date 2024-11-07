@@ -638,6 +638,11 @@ module YoutubeAPI
     # Send the POST request
     body = YT_POOL.client() do |client|
       client.post(url, headers: headers, body: data.to_json) do |response|
+        if response.status_code != 200
+          raise InfoException.new("Error: non 200 status code. Youtube API returned \
+            status code #{response.status_code}. See <a href=\"https://docs.invidious.io/youtube-errors-explained/\"> \
+            https://docs.invidious.io/youtube-errors-explained/</a> for troubleshooting.")
+        end
         self._decompress(response.body_io, response.headers["Content-Encoding"]?)
       end
     end
