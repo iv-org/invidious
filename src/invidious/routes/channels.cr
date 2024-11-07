@@ -82,13 +82,12 @@ module Invidious::Routes::Channels
       end
       next_continuation = nil
     else
-      # TODO: support sort option for shorts
-      sort_by = ""
-      sort_options = [] of String
+      sort_by = env.params.query["sort_by"]?.try &.downcase || "newest"
+      sort_options = {"newest", "oldest", "popular"}
 
       # Fetch items and continuation token
       items, next_continuation = Channel::Tabs.get_shorts(
-        channel, continuation: continuation
+        channel, continuation: continuation, sort_by: sort_by
       )
     end
 
