@@ -26,7 +26,7 @@ module Invidious::Channel::Tabs
   end
 
   def get_videos(author : String, ucid : String, *, continuation : String? = nil, sort_by = "newest")
-    continuation ||= make_videos_ctoken(ucid, sort_by)
+    continuation ||= make_initial_videos_ctoken(ucid, sort_by)
     initial_data = YoutubeAPI.browse(continuation: continuation)
 
     return extract_items(initial_data, author, ucid)
@@ -56,7 +56,7 @@ module Invidious::Channel::Tabs
   # -------------------
 
   def get_shorts(channel : AboutChannel, *, continuation : String? = nil, sort_by = "newest")
-    continuation ||= make_shorts_ctoken(channel.ucid, sort_by)
+    continuation ||= make_initial_shorts_ctoken(channel.ucid, sort_by)
     initial_data = YoutubeAPI.browse(continuation: continuation)
 
     return extract_items(initial_data, channel.author, channel.ucid)
@@ -67,7 +67,7 @@ module Invidious::Channel::Tabs
   # -------------------
 
   def get_livestreams(channel : AboutChannel, *, continuation : String? = nil, sort_by = "newest")
-    continuation ||= make_livestreams_ctoken(channel.ucid, sort_by)
+    continuation ||= make_initial_livestreams_ctoken(channel.ucid, sort_by)
     initial_data = YoutubeAPI.browse(continuation: continuation)
 
     return extract_items(initial_data, channel.author, channel.ucid)
@@ -108,7 +108,7 @@ module Invidious::Channel::Tabs
   # Generate the initial "continuation token" to get the first page of the
   # "videos" tab. The following page requires the ctoken provided in that
   # first page, and so on.
-  private def make_videos_ctoken(ucid : String, sort_by = "newest")
+  private def make_initial_videos_ctoken(ucid : String, sort_by = "newest")
     object = {
       "15:embedded" => {
         "2:string" => "\n$00000000-0000-0000-0000-000000000000",
@@ -122,7 +122,7 @@ module Invidious::Channel::Tabs
   # Generate the initial "continuation token" to get the first page of the
   # "shorts" tab. The following page requires the ctoken provided in that
   # first page, and so on.
-  private def make_shorts_ctoken(ucid : String, sort_by = "newest")
+  private def make_initial_shorts_ctoken(ucid : String, sort_by = "newest")
     object = {
       "10:embedded" => {
         "2:embedded" => {
@@ -138,7 +138,7 @@ module Invidious::Channel::Tabs
   # Generate the initial "continuation token" to get the first page of the
   # "livestreams" tab. The following page requires the ctoken provided in that
   # first page, and so on.
-  private def make_livestreams_ctoken(ucid : String, sort_by = "newest")
+  private def make_initial_livestreams_ctoken(ucid : String, sort_by = "newest")
     sort_by_numerical =
       case sort_by
       when "newest"  then 12_i64
