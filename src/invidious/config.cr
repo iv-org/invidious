@@ -163,6 +163,9 @@ class Config
   # Invidious companion
   property invidious_companion : Array(String)? = nil
 
+  # Invidious companion API key
+  property invidious_companion_key : String? = nil
+
   # Saved cookies in "name1=value1; name2=value2..." format
   @[YAML::Field(converter: Preferences::StringToCookies)]
   property cookies : HTTP::Cookies = HTTP::Cookies.new
@@ -242,6 +245,21 @@ class Config
           exit(1)
         end
     {% end %}
+
+    if CONFIG.invidious_companion
+      # invidious_companion and signature_server can't work together
+      if CONFIG.signature_server
+        puts "Config: You can not run inv_sig_helper and invidious_companion at the same time."
+        exit(1)
+      end
+      if !CONFIG.invidious_companion_key
+        puts "Config: Please configure a key if you are using invidious companion."
+        exit(1)
+      elsif CONFIG.invidious_companion_key == "CHANGE_ME!!"
+        puts "Config: The value of 'invidious_companion_key' needs to be changed!!"
+        exit(1)
+      end
+    end
 
     # HMAC_key is mandatory
     # See: https://github.com/iv-org/invidious/issues/3854

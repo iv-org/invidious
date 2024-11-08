@@ -67,9 +67,19 @@ db:
 ## Accepted values: "http(s)://<IP-HOSTNAME>:<Port>"
 ## Default: <none>
 ##
-# invidious_companion:
+#invidious_companion:
 # - http://127.0.0.1:8282
 
+##
+## API key for Invidious companion
+##
+## Needed when invidious_companion is configured
+##
+## Accepted values: "http(s)://<IP-HOSTNAME>:<Port>"
+## Default: <none>
+##
+
+#invidious_companion_key: "CHANGE_ME!!"
 
 #########################################
 #
