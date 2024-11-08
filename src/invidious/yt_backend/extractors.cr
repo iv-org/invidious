@@ -21,6 +21,7 @@ private ITEM_PARSERS = {
   Parsers::ItemSectionRendererParser,
   Parsers::ContinuationItemRendererParser,
   Parsers::HashtagRendererParser,
+  Parsers::LockupViewModelParser,
 }
 
 private alias InitialData = Hash(String, JSON::Any)
@@ -590,8 +591,9 @@ private module Parsers
   # Parses an InnerTube lockupViewModel into a SearchPlaylist.
   # Returns nil when the given object is not a lockupViewModel.
   #
-  # This structure is present since November 2024 on the "podcasts" tab of the
-  # channel page. It is usually (always?) encapsulated in a richItemRenderer.
+  # This structure is present since November 2024 on the "podcasts" and
+  # "playlists" tabs of the channel page. It is usually encapsulated in either
+  # a richItemRenderer or a richGridRenderer.
   #
   module LockupViewModelParser
     def self.process(item : JSON::Any, author_fallback : AuthorFallback)
@@ -608,7 +610,7 @@ private module Parsers
         "primaryThumbnail", "thumbnailViewModel"
       )
 
-      thumbnail = thumbnail_view_model.dig("image", "sources", 1, "url").as_s
+      thumbnail = thumbnail_view_model.dig("image", "sources", 0, "url").as_s
 
       # This complicated sequences tries to extract the following data structure:
       # "overlays": [{
@@ -621,10 +623,15 @@ private module Parsers
       #     }]
       #   }
       # }]
+      #
+      # NOTE: this simplistic `.to_i` conversion might not work on larger
+      # playlists and hasn't been tested.
       video_count = thumbnail_view_model.dig("overlays").as_a
         .compact_map(&.dig?("thumbnailOverlayBadgeViewModel", "thumbnailBadges").try &.as_a)
         .flatten
-        .find(nil, &.dig?("thumbnailBadgeViewModel", "text").try &.as_s.ends_with?("episodes"))
+        .find(nil, &.dig?("thumbnailBadgeViewModel", "text").try { |node|
+          {"episodes", "videos"}.any? { |str| node.as_s.ends_with?(str) }
+        })
         .try &.dig("thumbnailBadgeViewModel", "text").as_s.to_i(strict: false)
 
       metadata = item_contents.dig("metadata", "lockupMetadataViewModel")
