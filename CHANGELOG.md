@@ -5,6 +5,14 @@
 
 ### Full list of pull requests merged since the last release (newest first)
 
+* Stale bot updates ([#5060], thanks @syeopite)
+* Channels: Fix "Youtube API returned error 400" ([#5059], by @SamantazFox)
+* Channels: Fix for live videos ([#5027], thanks @iBicha)
+* Locales: Add Bulgarian, Welsh and Lombard to the list ([#5046], by @SamantazFox)
+* Shards: Update database dependencies ([#5034], by @SamantazFox)
+* Logger: Add color support for different log levels ([#4931], thanks @Fijxu)
+* Fix named arg syntax when passing force_resolve ([#4754], thanks @syeopite)
+* Use make_client instead of calling HTTP::Client ([#4709], thanks @syeopite)
 * Add "Filipino (auto-generated)" to the list of caption languages ([#4995], by @SamantazFox)
 * Makefile: Add MT option to enable the 'preview_mt' flag ([#4993], by @SamantazFox)
 * SigHelper: Reconnect to signature helper ([#4991], thanks @Fijxu)
@@ -31,7 +39,9 @@
 [#4270]: https://github.com/iv-org/invidious/pull/4270
 [#4326]: https://github.com/iv-org/invidious/pull/4326
 [#4652]: https://github.com/iv-org/invidious/pull/4652
+[#4709]: https://github.com/iv-org/invidious/pull/4709
 [#4750]: https://github.com/iv-org/invidious/pull/4750
+[#4754]: https://github.com/iv-org/invidious/pull/4754
 [#4850]: https://github.com/iv-org/invidious/pull/4850
 [#4862]: https://github.com/iv-org/invidious/pull/4862
 [#4863]: https://github.com/iv-org/invidious/pull/4863
@@ -41,10 +51,16 @@
 [#4923]: https://github.com/iv-org/invidious/pull/4923
 [#4928]: https://github.com/iv-org/invidious/pull/4928
 [#4930]: https://github.com/iv-org/invidious/pull/4930
+[#4931]: https://github.com/iv-org/invidious/pull/4931
 [#4942]: https://github.com/iv-org/invidious/pull/4942
 [#4991]: https://github.com/iv-org/invidious/pull/4991
 [#4993]: https://github.com/iv-org/invidious/pull/4993
 [#4995]: https://github.com/iv-org/invidious/pull/4995
+[#5027]: https://github.com/iv-org/invidious/pull/5027
+[#5034]: https://github.com/iv-org/invidious/pull/5034
+[#5046]: https://github.com/iv-org/invidious/pull/5046
+[#5059]: https://github.com/iv-org/invidious/pull/5059
+[#5060]: https://github.com/iv-org/invidious/pull/5060
 
 
 ## v2.20240825.2 (2024-08-26)
