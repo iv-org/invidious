@@ -22,7 +22,6 @@ struct YoutubeConnectionPool
       response = yield conn
     rescue ex
       conn.close
-
       conn = make_client(url, force_resolve: true)
 
       response = yield conn
@@ -34,7 +33,14 @@ struct YoutubeConnectionPool
   end
 
   private def build_pool
-    DB::Pool(HTTP::Client).new(initial_pool_size: 0, max_pool_size: capacity, max_idle_pool_size: capacity, checkout_timeout: timeout) do
+    options = DB::Pool::Options.new(
+      initial_pool_size: 0,
+      max_pool_size: capacity,
+      max_idle_pool_size: capacity,
+      checkout_timeout: timeout
+    )
+
+    DB::Pool(HTTP::Client).new(options) do
       next make_client(url, force_resolve: true)
     end
   end

@@ -14,7 +14,7 @@ shards:
 
   db:
     git: https://github.com/crystal-lang/crystal-db.git
-    version: 0.10.1
+    version: 0.13.1
 
   exception_page:
     git: https://github.com/crystal-loot/exception_page.git
@@ -34,7 +34,7 @@ shards:
 
   pg:
     git: https://github.com/will/crystal-pg.git
-    version: 0.24.0
+    version: 0.28.0
 
   protodec:
     git: https://github.com/iv-org/protodec.git
@@ -50,5 +50,5 @@ shards:
 
   sqlite3:
     git: https://github.com/crystal-lang/crystal-sqlite3.git
-    version: 0.18.0
+    version: 0.21.0
 
