@@ -1,13 +1,12 @@
 name: invidious
-version: 0.20.1
+version: 2.20240825.2-dev
 
 authors:
   - Omar Roth <omarroth@protonmail.com>
-  - Invidious team
+  - Invidious team <contact@invidious.io>
 
-targets:
-  invidious:
-    main: src/invidious.cr
+description: |
+   Invidious is an alternative front-end to YouTube 
 
 dependencies:
   pg:
@@ -40,6 +39,10 @@ development_dependencies:
     github: crystal-ameba/ameba
     version: ~> 1.6.1
 
-crystal: ">= 1.0.0, < 2.0.0"
+crystal: ">= 1.10.0, < 2.0.0"
 
 license: AGPLv3
+
+repository: https://github.com/iv-org/invidious
+homepage: https://invidious.io
+documentation: https://docs.invidious.io
