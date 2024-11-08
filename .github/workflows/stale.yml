@@ -19,5 +19,5 @@ jobs:
         stale-issue-message: 'This issue has been automatically marked as stale and will be closed in 30 days because it has not had recent activity and is much likely outdated. If you think this issue is still relevant and applicable, you just have to post a comment and it will be unmarked.'
         stale-issue-label: "stale"
         ascending: true
-        # Never mark feature requests/enhancements as stale
-        exempt-issue-labels: "feature-request,enhancement,exempt-stale"
+        # Exempt the following types of issues from being staled
+        exempt-issue-labels: "feature-request,enhancement,discussion,exempt-stale"
