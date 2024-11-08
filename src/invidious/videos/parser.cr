@@ -64,18 +64,20 @@ def extract_video_info(video_id : String)
   playability_status = player_response.dig?("playabilityStatus", "status").try &.as_s
 
   if playability_status != "OK"
-    subreason = player_response.dig?("playabilityStatus", "errorScreen", "playerErrorMessageRenderer", "subreason")
-    reason = subreason.try &.[]?("simpleText").try &.as_s
-    reason ||= subreason.try &.[]("runs").as_a.map(&.[]("text")).join("")
-    reason ||= player_response.dig("playabilityStatus", "reason").as_s
+    reason = player_response.dig?("playabilityStatus", "reason").try &.as_s
+    reason ||= player_response.dig("playabilityStatus", "errorScreen", "playerErrorMessageRenderer", "reason", "simpleText").as_s
+    subreason_main = player_response.dig?("playabilityStatus", "errorScreen", "playerErrorMessageRenderer", "subreason")
+    subreason = subreason_main.try &.[]?("simpleText").try &.as_s
+    subreason ||= subreason_main.try &.[]("runs").as_a.map(&.[]("text")).join("")
 
-    # Stop here if video is not a scheduled livestream or
-    # for LOGIN_REQUIRED when videoDetails element is not found because retrying won't help
-    if !{"LIVE_STREAM_OFFLINE", "LOGIN_REQUIRED"}.any?(playability_status) ||
-       playability_status == "LOGIN_REQUIRED" && !player_response.dig?("videoDetails")
+    # Stop if private video or video not found.
+    # But for video unavailable, only stop if playability_status is ERROR because playability_status UNPLAYABLE
+    # still gives all the necessary info for displaying the video page (title, description and more)
+    if {"Private video", "Video unavailable"}.any?(reason) && !{"UNPLAYABLE"}.any?(playability_status)
       return {
-        "version" => JSON::Any.new(Video::SCHEMA_VERSION.to_i64),
-        "reason"  => JSON::Any.new(reason),
+        "version"   => JSON::Any.new(Video::SCHEMA_VERSION.to_i64),
+        "reason"    => JSON::Any.new(reason),
+        "subreason" => JSON::Any.new(subreason),
       }
     end
   elsif video_id != player_response.dig("videoDetails", "videoId")
@@ -95,11 +97,8 @@ def extract_video_info(video_id : String)
     reason = nil
   end
 
-  # Don't fetch the next endpoint if the video is unavailable.
-  if {"OK", "LIVE_STREAM_OFFLINE", "LOGIN_REQUIRED"}.any?(playability_status)
-    next_response = YoutubeAPI.next({"videoId": video_id, "params": ""})
-    player_response = player_response.merge(next_response)
-  end
+  next_response = YoutubeAPI.next({"videoId": video_id, "params": ""})
+  player_response = player_response.merge(next_response)
 
   params = parse_video_info(video_id, player_response)
   params["reason"] = JSON::Any.new(reason) if reason
@@ -205,16 +204,21 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     raise BrokenTubeException.new("videoSecondaryInfoRenderer") if !video_secondary_renderer
   end
 
-  video_details = player_response.dig?("videoDetails")
+  if !(video_details = player_response.dig?("videoDetails"))
+    video_details = {} of String => JSON::Any
+  end
   if !(microformat = player_response.dig?("microformat", "playerMicroformatRenderer"))
     microformat = {} of String => JSON::Any
   end
 
-  raise BrokenTubeException.new("videoDetails") if !video_details
-
   # Basic video infos
 
   title = video_details["title"]?.try &.as_s
+
+  title ||= extract_text(
+    video_primary_renderer
+      .try &.dig?("title")
+  )
 
   # We have to try to extract viewCount from videoPrimaryInfoRenderer first,
   # then from videoDetails, as the latter is "0" for livestreams (we want
@@ -226,17 +230,34 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
   views_txt ||= video_details["viewCount"]?.try &.as_s || ""
   views = views_txt.gsub(/\D/, "").to_i64?
 
-  length_txt = (microformat["lengthSeconds"]? || video_details["lengthSeconds"])
+  length_txt = (microformat["lengthSeconds"]? || video_details["lengthSeconds"]?)
     .try &.as_s.to_i64
 
   published = microformat["publishDate"]?
-    .try { |t| Time.parse(t.as_s, "%Y-%m-%d", Time::Location::UTC) } || Time.utc
+    .try { |t| Time.parse(t.as_s, "%Y-%m-%d", Time::Location::UTC) }
+
+  if published.nil?
+    published_txt = video_primary_renderer
+      .try &.dig?("dateText", "simpleText")
+
+    if published_txt.try &.as_s.includes?("ago") && !published_txt.nil?
+      published = decode_date(published_txt.as_s.lchop("Started streaming "))
+    elsif published_txt && published_txt.try &.as_s.matches?(/(\w{3} \d{1,2}, \d{4})$/)
+      published = Time.parse(published_txt.as_s.match!(/(\w{3} \d{1,2}, \d{4})$/)[0], "%b %-d, %Y", Time::Location::UTC)
+    else
+      published = Time.utc
+    end
+  end
 
   premiere_timestamp = microformat.dig?("liveBroadcastDetails", "startTimestamp")
     .try { |t| Time.parse_rfc3339(t.as_s) }
 
   live_now = microformat.dig?("liveBroadcastDetails", "isLiveNow")
-    .try &.as_bool || false
+    .try &.as_bool
+  if live_now.nil?
+    live_now = video_primary_renderer
+      .try &.dig?("viewCount", "videoViewCountRenderer", "isLive").try &.as_bool || false
+  end
 
   post_live_dvr = video_details.dig?("isPostLiveDvr")
     .try &.as_bool || false
@@ -247,8 +268,24 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     .try &.as_a.map &.as_s || [] of String
 
   allow_ratings = video_details["allowRatings"]?.try &.as_bool
+
   family_friendly = microformat["isFamilySafe"]?.try &.as_bool
+  if family_friendly.nil?
+    family_friendly = true # if isFamilySafe not found then assume is safe
+  end
+
   is_listed = video_details["isCrawlable"]?.try &.as_bool
+  if video_badges = video_primary_renderer.try &.dig?("badges")
+    if has_unlisted_badge?(video_badges)
+      is_listed ||= false
+    else
+      is_listed ||= true
+    end
+    # if no badges but videoDetails not available then assume isListed
+  else
+    is_listed ||= true
+  end
+
   is_upcoming = video_details["isUpcoming"]?.try &.as_bool
 
   keywords = video_details["keywords"]?
@@ -414,6 +451,9 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     subs_text = author_info["subscriberCountText"]?
       .try { |t| t["simpleText"]? || t.dig?("runs", 0, "text") }
       .try &.as_s.split(" ", 2)[0]
+
+    author ||= author_info.dig?("title", "runs", 0, "text").try &.as_s
+    ucid ||= author_info.dig?("title", "runs", 0, "navigationEndpoint", "browseEndpoint", "browseId").try &.as_s
   end
 
   # Return data
@@ -438,8 +478,8 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     # Extra video infos
     "allowedRegions"   => JSON::Any.new(allowed_regions.map { |v| JSON::Any.new(v) }),
     "allowRatings"     => JSON::Any.new(allow_ratings || false),
-    "isFamilyFriendly" => JSON::Any.new(family_friendly || false),
-    "isListed"         => JSON::Any.new(is_listed || false),
+    "isFamilyFriendly" => JSON::Any.new(family_friendly),
+    "isListed"         => JSON::Any.new(is_listed),
     "isUpcoming"       => JSON::Any.new(is_upcoming || false),
     "keywords"         => JSON::Any.new(keywords.map { |v| JSON::Any.new(v) }),
     "isPostLiveDvr"    => JSON::Any.new(post_live_dvr),
@@ -448,7 +488,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     # Description
     "description"      => JSON::Any.new(description || ""),
     "descriptionHtml"  => JSON::Any.new(description_html || "<p></p>"),
-    "shortDescription" => JSON::Any.new(short_description.try &.as_s || nil),
+    "shortDescription" => JSON::Any.new(short_description.try &.as_s || ""),
     # Video metadata
     "genre"     => JSON::Any.new(genre.try &.as_s || ""),
     "genreUcid" => JSON::Any.new(genre_ucid.try &.as_s?),

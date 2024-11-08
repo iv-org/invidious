@@ -313,7 +313,7 @@ def get_video(id, refresh = true, region = nil, force_refresh = false)
     end
   else
     video = fetch_video(id, region)
-    Invidious::Database::Videos.insert(video) if !region
+    Invidious::Database::Videos.insert(video) if !region && !video.info.dig?("reason")
   end
 
   return video
@@ -326,13 +326,18 @@ end
 def fetch_video(id, region)
   info = extract_video_info(video_id: id)
 
-  if reason = info["reason"]?
+  if info["reason"]? && info["subreason"]?
+    reason = info["reason"].as_s
+    puts info
+    if info.dig?("subreason").nil?
+      subreason = info["subreason"].as_s
+    else
+      subreason = "No additional reason"
+    end
     if reason == "Video unavailable"
-      raise NotFoundException.new(reason.as_s || "")
-    elsif !reason.as_s.starts_with? "Premieres"
-      # dont error when it's a premiere.
-      # we already parsed most of the data and display the premiere date
-      raise InfoException.new(reason.as_s || "")
+      raise NotFoundException.new(reason + ": Video not found" || "")
+    elsif {"Private video"}.any?(reason)
+      raise InfoException.new(reason + ": " + subreason || "")
     end
   end
 
