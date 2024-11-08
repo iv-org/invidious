@@ -8,7 +8,7 @@ module Invidious::Routes::PreferencesRoute
 
     preferences = env.get("preferences").as(Preferences)
 
-    templated "user/preferences", buffer_footer: true
+    templated "user/preferences"
   end
 
   def self.update(env)

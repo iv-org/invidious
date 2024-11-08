@@ -152,7 +152,8 @@ module Invidious::Routes::Channels
     items.each(&.author = "")
 
     selected_tab = Frontend::ChannelPage::TabsAvailable::Playlists
-    templated "channel", buffer_footer: true
+
+    templated "channel"
   end
 
   def self.podcasts(env)
