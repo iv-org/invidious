@@ -483,6 +483,7 @@ private module Parsers
       child ||= ReelItemRendererParser.process(item_contents, author_fallback)
       child ||= PlaylistRendererParser.process(item_contents, author_fallback)
       child ||= LockupViewModelParser.process(item_contents, author_fallback)
+      child ||= ShortsLockupViewModelParser.process(item_contents, author_fallback)
       return child
     end
 
@@ -496,6 +497,9 @@ private module Parsers
   #
   # reelItemRenderer items are used in the new (2022) channel layout,
   # in the "shorts" tab.
+  #
+  # NOTE: As of 10/2024, it might have been fully replaced by shortsLockupViewModel
+  # TODO: Confirm that hypothesis
   #
   module ReelItemRendererParser
     def self.process(item : JSON::Any, author_fallback : AuthorFallback)
@@ -644,6 +648,60 @@ private module Parsers
         videos:          [] of SearchPlaylistVideo,
         thumbnail:       thumbnail,
         author_verified: false,
+      })
+    end
+
+    def self.parser_name
+      return {{@type.name}}
+    end
+  end
+
+  # Parses an InnerTube shortsLockupViewModel into a SearchVideo.
+  # Returns nil when the given object is not a shortsLockupViewModel.
+  #
+  # This structure is present since around October 2024 on the "shorts" tab of
+  # the channel page and likely replaces the reelItemRenderer structure. It is
+  # usually (always?) encapsulated in a richItemRenderer.
+  #
+  module ShortsLockupViewModelParser
+    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+      if item_contents = item["shortsLockupViewModel"]?
+        return self.parse(item_contents, author_fallback)
+      end
+    end
+
+    private def self.parse(item_contents, author_fallback)
+      # TODO: Maybe add support for "oardefault.jpg" thumbnails?
+      # thumbnail = item_contents.dig("thumbnail", "sources", 0, "url").as_s
+      # Gives: https://i.ytimg.com/vi/{video_id}/oardefault.jpg?...
+
+      video_id = item_contents.dig(
+        "onTap", "innertubeCommand", "reelWatchEndpoint", "videoId"
+      ).as_s
+
+      title = item_contents.dig("overlayMetadata", "primaryText", "content").as_s
+
+      view_count = short_text_to_number(
+        item_contents.dig("overlayMetadata", "secondaryText", "content").as_s
+      )
+
+      # Approximate to one minute, as "shorts" generally don't exceed that.
+      # NOTE: The actual duration is not provided by Youtube anymore.
+      # TODO: Maybe use -1 as an error value and handle that on the frontend?
+      duration = 60_i32
+
+      SearchVideo.new({
+        title:              title,
+        id:                 video_id,
+        author:             author_fallback.name,
+        ucid:               author_fallback.id,
+        published:          Time.unix(0),
+        views:              view_count,
+        description_html:   "",
+        length_seconds:     duration,
+        premiere_timestamp: Time.unix(0),
+        author_verified:    false,
+        badges:             VideoBadges::None,
       })
     end
 
