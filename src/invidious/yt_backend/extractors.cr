@@ -467,9 +467,9 @@ private module Parsers
   # Parses an InnerTube richItemRenderer into a SearchVideo.
   # Returns nil when the given object isn't a RichItemRenderer
   #
-  # A richItemRenderer seems to be a simple wrapper for a videoRenderer, used
-  # by the result page for hashtags and for the podcast tab on channels.
-  # It is located inside a continuationItems container for hashtags.
+  # A richItemRenderer seems to be a simple wrapper for a various other types,
+  # used on the hashtags result page and the channel podcast tab. It is located
+  # itself inside a richGridRenderer container.
   #
   module RichItemRendererParser
     def self.process(item : JSON::Any, author_fallback : AuthorFallback)
@@ -482,6 +482,7 @@ private module Parsers
       child = VideoRendererParser.process(item_contents, author_fallback)
       child ||= ReelItemRendererParser.process(item_contents, author_fallback)
       child ||= PlaylistRendererParser.process(item_contents, author_fallback)
+      child ||= LockupViewModelParser.process(item_contents, author_fallback)
       return child
     end
 
@@ -574,6 +575,75 @@ private module Parsers
         premiere_timestamp: Time.unix(0),
         author_verified:    false,
         badges:             VideoBadges::None,
+      })
+    end
+
+    def self.parser_name
+      return {{@type.name}}
+    end
+  end
+
+  # Parses an InnerTube lockupViewModel into a SearchPlaylist.
+  # Returns nil when the given object is not a lockupViewModel.
+  #
+  # This structure is present since November 2024 on the "podcasts" tab of the
+  # channel page. It is usually (always?) encapsulated in a richItemRenderer.
+  #
+  module LockupViewModelParser
+    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+      if item_contents = item["lockupViewModel"]?
+        return self.parse(item_contents, author_fallback)
+      end
+    end
+
+    private def self.parse(item_contents, author_fallback)
+      playlist_id = item_contents["contentId"].as_s
+
+      thumbnail_view_model = item_contents.dig(
+        "contentImage", "collectionThumbnailViewModel",
+        "primaryThumbnail", "thumbnailViewModel"
+      )
+
+      thumbnail = thumbnail_view_model.dig("image", "sources", 1, "url").as_s
+
+      # This complicated sequences tries to extract the following data structure:
+      # "overlays": [{
+      #   "thumbnailOverlayBadgeViewModel": {
+      #     "thumbnailBadges": [{
+      #       "thumbnailBadgeViewModel": {
+      #         "text": "430 episodes",
+      #         "badgeStyle": "THUMBNAIL_OVERLAY_BADGE_STYLE_DEFAULT"
+      #       }
+      #     }]
+      #   }
+      # }]
+      video_count = thumbnail_view_model.dig("overlays").as_a
+        .compact_map(&.dig?("thumbnailOverlayBadgeViewModel", "thumbnailBadges").try &.as_a)
+        .flatten
+        .find(nil, &.dig?("thumbnailBadgeViewModel", "text").try &.as_s.ends_with?("episodes"))
+        .try &.dig("thumbnailBadgeViewModel", "text").as_s.to_i(strict: false)
+
+      metadata = item_contents.dig("metadata", "lockupMetadataViewModel")
+      title = metadata.dig("title", "content").as_s
+
+      # TODO: Retrieve "updated" info from metadata parts
+      # rows = metadata.dig("metadata", "contentMetadataViewModel", "metadataRows").as_a
+      # parts_text = rows.map(&.dig?("metadataParts", "text", "content").try &.as_s)
+      # One of these parts should contain a string like: "Updated 2 days ago"
+
+      # TODO: Maybe add a button to access the first video of the playlist?
+      # item_contents.dig("rendererContext", "commandContext", "onTap", "innertubeCommand", "watchEndpoint")
+      # Available fields: "videoId", "playlistId", "params"
+
+      return SearchPlaylist.new({
+        title:           title,
+        id:              playlist_id,
+        author:          author_fallback.name,
+        ucid:            author_fallback.id,
+        video_count:     video_count || -1,
+        videos:          [] of SearchPlaylistVideo,
+        thumbnail:       thumbnail,
+        author_verified: false,
       })
     end
 
