@@ -53,10 +53,6 @@ end
 def extract_video_info(video_id : String)
   # Init client config for the API
   client_config = YoutubeAPI::ClientConfig.new
-  # Use the WEB when po_token is configured
-  if CONFIG.po_token
-    client_config.client_type = YoutubeAPI::ClientType::Web
-  end
 
   # Fetch data from the player endpoint
   player_response = YoutubeAPI.player(video_id: video_id, params: "2AMB", client_config: client_config)
