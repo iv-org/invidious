@@ -106,13 +106,6 @@ def extract_video_info(video_id : String)
 
   new_player_response = nil
 
-  # Second try in case WEB_CREATOR doesn't work with po_token.
-  # Only trigger if reason found and po_token configured.
-  if reason && CONFIG.po_token
-    client_config.client_type = YoutubeAPI::ClientType::WebEmbeddedPlayer
-    new_player_response = try_fetch_streaming_data(video_id, client_config)
-  end
-
   # Don't use Android test suite client if po_token is passed because po_token doesn't
   # work for Android test suite client.
   if reason.nil? && CONFIG.po_token.nil?
