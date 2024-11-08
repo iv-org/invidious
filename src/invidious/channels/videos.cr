@@ -111,7 +111,9 @@ module Invidious::Channel::Tabs
   private def make_initial_videos_ctoken(ucid : String, sort_by = "newest")
     object = {
       "15:embedded" => {
-        "2:string" => "\n$00000000-0000-0000-0000-000000000000",
+        "2:embedded" => {
+          "1:string" => "00000000-0000-0000-0000-000000000000",
+        },
         "4:varint" => sort_options_videos_short(sort_by),
       },
     }
