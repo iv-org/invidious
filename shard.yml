@@ -2,8 +2,8 @@ name: invidious
 version: 2.20240825.2-dev
 
 authors:
-  - Omar Roth <omarroth@protonmail.com>
   - Invidious team <contact@invidious.io>
+  - Contributors!
 
 description: |
    Invidious is an alternative front-end to YouTube 
