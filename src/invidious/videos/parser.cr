@@ -275,10 +275,6 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
   # If nothing was found previously, fall back to end screen renderer
   if related.empty?
     # Container for "endScreenVideoRenderer" items
-    end_screen_watch_next_array = player_overlays.try &.dig?(
-      "endScreen", "watchNextEndScreenRenderer", "results"
-    )
-
     player_overlays.try &.as_a.each do |element|
       if item = element["endScreenVideoRenderer"]?
         related_video = parse_related_video(item)

@@ -108,8 +108,8 @@ module Invidious::Routes::Images
 
     # Some thumbnails such as the ones for chapters requires some additional queries.
     query_params = HTTP::Params.new
-    {"sqp", "rs"}.each do |name|
-      query_params[name] = env.params.query[name] if env.params.query[name]?
+    {"sqp", "rs"}.each do |attest_param|
+      query_params[attest_param] = env.params.query[attest_param] if env.params.query[attest_param]?
     end
 
     headers = HTTP::Headers.new

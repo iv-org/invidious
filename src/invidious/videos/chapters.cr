@@ -57,7 +57,7 @@ module Invidious::Videos
 
     # Converts the sequence of chapters to a WebVTT representation
     def to_vtt
-      vtt = WebVTT.build do |build|
+      return WebVTT.build do |build|
         self.each do |chapter|
           build.cue(chapter.start_ms, chapter.end_ms, chapter.title)
         end
