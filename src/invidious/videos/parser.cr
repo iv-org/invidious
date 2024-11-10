@@ -53,10 +53,6 @@ end
 def extract_video_info(video_id : String)
   # Init client config for the API
   client_config = YoutubeAPI::ClientConfig.new
-  # Use the WEB_CREATOR when po_token is configured because it fully only works on this client
-  if CONFIG.po_token
-    client_config.client_type = YoutubeAPI::ClientType::WebCreator
-  end
 
   # Fetch data from the player endpoint
   player_response = YoutubeAPI.player(video_id: video_id, params: "2AMB", client_config: client_config)
@@ -106,15 +102,8 @@ def extract_video_info(video_id : String)
 
   new_player_response = nil
 
-  # Second try in case WEB_CREATOR doesn't work with po_token.
-  # Only trigger if reason found and po_token configured.
-  if reason && CONFIG.po_token
-    client_config.client_type = YoutubeAPI::ClientType::WebEmbeddedPlayer
-    new_player_response = try_fetch_streaming_data(video_id, client_config)
-  end
-
-  # Don't use Android client if po_token is passed because po_token doesn't
-  # work for Android client.
+  # Don't use Android test suite client if po_token is passed because po_token doesn't
+  # work for Android test suite client.
   if reason.nil? && CONFIG.po_token.nil?
     # Fetch the video streams using an Android client in order to get the
     # decrypted URLs and maybe fix throttling issues (#2194). See the
