@@ -60,6 +60,14 @@ class Kemal::ExceptionHandler
   end
 end
 
+class TrueBeforeAllHandler < Kemal::Handler
+  def call(env)
+    return call_next(env) unless env.route_found?
+    Invidious::Routes::BeforeAll.handle(env)
+    call_next env
+  end
+end
+
 class FilteredCompressHandler < Kemal::Handler
   exclude ["/videoplayback", "/videoplayback/*", "/vi/*", "/sb/*", "/ggpht/*", "/api/v1/auth/notifications"]
   exclude ["/api/v1/auth/notifications", "/data_control"], "POST"

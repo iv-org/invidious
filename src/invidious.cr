@@ -64,7 +64,6 @@ HMAC_KEY = CONFIG.hmac_key
 PG_DB       = DB.open CONFIG.database_url
 ARCHIVE_URL = URI.parse("https://archive.org")
 PUBSUB_URL  = URI.parse("https://pubsubhubbub.appspot.com")
-REDDIT_URL  = URI.parse("https://www.reddit.com")
 YT_URL      = URI.parse("https://www.youtube.com")
 HOST_URL    = make_host_url(Kemal.config)
 
@@ -207,9 +206,9 @@ end
 
 # Routing
 
-before_all do |env|
-  Invidious::Routes::BeforeAll.handle(env)
-end
+# Custom handlers actually has a higher priority than the handler defined via
+# before_all
+add_handler TrueBeforeAllHandler.new
 
 Invidious::Routing.register_all
 
@@ -242,6 +241,17 @@ Kemal.config.logger = LOGGER
 Kemal.config.host_binding = Kemal.config.host_binding != "0.0.0.0" ? Kemal.config.host_binding : CONFIG.host_binding
 Kemal.config.port = Kemal.config.port != 3000 ? Kemal.config.port : CONFIG.port
 Kemal.config.app_name = "Invidious"
+
+# Loads optional extensions for Invidious
+# Essentially just glorified shards with a set naming scheme
+# and load method
+
+{{run("./addons/extract-addons.cr", "--minified")}}
+{% for addon in read_file("src/addons/enabled.txt").lines %}
+  {% shard_name, module_name = addon.split(",") %}
+  require {{shard_name.id.stringify}}
+  {{module_name.id}}Ext.invidious_load
+{% end %}
 
 # Use in kemal's production mode.
 # Users can also set the KEMAL_ENV environmental variable for this to be set automatically.

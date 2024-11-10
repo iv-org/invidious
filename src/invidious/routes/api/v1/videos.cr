@@ -353,37 +353,6 @@ module Invidious::Routes::API::V1::Videos
       end
 
       return comments
-    elsif source == "reddit"
-      sort_by ||= "confidence"
-
-      begin
-        comments, reddit_thread = Comments.fetch_reddit(id, sort_by: sort_by)
-      rescue ex
-        comments = nil
-        reddit_thread = nil
-      end
-
-      if !reddit_thread || !comments
-        return error_json(404, "No reddit threads found")
-      end
-
-      if format == "json"
-        reddit_thread = JSON.parse(reddit_thread.to_json).as_h
-        reddit_thread["comments"] = JSON.parse(comments.to_json)
-
-        return reddit_thread.to_json
-      else
-        content_html = Frontend::Comments.template_reddit(comments, locale)
-        content_html = Comments.fill_links(content_html, "https", "www.reddit.com")
-        content_html = Comments.replace_links(content_html)
-        response = {
-          "title"       => reddit_thread.title,
-          "permalink"   => reddit_thread.permalink,
-          "contentHtml" => content_html,
-        }
-
-        return response.to_json
-      end
     end
   end
 
