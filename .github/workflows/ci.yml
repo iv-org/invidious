@@ -117,7 +117,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: docker/Dockerfile.arm64
+          file: docker/Dockerfile.arm64-musl-cross
           platforms: linux/arm64/v8
           build-args: release=0
 
