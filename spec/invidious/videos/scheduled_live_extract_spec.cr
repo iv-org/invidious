@@ -3,8 +3,8 @@ require "../../parsers_helper.cr"
 Spectator.describe "parse_video_info" do
   it "parses scheduled livestreams data" do
     # Enable mock
-    _player = load_mock("video/scheduled_live_PBD-Podcast.player")
-    _next = load_mock("video/scheduled_live_PBD-Podcast.next")
+    _player = load_mock("video/scheduled_live_PBD-Podcast.player").as_h
+    _next = load_mock("video/scheduled_live_PBD-Podcast.next").as_h
 
     raw_data = _player.merge!(_next)
     info = parse_video_info("N-yVic7BbY0", raw_data)

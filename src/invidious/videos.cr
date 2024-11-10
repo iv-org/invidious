@@ -27,6 +27,12 @@ struct Video
   @captions = [] of Invidious::Videos::Captions::Metadata
 
   @[DB::Field(ignore: true)]
+  @adaptive_fmts = [] of Invidious::Videos::AdaptativeStream
+
+  @[DB::Field(ignore: true)]
+  @fmt_stream = [] of Invidious::Videos::ProgressiveHttpStream
+
+  @[DB::Field(ignore: true)]
   property description : String?
 
   module JSONConverter
@@ -92,32 +98,32 @@ struct Video
 
   # Methods for parsing streaming data
 
-  def fmt_stream : Array(Hash(String, JSON::Any))
-    if formats = info.dig?("streamingData", "formats")
-      return formats
-        .as_a.map(&.as_h)
-        .sort_by! { |f| f["width"]?.try &.as_i || 0 }
-    else
-      return [] of Hash(String, JSON::Any)
+  def fmt_stream : Array(Invidious::Videos::ProgressiveHttpStream)
+    if @fmt_stream.empty?
+      if formats = info.dig?("streamingData", "formats")
+        @fmt_stream = Invidious::Videos.parse_progressive_formats(formats)
+      end
     end
+
+    return @fmt_stream
   end
 
-  def adaptive_fmts : Array(Hash(String, JSON::Any))
-    if formats = info.dig?("streamingData", "adaptiveFormats")
-      return formats
-        .as_a.map(&.as_h)
-        .sort_by! { |f| f["width"]?.try &.as_i || 0 }
-    else
-      return [] of Hash(String, JSON::Any)
+  def adaptive_fmts : Array(Invidious::Videos::AdaptativeStream)
+    if @adaptive_fmts.empty?
+      if formats = info.dig?("streamingData", "adaptiveFormats")
+        @adaptive_fmts = Invidious::Videos.parse_adaptative_formats(formats)
+      end
     end
+
+    return @adaptive_fmts
   end
 
-  def video_streams
-    adaptive_fmts.select &.["mimeType"]?.try &.as_s.starts_with?("video")
+  def video_streams : Array(Invidious::Videos::AdaptativeVideoStream)
+    self.adaptive_fmts.select(Invidious::Videos::AdaptativeVideoStream)
   end
 
-  def audio_streams
-    adaptive_fmts.select &.["mimeType"]?.try &.as_s.starts_with?("audio")
+  def audio_streams : Array(Invidious::Videos::AdaptativeAudioStream)
+    self.adaptive_fmts.select(Invidious::Videos::AdaptativeAudioStream)
   end
 
   # Misc. methods
