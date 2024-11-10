@@ -113,14 +113,6 @@ def extract_video_info(video_id : String)
     new_player_response = try_fetch_streaming_data(video_id, client_config)
   end
 
-  # Last hope
-  # Only trigger if reason found or didn't work wth Android client.
-  # TvHtml5ScreenEmbed now requires sig helper for it to work but doesn't work with po_token.
-  if reason && CONFIG.po_token.nil?
-    client_config.client_type = YoutubeAPI::ClientType::TvHtml5ScreenEmbed
-    new_player_response = try_fetch_streaming_data(video_id, client_config)
-  end
-
   # Replace player response and reset reason
   if !new_player_response.nil?
     # Preserve captions & storyboard data before replacement
