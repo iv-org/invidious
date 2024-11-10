@@ -122,9 +122,12 @@ we're going to need to do it here in order to allow for translations.
                         link_yt_watch = IV::HttpServer::Utils.add_params_to_url(link_yt_watch, link_yt_param)
                         link_yt_embed = IV::HttpServer::Utils.add_params_to_url(link_yt_embed, link_yt_param)
                     end
+
+                    confirm_yt_watch = "/confirm_leave?link=#{URI.encode_path(link_yt_watch.to_s)}"
+                    confirm_yt_embed = "/confirm_leave?link=#{URI.encode_path(link_yt_embed.to_s)}"
                 -%>
-                <a id="link-yt-watch" rel="noreferrer noopener" data-base-url="<%= link_yt_watch %>" href="<%= link_yt_watch %>"><%= translate(locale, "videoinfo_watch_on_youTube") %></a>
-                (<a id="link-yt-embed" rel="noreferrer noopener" data-base-url="<%= link_yt_embed %>" href="<%= link_yt_embed %>"><%= translate(locale, "videoinfo_youTube_embed_link") %></a>)
+                <a id="link-yt-watch" data-base-url="<%= confirm_yt_watch %>" href="<%= confirm_yt_watch %>"><%= translate(locale, "videoinfo_watch_on_youTube") %></a>
+                (<a id="link-yt-embed" data-base-url="<%= confirm_yt_embed %>" href="<%= confirm_yt_embed %>"><%= translate(locale, "videoinfo_youTube_embed_link") %></a>)
             </span>
 
             <p id="watch-on-another-invidious-instance">
