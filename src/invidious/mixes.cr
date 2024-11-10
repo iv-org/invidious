@@ -81,7 +81,7 @@ def fetch_mix(rdid, video_id, cookies = nil, locale = nil)
   })
 end
 
-def template_mix(mix)
+def template_mix(mix, listen)
   html = <<-END_HTML
   <h3>
     <a href="/mix?list=#{mix["mixId"]}">
@@ -95,7 +95,7 @@ def template_mix(mix)
   mix["videos"].as_a.each do |video|
     html += <<-END_HTML
       <li class="pure-menu-item">
-        <a href="/watch?v=#{video["videoId"]}&list=#{mix["mixId"]}">
+        <a href="/watch?v=#{video["videoId"]}&list=#{mix["mixId"]}#{listen ? "&listen=1" : ""}">
           <div class="thumbnail">
               <img loading="lazy" class="thumbnail" src="/vi/#{video["videoId"]}/mqdefault.jpg" alt="" />
               <p class="length">#{recode_length_seconds(video["lengthSeconds"].as_i)}</p>

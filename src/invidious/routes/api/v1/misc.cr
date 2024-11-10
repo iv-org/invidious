@@ -42,6 +42,9 @@ module Invidious::Routes::API::V1::Misc
     format = env.params.query["format"]?
     format ||= "json"
 
+    listen_param = env.params.query["listen"]?
+    listen = (listen_param == "true" || listen_param == "1")
+
     if plid.starts_with? "RD"
       return env.redirect "/api/v1/mixes/#{plid}"
     end
@@ -85,7 +88,7 @@ module Invidious::Routes::API::V1::Misc
     end
 
     if format == "html"
-      playlist_html = template_playlist(json_response)
+      playlist_html = template_playlist(json_response, listen)
       index, next_video = json_response["videos"].as_a.skip(1 + lookback).select { |video| !video["author"].as_s.empty? }[0]?.try { |v| {v["index"], v["videoId"]} } || {nil, nil}
 
       response = {
@@ -110,6 +113,9 @@ module Invidious::Routes::API::V1::Misc
 
     format = env.params.query["format"]?
     format ||= "json"
+
+    listen_param = env.params.query["listen"]?
+    listen = (listen_param == "true" || listen_param == "1")
 
     begin
       mix = fetch_mix(rdid, continuation, locale: locale)
@@ -157,7 +163,7 @@ module Invidious::Routes::API::V1::Misc
 
     if format == "html"
       response = JSON.parse(response)
-      playlist_html = template_mix(response)
+      playlist_html = template_mix(response, listen)
       next_video = response["videos"].as_a.select { |video| !video["author"].as_s.empty? }[0]?.try &.["videoId"]
 
       response = {
