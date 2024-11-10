@@ -7,3 +7,5 @@
 /invidious
 /sentry
 /config/config.yml
+
+/src/addons/enabled.txt
