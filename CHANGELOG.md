@@ -5,6 +5,12 @@
 
 ### Full list of pull requests merged since the last release (newest first)
 
+* API: Add "sort_by" parameter to channels/shorts endpoint ([#5071], thanks @iBicha)
+* Docker: Install tzdata in Dockerfile ([#5070], by @SamantazFox)
+* Videos: Stop using TVHTML5_SIMPLY_EMBEDDED_PLAYER ([#5063], thanks @unixfox)
+* Routing: Deprecate old channel API routes ([#5045], by @SamantazFox)
+* Videos: use WEB client instead of WEB CREATOR ([#4984], thanks @unixfox)
+* Parsers: Fix parsing live_now and premiere_timestamp ([#4934], thanks @absidue)
 * Stale bot updates ([#5060], thanks @syeopite)
 * Channels: Fix "Youtube API returned error 400" ([#5059], by @SamantazFox)
 * Channels: Fix for live videos ([#5027], thanks @iBicha)
@@ -52,15 +58,21 @@
 [#4928]: https://github.com/iv-org/invidious/pull/4928
 [#4930]: https://github.com/iv-org/invidious/pull/4930
 [#4931]: https://github.com/iv-org/invidious/pull/4931
+[#4934]: https://github.com/iv-org/invidious/pull/4934
 [#4942]: https://github.com/iv-org/invidious/pull/4942
+[#4984]: https://github.com/iv-org/invidious/pull/4984
 [#4991]: https://github.com/iv-org/invidious/pull/4991
 [#4993]: https://github.com/iv-org/invidious/pull/4993
 [#4995]: https://github.com/iv-org/invidious/pull/4995
 [#5027]: https://github.com/iv-org/invidious/pull/5027
 [#5034]: https://github.com/iv-org/invidious/pull/5034
+[#5045]: https://github.com/iv-org/invidious/pull/5045
 [#5046]: https://github.com/iv-org/invidious/pull/5046
 [#5059]: https://github.com/iv-org/invidious/pull/5059
 [#5060]: https://github.com/iv-org/invidious/pull/5060
+[#5063]: https://github.com/iv-org/invidious/pull/5063
+[#5070]: https://github.com/iv-org/invidious/pull/5070
+[#5071]: https://github.com/iv-org/invidious/pull/5071
 
 
 ## v2.20240825.2 (2024-08-26)
