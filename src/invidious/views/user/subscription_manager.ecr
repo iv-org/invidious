@@ -37,7 +37,7 @@
             <div class="pure-u-2-5"></div>
             <div class="pure-u-1-5" style="text-align:right">
                 <h3 style="padding-right:0.5em">
-                    <form data-onsubmit="return_false" action="/subscription_ajax?action_remove_subscriptions=1&c=<%= channel.id %>&referer=<%= env.get("current_page") %>" method="post">
+                    <form data-onsubmit="return_false" action="/subscription_ajax?action=remove_subscriptions&c=<%= channel.id %>&referer=<%= env.get("current_page") %>" method="post">
                         <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
                         <input style="all:unset" type="submit" data-onclick="remove_subscription" data-ucid="<%= channel.id %>" value="<%= translate(locale, "unsubscribe") %>">
                     </form>

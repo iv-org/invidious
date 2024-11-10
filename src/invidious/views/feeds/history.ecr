@@ -37,7 +37,7 @@
                     </a>
 
                     <div class="top-left-overlay"><div class="watched">
-                    <form data-onsubmit="return_false" action="/watch_ajax?action_mark_unwatched=1&id=<%= item %>&referer=<%= env.get("current_page") %>" method="post">
+                    <form data-onsubmit="return_false" action="/watch_ajax?action=mark_unwatched&id=<%= item %>&referer=<%= env.get("current_page") %>" method="post">
                         <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>">
                         <button type="submit" class="pure-button pure-button-secondary low-profile"
                                 data-onclick="mark_unwatched" data-id="<%= item %>"><i class="icon ion-md-trash"></i></button>

@@ -241,18 +241,10 @@ module Invidious::Routes::Watch
       end
     end
 
-    if env.params.query["action_mark_watched"]?
-      action = "action_mark_watched"
-    elsif env.params.query["action_mark_unwatched"]?
-      action = "action_mark_unwatched"
-    else
-      return env.redirect referer
-    end
-
-    case action
-    when "action_mark_watched"
+    case action = env.params.query["action"]?
+    when "mark_watched"
       Invidious::Database::Users.mark_watched(user, id)
-    when "action_mark_unwatched"
+    when "mark_unwatched"
       Invidious::Database::Users.mark_unwatched(user, id)
     else
       return error_json(400, "Unsupported action #{action}")

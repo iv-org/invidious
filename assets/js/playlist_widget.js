@@ -6,7 +6,7 @@ function add_playlist_video(target) {
     var select = target.parentNode.children[0].children[1];
     var option = select.children[select.selectedIndex];
 
-    var url = '/playlist_ajax?action_add_video=1&redirect=false' +
+    var url = '/playlist_ajax?action=add_video&redirect=false' +
         '&video_id=' + target.getAttribute('data-id') +
         '&playlist_id=' + option.getAttribute('data-plid');
 
@@ -21,7 +21,7 @@ function add_playlist_item(target) {
     var tile = target.parentNode.parentNode.parentNode.parentNode.parentNode;
     tile.style.display = 'none';
 
-    var url = '/playlist_ajax?action_add_video=1&redirect=false' +
+    var url = '/playlist_ajax?action=add_video&redirect=false' +
         '&video_id=' + target.getAttribute('data-id') +
         '&playlist_id=' + target.getAttribute('data-plid');
 
@@ -36,7 +36,7 @@ function remove_playlist_item(target) {
     var tile = target.parentNode.parentNode.parentNode.parentNode.parentNode;
     tile.style.display = 'none';
 
-    var url = '/playlist_ajax?action_remove_video=1&redirect=false' +
+    var url = '/playlist_ajax?action=remove_video&redirect=false' +
         '&set_video_id=' + target.getAttribute('data-index') +
         '&playlist_id=' + target.getAttribute('data-plid');
 

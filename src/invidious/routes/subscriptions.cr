@@ -32,24 +32,16 @@ module Invidious::Routes::Subscriptions
       end
     end
 
-    if env.params.query["action_create_subscription_to_channel"]?.try &.to_i?.try &.== 1
-      action = "action_create_subscription_to_channel"
-    elsif env.params.query["action_remove_subscriptions"]?.try &.to_i?.try &.== 1
-      action = "action_remove_subscriptions"
-    else
-      return env.redirect referer
-    end
-
     channel_id = env.params.query["c"]?
     channel_id ||= ""
 
-    case action
-    when "action_create_subscription_to_channel"
+    case action = env.params.query["action"]?
+    when "create_subscription_to_channel"
       if !user.subscriptions.includes? channel_id
         get_channel(channel_id)
         Invidious::Database::Users.subscribe_channel(user, channel_id)
       end
-    when "action_remove_subscriptions"
+    when "remove_subscriptions"
       Invidious::Database::Users.unsubscribe_channel(user, channel_id)
     else
       return error_json(400, "Unsupported action #{action}")
