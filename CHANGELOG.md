@@ -1,6 +1,73 @@
 # CHANGELOG
 
-## vX.Y.0 (future)
+## v2.20241110.0
+
+### Wrap-up
+
+This release is most importantly here to fix to the annoying "Youtube API returned error 400"
+error that prevented all channel pages from loading.
+
+If you're updating from the previous release, it provides no improvements on the ability to play
+videos. If updating from a commit in-between release, it removes the "Please sign in" error caused
+by a previous attempt at restoring video playback on large instances.
+
+In the preferences, a new option allows for control of video preload. When enabled, this option
+tells the browser to load the video as soon as the page is loaded (this used to be the default).
+When disabled, the video starts loading only when the "play" button is pressed.
+
+New interface languages available: Bulgarian, Welsh and Lombard
+
+New dependency required: `tzdata`.
+
+An HTTP proxy can be configured directly in Invidious, if needed. \
+**NOTE:** In that case, it is recommended to comment out `force_resolve`.
+
+
+### New features & important changes
+
+#### For users
+
+* Channels: Fix "Youtube API returned error 400" error preventing channel pages from loading
+* Channels: Shorts can now be sorted by "newest", "oldest" and "popular"
+* Preferences: Addition of the new "preload" option
+* New interface languages available: Bulgarian, Welsh and Lombard
+* Added "Filipino (auto-generated)" to the list of caption languages available
+* Lots of new translations from Weblate
+
+#### For instance owners
+
+* Allow the configuration of an HTTP proxy to talk to Youtube
+* Invidious tries to reconnect to `inv_sig_helper` if the socket is closed
+* The instance list is downloaded in the background to improve redirection speed
+* New `colorize_logs` option makes each log level a different color
+
+#### For developpers
+
+* `/api/v1/channels/{id}/shorts` now supports the `sort-by` parameter with the following values:
+  `newest`, `oldest` and `popular`
+* Older `/api/v1/channels/xyz/{id}` (tab name before UCID) were removed
+* API/Search: New video metadata available: `isNew`, `is4k`, `is8k`, `isVr180`, `isVr360`,
+  `is3d` and `hasCaptions`
+
+### Bugs fixed
+
+#### User-side
+
+* Channels: The second page of shorts now loads as expected
+* Channels: Fixed intermittent empty "playlists" tab
+* Search: Fixed `youtu.be` URLs not being properly redirected to the watch page
+* Fixed `DB::MappingException` error on the subscriptions feed (due to missing `tzdata` in docker)
+* Switching to another instance is much faster
+* Fixed an "invalid byte sequence" error when subscribing to a playlist
+* Videos: Playback URLs were sometimes broken when cached and `inv_sig_helper` was used
+
+#### For instance owners
+
+* Fix `force_resolve` being ignored in some cases
+
+#### API
+
+* API/Videos: Fixed `live_now` and `premiere_timestamp` sometimes not having the right values
 
 
 ### Full list of pull requests merged since the last release (newest first)
