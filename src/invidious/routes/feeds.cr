@@ -423,16 +423,6 @@ module Invidious::Routes::Feeds
           next # skip this video since it raised an exception (e.g. it is a scheduled live event)
         end
 
-        if CONFIG.enable_user_notifications
-          # Deliver notifications to `/api/v1/auth/notifications`
-          payload = {
-            "topic"     => video.ucid,
-            "videoId"   => video.id,
-            "published" => published.to_unix,
-          }.to_json
-          PG_DB.exec("NOTIFY notifications, E'#{payload}'")
-        end
-
         video = ChannelVideo.new({
           id:                 id,
           title:              video.title,
@@ -448,11 +438,7 @@ module Invidious::Routes::Feeds
 
         was_insert = Invidious::Database::ChannelVideos.insert(video, with_premiere_timestamp: true)
         if was_insert
-          if CONFIG.enable_user_notifications
-            Invidious::Database::Users.add_notification(video)
-          else
-            Invidious::Database::Users.feed_needs_update(video)
-          end
+          NOTIFICATION_CHANNEL.send(VideoNotification.from_video(video))
         end
       end
     end
