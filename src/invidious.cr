@@ -207,9 +207,9 @@ end
 
 # Routing
 
-before_all do |env|
-  Invidious::Routes::BeforeAll.handle(env)
-end
+# Custom handlers actually has a higher priority than the handler defined via
+# before_all
+add_handler TrueBeforeAllHandler.new
 
 Invidious::Routing.register_all
 
