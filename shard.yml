@@ -31,6 +31,8 @@ dependencies:
   http_proxy:
     github: mamantoha/http_proxy
     version: ~> 0.10.3
+  extendious-reddit-comments:
+    github: "syeopite/extendious-reddit-comments"
 
 development_dependencies:
   spectator:

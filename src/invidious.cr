@@ -64,7 +64,6 @@ HMAC_KEY = CONFIG.hmac_key
 PG_DB       = DB.open CONFIG.database_url
 ARCHIVE_URL = URI.parse("https://archive.org")
 PUBSUB_URL  = URI.parse("https://pubsubhubbub.appspot.com")
-REDDIT_URL  = URI.parse("https://www.reddit.com")
 YT_URL      = URI.parse("https://www.youtube.com")
 HOST_URL    = make_host_url(Kemal.config)
 
