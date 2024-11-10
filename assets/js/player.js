@@ -157,22 +157,6 @@ player.on('timeupdate', function () {
 });
 
 
-var shareOptions = {
-    socials: ['fbFeed', 'tw', 'reddit', 'email'],
-
-    get url() {
-        return addCurrentTimeToURL(short_url);
-    },
-    title: player_data.title,
-    description: player_data.description,
-    image: player_data.thumbnail,
-    get embedCode() {
-        // Single quotes inside here required. HTML inserted as is into value attribute of input
-        return "<iframe id='ivplayer' width='640' height='360' src='" +
-            addCurrentTimeToURL(embed_url) + "' style='border:none;'></iframe>";
-    }
-};
-
 if (location.pathname.startsWith('/embed/')) {
     var overlay_content = '<h1><a rel="noopener" target="_blank" href="' + location.origin + '/watch?v=' + video_data.id + '">' + player_data.title + '</a></h1>';
     player.overlay({
@@ -219,11 +203,8 @@ if (isMobile()) {
     var playback_element = document.getElementsByClassName('vjs-playback-rate')[0];
     operations_bar_element.append(playback_element);
 
-    // The share and http source selector element can't be fetched till the players ready.
+    // The http source selector element can't be fetched till the players ready.
     player.one('playing', function () {
-        var share_element = document.getElementsByClassName('vjs-share-control')[0];
-        operations_bar_element.append(share_element);
-
         if (!video_data.params.listen && video_data.params.quality === 'dash') {
             var http_source_selector = document.getElementsByClassName('vjs-http-source-selector vjs-menu-button')[0];
             operations_bar_element.append(http_source_selector);
@@ -724,9 +705,6 @@ addEventListener('keydown', function (e) {
     player.on('mousewheel', mouseScroll);
     player.on('DOMMouseScroll', mouseScroll);
 }());
-
-// Since videojs-share can sometimes be blocked, we defer it until last
-if (player.share) player.share(shareOptions);
 
 // show the preferred caption by default
 if (player_data.preferred_caption_found) {
