@@ -115,12 +115,8 @@ ul.vjs-menu-content::-webkit-scrollbar {
   order: 5;
 }
 
-.vjs-share-control {
-  order: 6;
-}
-
 .vjs-fullscreen-control {
-  order: 7;
+  order: 6;
 }
 
 .vjs-playback-rate > .vjs-menu {
@@ -250,12 +246,6 @@ video.video-js {
   position: absolute !important;
   bottom: unset !important;
   top: 1.5em;
-}
-
-@media screen and (max-width: 700px) {
-  .video-js .vjs-share {
-    justify-content: unset;
-  }
 }
 
 @media screen and (max-width: 650px) {

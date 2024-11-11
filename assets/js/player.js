@@ -95,6 +95,109 @@ if (video_data.params.quality === 'dash') {
     });
 }
 
+
+// Populated by DOMContentLoaded event
+let shareWidgetDetailsBox
+let shareToSiteContainer
+let shareWidgetAddDurationButton
+
+/**
+ * Modifies share widget links to remove or add the current time to the invidious video URL
+ *
+ * @param {bool} setTime
+ */
+function modifySocialWidgetURLs(setTime = false) {
+    for (let shareToSite of shareToSiteContainer ) {
+        let socialLink = shareToSite.getElementsByTagName("a")[0];
+
+        if (!socialLink) {
+            continue;
+        }
+
+        let shareUrl = URL.parse(socialLink.href);
+        let shareUrlParams = shareUrl.searchParams
+        let replaceAttr = socialLink.dataset.replaceAttr;
+
+        let videoUrl = shareUrlParams.get(replaceAttr)
+        if (videoUrl.startsWith("/")) {
+            videoUrl = window.location.origin + videoUrl;
+        }
+
+        let urlToReplace
+
+        if (setTime) {
+            urlToReplace = addCurrentTimeToURL(videoUrl)
+        } else {
+            urlToReplace = URL.parse(videoUrl)
+            urlToReplace.searchParams.delete('t');
+            urlToReplace = urlToReplace.toString()
+        }
+
+        shareUrlParams.set(replaceAttr, urlToReplace);
+        socialLink.href = shareUrl.toString();
+    }
+
+    // Edit url for iframe
+    const iframeCodeElement = document.getElementById("share-widget-embed-code")
+    const iframeParsedDom = new DOMParser().parseFromString(iframeCodeElement.textContent, "text/html")
+
+    const iframeElement = iframeParsedDom.getElementsByTagName("iframe")[0]
+
+    let iframeSrc = iframeElement.src
+
+    if (iframeSrc.startsWith("/")) {
+        iframeSrc = window.location.origin + iframeSrc;
+    }
+
+    if (setTime) {
+        iframeSrc = addCurrentTimeToURL(iframeSrc)
+    } else {
+        iframeSrc = URL.parse(iframeSrc)
+        iframeSrc.searchParams.delete('t');
+        iframeSrc = iframeSrc.toString()
+    }
+
+    iframeElement.src = iframeSrc
+    iframeCodeElement.textContent = iframeElement.outerHTML
+}
+
+
+/**
+ * Updates the time of the Start at ${time} text in the share widget
+ *
+ */
+function updateStartAtDurationStr() {
+    const label = shareWidgetAddDurationButton.labels[0];
+    const startAtDurationText =  label.getElementsByTagName("span")[0];
+    if (label) {
+        const duration = Math.floor(player.currentTime());
+        if (duration == 0) {
+            startAtDurationText.innerHTML = "0:00"
+            return
+        }
+
+        const durationStrVals = [];
+        const paddedDurationString = [];
+
+        const days = Math.floor(duration / (60 * 60 * 24));
+        const hours = Math.floor((duration / (60 * 60)) % 24);
+        const minutes = Math.floor((duration / 60) % 60);
+        const seconds = Math.floor(duration % 60);
+
+        if (days !== 0) durationStrVals.push(days);
+        if (hours !== 0) durationStrVals.push(hours);
+
+        durationStrVals.push(minutes);
+        durationStrVals.push(seconds);
+
+        durationStrVals.forEach((val) => {
+            paddedDurationString.push(String(val).padStart(2, "0"))
+        })
+
+        startAtDurationText.innerHTML = paddedDurationString.join(":")
+    }
+}
+
 /**
  * Function for add time argument to url
  *
@@ -154,24 +257,13 @@ player.on('timeupdate', function () {
 
     elem_iv_embed.href = addCurrentTimeToURL(base_url_iv_embed, domain);
     elem_iv_other.href = addCurrentTimeToURL(base_url_iv_other, domain);
+
+    // Only modify share widget data if start at is selected
+    if (document.getElementById('share-add-duration').checked) {
+        modifySocialWidgetURLs(true);
+    }
 });
 
-
-var shareOptions = {
-    socials: ['fbFeed', 'tw', 'reddit', 'email'],
-
-    get url() {
-        return addCurrentTimeToURL(short_url);
-    },
-    title: player_data.title,
-    description: player_data.description,
-    image: player_data.thumbnail,
-    get embedCode() {
-        // Single quotes inside here required. HTML inserted as is into value attribute of input
-        return "<iframe id='ivplayer' width='640' height='360' src='" +
-            addCurrentTimeToURL(embed_url) + "' style='border:none;'></iframe>";
-    }
-};
 
 if (location.pathname.startsWith('/embed/')) {
     var overlay_content = '<h1><a rel="noopener" target="_blank" href="' + location.origin + '/watch?v=' + video_data.id + '">' + player_data.title + '</a></h1>';
@@ -219,11 +311,8 @@ if (isMobile()) {
     var playback_element = document.getElementsByClassName('vjs-playback-rate')[0];
     operations_bar_element.append(playback_element);
 
-    // The share and http source selector element can't be fetched till the players ready.
+    // The http source selector element can't be fetched till the players ready.
     player.one('playing', function () {
-        var share_element = document.getElementsByClassName('vjs-share-control')[0];
-        operations_bar_element.append(share_element);
-
         if (!video_data.params.listen && video_data.params.quality === 'dash') {
             var http_source_selector = document.getElementsByClassName('vjs-http-source-selector vjs-menu-button')[0];
             operations_bar_element.append(http_source_selector);
@@ -725,9 +814,6 @@ addEventListener('keydown', function (e) {
     player.on('DOMMouseScroll', mouseScroll);
 }());
 
-// Since videojs-share can sometimes be blocked, we defer it until last
-if (player.share) player.share(shareOptions);
-
 // show the preferred caption by default
 if (player_data.preferred_caption_found) {
     player.ready(function () {
@@ -785,4 +871,31 @@ addEventListener('DOMContentLoaded', function () {
     if (changeInstanceLink) changeInstanceLink.addEventListener('click', function () {
         changeInstanceLink.href = addCurrentTimeToURL(changeInstanceLink.href);
     });
+
+    shareWidgetDetailsBox = document.getElementById("share-widget");
+    shareToSiteContainer = document.getElementsByClassName('share-site');
+    shareWidgetAddDurationButton = document.getElementById("share-add-duration");
+
+    shareWidgetAddDurationButton.addEventListener("change", () => {
+        if (shareWidgetAddDurationButton.checked) {
+            modifySocialWidgetURLs(true)
+            updateStartAtDurationStr()
+        } else {
+            modifySocialWidgetURLs(false)
+            updateStartAtDurationStr()
+        }
+    })
+
+    shareWidgetDetailsBox.addEventListener("toggle", () => {
+        // If share widget is opened and the share widget start at checkbox is checked
+        // then we will update the time to the current video time
+        if (shareWidgetDetailsBox.open && shareWidgetAddDurationButton.checked) {
+            modifySocialWidgetURLs(true)
+            updateStartAtDurationStr()
+        } else {
+            // Uncheck when closed
+            shareWidgetAddDurationButton.checked = false
+            modifySocialWidgetURLs(false)
+        }
+    })
 });

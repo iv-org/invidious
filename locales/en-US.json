@@ -498,5 +498,11 @@
     "toggle_theme": "Toggle Theme",
     "carousel_slide": "Slide {{current}} of {{total}}",
     "carousel_skip": "Skip the Carousel",
-    "carousel_go_to": "Go to slide `x`"
+    "carousel_go_to": "Go to slide `x`",
+    "video_share_widget_label": "Share",
+    "video_share_widget_embed": "Embed",
+    "video_share_widget_twitter": "Twitter",
+    "video_share_widget_reddit": "Reddit",
+    "video_share_widget_email": "Email",
+    "video_share_add_duration_checkbox_label": "Start at `x`"
 }
