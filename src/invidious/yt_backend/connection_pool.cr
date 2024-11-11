@@ -1,111 +1,6 @@
-# Mapping of subdomain => YoutubeConnectionPool
+# Mapping of subdomain => Invidious::ConnectionPool::Pool
 # This is needed as we may need to access arbitrary subdomains of ytimg
-private YTIMG_POOLS = {} of String => YoutubeConnectionPool
-
-struct YoutubeConnectionPool
-  property! url : URI
-  property! max_capacity : Int32
-  property! idle_capacity : Int32
-  property! timeout : Float64
-  property pool : DB::Pool(HTTP::Client)
-
-  def initialize(
-    url : URI,
-    *,
-    @max_capacity : Int32 = 5,
-    idle_capacity : Int32? = nil,
-    @timeout : Float64 = 5.0,
-  )
-    if idle_capacity.nil?
-      @idle_capacity = @max_capacity
-    else
-      @idle_capacity = idle_capacity
-    end
-
-    @url = url
-    @pool = build_pool()
-  end
-
-  def client(&)
-    conn = pool.checkout
-    # Proxy needs to be reinstated every time we get a client from the pool
-    conn.proxy = make_configured_http_proxy_client() if CONFIG.http_proxy
-
-    begin
-      response = yield conn
-    rescue ex
-      conn.close
-      conn = make_client(url, force_resolve: true)
-
-      response = yield conn
-    ensure
-      pool.release(conn)
-    end
-
-    response
-  end
-
-  private def build_pool
-    # We call the getter for the instance variables instead of using them directly
-    # because the getters defined by property! ensures that the value is not a nil
-    options = DB::Pool::Options.new(
-      initial_pool_size: 0,
-      max_pool_size: max_capacity,
-      max_idle_pool_size: idle_capacity,
-      checkout_timeout: timeout
-    )
-
-    DB::Pool(HTTP::Client).new(options) do
-      next make_client(url, force_resolve: true)
-    end
-  end
-end
-
-struct CompanionConnectionPool
-  property! max_capacity : Int32
-  property! idle_capacity : Int32
-  property! timeout : Float64
-  property pool : DB::Pool(HTTP::Client)
-
-  def initialize(*, @max_capacity : Int32 = 5, idle_capacity : Int32? = nil, @timeout : Float64 = 5.0)
-    if idle_capacity.nil?
-      @idle_capacity = @max_capacity
-    else
-      @idle_capacity = idle_capacity
-    end
-
-    options = DB::Pool::Options.new(
-      initial_pool_size: 0,
-      max_pool_size: max_capacity,
-      max_idle_pool_size: idle_capacity.not_nil!,
-      checkout_timeout: timeout
-    )
-
-    @pool = DB::Pool(HTTP::Client).new(options) do
-      companion = CONFIG.invidious_companion.sample
-      next make_client(companion.private_url, use_http_proxy: false)
-    end
-  end
-
-  def client(&)
-    conn = pool.checkout
-
-    begin
-      response = yield conn
-    rescue ex
-      conn.close
-
-      companion = CONFIG.invidious_companion.sample
-      conn = make_client(companion.private_url, use_http_proxy: false)
-
-      response = yield conn
-    ensure
-      pool.release(conn)
-    end
-
-    response
-  end
-end
+private YTIMG_POOLS = {} of String => Invidious::ConnectionPool::Pool
 
 def add_yt_headers(request)
   request.headers.delete("User-Agent") if request.headers["User-Agent"] == "Crystal"
@@ -169,7 +64,7 @@ def get_ytimg_pool(subdomain)
     return pool
   else
     LOGGER.info("ytimg_pool: Creating a new HTTP pool for \"https://#{subdomain}.ytimg.com\"")
-    pool = YoutubeConnectionPool.new(
+    pool = Invidious::ConnectionPool::Pool.new(
       URI.parse("https://#{subdomain}.ytimg.com"),
       max_capacity: CONFIG.pool_size,
       idle_capacity: CONFIG.idle_pool_size
