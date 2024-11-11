@@ -139,7 +139,7 @@ https_only: false
 ## Disable proxying server-wide. Can be disable as a whole, or
 ## only for a single function.
 ##
-## Accepted values: true, false, dash, livestreams, downloads, local
+## Accepted values: true, false, dash, livestreams, downloads, local, hls
 ## Default: false
 ##
 #disable_proxy: false
@@ -796,7 +796,7 @@ default_user_preferences:
   ##
   ## Default video quality.
   ##
-  ## Accepted values: dash, hd720, medium, small
+  ## Accepted values: hls, dash, hd720, medium, small
   ## Default: hd720
   ##
   #quality: hd720

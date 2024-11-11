@@ -294,7 +294,7 @@ struct Video
   predicate_bool upcoming, isUpcoming
 end
 
-def get_video(id, refresh = true, region = nil, force_refresh = false)
+def get_video(id, refresh = true, region = nil, get_hls = false, force_refresh = false)
   if (video = Invidious::Database::Videos.select(id)) && !region
     # If record was last updated over 10 minutes ago, or video has since premiered,
     # refresh (expire param in response lasts for 6 hours)
@@ -314,6 +314,19 @@ def get_video(id, refresh = true, region = nil, force_refresh = false)
   else
     video = fetch_video(id, region)
     Invidious::Database::Videos.insert(video) if !region
+  end
+
+  # The video object we got above could be from a previous request that was not
+  # done through the IOS client. If the users wants HLS we should check if
+  # a manifest exists in the data returned. If not we will rerequest one.
+  if get_hls && !video.hls_manifest_url
+    begin
+      video_with_hls_data = update_video_object_with_hls_data(id, video)
+      return video if !video_with_hls_data
+      Invidious::Database::Videos.update(video_with_hls_data) if !region
+    rescue ex
+      # Use old database video if IOS client request fails
+    end
   end
 
   return video

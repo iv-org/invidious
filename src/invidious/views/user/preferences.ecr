@@ -54,10 +54,10 @@
             <div class="pure-control-group">
                 <label for="quality"><%= translate(locale, "preferences_quality_label") %></label>
                 <select name="quality" id="quality">
-                    <% {"dash", "hd720", "medium", "small"}.each do |option| %>
-                        <% if !(option == "dash" && CONFIG.disabled?("dash")) %>
-                            <option value="<%= option %>" <% if preferences.quality == option %> selected <% end %>><%= translate(locale, "preferences_quality_option_" + option) %></option>
-                        <% end %>
+                    <% {"hls", "dash", "hd720", "medium", "small"}.each do |option| %>
+                        <% next if (option == "dash" && CONFIG.disabled?("dash"))%>
+                        <% next if (option == "hls" && CONFIG.disabled?("hls"))%>
+                        <option value="<%= option %>" <% if preferences.quality == option %> selected <% end %>><%= translate(locale, "preferences_quality_option_" + option) %></option>
                     <% end %>
                 </select>
             </div>

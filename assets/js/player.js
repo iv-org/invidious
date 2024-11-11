@@ -25,7 +25,7 @@ var options = {
     html5: {
         preloadTextTracks: false,
         vhs: {
-            overrideNative: true
+            overrideNative: !videojs.browser.IS_ANY_SAFARI
         }
     }
 };
