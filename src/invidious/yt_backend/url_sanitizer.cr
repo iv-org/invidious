@@ -111,7 +111,7 @@ module UrlSanitizer
       new_uri.path = "/watch"
 
       new_params = copy_params(unsafe_uri.query_params, :watch)
-      new_params["id"] = breadcrumbs[0]
+      new_params["v"] = breadcrumbs[0]
 
       new_uri.query_params = new_params
     end

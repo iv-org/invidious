@@ -1,3 +1,16 @@
+@[Flags]
+enum VideoBadges
+  LiveNow
+  Premium
+  ThreeD
+  FourK
+  New
+  EightK
+  VR180
+  VR360
+  ClosedCaptions
+end
+
 struct SearchVideo
   include DB::Serializable
 
@@ -9,10 +22,9 @@ struct SearchVideo
   property views : Int64
   property description_html : String
   property length_seconds : Int32
-  property live_now : Bool
-  property premium : Bool
   property premiere_timestamp : Time?
   property author_verified : Bool
+  property badges : VideoBadges
 
   def to_xml(auto_generated, query_params, xml : XML::Builder)
     query_params["v"] = self.id
@@ -88,13 +100,20 @@ struct SearchVideo
       json.field "published", self.published.to_unix
       json.field "publishedText", translate(locale, "`x` ago", recode_date(self.published, locale))
       json.field "lengthSeconds", self.length_seconds
-      json.field "liveNow", self.live_now
-      json.field "premium", self.premium
+      json.field "liveNow", self.badges.live_now?
+      json.field "premium", self.badges.premium?
       json.field "isUpcoming", self.upcoming?
 
       if self.premiere_timestamp
         json.field "premiereTimestamp", self.premiere_timestamp.try &.to_unix
       end
+      json.field "isNew", self.badges.new?
+      json.field "is4k", self.badges.four_k?
+      json.field "is8k", self.badges.eight_k?
+      json.field "isVr180", self.badges.vr180?
+      json.field "isVr360", self.badges.vr360?
+      json.field "is3d", self.badges.three_d?
+      json.field "hasCaptions", self.badges.closed_captions?
     end
   end
 

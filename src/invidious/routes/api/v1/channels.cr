@@ -197,6 +197,7 @@ module Invidious::Routes::API::V1::Channels
     get_channel()
 
     # Retrieve continuation from URL parameters
+    sort_by = env.params.query["sort_by"]?.try &.downcase || "newest"
     continuation = env.params.query["continuation"]?
 
     if channel.is_age_gated
@@ -211,7 +212,7 @@ module Invidious::Routes::API::V1::Channels
     else
       begin
         videos, next_continuation = Channel::Tabs.get_shorts(
-          channel, continuation: continuation
+          channel, continuation: continuation, sort_by: sort_by
         )
       rescue ex
         return error_json(500, ex)

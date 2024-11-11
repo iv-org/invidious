@@ -47,6 +47,7 @@
     "Preferences": "Einstellungen",
     "preferences_category_player": "Wiedergabeeinstellungen",
     "preferences_video_loop_label": "Immer wiederholen: ",
+    "preferences_preload_label": "Videodaten vorladen: ",
     "preferences_autoplay_label": "Automatisch abspielen: ",
     "preferences_continue_label": "Immer automatisch nächstes Video abspielen: ",
     "preferences_continue_autoplay_label": "Nächstes Video automatisch abspielen: ",
@@ -322,7 +323,7 @@
     "channel_tab_community_label": "Gemeinschaft",
     "search_filters_sort_option_relevance": "Relevanz",
     "search_filters_sort_option_rating": "Bewertung",
-    "search_filters_sort_option_date": "Datum",
+    "search_filters_sort_option_date": "Hochladedatum",
     "search_filters_sort_option_views": "Aufrufe",
     "search_filters_type_label": "Inhaltstyp",
     "search_filters_duration_label": "Dauer",
@@ -454,7 +455,7 @@
     "Portuguese (auto-generated)": "Portugiesisch (automatisch generiert)",
     "search_filters_title": "Filtern",
     "search_message_change_filters_or_query": "Versuchen Sie, Ihre Suchanfrage zu erweitern und/oder die Filter zu ändern.",
-    "search_message_use_another_instance": " Sie können auch <a href=\"`x`\">auf einer anderen Instanz suchen</a>.",
+    "search_message_use_another_instance": "Sie können auch <a href=\"`x`\">auf einer anderen Instanz suchen</a>.",
     "Popular enabled: ": "„Beliebt“-Seite aktiviert: ",
     "search_message_no_results": "Keine Ergebnisse gefunden.",
     "search_filters_duration_option_medium": "Mittel (4 - 20 Minuten)",
@@ -493,5 +494,8 @@
     "Add to playlist": "Einer Wiedergabeliste hinzufügen",
     "Search for videos": "Nach Videos suchen",
     "toggle_theme": "Thema wechseln",
-    "Add to playlist: ": "Einer Wiedergabeliste hinzufügen: "
+    "Add to playlist: ": "Einer Wiedergabeliste hinzufügen: ",
+    "carousel_go_to": "Zu Folie `x` gehen",
+    "carousel_slide": "Folie {{current}} von {{total}}",
+    "carousel_skip": "Karussell überspringen"
 }

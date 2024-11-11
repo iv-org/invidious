@@ -484,7 +484,7 @@
     "search_filters_duration_option_medium": "Moyenne (de 4 à 20 minutes)",
     "search_filters_apply_button": "Appliquer les filtres",
     "search_message_no_results": "Aucun résultat.",
-    "search_message_use_another_instance": " Vous pouvez également <a href=\"`x`\">effectuer votre recherche sur une autre instance</a>.",
+    "search_message_use_another_instance": "Vous pouvez également <a href=\"`x`\">effectuer votre recherche sur une autre instance</a>.",
     "search_filters_type_option_all": "Tous les types",
     "search_filters_date_label": "Date d'ajout",
     "search_filters_features_option_vr180": "VR180",

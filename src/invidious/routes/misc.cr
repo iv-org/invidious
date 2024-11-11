@@ -40,7 +40,16 @@ module Invidious::Routes::Misc
 
   def self.cross_instance_redirect(env)
     referer = get_referer(env)
-    instance_url = fetch_random_instance
+
+    instance_list = Invidious::Jobs::InstanceListRefreshJob::INSTANCES["INSTANCES"]
+    if instance_list.empty?
+      instance_url = "redirect.invidious.io"
+    else
+      # Sample returns an array
+      # Instances are packaged as {region, domain} in the instance list
+      instance_url = instance_list.sample(1)[0][1]
+    end
+
     env.redirect "https://#{instance_url}#{referer}"
   end
 end

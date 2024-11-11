@@ -478,7 +478,7 @@
     "tokens_count_0": "{{count}} token",
     "tokens_count_1": "{{count}} tokens",
     "tokens_count_2": "{{count}} tokens",
-    "search_message_use_another_instance": " También puede <a href=\"`x`\">buscar en otra instancia</a>.",
+    "search_message_use_another_instance": "También puedes <a href=\"`x`\">buscar en otra instancia</a>.",
     "Popular enabled: ": "¿Habilitar la sección popular? ",
     "error_video_not_in_playlist": "El video que solicitaste no existe en esta lista de reproducción. <a href=\"`x`\">Haz clic aquí para acceder a la página de inicio de la lista de reproducción.</a>",
     "channel_tab_streams_label": "Directos",

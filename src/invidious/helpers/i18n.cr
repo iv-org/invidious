@@ -1,8 +1,22 @@
+# Languages requiring a better level of translation (at least 20%)
+# to be added to the list below:
+#
+#  "af"      => "", # Afrikaans
+#  "az"      => "", # Azerbaijani
+#  "be"      => "", # Belarusian
+#  "bn_BD"   => "", # Bengali (Bangladesh)
+#  "ia"      => "", # Interlingua
+#  "or"      => "", # Odia
+#  "tk"      => "", # Turkmen
+#  "tok      => "", # Toki Pona
+#
 LOCALES_LIST = {
   "ar"      => "العربية",               # Arabic
+  "bg"      => "български",             # Bulgarian
   "bn"      => "বাংলা",                 # Bengali
   "ca"      => "Català",                # Catalan
   "cs"      => "Čeština",               # Czech
+  "cy"      => "Cymraeg",               # Welsh
   "da"      => "Dansk",                 # Danish
   "de"      => "Deutsch",               # German
   "el"      => "Ελληνικά",              # Greek
@@ -23,6 +37,7 @@ LOCALES_LIST = {
   "it"      => "Italiano",              # Italian
   "ja"      => "日本語",                   # Japanese
   "ko"      => "한국어",                   # Korean
+  "lmo"     => "Lombard",               # Lombard
   "lt"      => "Lietuvių",              # Lithuanian
   "nb-NO"   => "Norsk bokmål",          # Norwegian Bokmål
   "nl"      => "Nederlands",            # Dutch

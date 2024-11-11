@@ -29,6 +29,7 @@ module YoutubeAPI
     WebEmbeddedPlayer
     WebMobile
     WebScreenEmbed
+    WebCreator
 
     Android
     AndroidEmbeddedPlayer
@@ -76,6 +77,14 @@ module YoutubeAPI
       name_proto: "1",
       version:    "2.20240814.00.00",
       screen:     "EMBED",
+      os_name:    "Windows",
+      os_version: WINDOWS_VERSION,
+      platform:   "DESKTOP",
+    },
+    ClientType::WebCreator => {
+      name:       "WEB_CREATOR",
+      name_proto: "62",
+      version:    "1.20240918.03.00",
       os_name:    "Windows",
       os_version: WINDOWS_VERSION,
       platform:   "DESKTOP",
@@ -628,6 +637,11 @@ module YoutubeAPI
     # Send the POST request
     body = YT_POOL.client() do |client|
       client.post(url, headers: headers, body: data.to_json) do |response|
+        if response.status_code != 200
+          raise InfoException.new("Error: non 200 status code. Youtube API returned \
+            status code #{response.status_code}. See <a href=\"https://docs.invidious.io/youtube-errors-explained/\"> \
+            https://docs.invidious.io/youtube-errors-explained/</a> for troubleshooting.")
+        end
         self._decompress(response.body_io, response.headers["Content-Encoding"]?)
       end
     end
