@@ -35,6 +35,7 @@ require "protodec/utils"
 
 require "./invidious/database/*"
 require "./invidious/database/migrations/*"
+require "./invidious/connection/*"
 require "./invidious/http_server/*"
 require "./invidious/helpers/*"
 require "./invidious/yt_backend/*"
@@ -91,17 +92,17 @@ SOFTWARE = {
   "branch"  => "#{CURRENT_BRANCH}",
 }
 
-YT_POOL = YoutubeConnectionPool.new(YT_URL, max_capacity: CONFIG.pool_size, idle_capacity: CONFIG.idle_pool_size)
+YT_POOL = Invidious::ConnectionPool::Pool.new(YT_URL, max_capacity: CONFIG.pool_size, idle_capacity: CONFIG.idle_pool_size)
 
 # Image request pool
 
-GGPHT_POOL = YoutubeConnectionPool.new(
+GGPHT_POOL = Invidious::ConnectionPool::Pool.new(
   URI.parse("https://yt3.ggpht.com"),
   max_capacity: CONFIG.pool_size,
   idle_capacity: CONFIG.idle_pool_size
 )
 
-COMPANION_POOL = CompanionConnectionPool.new(
+COMPANION_POOL = Invidious::ConnectionPool::CompanionPool.new(
   max_capacity: CONFIG.pool_size,
   idle_capacity: CONFIG.idle_pool_size
 )
