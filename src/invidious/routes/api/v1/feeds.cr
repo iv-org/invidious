@@ -4,6 +4,11 @@ module Invidious::Routes::API::V1::Feeds
 
     env.response.content_type = "application/json"
 
+    if !CONFIG.page_enabled?("trending")
+      error_message = {"error" => "Administrator has disabled this endpoint."}.to_json
+      haltf env, 403, error_message
+    end
+
     region = env.params.query["region"]?
     trending_type = env.params.query["type"]?
 
@@ -29,7 +34,7 @@ module Invidious::Routes::API::V1::Feeds
 
     env.response.content_type = "application/json"
 
-    if !CONFIG.popular_enabled
+    if !CONFIG.page_enabled?("popular")
       error_message = {"error" => "Administrator has disabled this endpoint."}.to_json
       haltf env, 403, error_message
     end
