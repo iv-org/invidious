@@ -160,26 +160,26 @@ we're going to need to do it here in order to allow for translations.
                 <div>
                     <ol id="share-to-sites">
                         <% escaped_iv_watch_link = URI.encode_www_form(HOST_URL) + env.get?("current_page").as(String) %>
-                        <% escaped_iv_embed_link = URI.encode_www_form(HOST_URL) + URI.encode_www_form(link_iv_embed.to_s) %>
+                        <% escaped_iv_embed_link = URI.encode_www_form(HOST_URL) + URI.encode_www_form(link_iv_embed.to_s.rstrip("?")) %>
                         <li class="share-site">
                             <details id="share-widget-embed-section">
                                 <summary><i class="icon ion ion-md-code"></i><span><%=translate(locale, "video_share_widget_embed")%></span></summary>
-                                <div contenteditable readonly><%=HTML.escape("<iframe id='ivplayer' width='640' height='360' src='#{escaped_iv_embed_link}' style='border:none;'</iframe>")%></div>
+                                <div id="share-widget-embed-code" contenteditable readonly><%=HTML.escape("<iframe id='ivplayer' width='640' height='360' src='#{escaped_iv_embed_link}' style='border:none;'</iframe>")%></div>
                             </details>
                         </li>
                         <li class="share-site">
-                            <a href="https://twitter.com/intent/post?url=<%=escaped_iv_watch_link%>&text=<%=title%>"><i class="icon ion ion-logo-twitter"></i><span><%=translate(locale, "video_share_widget_twitter")%></span></a>
+                            <a href="https://twitter.com/intent/post?url=<%=escaped_iv_watch_link%>&text=<%=title%>" data-replace-attr="url"><i class="icon ion ion-logo-twitter"></i><span><%=translate(locale, "video_share_widget_twitter")%></span></a>
                         </li>
                         <li class="share-site">
-                            <a href="https://www.reddit.com/submit?url=<%=escaped_iv_watch_link%>}&title=<%=title%>"><i class="icon ion ion-logo-reddit"></i><span><%=translate(locale, "video_share_widget_reddit")%></span></a>
+                            <a href="https://www.reddit.com/submit?url=<%=escaped_iv_watch_link%>}&title=<%=title%>" data-replace-attr="url"><i class="icon ion ion-logo-reddit"></i><span><%=translate(locale, "video_share_widget_reddit")%></span></a>
                         </li>
                         <li class="share-site">
-                            <a href="mailto:?subject=<%=title%>&body=<%=escaped_iv_watch_link%>"><i class="icon ion ion-md-mail"></i><span><%=translate(locale, "video_share_widget_email")%></span></a>
+                            <a href="mailto:?subject=<%=title%>&body=<%=escaped_iv_watch_link%>" data-replace-attr="body"><i class="icon ion ion-md-mail"></i><span><%=translate(locale, "video_share_widget_email")%></span></a>
                         </li>
                     </ol>
                     <div id="add-time-to-share-link-container">
                         <input type="checkbox" id="share-add-duration"/>
-                        <label for="share-add-duration"><%=translate(locale, "video_share_add_duration_checkbox_label", "0:00")%></label>
+                        <label for="share-add-duration"><%=translate(locale, "video_share_add_duration_checkbox_label", "<span>0:00</span>")%></label>
                     </div>
                 </div>
             </details>
