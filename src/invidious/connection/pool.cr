@@ -13,7 +13,7 @@ module Invidious::ConnectionPool
     def initialize(
       @max_capacity : Int32 = 5,
       @idle_capacity : Int32? = nil,
-      @timeout : Float64 = 5.0
+      @timeout : Float64 = 5.0,
     )
       @pool = build_pool()
     end
@@ -80,9 +80,8 @@ module Invidious::ConnectionPool
       *,
       @max_capacity : Int32 = 5,
       @idle_capacity : Int32? = nil,
-      @timeout : Float64 = 5.0
+      @timeout : Float64 = 5.0,
     )
-
       @url = url
       @pool = build_pool()
     end
@@ -112,5 +111,28 @@ module Invidious::ConnectionPool
   end
 
   class Error < Exception
+  end
+
+  # Mapping of subdomain => Invidious::ConnectionPool::Pool
+  # This is needed as we may need to access arbitrary subdomains of ytimg
+  private YTIMG_POOLS = {} of String => Invidious::ConnectionPool::Pool
+
+  # Fetches a HTTP pool for the specified subdomain of ytimg.com
+  #
+  # Creates a new one when the specified pool for the subdomain does not exist
+  def self.get_ytimg_pool(subdomain)
+    if pool = YTIMG_POOLS[subdomain]?
+      return pool
+    else
+      LOGGER.info("ytimg_pool: Creating a new HTTP pool for \"https://#{subdomain}.ytimg.com\"")
+      pool = Invidious::ConnectionPool::Pool.new(
+        URI.parse("https://#{subdomain}.ytimg.com"),
+        max_capacity: CONFIG.pool_size,
+        idle_capacity: CONFIG.idle_pool_size
+      )
+      YTIMG_POOLS[subdomain] = pool
+
+      return pool
+    end
   end
 end
