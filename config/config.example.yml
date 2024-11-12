@@ -216,7 +216,7 @@ https_only: false
 
 
 ##
-## Idle size of the HTTP pool used to connect to youtube. Each
+## Max idle size of the HTTP pool used to connect to youtube. Each
 ## domain ('youtube.com', 'ytimg.com', ...) has its own pool.
 ##
 ## When unset this value has the same value as pool_size 
@@ -224,8 +224,17 @@ https_only: false
 ## Accepted values: a positive integer
 ## Default: <none> (internally this means that it has the same value as pool_size)
 ##
-#idle pool_size: 100
+#idle_pool_size: 100
 
+##
+## Amount of seconds to wait for a client to be free from the pool
+## before raising an error
+##
+##
+## Accepted values: a positive integer
+## Default: 5
+##
+#pool_checkout_timeout: 5
 
 
 ##

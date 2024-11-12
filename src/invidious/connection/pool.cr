@@ -128,7 +128,8 @@ module Invidious::ConnectionPool
       pool = Invidious::ConnectionPool::Pool.new(
         URI.parse("https://#{subdomain}.ytimg.com"),
         max_capacity: CONFIG.pool_size,
-        idle_capacity: CONFIG.idle_pool_size
+        idle_capacity: CONFIG.idle_pool_size,
+        timeout: CONFIG.pool_checkout_timeout
       )
       YTIMG_POOLS[subdomain] = pool
 
