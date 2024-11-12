@@ -1,7 +1,3 @@
-# Mapping of subdomain => Invidious::ConnectionPool::Pool
-# This is needed as we may need to access arbitrary subdomains of ytimg
-private YTIMG_POOLS = {} of String => Invidious::ConnectionPool::Pool
-
 def add_yt_headers(request)
   request.headers.delete("User-Agent") if request.headers["User-Agent"] == "Crystal"
   request.headers["User-Agent"] ||= "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
@@ -54,23 +50,4 @@ def make_configured_http_proxy_client
     username: config_proxy.user,
     password: config_proxy.password,
   )
-end
-
-# Fetches a HTTP pool for the specified subdomain of ytimg.com
-#
-# Creates a new one when the specified pool for the subdomain does not exist
-def get_ytimg_pool(subdomain)
-  if pool = YTIMG_POOLS[subdomain]?
-    return pool
-  else
-    LOGGER.info("ytimg_pool: Creating a new HTTP pool for \"https://#{subdomain}.ytimg.com\"")
-    pool = Invidious::ConnectionPool::Pool.new(
-      URI.parse("https://#{subdomain}.ytimg.com"),
-      max_capacity: CONFIG.pool_size,
-      idle_capacity: CONFIG.idle_pool_size
-    )
-    YTIMG_POOLS[subdomain] = pool
-
-    return pool
-  end
 end
