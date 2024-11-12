@@ -224,7 +224,7 @@ https_only: false
 ## Accepted values: a positive integer
 ## Default: <none> (internally this means that it has the same value as pool_size)
 ##
-#idle_pool_size: 100
+#idle_pool_size:
 
 ##
 ## Amount of seconds to wait for a client to be free from the pool
