@@ -46,8 +46,6 @@ module Invidious::ConnectionPool
         # Prevent broken client from being checked back into the pool
         http_client.close
         raise ConnectionPool::Error.new(ex.message, cause: ex)
-      ensure
-        pool.release(http_client)
       end
     rescue ex : DB::PoolTimeout
       # Failed to checkout a client
