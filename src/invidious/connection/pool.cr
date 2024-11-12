@@ -42,9 +42,9 @@ module Invidious::ConnectionPool
         response = yield http_client
 
         return response
-      rescue ex : DB::Error
+      rescue ex
         # Prevent broken client from being checked back into the pool
-        http_client.close
+        pool.delete(http_client)
         raise ConnectionPool::Error.new(ex.message, cause: ex)
       end
     rescue ex : DB::PoolTimeout
