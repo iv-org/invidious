@@ -42,7 +42,7 @@ module Invidious::Routes::Images
     end
 
     begin
-      Invidious::ConnectionPool.get_ytimg_pool(authority).get(url, headers) do |resp|
+      ConnectionPool.get_ytimg_pool(authority).get(url, headers) do |resp|
         env.response.headers["Connection"] = "close"
         return self.proxy_image(env, resp)
       end
@@ -65,7 +65,7 @@ module Invidious::Routes::Images
     end
 
     begin
-      Invidious::ConnectionPool.get_ytimg_pool("i9").get(url, headers) do |resp|
+      ConnectionPool.get_ytimg_pool("i9").get(url, headers) do |resp|
         return self.proxy_image(env, resp)
       end
     rescue ex
@@ -111,7 +111,7 @@ module Invidious::Routes::Images
     if name == "maxres.jpg"
       build_thumbnails(id).each do |thumb|
         thumbnail_resource_path = "/vi/#{id}/#{thumb[:url]}.jpg"
-        if Invidious::ConnectionPool.get_ytimg_pool("i").head(thumbnail_resource_path, headers).status_code == 200
+        if ConnectionPool.get_ytimg_pool("i").head(thumbnail_resource_path, headers).status_code == 200
           name = thumb[:url] + ".jpg"
           break
         end
@@ -127,7 +127,7 @@ module Invidious::Routes::Images
     end
 
     begin
-      Invidious::ConnectionPool.get_ytimg_pool("i").get(url, headers) do |resp|
+      ConnectionPool.get_ytimg_pool("i").get(url, headers) do |resp|
         return self.proxy_image(env, resp)
       end
     rescue ex
