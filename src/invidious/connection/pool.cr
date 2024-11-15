@@ -34,7 +34,7 @@ module Invidious::ConnectionPool
     abstract def pool : DB::Pool(PoolClient)
 
     {% for method in %w[get post put patch delete head options] %}
-      def {{method.id}}(*args, **kwargs)
+      def {{method.id}}(*args, **kwargs, &)
         self.client do | client |
           client.{{method.id}}(*args, **kwargs) do | response |
 
@@ -48,12 +48,10 @@ module Invidious::ConnectionPool
       end
 
       def {{method.id}}(*args, **kwargs)
-        self.client do | client |
-          return response = client.{{method.id}}(*args, **kwargs)
+        {{method.id}}(*args, **kwargs) do | response |
+          return response
         ensure
-          if response
-            response.body_io?.try &. skip_to_end
-          end
+          response.body_io?.try &. skip_to_end
         end
       end
     {% end %}
