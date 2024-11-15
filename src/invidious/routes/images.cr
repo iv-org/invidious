@@ -12,7 +12,7 @@ module Invidious::Routes::Images
     end
 
     begin
-      GGPHT_POOL.client &.get(url, headers) do |resp|
+      GGPHT_POOL.get(url, headers) do |resp|
         return self.proxy_image(env, resp)
       end
     rescue ex
@@ -42,7 +42,7 @@ module Invidious::Routes::Images
     end
 
     begin
-      Invidious::ConnectionPool.get_ytimg_pool(authority).client &.get(url, headers) do |resp|
+      Invidious::ConnectionPool.get_ytimg_pool(authority).get(url, headers) do |resp|
         env.response.headers["Connection"] = "close"
         return self.proxy_image(env, resp)
       end
@@ -65,7 +65,7 @@ module Invidious::Routes::Images
     end
 
     begin
-      Invidious::ConnectionPool.get_ytimg_pool("i9").client &.get(url, headers) do |resp|
+      Invidious::ConnectionPool.get_ytimg_pool("i9").get(url, headers) do |resp|
         return self.proxy_image(env, resp)
       end
     rescue ex
@@ -81,7 +81,7 @@ module Invidious::Routes::Images
     end
 
     begin
-      YT_POOL.client &.get(env.request.resource, headers) do |response|
+      YT_POOL.get(env.request.resource, headers) do |response|
         env.response.status_code = response.status_code
         response.headers.each do |key, value|
           if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
@@ -111,7 +111,7 @@ module Invidious::Routes::Images
     if name == "maxres.jpg"
       build_thumbnails(id).each do |thumb|
         thumbnail_resource_path = "/vi/#{id}/#{thumb[:url]}.jpg"
-        if Invidious::ConnectionPool.get_ytimg_pool("i").client &.head(thumbnail_resource_path, headers).status_code == 200
+        if Invidious::ConnectionPool.get_ytimg_pool("i").head(thumbnail_resource_path, headers).status_code == 200
           name = thumb[:url] + ".jpg"
           break
         end
@@ -127,7 +127,7 @@ module Invidious::Routes::Images
     end
 
     begin
-      Invidious::ConnectionPool.get_ytimg_pool("i").client &.get(url, headers) do |resp|
+      Invidious::ConnectionPool.get_ytimg_pool("i").get(url, headers) do |resp|
         return self.proxy_image(env, resp)
       end
     rescue ex
