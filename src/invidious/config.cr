@@ -164,7 +164,7 @@ class Config
   property idle_pool_size : Int32? = nil
 
   # Amount of seconds to wait for a client to be free from the pool before rasing an error
-  property pool_checkout_timeout : Int32 = 5
+  property pool_checkout_timeout : Float64 = 5
 
   # HTTP Proxy configuration
   property http_proxy : HTTPProxyConfig? = nil
