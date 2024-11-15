@@ -60,21 +60,32 @@ module Invidious::ConnectionPool
 
     # Checks out a client in the pool
     private def client(&)
-      pool.checkout do |http_client|
-        # Proxy needs to be reinstated every time we get a client from the pool
-        http_client.proxy = make_configured_http_proxy_client() if CONFIG.http_proxy
+      # If a client has been deleted from the pool
+      # we won't try to release it
+      client_exists_in_pool = true
 
-        response = yield http_client
+      http_client = pool.checkout
 
-        return response
-      rescue ex
-        # Prevent broken client from being checked back into the pool
-        pool.delete(http_client)
-        raise ConnectionPool::Error.new(ex.message, cause: ex)
-      end
+      # Proxy needs to be reinstated every time we get a client from the pool
+      http_client.proxy = make_configured_http_proxy_client() if CONFIG.http_proxy
+
+      response = yield http_client
     rescue ex : DB::PoolTimeout
       # Failed to checkout a client
       raise ConnectionPool::Error.new(ex.message, cause: ex)
+    rescue ex
+      # An error occurred with the client itself.
+      # Delete the client from the pool and close the connection
+      if http_client
+        client_exists_in_pool = false
+        @pool.delete(http_client)
+        http_client.close
+      end
+
+      # Raise exception for outer methods to handle
+      raise ConnectionPool::Error.new(ex.message, cause: ex)
+    ensure
+      pool.release(http_client) if http_client && client_exists_in_pool
     end
 
     # Builds a connection pool
