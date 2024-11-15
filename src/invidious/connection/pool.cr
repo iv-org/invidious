@@ -59,7 +59,12 @@ module Invidious::ConnectionPool
 
       http_client = pool.checkout
 
-      # Proxy needs to be reinstated every time we get a client from the pool
+      # When the HTTP::Client connection is closed, the automatic reconnection
+      # feature will create a new IO to connect to the server with
+      #
+      # This new TCP IO will be a direct connection to the server and will not go
+      # through the proxy. As such we'll need to reinitialize the proxy connection
+
       http_client.proxy = make_configured_http_proxy_client() if CONFIG.http_proxy
 
       response = yield http_client
