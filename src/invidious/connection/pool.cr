@@ -1,27 +1,31 @@
 module Invidious::ConnectionPool
   struct Pool
-    property! url : URI
-    property! max_capacity : Int32
-    property! idle_capacity : Int32
-    property! timeout : Float64
+    property url : URI
     property pool : DB::Pool(HTTP::Client)
 
     def initialize(
       url : URI,
       *,
-      @max_capacity : Int32 = 5,
+      max_capacity : Int32 = 5,
       idle_capacity : Int32? = nil,
-      @timeout : Float64 = 5.0
+      timeout : Float64 = 5.0
     )
       if idle_capacity.nil?
-        @idle_capacity = @max_capacity
-      else
-        @idle_capacity = idle_capacity
+        idle_capacity = max_capacity
       end
 
       @url = url
 
-      @pool = build_pool()
+      options = DB::Pool::Options.new(
+        initial_pool_size: 0,
+        max_pool_size: max_capacity,
+        max_idle_pool_size: idle_capacity,
+        checkout_timeout: timeout
+      )
+
+      @pool = DB::Pool(HTTP::Client).new(options) do
+        next make_client(url, force_resolve: true)
+      end
     end
 
     {% for method in %w[get post put patch delete head options] %}
@@ -75,21 +79,6 @@ module Invidious::ConnectionPool
       raise ConnectionPool::Error.new(ex.message, cause: ex)
     ensure
       pool.release(http_client) if http_client && client_exists_in_pool
-    end
-
-    private def build_pool
-      # We call the getter for the instance variables instead of using them directly
-      # because the getters defined by property! ensures that the value is not a nil
-      options = DB::Pool::Options.new(
-        initial_pool_size: 0,
-        max_pool_size: max_capacity,
-        max_idle_pool_size: idle_capacity,
-        checkout_timeout: timeout
-      )
-
-      DB::Pool(HTTP::Client).new(options) do
-        next make_client(url, force_resolve: true)
-      end
     end
   end
 
