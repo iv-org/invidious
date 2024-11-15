@@ -1,51 +1,3 @@
-# Mapping of subdomain => YoutubeConnectionPool
-# This is needed as we may need to access arbitrary subdomains of ytimg
-private YTIMG_POOLS = {} of String => YoutubeConnectionPool
-
-struct YoutubeConnectionPool
-  property! url : URI
-  property! capacity : Int32
-  property! timeout : Float64
-  property pool : DB::Pool(HTTP::Client)
-
-  def initialize(url : URI, @capacity = 5, @timeout = 5.0)
-    @url = url
-    @pool = build_pool()
-  end
-
-  def client(&)
-    conn = pool.checkout
-    # Proxy needs to be reinstated every time we get a client from the pool
-    conn.proxy = make_configured_http_proxy_client() if CONFIG.http_proxy
-
-    begin
-      response = yield conn
-    rescue ex
-      conn.close
-      conn = make_client(url, force_resolve: true)
-
-      response = yield conn
-    ensure
-      pool.release(conn)
-    end
-
-    response
-  end
-
-  private def build_pool
-    options = DB::Pool::Options.new(
-      initial_pool_size: 0,
-      max_pool_size: capacity,
-      max_idle_pool_size: capacity,
-      checkout_timeout: timeout
-    )
-
-    DB::Pool(HTTP::Client).new(options) do
-      next make_client(url, force_resolve: true)
-    end
-  end
-end
-
 def add_yt_headers(request)
   request.headers.delete("User-Agent") if request.headers["User-Agent"] == "Crystal"
   request.headers["User-Agent"] ||= "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
@@ -98,19 +50,4 @@ def make_configured_http_proxy_client
     username: config_proxy.user,
     password: config_proxy.password,
   )
-end
-
-# Fetches a HTTP pool for the specified subdomain of ytimg.com
-#
-# Creates a new one when the specified pool for the subdomain does not exist
-def get_ytimg_pool(subdomain)
-  if pool = YTIMG_POOLS[subdomain]?
-    return pool
-  else
-    LOGGER.info("ytimg_pool: Creating a new HTTP pool for \"https://#{subdomain}.ytimg.com\"")
-    pool = YoutubeConnectionPool.new(URI.parse("https://#{subdomain}.ytimg.com"), capacity: CONFIG.pool_size)
-    YTIMG_POOLS[subdomain] = pool
-
-    return pool
-  end
 end
