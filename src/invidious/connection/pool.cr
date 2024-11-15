@@ -126,7 +126,7 @@ module Invidious::ConnectionPool
 
   # Mapping of subdomain => Invidious::ConnectionPool::Pool
   # This is needed as we may need to access arbitrary subdomains of ytimg
-  private YTIMG_POOLS = {} of String => Invidious::ConnectionPool::Pool
+  private YTIMG_POOLS = {} of String => ConnectionPool::Pool
 
   # Fetches a HTTP pool for the specified subdomain of ytimg.com
   #
@@ -136,7 +136,7 @@ module Invidious::ConnectionPool
       return pool
     else
       LOGGER.info("ytimg_pool: Creating a new HTTP pool for \"https://#{subdomain}.ytimg.com\"")
-      pool = Invidious::ConnectionPool::Pool.new(
+      pool = ConnectionPool::Pool.new(
         URI.parse("https://#{subdomain}.ytimg.com"),
         max_capacity: CONFIG.pool_size,
         idle_capacity: CONFIG.idle_pool_size,
