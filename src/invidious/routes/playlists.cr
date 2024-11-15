@@ -464,7 +464,7 @@ module Invidious::Routes::Playlists
 
   # Undocumented, creates anonymous playlist with specified 'video_ids', max 50 videos
   def self.watch_videos(env)
-    response = YT_POOL.client &.get(env.request.resource)
+    response = YT_POOL.get(env.request.resource)
     if url = response.headers["Location"]?
       url = URI.parse(url).request_target
       return env.redirect url

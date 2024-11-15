@@ -33,8 +33,33 @@ module Invidious::ConnectionPool
     # Returns the underlying `DB::Pool` object
     abstract def pool : DB::Pool(PoolClient)
 
-    # Checks out a client from the pool
-    def client(&)
+    {% for method in %w[get post put patch delete head options] %}
+      def {{method.id}}(*args, **kwargs)
+        self.client do | client |
+          client.{{method.id}}(*args, **kwargs) do | response |
+
+            result = yield response
+            return result
+
+          ensure
+            response.body_io?.try &. skip_to_end
+          end
+        end
+      end
+
+      def {{method.id}}(*args, **kwargs)
+        self.client do | client |
+          return response = client.{{method.id}}(*args, **kwargs)
+        ensure
+          if response
+            response.body_io?.try &. skip_to_end
+          end
+        end
+      end
+    {% end %}
+
+    # Checks out a client in the pool
+    private def client(&)
       pool.checkout do |http_client|
         # Proxy needs to be reinstated every time we get a client from the pool
         http_client.proxy = make_configured_http_proxy_client() if CONFIG.http_proxy

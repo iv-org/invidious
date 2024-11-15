@@ -16,11 +16,11 @@ module Invidious::Search
     # Search a youtube channel
     # TODO: clean code, and rely more on YoutubeAPI
     def channel(query : Query) : Array(SearchItem)
-      response = YT_POOL.client &.get("/channel/#{query.channel}")
+      response = YT_POOL.get("/channel/#{query.channel}")
 
       if response.status_code == 404
-        response = YT_POOL.client &.get("/user/#{query.channel}")
-        response = YT_POOL.client &.get("/c/#{query.channel}") if response.status_code == 404
+        response = YT_POOL.get("/user/#{query.channel}")
+        response = YT_POOL.get("/c/#{query.channel}") if response.status_code == 404
         initial_data = extract_initial_data(response.body)
         ucid = initial_data.dig?("header", "c4TabbedHeaderRenderer", "channelId").try(&.as_s?)
         raise ChannelSearchException.new(query.channel) if !ucid
