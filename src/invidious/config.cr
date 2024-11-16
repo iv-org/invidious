@@ -275,7 +275,7 @@ class Config
         puts "Config: You can not run inv_sig_helper and invidious_companion at the same time."
         exit(1)
       end
-      if !CONFIG.invidious_companion_key
+      if CONFIG.invidious_companion_key.empty?
         puts "Config: Please configure a key if you are using invidious companion."
         exit(1)
       elsif CONFIG.invidious_companion_key == "CHANGE_ME!!"

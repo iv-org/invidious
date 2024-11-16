@@ -128,9 +128,9 @@ def extract_video_info(video_id : String)
       new_player_response["storyboards"] = player_response["storyboards"] if player_response["storyboards"]?
       new_player_response["captions"] = player_response["captions"] if player_response["captions"]?
 
-        player_response = new_player_response
-        params.delete("reason")
-      end
+      player_response = new_player_response
+      params.delete("reason")
+    end
   end
 
   {"captions", "playabilityStatus", "playerConfig", "storyboards", "invidiousCompanion"}.each do |f|
