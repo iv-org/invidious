@@ -1,6 +1,10 @@
 module Invidious::Routes::API::Manifest
   # /api/manifest/dash/id/:id
   def self.get_dash_video_id(env)
+    if !CONFIG.invidious_companion.empty?
+      return error_template(403, "This endpoint is not permitted because it is handled by Invidious companion.")
+    end
+
     env.response.headers.add("Access-Control-Allow-Origin", "*")
     env.response.content_type = "application/dash+xml"
 
@@ -18,10 +22,6 @@ module Invidious::Routes::API::Manifest
       haltf env, status_code: 404
     rescue ex
       haltf env, status_code: 403
-    end
-
-    if local && CONFIG.invidious_companion
-      return env.redirect "#{video.invidious_companion["baseUrl"].as_s}#{env.request.path}?#{env.request.query}"
     end
 
     if dashmpd = video.dash_manifest_url

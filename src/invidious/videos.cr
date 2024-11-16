@@ -15,7 +15,7 @@ struct Video
   # NOTE: don't forget to bump this number if any change is made to
   # the `params` structure in videos/parser.cr!!!
   #
-  SCHEMA_VERSION = 2
+  SCHEMA_VERSION = 3
 
   property id : String
 
@@ -192,8 +192,8 @@ struct Video
     }
   end
 
-  def invidious_companion : Hash(String, JSON::Any)
-    info["invidiousCompanion"].try &.as_h
+  def invidious_companion : Hash(String, JSON::Any)?
+    info["invidiousCompanion"]?.try &.as_h
   end
 
   # Macros defining getters/setters for various types of data

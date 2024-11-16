@@ -108,7 +108,7 @@ def extract_video_info(video_id : String)
   params = parse_video_info(video_id, player_response)
   params["reason"] = JSON::Any.new(reason) if reason
 
-  if CONFIG.invidious_companion.nil?
+  if !CONFIG.invidious_companion.empty?
     new_player_response = nil
 
     # Don't use Android test suite client if po_token is passed because po_token doesn't
@@ -134,7 +134,7 @@ def extract_video_info(video_id : String)
     end
   end
 
-  {"captions", "playabilityStatus", "playerConfig", "storyboards"}.each do |f|
+  {"captions", "playabilityStatus", "playerConfig", "storyboards", "invidiousCompanion"}.each do |f|
     params[f] = player_response[f] if player_response[f]?
   end
 
@@ -147,10 +147,6 @@ def extract_video_info(video_id : String)
     end
 
     params["streamingData"] = streaming_data
-  end
-
-  if CONFIG.invidious_companion
-    params["invidiousCompanion"] = player_response["invidiousCompanion"]
   end
 
   # Data structure version, for cache control
@@ -461,12 +457,11 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     # Music section
     "music" => JSON.parse(music_list.to_json),
     # Author infos
-    "author"             => JSON::Any.new(author || ""),
-    "ucid"               => JSON::Any.new(ucid || ""),
-    "authorThumbnail"    => JSON::Any.new(author_thumbnail.try &.as_s || ""),
-    "authorVerified"     => JSON::Any.new(author_verified || false),
-    "subCountText"       => JSON::Any.new(subs_text || "-"),
-    "invidiousCompanion" => JSON::Any.new(subs_text),
+    "author"          => JSON::Any.new(author || ""),
+    "ucid"            => JSON::Any.new(ucid || ""),
+    "authorThumbnail" => JSON::Any.new(author_thumbnail.try &.as_s || ""),
+    "authorVerified"  => JSON::Any.new(author_verified || false),
+    "subCountText"    => JSON::Any.new(subs_text || "-"),
   }
 
   return params

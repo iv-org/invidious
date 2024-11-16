@@ -192,11 +192,11 @@ module Invidious::Routes::Watch
       captions: video.captions
     )
 
-    if (CONFIG.invidious_companion && (preferences.local || preferences.quality == "dash"))
+    if (!CONFIG.invidious_companion.empty? && (preferences.local || preferences.quality == "dash"))
       env.response.headers["Content-Security-Policy"] =
         env.response.headers["Content-Security-Policy"]
-          .gsub("media-src", "media-src " + video.invidious_companion["baseUrl"].as_s)
-          .gsub("connect-src", "connect-src " + video.invidious_companion["baseUrl"].as_s)
+          .gsub("media-src", "media-src " + video.invidious_companion.not_nil!["baseUrl"].as_s)
+          .gsub("connect-src", "connect-src " + video.invidious_companion.not_nil!["baseUrl"].as_s)
     end
 
     templated "watch"

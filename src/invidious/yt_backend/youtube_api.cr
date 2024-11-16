@@ -500,7 +500,11 @@ module YoutubeAPI
       data["params"] = params
     end
 
-    return self._post_json("/youtubei/v1/player", data, client_config)
+    if !CONFIG.invidious_companion.empty?
+      return self._post_invidious_companion("/youtubei/v1/player", data)
+    else
+      return self._post_json("/youtubei/v1/player", data, client_config)
+    end
   end
 
   ####################################################################
@@ -615,18 +619,11 @@ module YoutubeAPI
 
     headers = HTTP::Headers{
       "Content-Type"              => "application/json; charset=UTF-8",
+      "Accept-Encoding"           => "gzip, deflate",
       "x-goog-api-format-version" => "2",
       "x-youtube-client-name"     => client_config.name_proto,
       "x-youtube-client-version"  => client_config.version,
     }
-
-    if CONFIG.invidious_companion && endpoint == "/youtubei/v1/player"
-      headers["Authorization"] = "Bearer " + CONFIG.hmac_key
-    end
-
-    if !CONFIG.invidious_companion
-      headers["Accept-Encoding"] = "gzip, deflate"
-    end
 
     if user_agent = client_config.user_agent
       headers["User-Agent"] = user_agent
@@ -641,35 +638,16 @@ module YoutubeAPI
     LOGGER.trace("YoutubeAPI: ClientConfig: #{client_config}")
     LOGGER.trace("YoutubeAPI: POST data: #{data}")
 
-    invidious_companion_urls = CONFIG.invidious_companion
-
     # Send the POST request
-    if invidious_companion_urls && endpoint == "/youtubei/v1/player"
-      begin
-        invidious_companion_response = make_client(URI.parse(invidious_companion_urls.sample),
-          &.post(endpoint, headers: headers, body: data.to_json))
-        body = invidious_companion_response.body
-        if (invidious_companion_response.status_code != 200)
-          raise Exception.new("status code: " + invidious_companion_response.status_code.to_s + " and body: " + body)
+    body = YT_POOL.client() do |client|
+      client.post(url, headers: headers, body: data.to_json) do |response|
+        if response.status_code != 200
+          raise InfoException.new("Error: non 200 status code. Youtube API returned \
+            status code #{response.status_code}. See <a href=\"https://docs.invidious.io/youtube-errors-explained/\"> \
+            https://docs.invidious.io/youtube-errors-explained/</a> for troubleshooting.")
         end
-      rescue ex
-        raise InfoException.new("Error while communicating with Invidious companion: " + (ex.message || "no extra info found"))
+        self._decompress(response.body_io, response.headers["Content-Encoding"]?)
       end
-    else
-      body = YT_POOL.client() do |client|
-        client.post(url, headers: headers, body: data.to_json) do |response|
-          if response.status_code != 200
-            raise InfoException.new("Error: non 200 status code. Youtube API returned \
-              status code #{response.status_code}. See <a href=\"https://docs.invidious.io/youtube-errors-explained/\"> \
-              https://docs.invidious.io/youtube-errors-explained/</a> for troubleshooting.")
-          end
-          self._decompress(response.body_io, response.headers["Content-Encoding"]?)
-        end
-      end
-    end
-
-    if body.nil? && CONFIG.invidious_companion
-      raise InfoException.new("Error while communicating with Invidious companion: no response data.")
     end
 
     # Convert result to Hash
@@ -688,6 +666,53 @@ module YoutubeAPI
       raise InfoException.new("Could not extract JSON. Youtube API returned \
       error #{code} with message:<br>\"#{message}\"")
     end
+
+    return initial_data
+  end
+
+  ####################################################################
+  # _post_invidious_companion(endpoint, data)
+  #
+  # Internal function that does the actual request to Invidious companion
+  # and handles errors.
+  #
+  # The requested data is an endpoint (URL without the domain part)
+  # and the data as a Hash object.
+  #
+  def _post_invidious_companion(
+    endpoint : String,
+    data : Hash
+  ) : Hash(String, JSON::Any)
+    headers = HTTP::Headers{
+      "Content-Type"    => "application/json; charset=UTF-8",
+      "Accept-Encoding" => "gzip",
+      "Authorization"   => "Bearer " + CONFIG.invidious_companion_key,
+    }
+
+    # Logging
+    LOGGER.debug("Invidious companion: Using endpoint: \"#{endpoint}\"")
+    LOGGER.trace("Invidious companion: POST data: #{data}")
+
+    # Send the POST request
+
+    begin
+      response = make_client(CONFIG.invidious_companion.sample,
+        &.post(endpoint, headers: headers, body: data.to_json))
+      body = self._decompress(response.body_io, response.headers["Content-Encoding"]?)
+      if (response.status_code != 200)
+        raise Exception.new("Error while communicating with Invidious companion: \
+                              status code: " + response.status_code.to_s + " and body: " + body)
+      end
+    rescue ex
+      raise InfoException.new("Error while communicating with Invidious companion: " + (ex.message || "no extra info found"))
+    end
+
+    if body.nil?
+      raise InfoException.new("Error while communicating with Invidious companion: no response data.")
+    end
+
+    # Convert result to Hash
+    initial_data = JSON.parse(body).as_h
 
     return initial_data
   end

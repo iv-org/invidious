@@ -74,6 +74,28 @@ end
 class Config
   include YAML::Serializable
 
+  module URIArrayConverter
+    def self.to_yaml(values : Array(URI), yaml : YAML::Nodes::Builder)
+      yaml.sequence do
+        values.each { |v| yaml.scalar v.to_s }
+      end
+    end
+
+    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : Array(URI)
+      if node.is_a?(YAML::Nodes::Sequence)
+        node.map do |child|
+          unless child.is_a?(YAML::Nodes::Scalar)
+            node.raise "Expected scalar, not #{child.class}"
+          end
+
+          URI.parse(child.value)
+        end
+      else
+        node.raise "Expected sequence, not #{node.class}"
+      end
+    end
+  end
+
   # Number of threads to use for crawling videos from channels (for updating subscriptions)
   property channel_threads : Int32 = 1
   # Time interval between two executions of the job that crawls channel videos (subscriptions update).
@@ -161,10 +183,11 @@ class Config
   property po_token : String? = nil
 
   # Invidious companion
-  property invidious_companion : Array(String)? = nil
+  @[YAML::Field(converter: Config::URIArrayConverter)]
+  property invidious_companion : Array(URI) = [] of URI
 
   # Invidious companion API key
-  property invidious_companion_key : String? = nil
+  property invidious_companion_key : String = ""
 
   # Saved cookies in "name1=value1; name2=value2..." format
   @[YAML::Field(converter: Preferences::StringToCookies)]
@@ -246,7 +269,7 @@ class Config
         end
     {% end %}
 
-    if CONFIG.invidious_companion
+    if !CONFIG.invidious_companion.empty?
       # invidious_companion and signature_server can't work together
       if CONFIG.signature_server
         puts "Config: You can not run inv_sig_helper and invidious_companion at the same time."
