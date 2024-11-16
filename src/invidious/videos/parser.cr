@@ -131,7 +131,6 @@ def extract_video_info(video_id : String)
         player_response = new_player_response
         params.delete("reason")
       end
-    end
   end
 
   {"captions", "playabilityStatus", "playerConfig", "storyboards", "invidiousCompanion"}.each do |f|
