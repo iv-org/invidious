@@ -30,21 +30,75 @@ struct Invidious::User
       return subscriptions
     end
 
-    def parse_playlist_export_csv(user : User, raw_input : String)
+    def parse_playlist_export_csv(user : User, raw_input : String, filename : String)
+      LOGGER.trace("parse_playlist_export_csv: 01 raw_input '#{raw_input}'\n")
+
+      raw_head = "" # playlists.csv - info-line for a given playlist in the google export, that's copied above the actual playlist-infos and separated by an empty line from
+      raw_body = "" # the actual playlist content, ie. a list of videos
+
+      # remove superfluous \n instances in front of and after any non-\n text.. so .. a trim?
+      raw_input = raw_input.strip('\n')
+
       # Split the input into head and body content
-      raw_head, raw_body = raw_input.strip('\n').split("\n\n", limit: 2, remove_empty: true)
-
-      # Create the playlist from the head content
-      csv_head = CSV.new(raw_head.strip('\n'), headers: true)
-      csv_head.next
-      title = csv_head[4]
-      description = csv_head[5]
-      visibility = csv_head[6]
-
-      if visibility.compare("Public", case_insensitive: true) == 0
-        privacy = PlaylistPrivacy::Public
+      tmp = raw_input.split("\n\n", limit: 2, remove_empty: true)
+      if tmp.size > 1
+        raw_head = tmp[0]
+        raw_body = tmp[1]
       else
-        privacy = PlaylistPrivacy::Private
+        raw_body = tmp[0]
+      end
+
+      LOGGER.trace("parse_playlist_export_csv: 02 raw_head '#{raw_head}' -----\nraw_body '#{raw_body}'\n")
+
+      # TODO create an import-feature (elsewhere), which works for the original google export format, ie. the playlists/ subdirectory content as a ZIP file.. or a complete youtube music export file, but this goes way beyond the scope of a playlist import.
+
+      # defaults
+      title = "title not set"          # TODO i8n
+      description = "from #{filename}" # TODO i8n
+      visibility = "Private"
+      privacy = PlaylistPrivacy::Private
+
+      if (raw_head != "")
+        # ## XXX for documentation of current file format of playlists.csv (today it's 2024-01-07):
+        # 0           1                     2                                 3                    4                       5                      6                         7                                  8                         9                         10                   11
+        # Playlist ID,Add new videos to top,Playlist image 1 Create timestamp,Playlist image 1 URL,Playlist image 1 Height,Playlist image 1 Width,Playlist title (original),Playlist title (original) language,Playlist create timestamp,Playlist update timestamp,Playlist video order,Playlist visibility
+        # PLc5oiabcabcabcabcabcrOvXgzabcabcm,False,,,,,display name of playlist,,2015-01-01T01:02:03+00:00,2022-10-28T02:23:15+00:00,Manual,Public' ---
+        # ##/documentation
+
+        # Create the playlist from the head content (if it seems to be valid):
+        csv_head = CSV.new(raw_head.strip('\n'), headers: true)
+        csv_head.next
+        if csv_head[11]
+          LOGGER.info("parse_playlist_export_csv: 03.1 raw_head is filled, doing dual csv playlist info scan. google takeout format after october 2023 (format seems to be one line of playlist metadata taken out of the google export's playlists.csv file, added above the actual playlist.csv content, separated by an empty line)")
+          title = csv_head[6]
+          description = "Playlist was imported from file '#{filename}'\n\nCreated on #{csv_head[8]}\nLast updated on #{csv_head[9]}\n" # TODO i8n
+          visibility = csv_head[11]
+        elsif csv_head[6]
+          LOGGER.info("parse_playlist_export_csv: 03.2 raw_head is filled, doing dual csv playlist info scan. google takeout format before october 2023 (roughly).")
+          title = csv_head[4]
+          description = csv_head[5]
+          visibility = csv_head[6]
+        else # we are using the defaults defined above instead.
+          LOGGER.info("parse_playlist_export_csv: 03.3 raw_head is filled, but in an unknown format. Using base defaults instead.")
+        end
+
+        if visibility.compare("Public", case_insensitive: true) == 0
+          privacy = PlaylistPrivacy::Public
+        else
+          privacy = PlaylistPrivacy::Private
+        end
+      else # choose a title from the provided upload filename
+        LOGGER.info("parse_playlist_export_csv: 03.2 raw_head is empty. Trying to guess fine-looking title and description from the provided upload filename.")
+        if (filename != "")
+          title = filename
+        end
+        nameendpos = filename.rindex(" videos.", filename.size) # XXX everything up to " videos.csv"
+        if !nameendpos                                          # XXX everything up to file extension
+          nameendpos = filename.rindex(".", filename.size)
+        end
+        if nameendpos
+          title = filename[0, nameendpos]
+        end
       end
 
       playlist = create_playlist(title, privacy, user)
@@ -56,7 +110,7 @@ struct Invidious::User
         video_id = row[0]
         if playlist
           next if !video_id
-          next if video_id == "Video Id"
+          next if video_id == "Video Id" # TODO i8n
 
           begin
             video = get_video(video_id)
@@ -207,7 +261,7 @@ struct Invidious::User
       extension = filename.split(".").last
 
       if extension == "csv" || type == "text/csv"
-        playlist = parse_playlist_export_csv(user, body)
+        playlist = parse_playlist_export_csv(user, body, filename)
         if playlist
           return true
         else
