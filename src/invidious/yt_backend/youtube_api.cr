@@ -685,7 +685,6 @@ module YoutubeAPI
   ) : Hash(String, JSON::Any)
     headers = HTTP::Headers{
       "Content-Type"    => "application/json; charset=UTF-8",
-      "Accept-Encoding" => "gzip",
       "Authorization"   => "Bearer " + CONFIG.invidious_companion_key,
     }
 
@@ -698,7 +697,7 @@ module YoutubeAPI
     begin
       response = make_client(CONFIG.invidious_companion.sample,
         &.post(endpoint, headers: headers, body: data.to_json))
-      body = self._decompress(response.body_io, response.headers["Content-Encoding"]?)
+      body = response.body
       if (response.status_code != 200)
         raise Exception.new("Error while communicating with Invidious companion: \
                               status code: " + response.status_code.to_s + " and body: " + body)

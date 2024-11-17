@@ -269,16 +269,16 @@ class Config
         end
     {% end %}
 
-    if !CONFIG.invidious_companion.empty?
+    if !config.invidious_companion.empty?
       # invidious_companion and signature_server can't work together
-      if CONFIG.signature_server
+      if config.signature_server
         puts "Config: You can not run inv_sig_helper and invidious_companion at the same time."
         exit(1)
       end
-      if CONFIG.invidious_companion_key.empty?
+      if config.invidious_companion_key.empty?
         puts "Config: Please configure a key if you are using invidious companion."
         exit(1)
-      elsif CONFIG.invidious_companion_key == "CHANGE_ME!!"
+      elsif config.invidious_companion_key == "CHANGE_ME!!"
         puts "Config: The value of 'invidious_companion_key' needs to be changed!!"
         exit(1)
       end
