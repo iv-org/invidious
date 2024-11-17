@@ -322,13 +322,20 @@ module Invidious::Routes::Watch
 
       return Invidious::Routes::API::V1::Videos.captions(env)
     elsif itag = download_widget["itag"]?.try &.as_i
+      itag = itag.to_s
+
       # URL params specific to /latest_version
       env.params.query["id"] = video_id
-      env.params.query["itag"] = itag.to_s
+      env.params.query["itag"] = itag
       env.params.query["title"] = filename
       env.params.query["local"] = "true"
 
-      return Invidious::Routes::VideoPlayback.latest_version(env)
+      if (!CONFIG.invidious_companion.empty?)
+        video = get_video(video_id)
+        return env.redirect "#{video.invidious_companion.not_nil!["baseUrl"].as_s}/latest_version?id=#{video_id}&itag=#{itag}&local=true"
+      else
+        return Invidious::Routes::VideoPlayback.latest_version(env)
+      end
     else
       return error_template(400, "Invalid label or itag")
     end
