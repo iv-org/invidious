@@ -684,8 +684,8 @@ module YoutubeAPI
     data : Hash
   ) : Hash(String, JSON::Any)
     headers = HTTP::Headers{
-      "Content-Type"    => "application/json; charset=UTF-8",
-      "Authorization"   => "Bearer " + CONFIG.invidious_companion_key,
+      "Content-Type"  => "application/json; charset=UTF-8",
+      "Authorization" => "Bearer " + CONFIG.invidious_companion_key,
     }
 
     # Logging
