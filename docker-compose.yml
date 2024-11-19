@@ -26,6 +26,10 @@ services:
           host: invidious-db
           port: 5432
         check_tables: true
+        signature_server: inv_sig_helper:12999
+        visitor_data: "CHANGE_ME!!"
+        po_token: "CHANGE_ME!!"
+        # force_resolve: ipv6
         # external_port:
         # domain:
         # https_only: false
@@ -36,6 +40,9 @@ services:
       interval: 30s
       timeout: 5s
       retries: 2
+    depends_on:
+      - invidious-db
+      - inv_sig_helper
 
   invidious-db:
     image: docker.io/library/postgres:14
@@ -50,6 +57,20 @@ services:
       POSTGRES_PASSWORD: kemal
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+
+  inv_sig_helper:
+    image: quay.io/invidious/inv-sig-helper:latest
+    init: true
+    command: ["--tcp", "0.0.0.0:12999"]
+    environment:
+      - RUST_LOG=info
+    restart: unless-stopped
+    cap_drop:
+      - ALL
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+
 
 volumes:
   postgresdata:
