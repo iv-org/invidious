@@ -254,8 +254,13 @@ if (video_data.params.video_start > 0 || video_data.params.video_end > 0) {
 
     player.markers({
         onMarkerReached: function (marker) {
-            if (marker.text === 'End')
-                player.loop() ? player.markers.prev('Start') : player.pause();
+            if (marker.text === 'End') {
+                if (video_data.ending_timestamp_seconds) {
+                    player.currentTime(player.duration());
+                } else {
+                    player.loop() ? player.markers.prev('Start') : player.pause();
+                }
+            }
         },
         markers: markers
     });

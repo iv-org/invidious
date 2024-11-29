@@ -50,6 +50,9 @@ we're going to need to do it here in order to allow for translations.
     "id" => video.id,
     "index" => continuation,
     "plid" => plid,
+    "compid" => compid,
+    "starting_timestamp_seconds" => starting_timestamp_seconds,
+    "ending_timestamp_seconds" => ending_timestamp_seconds,
     "length_seconds" => video.length_seconds.to_f,
     "play_next" => !video.related_videos.empty? && !plid && params.continue,
     "next_video" => video.related_videos.select { |rv| rv["id"]? }[0]?.try &.["id"],
@@ -157,6 +160,34 @@ we're going to need to do it here in order to allow for translations.
 
             <% if user %>
                 <% playlists = Invidious::Database::Playlists.select_user_created_playlists(user.email) %>
+                <% compilations = Invidious::Database::Compilations.select_user_created_compilations(user.email) %>
+                <% if !compilations.empty? %>
+                    <form data-onsubmit="return_false" class="pure-form pure-form-stacked" action="/compilation_ajax" method="post" target="_blank">
+                        <div class="pure-control-group">
+                            <label for="compilation_id"><%= translate(locale, "Add to compilation: ") %></label>
+                            <select style="width:100%" name="compilation_id" id="compilation_id">
+                                <% compilations.each do |compid, compilation_title| %>
+                                    <option data-compid="<%= compid %>" value="<%= compid %>"><%= HTML.escape(compilation_title) %></option>
+                                <% end %>
+                            </select>
+                        </div>
+
+                        <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>">
+                        <input type="hidden" name="action_add_video" value="1">
+                        <input type="hidden" name="video_id" value="<%= video.id %>">
+                        <button data-onclick="add_compilation_video" data-id="<%= video.id %>" type="submit" class="pure-button pure-button-primary">
+                            <b><%= translate(locale, "Add to compilation") %></b>
+                        </button>
+                    </form>
+                    <script id="compilation_data" type="application/json">
+                    <%=
+                    {
+                        "csrf_token" => URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "")
+                    }.to_pretty_json
+                    %>
+                    </script>
+                    <script src="/js/compilation_widget.js?v=<%= Time.utc.to_unix_ms %>"></script>
+                <% end %>
                 <% if !playlists.empty? %>
                     <form data-onsubmit="return_false" class="pure-form pure-form-stacked" action="/playlist_ajax" method="post" target="_blank">
                         <div class="pure-control-group">
@@ -302,16 +333,18 @@ we're going to need to do it here in order to allow for translations.
         </div>
     </div>
 
-    <% if params.related_videos || plid %>
+    <% if params.related_videos || plid || compid%>
         <div class="pure-u-1 pure-u-lg-1-5">
             <% if plid %>
                 <div id="playlist" class="h-box"></div>
+            <% elsif compid %>
+                <div id="compilation" class="h-box"></div>
             <% end %>
 
             <% if params.related_videos %>
                 <div class="h-box">
                     <% if !video.related_videos.empty? %>
-                        <div <% if plid %>style="display:none"<% end %>>
+                        <div <% if plid || compid %>style="display:none"<% end %>>
                             <div class="pure-control-group">
                                 <label for="continue"><%= translate(locale, "preferences_continue_label") %></label>
                                 <input name="continue" id="continue" type="checkbox" <% if params.continue %>checked<% end %>>

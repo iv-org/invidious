@@ -1,0 +1,43 @@
+<div class="pure-u-1 pure-u-md-1">
+    <div class="h-box">
+        <div class="compilation-video-panel">
+            <div class="compilation-order-swap-arrows">
+                <%- form_parameters = "action_move_video_before=1&video_index=#{compilation_video.index}&compilation_id=#{compilation_video.compid}" -%>
+                <form action="/compilation_ajax?<%= form_parameters %>" method="post">
+                    <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
+                    <button type="submit" style="margin:10px" class="pure-button pure-button-secondary low-profile">
+                        <i class="icon ion-md-arrow-up"></i>
+                    </button>
+                </form>
+                <%- form_parameters = "action_move_video_after=1&video_index=#{compilation_video.index}&compilation_id=#{compilation_video.compid}" -%>
+                <form action="/compilation_ajax?<%= form_parameters %>" method="post">
+                    <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
+                    <button type="submit" style="margin:10px" class="pure-button pure-button-secondary low-profile">
+                        <i class="icon ion-md-arrow-down"></i>
+                    </button>
+                </form>
+            </div>
+            <img loading="lazy" style="margin:10px;" src="/vi/<%= compilation_video.id %>/mqdefault.jpg" alt="" />
+            <div class="compilation-video-input-panel">
+                <div class="compilation-video-title">
+                    <span class="compilation-video-title" dir="auto"><%= HTML.escape(compilation_video.title) %></span>
+                </div> 
+                <% if compid_form = env.get?("remove_compilation_items") %>
+                    <div class="compilation-video-timestamp-set">
+                        <p style="margin-right:10px;">from</p>
+                        <input class="compilation-video-timestamp" value="<%= recode_length_seconds(compilation_video.starting_timestamp_seconds) %>" disabled type="text">
+                        <p style="margin-right:10px; margin-left:10px">to</p>                
+                        <input class="compilation-video-timestamp" value="<%= recode_length_seconds(compilation_video.ending_timestamp_seconds) %>" disabled type="text">
+                    </div>
+                <% else %>
+                    <div class="compilation-video-timestamp-set">
+                        <p style="margin-right:10px;">from</p>
+                        <input maxlength="8" name="<%= compilation_video.index %>_start_timestamp" class="compilation-video-timestamp" value="<%= recode_length_seconds(compilation_video.starting_timestamp_seconds) %>" type="text">
+                        <p style="margin-right:10px; margin-left:10px">to</p>                
+                        <input maxlength="8" name="<%= compilation_video.index %>_end_timestamp" class="compilation-video-timestamp" value="<%= recode_length_seconds(compilation_video.ending_timestamp_seconds) %>" type="text">
+                    </div>
+                <% end %>
+            </div>
+        </div>
+    </div>
+</div>
