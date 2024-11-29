@@ -198,3 +198,11 @@ def get_playback_statistic
 
   return tracker.as(Hash(String, Int64 | Float64))
 end
+
+def to_prometheus_metrics(metrics_struct : Hash(String, Number)) : String
+  return String.build do |str|
+    metrics_struct.each.each do |key, value|
+      str << key << " " << value << "\n"
+    end
+  end
+end
