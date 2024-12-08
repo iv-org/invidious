@@ -59,16 +59,27 @@ db:
 ## for loading the video streams from YouTube servers.
 ##
 ## When this setting is commented out, Invidious companion is not used.
+## Otherwise, Invidious will proxy the requests to Invidious companion.
+## 
+## Note: multiple URL can be configured. In this case, invidious will
+## randomly pick one every time video data needs to be retrieved. This
+## URL is then kept in the video metadata cache to allow video playback
+## to work. Once said cache has expired, requesting that video's data
+## again will cause a new companion URL to be picked.
 ##
-## When this setting is configured, then Invidious will proxy the requests
-## to Invidious companion.
-## Or randomly choose one if multiple Invidious companion are configured.
+## The parameter private_url needs to be configured for the internal
+## communication between the companion and Invidious.
+## And public_url is the public URL from which companion is listening
+## to the requests from the user(s).
+## Both parameter can have identical URL when Invidious is hosted in
+## an internal network or at home.
 ##
 ## Accepted values: "http(s)://<IP-HOSTNAME>:<Port>"
 ## Default: <none>
 ##
 #invidious_companion:
-# - http://127.0.0.1:8282
+#  - private_url: "http://localhost:8282"
+#    public_url: "http://localhost:8282"
 
 ##
 ## API key for Invidious companion

@@ -74,26 +74,14 @@ end
 class Config
   include YAML::Serializable
 
-  module URIArrayConverter
-    def self.to_yaml(values : Array(URI), yaml : YAML::Nodes::Builder)
-      yaml.sequence do
-        values.each { |v| yaml.scalar v.to_s }
-      end
-    end
+  class CompanionConfig
+    include YAML::Serializable
 
-    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : Array(URI)
-      if node.is_a?(YAML::Nodes::Sequence)
-        node.map do |child|
-          unless child.is_a?(YAML::Nodes::Scalar)
-            node.raise "Expected scalar, not #{child.class}"
-          end
+    @[YAML::Field(converter: Preferences::URIConverter)]
+    property private_url : URI = URI.parse("")
 
-          URI.parse(child.value)
-        end
-      else
-        node.raise "Expected sequence, not #{node.class}"
-      end
-    end
+    @[YAML::Field(converter: Preferences::URIConverter)]
+    property public_url : URI = URI.parse("")
   end
 
   # Number of threads to use for crawling videos from channels (for updating subscriptions)
@@ -183,8 +171,7 @@ class Config
   property po_token : String? = nil
 
   # Invidious companion
-  @[YAML::Field(converter: Config::URIArrayConverter)]
-  property invidious_companion : Array(URI) = [] of URI
+  property invidious_companion : Array(CompanionConfig) = [] of CompanionConfig
 
   # Invidious companion API key
   property invidious_companion_key : String = ""

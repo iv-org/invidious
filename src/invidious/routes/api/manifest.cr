@@ -1,16 +1,17 @@
 module Invidious::Routes::API::Manifest
   # /api/manifest/dash/id/:id
   def self.get_dash_video_id(env)
-    if !CONFIG.invidious_companion.empty?
-      return error_template(403, "This endpoint is not permitted because it is handled by Invidious companion.")
-    end
-
     env.response.headers.add("Access-Control-Allow-Origin", "*")
     env.response.content_type = "application/dash+xml"
 
     local = env.params.query["local"]?.try &.== "true"
     id = env.params.url["id"]
     region = env.params.query["region"]?
+
+    if !CONFIG.invidious_companion.empty?
+      invidious_companion = CONFIG.invidious_companion.sample
+      return env.redirect "#{invidious_companion.public_url.to_s}/api/manifest/dash/id/#{id}?#{env.params.query}"
+    end
 
     # Since some implementations create playlists based on resolution regardless of different codecs,
     # we can opt to only add a source to a representation if it has a unique height within that representation

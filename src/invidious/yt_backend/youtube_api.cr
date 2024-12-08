@@ -685,7 +685,7 @@ module YoutubeAPI
   ) : Hash(String, JSON::Any)
     headers = HTTP::Headers{
       "Content-Type"  => "application/json; charset=UTF-8",
-      "Authorization" => "Bearer " + CONFIG.invidious_companion_key,
+      "Authorization" => "Bearer #{CONFIG.invidious_companion_key}",
     }
 
     # Logging
@@ -695,19 +695,18 @@ module YoutubeAPI
     # Send the POST request
 
     begin
-      response = make_client(CONFIG.invidious_companion.sample,
+      invidious_companion = CONFIG.invidious_companion.sample
+      response = make_client(invidious_companion.private_url,
         &.post(endpoint, headers: headers, body: data.to_json))
       body = response.body
       if (response.status_code != 200)
-        raise Exception.new("Error while communicating with Invidious companion: \
-                              status code: " + response.status_code.to_s + " and body: " + body)
+        raise Exception.new(
+          "Error while communicating with Invidious companion: \
+          status code: #{response.status_code} and body: #{body.dump}"
+        )
       end
     rescue ex
       raise InfoException.new("Error while communicating with Invidious companion: " + (ex.message || "no extra info found"))
-    end
-
-    if body.nil?
-      raise InfoException.new("Error while communicating with Invidious companion: no response data.")
     end
 
     # Convert result to Hash

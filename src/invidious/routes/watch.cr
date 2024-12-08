@@ -192,11 +192,11 @@ module Invidious::Routes::Watch
       captions: video.captions
     )
 
-    if (!CONFIG.invidious_companion.empty?)
+    if companion_base_url = video.invidious_companion.try &.["baseUrl"].as_s
       env.response.headers["Content-Security-Policy"] =
         env.response.headers["Content-Security-Policy"]
-          .gsub("media-src", "media-src " + video.invidious_companion.not_nil!["baseUrl"].as_s)
-          .gsub("connect-src", "connect-src " + video.invidious_companion.not_nil!["baseUrl"].as_s)
+          .gsub("media-src", "media-src #{companion_base_url}")
+          .gsub("connect-src", "connect-src #{companion_base_url}")
     end
 
     templated "watch"
@@ -321,18 +321,16 @@ module Invidious::Routes::Watch
       env.params.query["label"] = URI.decode_www_form(label.as_s)
 
       return Invidious::Routes::API::V1::Videos.captions(env)
-    elsif itag = download_widget["itag"]?.try &.as_i
-      itag = itag.to_s
+    elsif itag = download_widget["itag"]?.try &.as_i.to_s
 
       # URL params specific to /latest_version
       env.params.query["id"] = video_id
-      env.params.query["itag"] = itag
       env.params.query["title"] = filename
       env.params.query["local"] = "true"
 
       if (!CONFIG.invidious_companion.empty?)
         video = get_video(video_id)
-        return env.redirect "#{video.invidious_companion.not_nil!["baseUrl"].as_s}/latest_version?id=#{video_id}&itag=#{itag}&local=true"
+        return env.redirect "#{video.invidious_companion["baseUrl"].as_s}/latest_version?#{env.params.query}"
       else
         return Invidious::Routes::VideoPlayback.latest_version(env)
       end

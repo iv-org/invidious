@@ -22,7 +22,7 @@
                audio_streams.each_with_index do |fmt, i|
                 src_url  = "/latest_version?id=#{video.id}&itag=#{fmt["itag"]}"
                 src_url += "&local=true" if params.local
-                src_url = video.invidious_companion.not_nil!["baseUrl"].as_s + src_url if (!CONFIG.invidious_companion.empty?)
+                src_url = video.invidious_companion["baseUrl"].as_s + src_url if (!CONFIG.invidious_companion.empty?)
 
                 bitrate = fmt["bitrate"]
                 mimetype = HTML.escape(fmt["mimeType"].as_s)
@@ -37,7 +37,7 @@
         <% else %>
             <% if params.quality == "dash"
                src_url = "/api/manifest/dash/id/" + video.id + "?local=true&unique_res=1"
-               src_url = video.invidious_companion.not_nil!["baseUrl"].as_s + src_url if (!CONFIG.invidious_companion.empty?)
+               src_url = video.invidious_companion["baseUrl"].as_s + src_url if (!CONFIG.invidious_companion.empty?)
             %>
                 <source src="<%= src_url %>" type='application/dash+xml' label="dash">
             <% end %>
@@ -48,7 +48,7 @@
             fmt_stream.each_with_index do |fmt, i|
                 src_url  = "/latest_version?id=#{video.id}&itag=#{fmt["itag"]}"
                 src_url += "&local=true" if params.local
-                src_url = video.invidious_companion.not_nil!["baseUrl"].as_s + src_url if (!CONFIG.invidious_companion.empty?)
+                src_url = video.invidious_companion["baseUrl"].as_s + src_url if (!CONFIG.invidious_companion.empty?)
 
                 quality = fmt["quality"]
                 mimetype = HTML.escape(fmt["mimeType"].as_s)
