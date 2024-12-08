@@ -322,7 +322,6 @@ module Invidious::Routes::Watch
 
       return Invidious::Routes::API::V1::Videos.captions(env)
     elsif itag = download_widget["itag"]?.try &.as_i.to_s
-
       # URL params specific to /latest_version
       env.params.query["id"] = video_id
       env.params.query["title"] = filename
