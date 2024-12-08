@@ -258,7 +258,7 @@ module Invidious::Routes::VideoPlayback
   def self.latest_version(env)
     if !CONFIG.invidious_companion.empty?
       invidious_companion = CONFIG.invidious_companion.sample
-      return env.redirect "#{invidious_companion.public_url.to_s}/latest_version?#{env.params.query}"
+      return env.redirect "#{invidious_companion.public_url}/latest_version?#{env.params.query}"
     end
 
     id = env.params.query["id"]?

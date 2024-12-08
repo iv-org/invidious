@@ -10,7 +10,7 @@ module Invidious::Routes::API::Manifest
 
     if !CONFIG.invidious_companion.empty?
       invidious_companion = CONFIG.invidious_companion.sample
-      return env.redirect "#{invidious_companion.public_url.to_s}/api/manifest/dash/id/#{id}?#{env.params.query}"
+      return env.redirect "#{invidious_companion.public_url}/api/manifest/dash/id/#{id}?#{env.params.query}"
     end
 
     # Since some implementations create playlists based on resolution regardless of different codecs,
