@@ -253,6 +253,11 @@ module Invidious::Routes::VideoPlayback
   # YouTube /videoplayback links expire after 6 hours,
   # so we have a mechanism here to redirect to the latest version
   def self.latest_version(env)
+    if !CONFIG.invidious_companion.empty?
+      invidious_companion = CONFIG.invidious_companion.sample
+      return env.redirect "#{invidious_companion.public_url}/latest_version?#{env.params.query}"
+    end
+
     id = env.params.query["id"]?
     itag = env.params.query["itag"]?.try &.to_i?
 
