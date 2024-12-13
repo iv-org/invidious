@@ -1,0 +1,12 @@
+<form class="pure-form" action="/search" method="get">
+	<fieldset>
+		<input type="search" id="searchbox" autocorrect="off"
+		autocapitalize="none" spellcheck="false" <% if autofocus %>autofocus<% end %>
+		name="q" placeholder="<%= translate(locale, "search") %>"
+		title="<%= translate(locale, "search") %>"
+		value="<%= env.get?("search").try {|x| HTML.escape(x.as(String)) } %>">
+	</fieldset>
+	<button type="submit" id="searchbutton" aria-label="<%= translate(locale, "search") %>">
+		<i class="icon ion-ios-search"></i>
+	</button>
+</form>

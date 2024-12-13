@@ -1,16 +1,18 @@
-class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
-  def show(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+{% skip_file if flag?(:api_only) %}
+
+module Invidious::Routes::PreferencesRoute
+  def self.show(env)
+    locale = env.get("preferences").as(Preferences).locale
 
     referer = get_referer(env)
 
     preferences = env.get("preferences").as(Preferences)
 
-    templated "preferences"
+    templated "user/preferences"
   end
 
-  def update(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  def self.update(env)
+    locale = env.get("preferences").as(Preferences).locale
     referer = get_referer(env)
 
     video_loop = env.params.body["video_loop"]?.try &.as(String)
@@ -24,6 +26,10 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
     annotations_subscribed = env.params.body["annotations_subscribed"]?.try &.as(String)
     annotations_subscribed ||= "off"
     annotations_subscribed = annotations_subscribed == "on"
+
+    preload = env.params.body["preload"]?.try &.as(String)
+    preload ||= "off"
+    preload = preload == "on"
 
     autoplay = env.params.body["autoplay"]?.try &.as(String)
     autoplay ||= "off"
@@ -45,6 +51,10 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
     local ||= "off"
     local = local == "on"
 
+    watch_history = env.params.body["watch_history"]?.try &.as(String)
+    watch_history ||= "off"
+    watch_history = watch_history == "on"
+
     speed = env.params.body["speed"]?.try &.as(String).to_f32?
     speed ||= CONFIG.default_user_preferences.speed
 
@@ -59,6 +69,22 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
 
     volume = env.params.body["volume"]?.try &.as(String).to_i?
     volume ||= CONFIG.default_user_preferences.volume
+
+    extend_desc = env.params.body["extend_desc"]?.try &.as(String)
+    extend_desc ||= "off"
+    extend_desc = extend_desc == "on"
+
+    vr_mode = env.params.body["vr_mode"]?.try &.as(String)
+    vr_mode ||= "off"
+    vr_mode = vr_mode == "on"
+
+    save_player_pos = env.params.body["save_player_pos"]?.try &.as(String)
+    save_player_pos ||= "off"
+    save_player_pos = save_player_pos == "on"
+
+    show_nick = env.params.body["show_nick"]?.try &.as(String)
+    show_nick ||= "off"
+    show_nick = show_nick == "on"
 
     comments = [] of String
     2.times do |i|
@@ -83,6 +109,12 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
         feed_menu << option
       end
     end
+
+    automatic_instance_redirect = env.params.body["automatic_instance_redirect"]?.try &.as(String)
+    automatic_instance_redirect ||= "off"
+    automatic_instance_redirect = automatic_instance_redirect == "on"
+
+    region = env.params.body["region"]?.try &.as(String)
 
     locale = env.params.body["locale"]?.try &.as(String)
     locale ||= CONFIG.default_user_preferences.locale
@@ -112,39 +144,48 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
     notifications_only ||= "off"
     notifications_only = notifications_only == "on"
 
-    # Convert to JSON and back again to take advantage of converters used for compatability
+    # Convert to JSON and back again to take advantage of converters used for compatibility
     preferences = Preferences.from_json({
-      annotations:            annotations,
-      annotations_subscribed: annotations_subscribed,
-      autoplay:               autoplay,
-      captions:               captions,
-      comments:               comments,
-      continue:               continue,
-      continue_autoplay:      continue_autoplay,
-      dark_mode:              dark_mode,
-      latest_only:            latest_only,
-      listen:                 listen,
-      local:                  local,
-      locale:                 locale,
-      max_results:            max_results,
-      notifications_only:     notifications_only,
-      player_style:           player_style,
-      quality:                quality,
-      quality_dash:           quality_dash,
-      default_home:           default_home,
-      feed_menu:              feed_menu,
-      related_videos:         related_videos,
-      sort:                   sort,
-      speed:                  speed,
-      thin_mode:              thin_mode,
-      unseen_only:            unseen_only,
-      video_loop:             video_loop,
-      volume:                 volume,
-    }.to_json).to_json
+      annotations:                 annotations,
+      annotations_subscribed:      annotations_subscribed,
+      preload:                     preload,
+      autoplay:                    autoplay,
+      captions:                    captions,
+      comments:                    comments,
+      continue:                    continue,
+      continue_autoplay:           continue_autoplay,
+      dark_mode:                   dark_mode,
+      latest_only:                 latest_only,
+      listen:                      listen,
+      local:                       local,
+      watch_history:               watch_history,
+      locale:                      locale,
+      max_results:                 max_results,
+      notifications_only:          notifications_only,
+      player_style:                player_style,
+      quality:                     quality,
+      quality_dash:                quality_dash,
+      default_home:                default_home,
+      feed_menu:                   feed_menu,
+      automatic_instance_redirect: automatic_instance_redirect,
+      region:                      region,
+      related_videos:              related_videos,
+      sort:                        sort,
+      speed:                       speed,
+      thin_mode:                   thin_mode,
+      unseen_only:                 unseen_only,
+      video_loop:                  video_loop,
+      volume:                      volume,
+      extend_desc:                 extend_desc,
+      vr_mode:                     vr_mode,
+      show_nick:                   show_nick,
+      save_player_pos:             save_player_pos,
+    }.to_json)
 
     if user = env.get? "user"
       user = user.as(User)
-      PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences, user.email)
+      user.preferences = preferences
+      Invidious::Database::Users.update_preferences(user)
 
       if CONFIG.admins.includes? user.email
         CONFIG.default_user_preferences.default_home = env.params.body["admin_default_home"]?.try &.as(String) || CONFIG.default_user_preferences.default_home
@@ -178,29 +219,19 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
         statistics_enabled ||= "off"
         CONFIG.statistics_enabled = statistics_enabled == "on"
 
+        CONFIG.modified_source_code_url = env.params.body["modified_source_code_url"]?.presence
+
         File.write("config/config.yml", CONFIG.to_yaml)
       end
     else
-      if Kemal.config.ssl || CONFIG.https_only
-        secure = true
-      else
-        secure = false
-      end
-
-      if CONFIG.domain
-        env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", domain: "#{CONFIG.domain}", value: preferences, expires: Time.utc + 2.years,
-          secure: secure, http_only: true)
-      else
-        env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", value: preferences, expires: Time.utc + 2.years,
-          secure: secure, http_only: true)
-      end
+      env.response.cookies["PREFS"] = Invidious::User::Cookies.prefs(CONFIG.domain, preferences)
     end
 
     env.redirect referer
   end
 
-  def toggle_theme(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  def self.toggle_theme(env)
+    locale = env.get("preferences").as(Preferences).locale
     referer = get_referer(env, unroll: false)
 
     redirect = env.params.query["redirect"]?
@@ -209,18 +240,15 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
 
     if user = env.get? "user"
       user = user.as(User)
-      preferences = user.preferences
 
-      case preferences.dark_mode
+      case user.preferences.dark_mode
       when "dark"
-        preferences.dark_mode = "light"
+        user.preferences.dark_mode = "light"
       else
-        preferences.dark_mode = "dark"
+        user.preferences.dark_mode = "dark"
       end
 
-      preferences = preferences.to_json
-
-      PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences, user.email)
+      Invidious::Database::Users.update_preferences(user)
     else
       preferences = env.get("preferences").as(Preferences)
 
@@ -231,21 +259,7 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
         preferences.dark_mode = "dark"
       end
 
-      preferences = preferences.to_json
-
-      if Kemal.config.ssl || CONFIG.https_only
-        secure = true
-      else
-        secure = false
-      end
-
-      if CONFIG.domain
-        env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", domain: "#{CONFIG.domain}", value: preferences, expires: Time.utc + 2.years,
-          secure: secure, http_only: true)
-      else
-        env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", value: preferences, expires: Time.utc + 2.years,
-          secure: secure, http_only: true)
-      end
+      env.response.cookies["PREFS"] = Invidious::User::Cookies.prefs(CONFIG.domain, preferences)
     end
 
     if redirect
@@ -254,5 +268,88 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
       env.response.content_type = "application/json"
       "{}"
     end
+  end
+
+  def self.data_control(env)
+    locale = env.get("preferences").as(Preferences).locale
+
+    user = env.get? "user"
+    referer = get_referer(env)
+
+    if !user
+      return env.redirect referer
+    end
+
+    user = user.as(User)
+
+    templated "user/data_control"
+  end
+
+  def self.update_data_control(env)
+    locale = env.get("preferences").as(Preferences).locale
+
+    user = env.get? "user"
+    referer = get_referer(env)
+
+    if user
+      user = user.as(User)
+
+      # TODO: Find a way to prevent browser timeout
+
+      HTTP::FormData.parse(env.request) do |part|
+        body = part.body.gets_to_end
+        type = part.headers["Content-Type"]
+
+        next if body.empty?
+
+        # TODO: Unify into single import based on content-type
+        case part.name
+        when "import_invidious"
+          Invidious::User::Import.from_invidious(user, body)
+        when "import_youtube"
+          filename = part.filename || ""
+          success = Invidious::User::Import.from_youtube(user, body, filename, type)
+
+          if !success
+            haltf(env, status_code: 415,
+              response: error_template(415, "Invalid subscription file uploaded")
+            )
+          end
+        when "import_youtube_pl"
+          filename = part.filename || ""
+          success = Invidious::User::Import.from_youtube_pl(user, body, filename, type)
+
+          if !success
+            haltf(env, status_code: 415,
+              response: error_template(415, "Invalid playlist file uploaded")
+            )
+          end
+        when "import_youtube_wh"
+          filename = part.filename || ""
+          success = Invidious::User::Import.from_youtube_wh(user, body, filename, type)
+
+          if !success
+            haltf(env, status_code: 415,
+              response: error_template(415, "Invalid watch history file uploaded")
+            )
+          end
+        when "import_freetube"
+          Invidious::User::Import.from_freetube(user, body)
+        when "import_newpipe_subscriptions"
+          Invidious::User::Import.from_newpipe_subs(user, body)
+        when "import_newpipe"
+          success = Invidious::User::Import.from_newpipe(user, body)
+
+          if !success
+            haltf(env, status_code: 415,
+              response: error_template(415, "Uploaded file is too large")
+            )
+          end
+        else nil # Ignore
+        end
+      end
+    end
+
+    env.redirect referer
   end
 end

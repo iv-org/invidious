@@ -1,19 +1,63 @@
+<% title = HTML.escape(playlist.title) %>
+<% author = HTML.escape(playlist.author) %>
+
 <% content_for "header" do %>
-<title><%= playlist.title %> - Invidious</title>
+<title><%= title %> - Invidious</title>
 <link rel="alternate" type="application/rss+xml" title="RSS" href="/feed/playlist/<%= plid %>" />
 <% end %>
 
-<div class="pure-g h-box">
-    <div class="pure-u-2-3">
-        <h3><%= playlist.title %></h3>
+<div class="h-box flexible title">
+    <div class="flex-left"><h3><%= title %></h3></div>
+
+    <div class="flex-right button-container">
+        <%- if playlist.is_a?(InvidiousPlaylist) && playlist.author == user.try &.email -%>
+            <div class="pure-u">
+                <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/add_playlist_items?list=<%= plid %>">
+                    <i class="icon ion-md-add"></i>&nbsp;<%= translate(locale, "playlist_button_add_items") %>
+                </a>
+            </div>
+            <div class="pure-u">
+                <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/edit_playlist?list=<%= plid %>">
+                    <i class="icon ion-md-create"></i>&nbsp;<%= translate(locale, "generic_button_edit") %>
+                </a>
+            </div>
+            <div class="pure-u">
+                <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/delete_playlist?list=<%= plid %>">
+                    <i class="icon ion-md-trash"></i>&nbsp;<%= translate(locale, "generic_button_delete") %>
+                </a>
+            </div>
+        <%- else -%>
+            <div class="pure-u">
+                <%- if IV::Database::Playlists.exists?(playlist.id) -%>
+                    <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/subscribe_playlist?list=<%= plid %>">
+                        <i class="icon ion-md-add"></i>&nbsp;<%= translate(locale, "Subscribe") %>
+                    </a>
+                <%- else -%>
+                    <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/delete_playlist?list=<%= plid %>">
+                        <i class="icon ion-md-trash"></i>&nbsp;<%= translate(locale, "Unsubscribe") %>
+                    </a>
+                <%- end -%>
+            </div>
+        <%- end -%>
+
+        <div class="pure-u">
+            <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/feed/playlist/<%= plid %>">
+                <i class="icon ion-logo-rss"></i>&nbsp;<%= translate(locale, "generic_button_rss") %>
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="h-box">
+    <div class="pure-u-1-1">
         <% if playlist.is_a? InvidiousPlaylist %>
             <b>
                 <% if playlist.author == user.try &.email %>
-                <a href="/view_all_playlists"><%= playlist.author %></a> |
+                <a href="/feed/playlists"><%= author %></a> |
                 <% else %>
-                <%= playlist.author %> |
+                <%= author %> |
                 <% end %>
-                <%= translate(locale, "`x` videos", "#{playlist.video_count}") %> |
+                <%= translate_count(locale, "generic_videos_count", playlist.video_count) %> |
                 <%= translate(locale, "Updated `x` ago", recode_date(playlist.updated, locale)) %> |
                 <% case playlist.as(InvidiousPlaylist).privacy when %>
                 <% when PlaylistPrivacy::Public %>
@@ -26,49 +70,41 @@
             </b>
         <% else %>
             <b>
-                <a href="/channel/<%= playlist.ucid %>"><%= playlist.author %></a> |
-                <%= translate(locale, "`x` videos", "#{playlist.video_count}") %> |
+                <% if !author.empty? %>
+                    <a href="/channel/<%= playlist.ucid %>"><%= author %></a> |
+                <% elsif !playlist.subtitle.nil? %>
+                    <% subtitle = playlist.subtitle || "" %>
+                    <span><%= HTML.escape(subtitle[0..subtitle.rindex(" • ") || subtitle.size]) %></span> |
+                <% end %>
+                <%= translate_count(locale, "generic_videos_count", playlist.video_count) %> |
                 <%= translate(locale, "Updated `x` ago", recode_date(playlist.updated, locale)) %>
             </b>
         <% end %>
+
         <% if !playlist.is_a? InvidiousPlaylist %>
             <div class="pure-u-2-3">
-                    <a href="https://www.youtube.com/playlist?list=<%= playlist.id %>">
+                    <a rel="noreferrer noopener" href="https://www.youtube.com/playlist?list=<%= playlist.id %>">
                         <%= translate(locale, "View playlist on YouTube") %>
                     </a>
+                    <span> | </span>
+
+                    <% if env.get("preferences").as(Preferences).automatic_instance_redirect%>
+                        <a href="/redirect?referer=<%= env.get?("current_page") %>">
+                            <%= translate(locale, "Switch Invidious Instance") %>
+                        </a>
+                    <% else %>
+                        <a href="https://redirect.invidious.io/playlist?list=<%= playlist.id %>">
+                            <%= translate(locale, "Switch Invidious Instance") %>
+                        </a>
+                    <% end %>
             </div>
         <% end %>
-    </div>
-    <div class="pure-u-1-3" style="text-align:right">
-        <h3>
-            <div class="pure-g user-field">
-                <% if playlist.is_a?(InvidiousPlaylist) && playlist.author == user.try &.email %>
-                    <div class="pure-u-1-3"><a href="/edit_playlist?list=<%= plid %>"><i class="icon ion-md-create"></i></a></div>
-                    <div class="pure-u-1-3"><a href="/delete_playlist?list=<%= plid %>"><i class="icon ion-md-trash"></i></a></div>
-                <% else %>
-                    <% if PG_DB.query_one?("SELECT id FROM playlists WHERE id = $1", playlist.id, as: String).nil? %>
-                        <div class="pure-u-1-3"><a href="/subscribe_playlist?list=<%= plid %>"><i class="icon ion-md-add"></i></a></div>
-                    <% else %>
-                        <div class="pure-u-1-3"><a href="/delete_playlist?list=<%= plid %>"><i class="icon ion-md-trash"></i></a></div>
-                    <% end %>
-                <% end %>
-                <div class="pure-u-1-3"><a href="/feed/playlist/<%= plid %>"><i class="icon ion-logo-rss"></i></a></div>
-            </div>
-        </h3>
     </div>
 </div>
 
 <div class="h-box">
-    <p><%= playlist.description_html %></p>
+    <div id="descriptionWrapper"><%= playlist.description_html %></div>
 </div>
-
-<% if playlist.is_a?(InvidiousPlaylist) && playlist.author == user.try &.email %>
-<div class="h-box" style="text-align:right">
-    <h3>
-        <a href="/add_playlist_items?list=<%= plid %>"><i class="icon ion-md-add"></i></a>
-    </h3>
-</div>
-<% end %>
 
 <div class="h-box">
     <hr>
@@ -85,28 +121,5 @@
 <script src="/js/playlist_widget.js?v=<%= ASSET_COMMIT %>"></script>
 <% end %>
 
-<div class="pure-g">
-    <% videos.each_slice(4) do |slice| %>
-        <% slice.each do |item| %>
-            <%= rendered "components/item" %>
-        <% end %>
-    <% end %>
-</div>
 
-<div class="pure-g h-box">
-    <div class="pure-u-1 pure-u-lg-1-5">
-        <% if page > 1 %>
-            <a href="/playlist?list=<%= playlist.id %>&page=<%= page - 1 %>">
-                <%= translate(locale, "Previous page") %>
-            </a>
-        <% end %>
-    </div>
-    <div class="pure-u-1 pure-u-lg-3-5"></div>
-    <div class="pure-u-1 pure-u-lg-1-5" style="text-align:right">
-        <% if page_count != 1 && page < page_count %>
-            <a href="/playlist?list=<%= playlist.id %>&page=<%= page + 1 %>">
-                <%= translate(locale, "Next page") %>
-            </a>
-        <% end %>
-    </div>
-</div>
+<%= rendered "components/items_paginated" %>

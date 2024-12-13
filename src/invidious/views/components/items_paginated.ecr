@@ -1,0 +1,11 @@
+<%= page_nav_html %>
+
+<div class="pure-g">
+    <%- items.each do |item| -%>
+        <%= rendered "components/item" %>
+    <%- end -%>
+</div>
+
+<%= page_nav_html %>
+
+<script src="/js/watched_indicator.js"></script>

@@ -7,7 +7,7 @@ class Invidious::Jobs::RefreshFeedsJob < Invidious::Jobs::BaseJob
   def begin
     max_fibers = CONFIG.feed_threads
     active_fibers = 0
-    active_channel = Channel(Bool).new
+    active_channel = ::Channel(Bool).new
 
     loop do
       db.query("SELECT email FROM users WHERE feed_needs_update = true OR feed_needs_update IS NULL") do |rs|
@@ -25,7 +25,7 @@ class Invidious::Jobs::RefreshFeedsJob < Invidious::Jobs::BaseJob
           spawn do
             begin
               # Drop outdated views
-              column_array = get_column_array(db, view_name)
+              column_array = Invidious::Database.get_column_array(db, view_name)
               ChannelVideo.type_array.each_with_index do |name, i|
                 if name != column_array[i]?
                   LOGGER.info("RefreshFeedsJob: DROP MATERIALIZED VIEW #{view_name}")

@@ -1,7 +1,7 @@
 <% content_for "header" do %>
 <meta name="description" content="<%= translate(locale, "An alternative front-end to YouTube") %>">
 <title>
-    Invidious
+    Invidious - <%= translate(locale, "search") %>
 </title>
 <link rel="stylesheet" href="/css/empty.css?v=<%= ASSET_COMMIT %>">
 <% end %>
@@ -14,11 +14,7 @@
     </div>
     <div class="pure-u-1-4"></div>
     <div class="pure-u-1 pure-u-md-12-24 searchbar">
-        <form class="pure-form" action="/search" method="get">
-            <fieldset>
-                <input autofocus type="search" style="width:100%" name="q" placeholder="<%= translate(locale, "search") %>" value="<%= env.get?("search").try {|x| HTML.escape(x.as(String)) } %>">
-            </fieldset>
-        </form>
+        <% autofocus = true %><%= rendered "components/search_box" %>
     </div>
     <div class="pure-u-1-4"></div>
 </div>

@@ -1,31 +1,8 @@
-class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
-  def index(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+{% skip_file if flag?(:api_only) %}
 
-    user = env.get? "user"
-    referer = get_referer(env)
-
-    return env.redirect "/" if user.nil?
-
-    user = user.as(User)
-
-    items_created = PG_DB.query_all("SELECT * FROM playlists WHERE author = $1 AND id LIKE 'IV%' ORDER BY created", user.email, as: InvidiousPlaylist)
-    items_created.map! do |item|
-      item.author = ""
-      item
-    end
-
-    items_saved = PG_DB.query_all("SELECT * FROM playlists WHERE author = $1 AND id NOT LIKE 'IV%' ORDER BY created", user.email, as: InvidiousPlaylist)
-    items_saved.map! do |item|
-      item.author = ""
-      item
-    end
-
-    templated "view_all_playlists"
-  end
-
-  def new(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+module Invidious::Routes::Playlists
+  def self.new(env)
+    locale = env.get("preferences").as(Preferences).locale
 
     user = env.get? "user"
     sid = env.get? "sid"
@@ -35,13 +12,13 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
 
     user = user.as(User)
     sid = sid.as(String)
-    csrf_token = generate_response(sid, {":create_playlist"}, HMAC_KEY, PG_DB)
+    csrf_token = generate_response(sid, {":create_playlist"}, HMAC_KEY)
 
     templated "create_playlist"
   end
 
-  def create(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  def self.create(env)
+    locale = env.get("preferences").as(Preferences).locale
 
     user = env.get? "user"
     sid = env.get? "sid"
@@ -54,7 +31,7 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     token = env.params.body["csrf_token"]?
 
     begin
-      validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+      validate_request(token, sid, env.request, HMAC_KEY, locale)
     rescue ex
       return error_template(400, ex)
     end
@@ -69,17 +46,17 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
       return error_template(400, "Invalid privacy setting.")
     end
 
-    if PG_DB.query_one("SELECT count(*) FROM playlists WHERE author = $1", user.email, as: Int64) >= 100
+    if Invidious::Database::Playlists.count_owned_by(user.email) >= 100
       return error_template(400, "User cannot have more than 100 playlists.")
     end
 
-    playlist = create_playlist(PG_DB, title, privacy, user)
+    playlist = create_playlist(title, privacy, user)
 
     env.redirect "/playlist?list=#{playlist.id}"
   end
 
-  def subscribe(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  def self.subscribe(env)
+    locale = env.get("preferences").as(Preferences).locale
 
     user = env.get? "user"
     referer = get_referer(env)
@@ -89,14 +66,20 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     user = user.as(User)
 
     playlist_id = env.params.query["list"]
-    playlist = get_playlist(PG_DB, playlist_id, locale)
-    subscribe_playlist(PG_DB, user, playlist)
+    begin
+      playlist = get_playlist(playlist_id)
+    rescue ex : NotFoundException
+      return error_template(404, ex)
+    rescue ex
+      return error_template(500, ex)
+    end
+    subscribe_playlist(user, playlist)
 
     env.redirect "/playlist?list=#{playlist.id}"
   end
 
-  def delete_page(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  def self.delete_page(env)
+    locale = env.get("preferences").as(Preferences).locale
 
     user = env.get? "user"
     sid = env.get? "sid"
@@ -108,18 +91,22 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     sid = sid.as(String)
 
     plid = env.params.query["list"]?
-    playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
+    if !plid || plid.empty?
+      return error_template(400, "A playlist ID is required")
+    end
+
+    playlist = Invidious::Database::Playlists.select(id: plid)
     if !playlist || playlist.author != user.email
       return env.redirect referer
     end
 
-    csrf_token = generate_response(sid, {":delete_playlist"}, HMAC_KEY, PG_DB)
+    csrf_token = generate_response(sid, {":delete_playlist"}, HMAC_KEY)
 
     templated "delete_playlist"
   end
 
-  def delete(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  def self.delete(env)
+    locale = env.get("preferences").as(Preferences).locale
 
     user = env.get? "user"
     sid = env.get? "sid"
@@ -135,24 +122,23 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     token = env.params.body["csrf_token"]?
 
     begin
-      validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+      validate_request(token, sid, env.request, HMAC_KEY, locale)
     rescue ex
       return error_template(400, ex)
     end
 
-    playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
+    playlist = Invidious::Database::Playlists.select(id: plid)
     if !playlist || playlist.author != user.email
       return env.redirect referer
     end
 
-    PG_DB.exec("DELETE FROM playlist_videos * WHERE plid = $1", plid)
-    PG_DB.exec("DELETE FROM playlists * WHERE id = $1", plid)
+    Invidious::Database::Playlists.delete(plid)
 
-    env.redirect "/view_all_playlists"
+    env.redirect "/feed/playlists"
   end
 
-  def edit(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  def self.edit(env)
+    locale = env.get("preferences").as(Preferences).locale
 
     user = env.get? "user"
     sid = env.get? "sid"
@@ -171,28 +157,31 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     page = env.params.query["page"]?.try &.to_i?
     page ||= 1
 
-    begin
-      playlist = PG_DB.query_one("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
-      if !playlist || playlist.author != user.email
-        return env.redirect referer
-      end
-    rescue ex
+    playlist = Invidious::Database::Playlists.select(id: plid)
+    if !playlist || playlist.author != user.email
       return env.redirect referer
     end
 
     begin
-      videos = get_playlist_videos(PG_DB, playlist, offset: (page - 1) * 100, locale: locale)
+      items = get_playlist_videos(playlist, offset: (page - 1) * 100)
     rescue ex
-      videos = [] of PlaylistVideo
+      items = [] of PlaylistVideo
     end
 
-    csrf_token = generate_response(sid, {":edit_playlist"}, HMAC_KEY, PG_DB)
+    csrf_token = generate_response(sid, {":edit_playlist"}, HMAC_KEY)
+
+    # Pagination
+    page_nav_html = Frontend::Pagination.nav_numeric(locale,
+      base_url: "/playlist?list=#{playlist.id}",
+      current_page: page,
+      show_next: (items.size == 100)
+    )
 
     templated "edit_playlist"
   end
 
-  def update(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  def self.update(env)
+    locale = env.get("preferences").as(Preferences).locale
 
     user = env.get? "user"
     sid = env.get? "sid"
@@ -208,12 +197,12 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     token = env.params.body["csrf_token"]?
 
     begin
-      validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+      validate_request(token, sid, env.request, HMAC_KEY, locale)
     rescue ex
       return error_template(400, ex)
     end
 
-    playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
+    playlist = Invidious::Database::Playlists.select(id: plid)
     if !playlist || playlist.author != user.email
       return env.redirect referer
     end
@@ -230,13 +219,16 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
       updated = playlist.updated
     end
 
-    PG_DB.exec("UPDATE playlists SET title = $1, privacy = $2, description = $3, updated = $4 WHERE id = $5", title, privacy, description, updated, plid)
+    Invidious::Database::Playlists.update(plid, title, privacy, description, updated)
 
     env.redirect "/playlist?list=#{plid}"
   end
 
-  def add_playlist_items_page(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  def self.add_playlist_items_page(env)
+    prefs = env.get("preferences").as(Preferences)
+    locale = prefs.locale
+
+    region = env.params.query["region"]? || prefs.region
 
     user = env.get? "user"
     sid = env.get? "sid"
@@ -255,35 +247,32 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     page = env.params.query["page"]?.try &.to_i?
     page ||= 1
 
-    begin
-      playlist = PG_DB.query_one("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
-      if !playlist || playlist.author != user.email
-        return env.redirect referer
-      end
-    rescue ex
+    playlist = Invidious::Database::Playlists.select(id: plid)
+    if !playlist || playlist.author != user.email
       return env.redirect referer
     end
 
-    query = env.params.query["q"]?
-    if query
-      begin
-        search_query, count, items, operators = process_search_query(query, page, user, region: nil)
-        videos = items.select { |item| item.is_a? SearchVideo }.map { |item| item.as(SearchVideo) }
-      rescue ex
-        videos = [] of SearchVideo
-        count = 0
-      end
-    else
-      videos = [] of SearchVideo
-      count = 0
+    begin
+      query = Invidious::Search::Query.new(env.params.query, :playlist, region)
+      items = query.process.select(SearchVideo).map(&.as(SearchVideo))
+    rescue ex
+      items = [] of SearchVideo
     end
+
+    # Pagination
+    query_encoded = URI.encode_www_form(query.try &.text || "", space_to_plus: true)
+    page_nav_html = Frontend::Pagination.nav_numeric(locale,
+      base_url: "/add_playlist_items?list=#{playlist.id}&q=#{query_encoded}",
+      current_page: page,
+      show_next: (items.size >= 20)
+    )
 
     env.set "add_playlist_items", plid
     templated "add_playlist_items"
   end
 
-  def playlist_ajax(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  def self.playlist_ajax(env)
+    locale = env.get("preferences").as(Preferences).locale
 
     user = env.get? "user"
     sid = env.get? "sid"
@@ -306,7 +295,7 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     token = env.params.body["csrf_token"]?
 
     begin
-      validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+      validate_request(token, sid, env.request, HMAC_KEY, locale)
     rescue ex
       if redirect
         return error_template(400, ex)
@@ -334,8 +323,10 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
 
     begin
       playlist_id = env.params.query["playlist_id"]
-      playlist = get_playlist(PG_DB, playlist_id, locale).as(InvidiousPlaylist)
+      playlist = get_playlist(playlist_id).as(InvidiousPlaylist)
       raise "Invalid user" if playlist.author != user.email
+    rescue ex : NotFoundException
+      return error_json(404, ex)
     rescue ex
       if redirect
         return error_template(400, ex)
@@ -344,28 +335,26 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
       end
     end
 
-    if !user.password
-      # TODO: Playlist stub, sync with YouTube for Google accounts
-      # playlist_ajax(playlist_id, action, env.request.headers)
-    end
     email = user.email
 
     case action
     when "action_edit_playlist"
       # TODO: Playlist stub
     when "action_add_video"
-      if playlist.index.size >= 500
+      if playlist.index.size >= CONFIG.playlist_length_limit
         if redirect
-          return error_template(400, "Playlist cannot have more than 500 videos")
+          return error_template(400, "Playlist cannot have more than #{CONFIG.playlist_length_limit} videos")
         else
-          return error_json(400, "Playlist cannot have more than 500 videos")
+          return error_json(400, "Playlist cannot have more than #{CONFIG.playlist_length_limit} videos")
         end
       end
 
       video_id = env.params.query["video_id"]
 
       begin
-        video = get_video(video_id, PG_DB)
+        video = get_video(video_id)
+      rescue ex : NotFoundException
+        return error_json(404, ex)
       rescue ex
         if redirect
           return error_template(500, ex)
@@ -386,15 +375,12 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
         index:          Random::Secure.rand(0_i64..Int64::MAX),
       })
 
-      video_array = playlist_video.to_a
-      args = arg_array(video_array)
-
-      PG_DB.exec("INSERT INTO playlist_videos VALUES (#{args})", args: video_array)
-      PG_DB.exec("UPDATE playlists SET index = array_append(index, $1), video_count = cardinality(index) + 1, updated = $2 WHERE id = $3", playlist_video.index, Time.utc, playlist_id)
+      Invidious::Database::PlaylistVideos.insert(playlist_video)
+      Invidious::Database::Playlists.update_video_added(playlist_id, playlist_video.index)
     when "action_remove_video"
       index = env.params.query["set_video_id"]
-      PG_DB.exec("DELETE FROM playlist_videos * WHERE index = $1", index)
-      PG_DB.exec("UPDATE playlists SET index = array_remove(index, $1), video_count = cardinality(index) - 1, updated = $2 WHERE id = $3", index, Time.utc, playlist_id)
+      Invidious::Database::PlaylistVideos.delete(index)
+      Invidious::Database::Playlists.update_video_removed(playlist_id, index)
     when "action_move_video_before"
       # TODO: Playlist stub
     else
@@ -409,8 +395,8 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     end
   end
 
-  def show(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  def self.show(env)
+    locale = env.get("preferences").as(Preferences).locale
 
     user = env.get?("user").try &.as(User)
     referer = get_referer(env)
@@ -428,13 +414,20 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     end
 
     begin
-      playlist = get_playlist(PG_DB, plid, locale)
+      playlist = get_playlist(plid)
+    rescue ex : NotFoundException
+      return error_template(404, ex)
     rescue ex
       return error_template(500, ex)
     end
 
-    page_count = (playlist.video_count / 100).to_i
-    page_count += 1 if (playlist.video_count % 100) > 0
+    if playlist.is_a? InvidiousPlaylist
+      page_count = (playlist.video_count / 100).to_i
+      page_count += 1 if (playlist.video_count % 100) > 0
+    else
+      page_count = (playlist.video_count / 200).to_i
+      page_count += 1 if (playlist.video_count % 200) > 0
+    end
 
     if page > page_count
       return env.redirect "/playlist?list=#{plid}&page=#{page_count}"
@@ -445,7 +438,11 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     end
 
     begin
-      videos = get_playlist_videos(PG_DB, playlist, offset: (page - 1) * 100, locale: locale)
+      if playlist.is_a? InvidiousPlaylist
+        items = get_playlist_videos(playlist, offset: (page - 1) * 100)
+      else
+        items = get_playlist_videos(playlist, offset: (page - 1) * 200)
+      end
     rescue ex
       return error_template(500, "Error encountered while retrieving playlist videos.<br>#{ex.message}")
     end
@@ -454,11 +451,18 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
       env.set "remove_playlist_items", plid
     end
 
+    # Pagination
+    page_nav_html = Frontend::Pagination.nav_numeric(locale,
+      base_url: "/playlist?list=#{playlist.id}",
+      current_page: page,
+      show_next: (page_count != 1 && page < page_count)
+    )
+
     templated "playlist"
   end
 
-  def mix(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  def self.mix(env)
+    locale = env.get("preferences").as(Preferences).locale
 
     rdid = env.params.query["list"]?
     if !rdid
@@ -475,5 +479,16 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     end
 
     templated "mix"
+  end
+
+  # Undocumented, creates anonymous playlist with specified 'video_ids', max 50 videos
+  def self.watch_videos(env)
+    response = YT_POOL.client &.get(env.request.resource)
+    if url = response.headers["Location"]?
+      url = URI.parse(url).request_target
+      return env.redirect url
+    end
+
+    env.response.status_code = response.status_code
   end
 end

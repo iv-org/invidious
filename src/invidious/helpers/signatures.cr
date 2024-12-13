@@ -1,73 +1,53 @@
-alias SigProc = Proc(Array(String), Int32, Array(String))
+require "http/params"
+require "./sig_helper"
 
-struct DecryptFunction
-  @decrypt_function = [] of {SigProc, Int32}
-  @decrypt_time = Time.monotonic
+class Invidious::DecryptFunction
+  @last_update : Time = Time.utc - 42.days
 
-  def initialize(@use_polling = true)
+  def initialize(uri_or_path)
+    @client = SigHelper::Client.new(uri_or_path)
+    self.check_update
   end
 
-  def update_decrypt_function
-    @decrypt_function = fetch_decrypt_function
+  def check_update
+    # If we have updated in the last 5 minutes, do nothing
+    return if (Time.utc - @last_update) < 5.minutes
+
+    # Get the amount of time elapsed since when the player was updated, in the
+    # event where multiple invidious processes are run in parallel.
+    update_time_elapsed = (@client.get_player_timestamp || 301).seconds
+
+    if update_time_elapsed > 5.minutes
+      LOGGER.debug("Signature: Player might be outdated, updating")
+      @client.force_update
+      @last_update = Time.utc
+    end
   end
 
-  private def fetch_decrypt_function(id = "CvFH_6DNRCY")
-    document = YT_POOL.client &.get("/watch?v=#{id}&gl=US&hl=en").body
-    url = document.match(/src="(?<url>\/s\/player\/[^\/]+\/player_ias[^\/]+\/en_US\/base.js)"/).not_nil!["url"]
-    player = YT_POOL.client &.get(url).body
-
-    function_name = player.match(/^(?<name>[^=]+)=function\(\w\){\w=\w\.split\(""\);[^\. ]+\.[^( ]+/m).not_nil!["name"]
-    function_body = player.match(/^#{Regex.escape(function_name)}=function\(\w\){(?<body>[^}]+)}/m).not_nil!["body"]
-    function_body = function_body.split(";")[1..-2]
-
-    var_name = function_body[0][0, 2]
-    var_body = player.delete("\n").match(/var #{Regex.escape(var_name)}={(?<body>(.*?))};/).not_nil!["body"]
-
-    operations = {} of String => SigProc
-    var_body.split("},").each do |operation|
-      op_name = operation.match(/^[^:]+/).not_nil![0]
-      op_body = operation.match(/\{[^}]+/).not_nil![0]
-
-      case op_body
-      when "{a.reverse()"
-        operations[op_name] = ->(a : Array(String), b : Int32) { a.reverse }
-      when "{a.splice(0,b)"
-        operations[op_name] = ->(a : Array(String), b : Int32) { a.delete_at(0..(b - 1)); a }
-      else
-        operations[op_name] = ->(a : Array(String), b : Int32) { c = a[0]; a[0] = a[b % a.size]; a[b % a.size] = c; a }
-      end
-    end
-
-    decrypt_function = [] of {SigProc, Int32}
-    function_body.each do |function|
-      function = function.lchop(var_name).delete("[].")
-
-      op_name = function.match(/[^\(]+/).not_nil![0]
-      value = function.match(/\(\w,(?<value>[\d]+)\)/).not_nil!["value"].to_i
-
-      decrypt_function << {operations[op_name], value}
-    end
-
-    return decrypt_function
+  def decrypt_nsig(n : String) : String?
+    self.check_update
+    return @client.decrypt_n_param(n)
+  rescue ex
+    LOGGER.debug(ex.message || "Signature: Unknown error")
+    LOGGER.trace(ex.inspect_with_backtrace)
+    return nil
   end
 
-  def decrypt_signature(fmt : Hash(String, JSON::Any))
-    return "" if !fmt["s"]? || !fmt["sp"]?
+  def decrypt_signature(str : String) : String?
+    self.check_update
+    return @client.decrypt_sig(str)
+  rescue ex
+    LOGGER.debug(ex.message || "Signature: Unknown error")
+    LOGGER.trace(ex.inspect_with_backtrace)
+    return nil
+  end
 
-    sp = fmt["sp"].as_s
-    sig = fmt["s"].as_s.split("")
-    if !@use_polling
-      now = Time.monotonic
-      if now - @decrypt_time > 60.seconds || @decrypt_function.size == 0
-        @decrypt_function = fetch_decrypt_function
-        @decrypt_time = Time.monotonic
-      end
-    end
-
-    @decrypt_function.each do |proc, value|
-      sig = proc.call(sig, value)
-    end
-
-    return "&#{sp}=#{sig.join("")}"
+  def get_sts : UInt64?
+    self.check_update
+    return @client.get_signature_timestamp
+  rescue ex
+    LOGGER.debug(ex.message || "Signature: Unknown error")
+    LOGGER.trace(ex.inspect_with_backtrace)
+    return nil
   end
 end

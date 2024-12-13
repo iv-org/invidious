@@ -1,0 +1,18 @@
+# Default and lowest precedence. If none of the below matches, @iv-org/developers would be requested for review.
+* @iv-org/developers
+
+docker-compose.yml @unixfox
+docker/ @unixfox
+kubernetes/ @unixfox
+
+README.md @thefrenchghosty
+config/config.example.yml @SamantazFox @unixfox
+
+scripts/ @syeopite
+shards.lock @syeopite
+shards.yml @syeopite
+
+locales/ @SamantazFox
+src/invidious/helpers/i18n.cr @SamantazFox
+
+src/invidious/helpers/youtube_api.cr @SamantazFox

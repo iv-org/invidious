@@ -1,136 +1,21 @@
 <% content_for "header" do %>
-<title><%= search_query.not_nil!.size > 30 ? HTML.escape(query.not_nil![0,30].rstrip(".") + "...") : HTML.escape(query.not_nil!) %> - Invidious</title>
+<title><%= query.text.size > 30 ? HTML.escape(query.text[0,30].rstrip(".")) + "&hellip;" : HTML.escape(query.text) %> - Invidious</title>
+<link rel="stylesheet" href="/css/search.css?v=<%= ASSET_COMMIT %>">
 <% end %>
 
-<details id="filters">
-    <summary>
-        <h3 style="display:inline"> <%= translate(locale, "filter") %> </h3>
-    </summary>
-    <div id="filters" class="pure-g h-box">
-        <div class="pure-u-1-3 pure-u-md-1-5">
-            <b><%= translate(locale, "date") %></b>
-            <hr/>
-            <% ["hour", "today", "week", "month", "year"].each do |date| %>
-                <div class="pure-u-1 pure-md-1-5">
-                    <% if operator_hash.fetch("date", "all") == date %>
-                        <b><%= translate(locale, date) %></b>
-                    <% else %>
-                        <a href="/search?q=<%= HTML.escape(query.not_nil!.gsub(/ ?date:[a-z]+/, "") + " date:" + date) %>&page=<%= page %>">
-                            <%= translate(locale, date) %>
-                        </a>
-                    <% end %>
-                </div>
-            <% end %>
-        </div>
-        <div class="pure-u-1-3 pure-u-md-1-5">
-            <b><%= translate(locale, "content_type") %></b>
-            <hr/>
-            <% ["video", "channel", "playlist", "movie", "show"].each do |content_type| %>
-                <div class="pure-u-1 pure-md-1-5">
-                    <% if operator_hash.fetch("content_type", "all") == content_type %>
-                        <b><%= translate(locale, content_type) %></b>
-                    <% else %>
-                        <a href="/search?q=<%= HTML.escape(query.not_nil!.gsub(/ ?content_type:[a-z]+/, "") + " content_type:" + content_type) %>&page=<%= page %>">
-                            <%= translate(locale, content_type) %>
-                        </a>
-                    <% end %>
-                </div>
-            <% end %>
-        </div>
-        <div class="pure-u-1-3 pure-u-md-1-5">
-            <b><%= translate(locale, "duration") %></b>
-            <hr/>
-            <% ["short", "long"].each do |duration| %>
-                <div class="pure-u-1 pure-md-1-5">
-                    <% if operator_hash.fetch("duration", "all") == duration %>
-                        <b><%= translate(locale, duration) %></b>
-                    <% else %>
-                        <a href="/search?q=<%= HTML.escape(query.not_nil!.gsub(/ ?duration:[a-z]+/, "") + " duration:" + duration) %>&page=<%= page %>">
-                            <%= translate(locale, duration) %>
-                        </a>
-                    <% end %>
-                </div>
-            <% end %>
-        </div>
-        <div class="pure-u-1-3 pure-u-md-1-5">
-            <b><%= translate(locale, "features") %></b>
-            <hr/>
-            <% ["hd", "subtitles", "creative_commons", "3d", "live", "purchased", "4k", "360", "location", "hdr"].each do |feature| %>
-                <div class="pure-u-1 pure-md-1-5">
-                    <% if operator_hash.fetch("features", "all").includes?(feature) %>
-                        <b><%= translate(locale, feature) %></b>
-                    <% elsif operator_hash.has_key?("features") %>
-                        <a href="/search?q=<%= HTML.escape(query.not_nil!.gsub(/features:/, "features:" + feature + ",")) %>&page=<%= page %>">
-                            <%= translate(locale, feature) %>
-                        </a>
-                    <% else %>
-                        <a href="/search?q=<%= HTML.escape(query.not_nil! + " features:" + feature) %>&page=<%= page %>">
-                            <%= translate(locale, feature) %>
-                        </a>
-                    <% end %>
-                </div>
-            <% end %>
-        </div>
-        <div class="pure-u-1-3 pure-u-md-1-5">
-            <b><%= translate(locale, "sort") %></b>
-            <hr/>
-            <% ["relevance", "rating", "date", "views"].each do |sort| %>
-                <div class="pure-u-1 pure-md-1-5">
-                    <% if operator_hash.fetch("sort", "relevance") == sort %>
-                        <b><%= translate(locale, sort) %></b>
-                    <% else %>
-                        <a href="/search?q=<%= HTML.escape(query.not_nil!.gsub(/ ?sort:[a-z]+/, "") + " sort:" + sort) %>&page=<%= page %>">
-                            <%= translate(locale, sort) %>
-                        </a>
-                    <% end %>
-                </div>
-            <% end %>
-        </div>
-    </div>
-</details>
-
+<!-- Search redirection and filtering UI -->
+<%= Invidious::Frontend::SearchFilters.generate(query.filters, query.text, query.page, locale) %>
 <hr/>
 
-<div class="pure-g h-box v-box">
-    <div class="pure-u-1 pure-u-lg-1-5">
-        <% if page > 1 %>
-            <a href="/search?q=<%= HTML.escape(query.not_nil!) %>&page=<%= page - 1 %>">
-                <%= translate(locale, "Previous page") %>
-            </a>
-        <% end %>
-    </div>
-    <div class="pure-u-1 pure-u-lg-3-5"></div>
-    <div class="pure-u-1 pure-u-lg-1-5" style="text-align:right">
-        <% if count >= 20 %>
-            <a href="/search?q=<%= HTML.escape(query.not_nil!) %>&page=<%= page + 1 %>">
-                <%= translate(locale, "Next page") %>
-            </a>
-        <% end %>
-    </div>
-</div>
 
-<div class="pure-g">
-    <% videos.each_slice(4) do |slice| %>
-        <% slice.each do |item| %>
-            <%= rendered "components/item" %>
-        <% end %>
-    <% end %>
-</div>
-
-<div class="pure-g h-box">
-    <div class="pure-u-1 pure-u-lg-1-5">
-        <% if page > 1 %>
-            <a href="/search?q=<%= HTML.escape(query.not_nil!) %>&page=<%= page - 1 %>">
-                <%= translate(locale, "Previous page") %>
-            </a>
-        <% end %>
-    </div>
-    <div class="pure-u-1 pure-u-lg-3-5"></div>
-    <div class="pure-u-1 pure-u-lg-1-5" style="text-align:right">
-        <% if count >= 20 %>
-            <a href="/search?q=<%= HTML.escape(query.not_nil!) %>&page=<%= page + 1 %>">
-                <%= translate(locale, "Next page") %>
-            </a>
-        <% end %>
+<%- if items.empty? -%>
+<div class="h-box no-results-error">
+    <div>
+        <%= translate(locale, "search_message_no_results") %><br/><br/>
+        <%= translate(locale, "search_message_change_filters_or_query") %><br/><br/>
+        <%= translate(locale, "search_message_use_another_instance", redirect_url) %>
     </div>
 </div>
+<%- else -%>
+    <%= rendered "components/items_paginated" %>
+<%- end -%>

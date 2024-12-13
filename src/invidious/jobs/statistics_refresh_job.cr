@@ -18,6 +18,13 @@ class Invidious::Jobs::StatisticsRefreshJob < Invidious::Jobs::BaseJob
       "updatedAt"              => Time.utc.to_unix,
       "lastChannelRefreshedAt" => 0_i64,
     },
+
+    #
+    #    "totalRequests" => 0_i64,
+    #    "successfulRequests" => 0_i64
+    #    "ratio"   => 0_i64
+    #
+    "playback" => {} of String => Int64 | Float64,
   }
 
   private getter db : DB::Database
@@ -30,7 +37,7 @@ class Invidious::Jobs::StatisticsRefreshJob < Invidious::Jobs::BaseJob
 
     loop do
       refresh_stats
-      sleep 1.minute
+      sleep 10.minute
       Fiber.yield
     end
   end
@@ -47,12 +54,17 @@ class Invidious::Jobs::StatisticsRefreshJob < Invidious::Jobs::BaseJob
 
   private def refresh_stats
     users = STATISTICS.dig("usage", "users").as(Hash(String, Int64))
-    users["total"] = db.query_one("SELECT count(*) FROM users", as: Int64)
-    users["activeHalfyear"] = db.query_one("SELECT count(*) FROM users WHERE CURRENT_TIMESTAMP - updated < '6 months'", as: Int64)
-    users["activeMonth"] = db.query_one("SELECT count(*) FROM users WHERE CURRENT_TIMESTAMP - updated < '1 month'", as: Int64)
+
+    users["total"] = Invidious::Database::Statistics.count_users_total
+    users["activeHalfyear"] = Invidious::Database::Statistics.count_users_active_6m
+    users["activeMonth"] = Invidious::Database::Statistics.count_users_active_1m
+
     STATISTICS["metadata"] = {
       "updatedAt"              => Time.utc.to_unix,
-      "lastChannelRefreshedAt" => db.query_one?("SELECT updated FROM channels ORDER BY updated DESC LIMIT 1", as: Time).try &.to_unix || 0_i64,
+      "lastChannelRefreshedAt" => Invidious::Database::Statistics.channel_last_update.try &.to_unix || 0_i64,
     }
+
+    # Reset playback requests tracker
+    STATISTICS["playback"] = {} of String => Int64 | Float64
   end
 end

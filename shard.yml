@@ -1,34 +1,48 @@
 name: invidious
-version: 0.20.1
+version: 2.20241110.0-dev
 
 authors:
-  - Omar Roth <omarroth@protonmail.com>
-  - Invidous team
+  - Invidious team <contact@invidious.io>
+  - Contributors!
 
-targets:
-  invidious:
-    main: src/invidious.cr
+description: |
+   Invidious is an alternative front-end to YouTube 
 
 dependencies:
   pg:
     github: will/crystal-pg
-    version: ~> 0.23.1
+    version: ~> 0.28.0
   sqlite3:
     github: crystal-lang/crystal-sqlite3
-    version: ~> 0.18.0
+    version: ~> 0.21.0
   kemal:
     github: kemalcr/kemal
-    version: ~> 0.27.0
-  pool:
-    github: ysbaddaden/pool
-    version: ~> 0.2.3
+    version: ~> 1.1.2
+  kilt:
+    github: jeromegn/kilt
+    version: ~> 0.6.1
   protodec:
-    github: omarroth/protodec
-    version: ~> 0.1.3
-  lsquic:
-    github: iv-org/lsquic.cr
-    version: ~> 2.18.1-1
+    github: iv-org/protodec
+    version: ~> 0.1.5
+  athena-negotiation:
+    github: athena-framework/negotiation
+    version: ~> 0.1.1
+  http_proxy:
+    github: mamantoha/http_proxy
+    version: ~> 0.10.3
 
-crystal: 0.36.1
+development_dependencies:
+  spectator:
+    github: icy-arctic-fox/spectator
+    version: ~> 0.10.4
+  ameba:
+    github: crystal-ameba/ameba
+    version: ~> 1.6.1
+
+crystal: ">= 1.10.0, < 2.0.0"
 
 license: AGPLv3
+
+repository: https://github.com/iv-org/invidious
+homepage: https://invidious.io
+documentation: https://docs.invidious.io

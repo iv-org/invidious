@@ -34,7 +34,7 @@
 .video-js.player-style-youtube .vjs-control-bar > .vjs-spacer {
   flex: 1;
   order: 2;
-} 
+}
 
 .video-js.player-style-youtube .vjs-play-progress .vjs-time-tooltip {
   display: none;
@@ -68,7 +68,11 @@
 
 .video-js.player-style-youtube .vjs-menu-button-popup .vjs-menu {
   margin-bottom: 2em;
+  padding-top: 2em
 }
+
+.video-js.player-style-youtube .vjs-progress-control .vjs-progress-holder, .video-js.player-style-youtube .vjs-progress-control {height: 5px;
+margin-bottom: 10px;}
 
 ul.vjs-menu-content::-webkit-scrollbar {
   display: none;
@@ -98,21 +102,25 @@ ul.vjs-menu-content::-webkit-scrollbar {
   order: 2;
 }
 
-.vjs-quality-selector,
-.video-js .vjs-http-source-selector {
+.vjs-audio-button {
   order: 3;
 }
 
-.vjs-playback-rate {
+.vjs-quality-selector,
+.video-js .vjs-http-source-selector {
   order: 4;
 }
 
-.vjs-share-control {
+.vjs-playback-rate {
   order: 5;
 }
 
-.vjs-fullscreen-control {
+.vjs-share-control {
   order: 6;
+}
+
+.vjs-fullscreen-control {
+  order: 7;
 }
 
 .vjs-playback-rate > .vjs-menu {
@@ -168,11 +176,14 @@ ul.vjs-menu-content::-webkit-scrollbar {
 .video-js.player-style-invidious .vjs-play-progress {
   background-color: rgba(0, 182, 240, 1);
 }
-vjs-menu-content
+
 /* Overlay */
 .video-js .vjs-overlay {
-  background-color: rgba(35, 35, 35, 0.75);
-  color: rgba(255, 255, 255, 1);
+  background-color: rgba(35, 35, 35, 0.75) !important;
+}
+.video-js .vjs-overlay * {
+  color: rgba(255, 255, 255, 1) !important;
+  text-align: center;
 }
 
 /* ProgressBar marker */
@@ -218,6 +229,10 @@ video.video-js {
 
 #player-container {
   position: relative;
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: 1em;
+  margin-right: 1em;
   padding-bottom: 82vh;
   height: 0;
 }

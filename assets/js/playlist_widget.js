@@ -1,4 +1,6 @@
-var playlist_data = JSON.parse(document.getElementById('playlist_data').innerHTML);
+'use strict';
+var playlist_data = JSON.parse(document.getElementById('playlist_data').textContent);
+var payload = 'csrf_token=' + playlist_data.csrf_token;
 
 function add_playlist_video(target) {
     var select = target.parentNode.children[0].children[1];
@@ -7,21 +9,12 @@ function add_playlist_video(target) {
     var url = '/playlist_ajax?action_add_video=1&redirect=false' +
         '&video_id=' + target.getAttribute('data-id') +
         '&playlist_id=' + option.getAttribute('data-plid');
-    var xhr = new XMLHttpRequest();
-    xhr.responseType = 'json';
-    xhr.timeout = 10000;
-    xhr.open('POST', url, true);
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4) {
-            if (xhr.status == 200) {
-                option.innerText = '✓' + option.innerText;
-            }
+    helpers.xhr('POST', url, {payload: payload}, {
+        on200: function (response) {
+            option.textContent = '✓' + option.textContent;
         }
-    }
-
-    xhr.send('csrf_token=' + playlist_data.csrf_token);
+    });
 }
 
 function add_playlist_item(target) {
@@ -31,21 +24,12 @@ function add_playlist_item(target) {
     var url = '/playlist_ajax?action_add_video=1&redirect=false' +
         '&video_id=' + target.getAttribute('data-id') +
         '&playlist_id=' + target.getAttribute('data-plid');
-    var xhr = new XMLHttpRequest();
-    xhr.responseType = 'json';
-    xhr.timeout = 10000;
-    xhr.open('POST', url, true);
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4) {
-            if (xhr.status != 200) {
-                tile.style.display = '';
-            }
+    helpers.xhr('POST', url, {payload: payload}, {
+        onNon200: function (xhr) {
+            tile.style.display = '';
         }
-    }
-
-    xhr.send('csrf_token=' + playlist_data.csrf_token);
+    });
 }
 
 function remove_playlist_item(target) {
@@ -55,19 +39,10 @@ function remove_playlist_item(target) {
     var url = '/playlist_ajax?action_remove_video=1&redirect=false' +
         '&set_video_id=' + target.getAttribute('data-index') +
         '&playlist_id=' + target.getAttribute('data-plid');
-    var xhr = new XMLHttpRequest();
-    xhr.responseType = 'json';
-    xhr.timeout = 10000;
-    xhr.open('POST', url, true);
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4) {
-            if (xhr.status != 200) {
-                tile.style.display = '';
-            }
+    helpers.xhr('POST', url, {payload: payload}, {
+        onNon200: function (xhr) {
+            tile.style.display = '';
         }
-    }
-
-    xhr.send('csrf_token=' + playlist_data.csrf_token);
+    });
 }

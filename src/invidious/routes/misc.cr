@@ -1,7 +1,9 @@
-class Invidious::Routes::Misc < Invidious::Routes::BaseRoute
-  def home(env)
+{% skip_file if flag?(:api_only) %}
+
+module Invidious::Routes::Misc
+  def self.home(env)
     preferences = env.get("preferences").as(Preferences)
-    locale = LOCALES[preferences.locale]?
+    locale = preferences.locale
     user = env.get? "user"
 
     case preferences.default_home
@@ -17,7 +19,7 @@ class Invidious::Routes::Misc < Invidious::Routes::BaseRoute
       end
     when "Playlists"
       if user
-        env.redirect "/view_all_playlists"
+        env.redirect "/feed/playlists"
       else
         env.redirect "/feed/popular"
       end
@@ -26,13 +28,28 @@ class Invidious::Routes::Misc < Invidious::Routes::BaseRoute
     end
   end
 
-  def privacy(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  def self.privacy(env)
+    locale = env.get("preferences").as(Preferences).locale
     templated "privacy"
   end
 
-  def licenses(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  def self.licenses(env)
+    locale = env.get("preferences").as(Preferences).locale
     rendered "licenses"
+  end
+
+  def self.cross_instance_redirect(env)
+    referer = get_referer(env)
+
+    instance_list = Invidious::Jobs::InstanceListRefreshJob::INSTANCES["INSTANCES"]
+    if instance_list.empty?
+      instance_url = "redirect.invidious.io"
+    else
+      # Sample returns an array
+      # Instances are packaged as {region, domain} in the instance list
+      instance_url = instance_list.sample(1)[0][1]
+    end
+
+    env.redirect "https://#{instance_url}#{referer}"
   end
 end

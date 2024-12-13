@@ -1,0 +1,17 @@
+# Useful precomit hooks
+# Please see https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks for instructions on installation.
+
+# Crystal linter
+# This is a modified version of the pre-commit hook from the crystal repo. https://github.com/crystal-lang/crystal/blob/master/scripts/git/pre-commit
+# Please refer to that if you'd like an version that doesn't automatically format staged files. 
+changed_cr_files=$(git diff --cached --name-only --diff-filter=ACM | grep '\.cr$')
+if [ ! -z "$changed_cr_files" ]; then
+  if [ -x bin/crystal ]; then
+    # use bin/crystal wrapper when available to run local compiler build
+    bin/crystal tool format $changed_cr_files >&2
+  else
+    crystal tool format $changed_cr_files >&2
+  fi
+
+  git add $changed_cr_files
+fi

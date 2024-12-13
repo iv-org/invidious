@@ -1,0 +1,49 @@
+<% content_for "header" do %>
+<meta name="description" content="<%= translate(locale, "An alternative front-end to YouTube") %>">
+<title>
+    <% if env.get("preferences").as(Preferences).default_home != "Trending" %>
+        <%= translate(locale, "Trending") %> - Invidious
+    <% else %>
+        Invidious
+    <% end %>
+</title>
+<% end %>
+
+<%= rendered "components/feed_menu" %>
+
+<div class="pure-g h-box">
+    <div style="align-self:flex-end" class="pure-u-2-3">
+        <% if plid %>
+            <a href="/playlist?list=<%= plid %>">
+                <%= translate(locale, "View as playlist") %>
+            </a>
+        <% end %>
+    </div>
+    <div class="pure-u-1-3">
+        <div class="pure-g" style="text-align:right">
+            <% {"Default", "Music", "Gaming", "Movies"}.each do |option| %>
+                <div class="pure-u-1 pure-md-1-3">
+                    <% if trending_type == option %>
+                        <b><%= translate(locale, option) %></b>
+                    <% else %>
+                        <a href="/feed/trending?type=<%= option %>&region=<%= region %>">
+                            <%= translate(locale, option) %>
+                        </a>
+                    <% end %>
+                </div>
+            <% end %>
+        </div>
+    </div>
+</div>
+
+<div class="h-box">
+    <hr>
+</div>
+
+<div class="pure-g">
+<% trending.each do |item| %>
+    <%= rendered "components/item" %>
+<% end %>
+</div>
+
+<script src="/js/watched_indicator.js"></script>

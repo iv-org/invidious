@@ -8,12 +8,12 @@ class Invidious::Jobs::RefreshChannelsJob < Invidious::Jobs::BaseJob
     max_fibers = CONFIG.channel_threads
     lim_fibers = max_fibers
     active_fibers = 0
-    active_channel = Channel(Bool).new
-    backoff = 1.seconds
+    active_channel = ::Channel(Bool).new
+    backoff = 2.minutes
 
     loop do
       LOGGER.debug("RefreshChannelsJob: Refreshing all channels")
-      db.query("SELECT id FROM channels ORDER BY updated") do |rs|
+      PG_DB.query("SELECT id FROM channels ORDER BY updated") do |rs|
         rs.each do
           id = rs.read(String)
 
@@ -30,16 +30,16 @@ class Invidious::Jobs::RefreshChannelsJob < Invidious::Jobs::BaseJob
           spawn do
             begin
               LOGGER.trace("RefreshChannelsJob: #{id} fiber : Fetching channel")
-              channel = fetch_channel(id, db, CONFIG.full_refresh)
+              channel = fetch_channel(id, pull_all_videos: CONFIG.full_refresh)
 
               lim_fibers = max_fibers
 
               LOGGER.trace("RefreshChannelsJob: #{id} fiber : Updating DB")
-              db.exec("UPDATE channels SET updated = $1, author = $2, deleted = false WHERE id = $3", Time.utc, channel.author, id)
+              Invidious::Database::Channels.update_author(id, channel.author)
             rescue ex
               LOGGER.error("RefreshChannelsJob: #{id} : #{ex.message}")
               if ex.message == "Deleted or invalid channel"
-                db.exec("UPDATE channels SET updated = $1, deleted = true WHERE id = $2", Time.utc, id)
+                Invidious::Database::Channels.update_mark_deleted(id)
               else
                 lim_fibers = 1
                 LOGGER.error("RefreshChannelsJob: #{id} fiber : backing off for #{backoff}s")
@@ -58,8 +58,8 @@ class Invidious::Jobs::RefreshChannelsJob < Invidious::Jobs::BaseJob
         end
       end
 
-      LOGGER.debug("RefreshChannelsJob: Done, sleeping for one minute")
-      sleep 1.minute
+      LOGGER.debug("RefreshChannelsJob: Done, sleeping for #{CONFIG.channel_refresh_interval}")
+      sleep CONFIG.channel_refresh_interval
       Fiber.yield
     end
   end

@@ -1,0 +1,68 @@
+<% content_for "header" do %>
+<title><%= translate(locale, "Import and Export Data") %> - Invidious</title>
+<% end %>
+
+<div class="h-box">
+    <form class="pure-form pure-form-aligned" enctype="multipart/form-data" action="/data_control?referer=<%= URI.encode_www_form(referer) %>" method="post">
+        <fieldset>
+            <legend><%= translate(locale, "Import") %></legend>
+
+            <div class="pure-control-group">
+                <label for="import_invidious"><%= translate(locale, "Import Invidious data") %></label>
+                <input type="file" id="import_invidious" name="import_invidious">
+            </div>
+
+            <div class="pure-control-group">
+                <label for="import_youtube">
+                    <a rel="noopener" target="_blank" href="https://github.com/iv-org/documentation/blob/master/docs/export-youtube-subscriptions.md">
+                        <%= translate(locale, "Import YouTube subscriptions") %>
+                    </a>
+                </label>
+                <input type="file" id="import_youtube" name="import_youtube">
+            </div>
+
+            <div class="pure-control-group">
+                <label for="import_youtube_pl"><%= translate(locale, "Import YouTube playlist (.csv)") %></label>
+                <input type="file" id="import_youtube_pl" name="import_youtube_pl">
+            </div>
+
+            <div class="pure-control-group">
+                <label for="import_youtube_wh"><%= translate(locale, "Import YouTube watch history (.json)") %></label>
+                <input type="file" id="import_youtube_wh" name="import_youtube_wh">
+            </div>
+
+            <div class="pure-control-group">
+                <label for="import_freetube"><%= translate(locale, "Import FreeTube subscriptions (.db)") %></label>
+                <input type="file" id="import_freetube" name="import_freetube">
+            </div>
+
+            <div class="pure-control-group">
+                <label for="import_newpipe_subscriptions"><%= translate(locale, "Import NewPipe subscriptions (.json)") %></label>
+                <input type="file" id="import_newpipe_subscriptions" name="import_newpipe_subscriptions">
+            </div>
+
+            <div class="pure-control-group">
+                <label for="import_newpipe"><%= translate(locale, "Import NewPipe data (.zip)") %></label>
+                <input type="file" id="import_newpipe" name="import_newpipe">
+            </div>
+
+            <div class="pure-controls">
+                <button type="submit" class="pure-button pure-button-primary"><%= translate(locale, "Import") %></button>
+            </div>
+
+            <legend><%= translate(locale, "Export") %></legend>
+
+            <div class="pure-control-group">
+                <a href="/subscription_manager?action_takeout=1"><%= translate(locale, "Export subscriptions as OPML") %></a>
+            </div>
+
+            <div class="pure-control-group">
+                <a href="/subscription_manager?action_takeout=1&format=newpipe"><%= translate(locale, "Export subscriptions as OPML (for NewPipe & FreeTube)") %></a>
+            </div>
+
+            <div class="pure-control-group">
+                <a href="/subscription_manager?action_takeout=1&format=json"><%= translate(locale, "Export data as JSON") %></a>
+            </div>
+        </fieldset>
+    </form>
+</div>

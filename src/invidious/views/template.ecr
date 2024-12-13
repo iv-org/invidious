@@ -1,5 +1,9 @@
+<%
+  locale = env.get("preferences").as(Preferences).locale
+  dark_mode = env.get("preferences").as(Preferences).dark_mode
+%>
 <!DOCTYPE html>
-<html lang="<%= env.get("preferences").as(Preferences).locale %>">
+<html lang="<%= locale %>">
 
 <head>
     <meta charset="utf-8">
@@ -17,35 +21,29 @@
     <link rel="stylesheet" href="/css/grids-responsive-min.css?v=<%= ASSET_COMMIT %>">
     <link rel="stylesheet" href="/css/ionicons.min.css?v=<%= ASSET_COMMIT %>">
     <link rel="stylesheet" href="/css/default.css?v=<%= ASSET_COMMIT %>">
+    <link rel="stylesheet" href="/css/carousel.css?v=<%= ASSET_COMMIT %>">
+    <script src="/js/_helpers.js?v=<%= ASSET_COMMIT %>"></script>
 </head>
 
-<% locale = LOCALES[env.get("preferences").as(Preferences).locale]? %>
-<% dark_mode = env.get("preferences").as(Preferences).dark_mode %>
-
 <body class="<%= dark_mode.blank? ? "no" : dark_mode %>-theme">
-    <span style="display:none" id="dark_mode_pref"><%= env.get("preferences").as(Preferences).dark_mode %></span>
+    <span style="display:none" id="dark_mode_pref"><%= dark_mode %></span>
     <div class="pure-g">
-        <div class="pure-u-1 pure-u-md-2-24"></div>
-        <div class="pure-u-1 pure-u-md-20-24", id="contents">
+        <div class="pure-u-1 pure-u-xl-20-24" id="contents">
             <div class="pure-g navbar h-box">
                 <% if navbar_search %>
                     <div class="pure-u-1 pure-u-md-4-24">
                         <a href="/" class="index-link pure-menu-heading">Invidious</a>
                     </div>
                     <div class="pure-u-1 pure-u-md-12-24 searchbar">
-                        <form class="pure-form" action="/search" method="get">
-                            <fieldset>
-                                <input type="search" style="width:100%" name="q" placeholder="<%= translate(locale, "search") %>" value="<%= env.get?("search").try {|x| HTML.escape(x.as(String)) } %>">
-                            </fieldset>
-                        </form>
+                        <% autofocus = false %><%= rendered "components/search_box" %>
                     </div>
                 <% end %>
 
                 <div class="pure-u-1 pure-u-md-8-24 user-field">
                     <% if env.get? "user" %>
                         <div class="pure-u-1-4">
-                            <a id="toggle_theme" href="/toggle_theme?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
-                                <% if env.get("preferences").as(Preferences).dark_mode == "dark" %>
+                            <a id="toggle_theme" href="/toggle_theme?referer=<%= env.get?("current_page") %>" class="pure-menu-heading" title="<%= translate(locale, "toggle_theme") %>">
+                                <% if dark_mode == "dark" %>
                                     <i class="icon ion-ios-sunny"></i>
                                 <% else %>
                                     <i class="icon ion-ios-moon"></i>
@@ -54,8 +52,8 @@
                         </div>
                         <div class="pure-u-1-4">
                             <a id="notification_ticker" title="<%= translate(locale, "Subscriptions") %>" href="/feed/subscriptions" class="pure-menu-heading">
-                                <% notification_count = env.get("user").as(User).notifications.size %>
-                                <% if notification_count > 0 %>
+                                <% notification_count = env.get("user").as(Invidious::User).notifications.size %>
+                                <% if CONFIG.enable_user_notifications && notification_count > 0 %>
                                     <span id="notification_count"><%= notification_count %></span> <i class="icon ion-ios-notifications"></i>
                                 <% else %>
                                     <i class="icon ion-ios-notifications-outline"></i>
@@ -67,9 +65,14 @@
                                 <i class="icon ion-ios-cog"></i>
                             </a>
                         </div>
+                        <% if env.get("preferences").as(Preferences).show_nick %>
+                            <div class="pure-u-1-4" style="overflow: hidden; white-space: nowrap;">
+                                <span id="user_name"><%= HTML.escape(env.get("user").as(Invidious::User).email) %></span>
+                            </div>
+                        <% end %>
                         <div class="pure-u-1-4">
                             <form action="/signout?referer=<%= env.get?("current_page") %>" method="post">
-                                <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>">
+                                <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
                                 <a class="pure-menu-heading" href="#">
                                     <input style="all:unset" type="submit" value="<%= translate(locale, "Log out") %>">
                                 </a>
@@ -77,8 +80,8 @@
                         </div>
                     <% else %>
                         <div class="pure-u-1-3">
-                            <a id="toggle_theme" href="/toggle_theme?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
-                                <% if env.get("preferences").as(Preferences).dark_mode == "dark" %>
+                            <a id="toggle_theme" href="/toggle_theme?referer=<%= env.get?("current_page") %>" class="pure-menu-heading" title="<%= translate(locale, "toggle_theme") %>">
+                                <% if dark_mode == "dark" %>
                                     <i class="icon ion-ios-sunny"></i>
                                 <% else %>
                                     <i class="icon ion-ios-moon"></i>
@@ -112,40 +115,46 @@
             <footer>
                 <div class="pure-g">
                     <div class="pure-u-1 pure-u-md-1-3">
-                        <a href="https://github.com/iv-org/invidious">
-                            <%= translate(locale, "Released under the AGPLv3 by Omar Roth.") %>
-                        </a>
+                        <span>
+                            <i class="icon ion-logo-github"></i>
+                        <% if CONFIG.modified_source_code_url %>
+                            <a href="https://github.com/iv-org/invidious"><%= translate(locale, "footer_original_source_code") %></a>&nbsp;/
+                            <a href="<%= CONFIG.modified_source_code_url %>"><%= translate(locale, "footer_modfied_source_code") %></a>
+                        <% else %>
+                            <a href="https://github.com/iv-org/invidious"><%= translate(locale, "footer_source_code") %></a>
+                        <% end %>
+                        </span>
+                        <span>
+                            <i class="icon ion-ios-paper"></i>
+                            <a href="https://github.com/iv-org/documentation"><%= translate(locale, "footer_documentation") %></a>
+                        </span>
                     </div>
+
                     <div class="pure-u-1 pure-u-md-1-3">
-                        <i class="icon ion-ios-wallet"></i>
-                        BTC: <a href="bitcoin:bc1qfhe7rq3lqzuayzjxzyt9waz9ytrs09kla3tsgr">bc1qfhe7rq3lqzuayzjxzyt9waz9ytrs09kla3tsgr</a>
+                        <span>
+                            <a href="https://github.com/iv-org/invidious/blob/master/LICENSE"><%= translate(locale, "Released under the AGPLv3 on Github.") %></a>
+                        </span>
+                        <span>
+                            <i class="icon ion-logo-javascript"></i>
+                            <a rel="jslicense" href="/licenses"><%= translate(locale, "View JavaScript license information.") %></a>
+                        </span>
+                        <span>
+                            <i class="icon ion-ios-paper"></i>
+                            <a href="/privacy"><%= translate(locale, "View privacy policy.") %></a>
+                        </span>
                     </div>
+
                     <div class="pure-u-1 pure-u-md-1-3">
-                        <i class="icon ion-ios-wallet"></i>
-                        XMR: <a href="monero:41nMCtek197boJtiUvGnTFYMatrLEpnpkQDmUECqx5Es2uX3sTKKWVhSL76suXsG3LXqkEJBrCZBgPTwJrDp1FrZJfycGPR">Click here</a>
-                    </div>
-                    <div class="pure-u-1 pure-u-md-1-3">
-                        <a href="https://github.com/iv-org/documentation">Documentation</a>
-                    </div>
-                    <div class="pure-u-1 pure-u-md-1-3">
-                        <i class="icon ion-logo-javascript"></i>
-                        <a rel="jslicense" href="/licenses">
-                            <%= translate(locale, "View JavaScript license information.") %>
-                        </a>
-                        /
-                        <i class="icon ion-ios-paper"></i>
-                        <a href="/privacy">
-                            <%= translate(locale, "View privacy policy.") %>
-                        </a>
-                    </div>
-                    <div class="pure-u-1 pure-u-md-1-3">
-                        <i class="icon ion-logo-github"></i>
-                        <%= translate(locale, "Current version: ") %> <%= CURRENT_VERSION %>-<%= CURRENT_COMMIT %> @ <%= CURRENT_BRANCH %>
+                        <span>
+                            <i class="icon ion-ios-wallet"></i>
+                            <a href="https://invidious.io/donate/"><%= translate(locale, "footer_donate_page") %></a>
+                        </span>
+                        <span><%= translate(locale, "Current version: ") %> <%= CURRENT_VERSION %>-<%= CURRENT_COMMIT %> @ <%= CURRENT_BRANCH %></span>
                     </div>
                 </div>
             </footer>
+
         </div>
-        <div class="pure-u-1 pure-u-md-2-24"></div>
     </div>
     <script src="/js/handlers.js?v=<%= ASSET_COMMIT %>"></script>
     <script src="/js/themes.js?v=<%= ASSET_COMMIT %>"></script>
@@ -159,7 +168,9 @@
         }.to_pretty_json
         %>
         </script>
+        <% if CONFIG.enable_user_notifications %>
         <script src="/js/notifications.js?v=<%= ASSET_COMMIT %>"></script>
+        <% end %>
     <% end %>
 </body>
 

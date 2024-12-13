@@ -12,7 +12,7 @@ class Invidious::Jobs::SubscribeToFeedsJob < Invidious::Jobs::BaseJob
     end
 
     active_fibers = 0
-    active_channel = Channel(Bool).new
+    active_channel = ::Channel(Bool).new
 
     loop do
       db.query_all("SELECT id FROM channels WHERE CURRENT_TIMESTAMP - subscribed > interval '4 days' OR subscribed IS NULL") do |rs|

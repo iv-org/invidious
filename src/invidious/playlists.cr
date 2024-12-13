@@ -11,7 +11,7 @@ struct PlaylistVideo
   property index : Int64
   property live_now : Bool
 
-  def to_xml(auto_generated, xml : XML::Builder)
+  def to_xml(xml : XML::Builder)
     xml.element("entry") do
       xml.element("id") { xml.text "yt:video:#{self.id}" }
       xml.element("yt:videoId") { xml.text self.id }
@@ -20,13 +20,8 @@ struct PlaylistVideo
       xml.element("link", rel: "alternate", href: "#{HOST_URL}/watch?v=#{self.id}")
 
       xml.element("author") do
-        if auto_generated
-          xml.element("name") { xml.text self.author }
-          xml.element("uri") { xml.text "#{HOST_URL}/channel/#{self.ucid}" }
-        else
-          xml.element("name") { xml.text author }
-          xml.element("uri") { xml.text "#{HOST_URL}/channel/#{ucid}" }
-        end
+        xml.element("name") { xml.text self.author }
+        xml.element("uri") { xml.text "#{HOST_URL}/channel/#{self.ucid}" }
       end
 
       xml.element("content", type: "xhtml") do
@@ -47,18 +42,18 @@ struct PlaylistVideo
     end
   end
 
-  def to_xml(auto_generated, xml : XML::Builder? = nil)
-    if xml
-      to_xml(auto_generated, xml)
-    else
-      XML.build do |json|
-        to_xml(auto_generated, xml)
-      end
-    end
+  def to_xml(_xml : Nil = nil)
+    XML.build { |xml| to_xml(xml) }
   end
 
-  def to_json(locale, json : JSON::Builder, index : Int32?)
+  def to_json(locale : String?, json : JSON::Builder)
+    to_json(json)
+  end
+
+  def to_json(json : JSON::Builder, index : Int32? = nil)
     json.object do
+      json.field "type", "video"
+
       json.field "title", self.title
       json.field "videoId", self.id
 
@@ -67,7 +62,7 @@ struct PlaylistVideo
       json.field "authorUrl", "/channel/#{self.ucid}"
 
       json.field "videoThumbnails" do
-        generate_thumbnails(json, self.id)
+        Invidious::JSONify::APIv1.thumbnails(json, self.id)
       end
 
       if index
@@ -78,17 +73,12 @@ struct PlaylistVideo
       end
 
       json.field "lengthSeconds", self.length_seconds
+      json.field "liveNow", self.live_now
     end
   end
 
-  def to_json(locale, json : JSON::Builder? = nil, index : Int32? = nil)
-    if json
-      to_json(locale, json, index: index)
-    else
-      JSON.build do |json|
-        to_json(locale, json, index: index)
-      end
-    end
+  def to_json(_json : Nil, index : Int32? = nil)
+    JSON.build { |json| to_json(json, index: index) }
   end
 end
 
@@ -106,8 +96,9 @@ struct Playlist
   property views : Int64
   property updated : Time
   property thumbnail : String?
+  property subtitle : String?
 
-  def to_json(offset, locale, json : JSON::Builder, continuation : String? = nil)
+  def to_json(offset, json : JSON::Builder, video_id : String? = nil)
     json.object do
       json.field "type", "playlist"
       json.field "title", self.title
@@ -117,6 +108,7 @@ struct Playlist
       json.field "author", self.author
       json.field "authorId", self.ucid
       json.field "authorUrl", "/channel/#{self.ucid}"
+      json.field "subtitle", self.subtitle
 
       json.field "authorThumbnails" do
         json.array do
@@ -142,22 +134,18 @@ struct Playlist
 
       json.field "videos" do
         json.array do
-          videos = get_playlist_videos(PG_DB, self, offset: offset, locale: locale, continuation: continuation)
-          videos.each_with_index do |video, index|
-            video.to_json(locale, json)
+          videos = get_playlist_videos(self, offset: offset, video_id: video_id)
+          videos.each do |video|
+            video.to_json(json)
           end
         end
       end
     end
   end
 
-  def to_json(offset, locale, json : JSON::Builder? = nil, continuation : String? = nil)
-    if json
-      to_json(offset, locale, json, continuation: continuation)
-    else
-      JSON.build do |json|
-        to_json(offset, locale, json, continuation: continuation)
-      end
+  def to_json(offset, _json : Nil = nil, video_id : String? = nil)
+    JSON.build do |json|
+      to_json(offset, json, video_id: video_id)
     end
   end
 
@@ -196,7 +184,7 @@ struct InvidiousPlaylist
     end
   end
 
-  def to_json(offset, locale, json : JSON::Builder, continuation : String? = nil)
+  def to_json(offset, json : JSON::Builder, video_id : String? = nil)
     json.object do
       json.field "type", "invidiousPlaylist"
       json.field "title", self.title
@@ -217,32 +205,29 @@ struct InvidiousPlaylist
 
       json.field "videos" do
         json.array do
-          if !offset || offset == 0
-            index = PG_DB.query_one?("SELECT index FROM playlist_videos WHERE plid = $1 AND id = $2 LIMIT 1", self.id, continuation, as: Int64)
+          if (!offset || offset == 0) && !video_id.nil?
+            index = Invidious::Database::PlaylistVideos.select_index(self.id, video_id)
             offset = self.index.index(index) || 0
           end
 
-          videos = get_playlist_videos(PG_DB, self, offset: offset, locale: locale, continuation: continuation)
-          videos.each_with_index do |video, index|
-            video.to_json(locale, json, offset + index)
+          videos = get_playlist_videos(self, offset: offset, video_id: video_id)
+          videos.each_with_index do |video, idx|
+            video.to_json(json, offset + idx)
           end
         end
       end
     end
   end
 
-  def to_json(offset, locale, json : JSON::Builder? = nil, continuation : String? = nil)
-    if json
-      to_json(offset, locale, json, continuation: continuation)
-    else
-      JSON.build do |json|
-        to_json(offset, locale, json, continuation: continuation)
-      end
+  def to_json(offset, _json : Nil = nil, video_id : String? = nil)
+    JSON.build do |json|
+      to_json(offset, json, video_id: video_id)
     end
   end
 
   def thumbnail
-    @thumbnail_id ||= PG_DB.query_one?("SELECT id FROM playlist_videos WHERE plid = $1 ORDER BY array_position($2, index) LIMIT 1", self.id, self.index, as: String) || "-----------"
+    # TODO: Get playlist thumbnail from playlist data rather than first video
+    @thumbnail_id ||= Invidious::Database::PlaylistVideos.select_one_id(self.id, self.index) || "-----------"
     "/vi/#{@thumbnail_id}/mqdefault.jpg"
   end
 
@@ -259,11 +244,11 @@ struct InvidiousPlaylist
   end
 
   def description_html
-    HTML.escape(self.description).gsub("\n", "<br>")
+    HTML.escape(self.description)
   end
 end
 
-def create_playlist(db, title, privacy, user)
+def create_playlist(title, privacy, user)
   plid = "IVPL#{Random::Secure.urlsafe_base64(24)[0, 31]}"
 
   playlist = InvidiousPlaylist.new({
@@ -278,17 +263,14 @@ def create_playlist(db, title, privacy, user)
     index:       [] of Int64,
   })
 
-  playlist_array = playlist.to_a
-  args = arg_array(playlist_array)
-
-  db.exec("INSERT INTO playlists VALUES (#{args})", args: playlist_array)
+  Invidious::Database::Playlists.insert(playlist)
 
   return playlist
 end
 
-def subscribe_playlist(db, user, playlist)
+def subscribe_playlist(user, playlist)
   playlist = InvidiousPlaylist.new({
-    title:       playlist.title.byte_slice(0, 150),
+    title:       playlist.title[..150],
     id:          playlist.id,
     author:      user.email,
     description: "", # Max 5000 characters
@@ -299,10 +281,7 @@ def subscribe_playlist(db, user, playlist)
     index:       [] of Int64,
   })
 
-  playlist_array = playlist.to_a
-  args = arg_array(playlist_array)
-
-  db.exec("INSERT INTO playlists VALUES (#{args})", args: playlist_array)
+  Invidious::Database::Playlists.insert(playlist)
 
   return playlist
 end
@@ -322,21 +301,19 @@ def produce_playlist_continuation(id, index)
     .try { |i| Protodec::Any.from_json(i) }
     .try { |i| Base64.urlsafe_encode(i, padding: false) }
 
-  data_wrapper = {"1:varint" => request_count, "15:string" => "PT:#{data}"}
-    .try { |i| Protodec::Any.cast_json(i) }
-    .try { |i| Protodec::Any.from_json(i) }
-    .try { |i| Base64.urlsafe_encode(i) }
-    .try { |i| URI.encode_www_form(i) }
-
   object = {
     "80226972:embedded" => {
-      "2:string"  => plid,
-      "3:string"  => data_wrapper,
+      "2:string" => plid,
+      "3:base64" => {
+        "1:varint"     => request_count,
+        "15:string"    => "PT:#{data}",
+        "104:embedded" => {"1:0:varint" => 0_i64},
+      },
       "35:string" => id,
     },
   }
 
-  continuation = object.try { |i| Protodec::Any.cast_json(object) }
+  continuation = object.try { |i| Protodec::Any.cast_json(i) }
     .try { |i| Protodec::Any.from_json(i) }
     .try { |i| Base64.urlsafe_encode(i) }
     .try { |i| URI.encode_www_form(i) }
@@ -344,41 +321,32 @@ def produce_playlist_continuation(id, index)
   return continuation
 end
 
-def get_playlist(db, plid, locale, refresh = true, force_refresh = false)
+def get_playlist(plid : String)
   if plid.starts_with? "IV"
-    if playlist = db.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
+    if playlist = Invidious::Database::Playlists.select(id: plid)
       return playlist
     else
-      raise InfoException.new("Playlist does not exist.")
+      raise NotFoundException.new("Playlist does not exist.")
     end
   else
-    return fetch_playlist(plid, locale)
+    return fetch_playlist(plid)
   end
 end
 
-def fetch_playlist(plid, locale)
+def fetch_playlist(plid : String)
   if plid.starts_with? "UC"
     plid = "UU#{plid.lchop("UC")}"
   end
 
-  response = YT_POOL.client &.get("/playlist?list=#{plid}&hl=en")
-  if response.status_code != 200
-    if response.headers["location"]?.try &.includes? "/sorry/index"
-      raise InfoException.new("Could not extract playlist info. Instance is likely blocked.")
-    else
-      raise InfoException.new("Not a playlist.")
-    end
-  end
+  initial_data = YoutubeAPI.browse("VL" + plid, params: "")
 
-  initial_data = extract_initial_data(response.body)
-
-  playlist_sidebar_renderer = initial_data["sidebar"]?.try &.["playlistSidebarRenderer"]?.try &.["items"]?
+  playlist_sidebar_renderer = initial_data.dig?("sidebar", "playlistSidebarRenderer", "items")
   raise InfoException.new("Could not extract playlistSidebarRenderer.") if !playlist_sidebar_renderer
 
-  playlist_info = playlist_sidebar_renderer[0]["playlistSidebarPrimaryInfoRenderer"]?
+  playlist_info = playlist_sidebar_renderer.dig?(0, "playlistSidebarPrimaryInfoRenderer")
   raise InfoException.new("Could not extract playlist info") if !playlist_info
 
-  title = playlist_info["title"]?.try &.["runs"][0]?.try &.["text"]?.try &.as_s || ""
+  title = playlist_info.dig?("title", "runs", 0, "text").try &.as_s || ""
 
   desc_item = playlist_info["description"]?
 
@@ -388,17 +356,24 @@ def fetch_playlist(plid, locale)
   description_html = desc_item.try &.["runs"]?.try &.as_a
     .try { |run| content_to_comment_html(run).try &.to_s } || "<p></p>"
 
-  thumbnail = playlist_info["thumbnailRenderer"]?.try &.["playlistVideoThumbnailRenderer"]?
-    .try &.["thumbnail"]["thumbnails"][0]["url"]?.try &.as_s
+  thumbnail = playlist_info.dig?(
+    "thumbnailRenderer", "playlistVideoThumbnailRenderer",
+    "thumbnail", "thumbnails", 0, "url"
+  ).try &.as_s
 
   views = 0_i64
   updated = Time.utc
   video_count = 0
+
+  subtitle = extract_text(initial_data.dig?("header", "playlistHeaderRenderer", "subtitle"))
+
   playlist_info["stats"]?.try &.as_a.each do |stat|
     text = stat["runs"]?.try &.as_a.map(&.["text"].as_s).join("") || stat["simpleText"]?.try &.as_s
     next if !text
 
     if text.includes? "video"
+      video_count = text.gsub(/\D/, "").to_i? || 0
+    elsif text.includes? "episode"
       video_count = text.gsub(/\D/, "").to_i? || 0
     elsif text.includes? "view"
       views = text.gsub(/\D/, "").to_i64? || 0_i64
@@ -412,12 +387,15 @@ def fetch_playlist(plid, locale)
     author_thumbnail = ""
     ucid = ""
   else
-    author_info = playlist_sidebar_renderer[1]["playlistSidebarSecondaryInfoRenderer"]?.try &.["videoOwner"]["videoOwnerRenderer"]?
+    author_info = playlist_sidebar_renderer[1].dig?(
+      "playlistSidebarSecondaryInfoRenderer", "videoOwner", "videoOwnerRenderer"
+    )
+
     raise InfoException.new("Could not extract author info") if !author_info
 
-    author = author_info["title"]["runs"][0]["text"]?.try &.as_s || ""
-    author_thumbnail = author_info["thumbnail"]["thumbnails"][0]["url"]?.try &.as_s || ""
-    ucid = author_info["title"]["runs"][0]["navigationEndpoint"]["browseEndpoint"]["browseId"]?.try &.as_s || ""
+    author = author_info.dig?("title", "runs", 0, "text").try &.as_s || ""
+    author_thumbnail = author_info.dig?("thumbnail", "thumbnails", 0, "url").try &.as_s || ""
+    ucid = author_info.dig?("title", "runs", 0, "navigationEndpoint", "browseEndpoint", "browseId").try &.as_s || ""
   end
 
   return Playlist.new({
@@ -432,36 +410,40 @@ def fetch_playlist(plid, locale)
     views:            views,
     updated:          updated,
     thumbnail:        thumbnail,
+    subtitle:         subtitle,
   })
 end
 
-def get_playlist_videos(db, playlist, offset, locale = nil, continuation = nil)
-  # Show empy playlist if requested page is out of range
+def get_playlist_videos(playlist : InvidiousPlaylist | Playlist, offset : Int32, video_id = nil)
+  # Show empty playlist if requested page is out of range
   # (e.g, when a new playlist has been created, offset will be negative)
   if offset >= playlist.video_count || offset < 0
     return [] of PlaylistVideo
   end
 
   if playlist.is_a? InvidiousPlaylist
-    db.query_all("SELECT * FROM playlist_videos WHERE plid = $1 ORDER BY array_position($2, index) LIMIT 100 OFFSET $3",
-      playlist.id, playlist.index, offset, as: PlaylistVideo)
+    Invidious::Database::PlaylistVideos.select(playlist.id, playlist.index, offset, limit: 100)
   else
-    if offset >= 100
-      # Normalize offset to match youtube's behavior (100 videos chunck per request)
-      offset = (offset / 100).to_i64 * 100_i64
+    if video_id
+      initial_data = YoutubeAPI.next({
+        "videoId"    => video_id,
+        "playlistId" => playlist.id,
+      })
+      offset = initial_data.dig?("contents", "twoColumnWatchNextResults", "playlist", "playlist", "currentIndex").try &.as_i || offset
+    end
 
+    videos = [] of PlaylistVideo
+
+    until videos.size >= 200 || videos.size == playlist.video_count || offset >= playlist.video_count
+      # 100 videos per request
       ctoken = produce_playlist_continuation(playlist.id, offset)
-      initial_data = JSON.parse(request_youtube_api_browse(ctoken)).as_h
-    else
-      response = YT_POOL.client &.get("/playlist?list=#{playlist.id}&gl=US&hl=en")
-      initial_data = extract_initial_data(response.body)
+      initial_data = YoutubeAPI.browse(ctoken)
+      videos += extract_playlist_videos(initial_data)
+
+      offset += 100
     end
 
-    if initial_data
-      return extract_playlist_videos(initial_data)
-    else
-      return [] of PlaylistVideo
-    end
+    return videos
   end
 end
 
@@ -495,7 +477,6 @@ def extract_playlist_videos(initial_data : Hash(String, JSON::Any))
       plid = i["navigationEndpoint"]["watchEndpoint"]["playlistId"].as_s
       index = i["navigationEndpoint"]["watchEndpoint"]["index"].as_i64
 
-      thumbnail = i["thumbnail"]["thumbnails"][0]["url"].as_s
       title = i["title"].try { |t| t["simpleText"]? || t["runs"]?.try &.[0]["text"]? }.try &.as_s || ""
       author = i["shortBylineText"]?.try &.["runs"][0]["text"].as_s || ""
       ucid = i["shortBylineText"]?.try &.["runs"][0]["navigationEndpoint"]["browseEndpoint"]["browseId"].as_s || ""
@@ -537,10 +518,10 @@ def template_playlist(playlist)
 
   playlist["videos"].as_a.each do |video|
     html += <<-END_HTML
-      <li class="pure-menu-item">
-        <a href="/watch?v=#{video["videoId"]}&list=#{playlist["playlistId"]}">
+      <li class="pure-menu-item" id="#{video["videoId"]}">
+        <a href="/watch?v=#{video["videoId"]}&list=#{playlist["playlistId"]}&index=#{video["index"]}">
           <div class="thumbnail">
-              <img class="thumbnail" src="/vi/#{video["videoId"]}/mqdefault.jpg">
+              <img loading="lazy" class="thumbnail" src="/vi/#{video["videoId"]}/mqdefault.jpg" alt="" />
               <p class="length">#{recode_length_seconds(video["lengthSeconds"].as_i)}</p>
           </div>
           <p style="width:100%">#{video["title"]}</p>

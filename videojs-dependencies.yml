@@ -1,0 +1,54 @@
+# Due to a 'video append of' error (see #3011), we're stuck on 7.12.1.
+video.js:
+  version: 7.12.1
+  shasum: 1d12eeb1f52e3679e8e4c987d9b9eb37e2247fa2
+
+videojs-contrib-quality-levels:
+  version: 2.1.0
+  shasum: 046e9e21ed01043f512b83a1916001d552457083
+
+videojs-http-source-selector:
+  version: 1.1.6
+  shasum: 073aadbea0106ba6c98d6b611094dbf8554ffa1f
+
+videojs-markers:
+  version: 1.0.1
+  shasum: d7f8d804253fd587813271f8db308a22b9f7df34
+
+videojs-mobile-ui:
+  version: 0.6.1
+  shasum: 0e146c4c481cbee0729cb5e162e558b455562cd0
+
+videojs-overlay:
+  version: 2.1.4
+  shasum: 5a103b25374dbb753eb87960d8360c2e8f39cc05
+
+videojs-share:
+  version: 3.2.1
+  shasum: 0a3024b981387b9d21c058c829760a72c14b8ceb
+
+videojs-vr:
+  version: 1.8.0
+  shasum: 7f2f07f760d8a329c615acd316e49da6ee8edd34
+
+videojs-vtt-thumbnails:
+  version: 0.0.13
+  shasum: d1e7d47f4ed80bb52f5fc4f4bad4bfc871f5970f
+
+# We're using iv-org's fork of videojs-quality-selector,
+# which isn't published on NPM, and doesn't have any
+# easy way of fetching the compiled variant.
+#
+# silvermine-videojs-quality-selector:
+#   version: 1.1.2
+#   shasum: 94033ff9ee52ba6da1263b97c9a74d5b3dfdf711
+
+
+# Ditto. Although this extension contains the complied variant in its git repo, 
+# it lacks any sort of versioning. As such, the script will ignore it.
+#
+# videojs-youtube-annotations:
+#   github: https://github.com/afrmtbl/videojs-youtube-annotations
+
+
+

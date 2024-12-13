@@ -2,7 +2,7 @@
 
 -- DROP TABLE public.channel_videos;
 
-CREATE TABLE public.channel_videos
+CREATE TABLE IF NOT EXISTS public.channel_videos
 (
   id text NOT NULL,
   title text,
@@ -17,13 +17,13 @@ CREATE TABLE public.channel_videos
   CONSTRAINT channel_videos_id_key UNIQUE (id)
 );
 
-GRANT ALL ON TABLE public.channel_videos TO kemal;
+GRANT ALL ON TABLE public.channel_videos TO current_user;
 
 -- Index: public.channel_videos_ucid_idx
 
 -- DROP INDEX public.channel_videos_ucid_idx;
 
-CREATE INDEX channel_videos_ucid_idx
+CREATE INDEX IF NOT EXISTS channel_videos_ucid_idx
   ON public.channel_videos
   USING btree
   (ucid COLLATE pg_catalog."default");

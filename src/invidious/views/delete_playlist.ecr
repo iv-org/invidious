@@ -19,6 +19,6 @@
             </div>
         </div>
 
-        <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(csrf_token) %>">
+        <input type="hidden" name="csrf_token" value="<%= HTML.escape(csrf_token) %>">
     </form>
 </div>

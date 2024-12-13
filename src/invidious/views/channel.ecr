@@ -1,108 +1,54 @@
+<%-
+  ucid = channel.ucid
+  author = HTML.escape(channel.author)
+  channel_profile_pic = URI.parse(channel.author_thumbnail).request_target
+
+  relative_url =
+    case selected_tab
+    when .shorts?    then "/channel/#{ucid}/shorts"
+    when .streams?   then "/channel/#{ucid}/streams"
+    when .playlists? then "/channel/#{ucid}/playlists"
+    when .channels?  then "/channel/#{ucid}/channels"
+    when .podcasts?  then "/channel/#{ucid}/podcasts"
+    when .releases?  then "/channel/#{ucid}/releases"
+    else
+      "/channel/#{ucid}"
+    end
+
+  youtube_url = "https://www.youtube.com#{relative_url}"
+  redirect_url = Invidious::Frontend::Misc.redirect_url(env)
+
+  page_nav_html = IV::Frontend::Pagination.nav_ctoken(locale,
+    base_url: relative_url,
+    ctoken: next_continuation
+  )
+%>
+
 <% content_for "header" do %>
-<title><%= channel.author %> - Invidious</title>
-<link rel="alternate" type="application/rss+xml" title="RSS" href="/feed/channel/<%= channel.ucid %>" />
+<%- if selected_tab.videos? -%>
+<meta name="description" content="<%= channel.description %>">
+<meta property="og:site_name" content="Invidious">
+<meta property="og:url" content="<%= HOST_URL %>/channel/<%= ucid %>">
+<meta property="og:title" content="<%= author %>">
+<meta property="og:image" content="<%= HOST_URL %>/ggpht<%= channel_profile_pic %>">
+<meta property="og:description" content="<%= channel.description %>">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:url" content="<%= HOST_URL %>/channel/<%= ucid %>">
+<meta name="twitter:title" content="<%= author %>">
+<meta name="twitter:description" content="<%= channel.description %>">
+<meta name="twitter:image" content="<%= HOST_URL %>/ggpht<%= channel_profile_pic %>">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="/feed/channel/<%= ucid %>" />
+<%- end -%>
+
+<link rel="alternate" href="<%= youtube_url %>">
+<title><%= author %> - Invidious</title>
 <% end %>
 
-<% if channel.banner %>
-    <div class="h-box">
-        <img style="width:100%" src="/ggpht<%= URI.parse(channel.banner.not_nil!.gsub("=w1060-", "=w1280-")).request_target %>">
-    </div>
-
-    <div class="h-box">
-        <hr>
-    </div>
-<% end %>
-
-<div class="pure-g h-box">
-    <div class="pure-u-2-3">
-        <div class="channel-profile">
-            <img src="/ggpht<%= URI.parse(channel.author_thumbnail).request_target %>">
-            <span><%= channel.author %></span>
-        </div>
-    </div>
-    <div class="pure-u-1-3" style="text-align:right">
-        <h3>
-            <a href="/feed/channel/<%= channel.ucid %>"><i class="icon ion-logo-rss"></i></a>
-        </h3>
-    </div>
-</div>
-
-<div class="h-box">
-    <p><span style="white-space:pre-wrap"><%= channel.description_html %></span></p>
-</div>
-
-<div class="h-box">
-    <% ucid = channel.ucid %>
-    <% author = channel.author %>
-    <% sub_count_text = number_to_short_text(channel.sub_count) %>
-    <%= rendered "components/subscribe_widget" %>
-</div>
-
-<div class="pure-g h-box">
-    <div class="pure-u-1-3">
-        <a href="https://www.youtube.com/channel/<%= channel.ucid %>"><%= translate(locale, "View channel on YouTube") %></a>
-        <% if !channel.auto_generated %>
-            <div class="pure-u-1 pure-md-1-3">
-                <b><%= translate(locale, "Videos") %></b>
-            </div>
-        <% end %>
-        <div class="pure-u-1 pure-md-1-3">
-            <% if channel.auto_generated %>
-                <b><%= translate(locale, "Playlists") %></b>
-            <% else %>
-                <a href="/channel/<%= channel.ucid %>/playlists"><%= translate(locale, "Playlists") %></a>
-            <% end %>
-        </div>
-        <div class="pure-u-1 pure-md-1-3">
-            <% if channel.tabs.includes? "community" %>
-                <a href="/channel/<%= channel.ucid %>/community"><%= translate(locale, "Community") %></a>
-            <% end %>
-        </div>
-    </div>
-    <div class="pure-u-1-3"></div>
-    <div class="pure-u-1-3">
-        <div class="pure-g" style="text-align:right">
-            <% sort_options.each do |sort| %>
-                <div class="pure-u-1 pure-md-1-3">
-                    <% if sort_by == sort %>
-                        <b><%= translate(locale, sort) %></b>
-                    <% else %>
-                        <a href="/channel/<%= channel.ucid %>?page=<%= page %>&sort_by=<%= sort %>">
-                            <%= translate(locale, sort) %>
-                        </a>
-                    <% end %>
-                </div>
-            <% end %>
-        </div>
-    </div>
-</div>
+<%= rendered "components/channel_info" %>
 
 <div class="h-box">
     <hr>
 </div>
 
-<div class="pure-g">
-    <% items.each_slice(4) do |slice| %>
-        <% slice.each do |item| %>
-            <%= rendered "components/item" %>
-        <% end %>
-    <% end %>
-</div>
 
-<div class="pure-g h-box">
-    <div class="pure-u-1 pure-u-lg-1-5">
-        <% if page > 1 %>
-            <a href="/channel/<%= channel.ucid %>?page=<%= page - 1 %><% if sort_by != "newest" %>&sort_by=<%= HTML.escape(sort_by) %><% end %>">
-                <%= translate(locale, "Previous page") %>
-            </a>
-        <% end %>
-    </div>
-    <div class="pure-u-1 pure-u-lg-3-5"></div>
-    <div class="pure-u-1 pure-u-lg-1-5" style="text-align:right">
-        <% if count == 60 %>
-            <a href="/channel/<%= channel.ucid %>?page=<%= page + 1 %><% if sort_by != "newest" %>&sort_by=<%= HTML.escape(sort_by) %><% end %>">
-                <%= translate(locale, "Next page") %>
-            </a>
-        <% end %>
-    </div>
-</div>
+<%= rendered "components/items_paginated" %>

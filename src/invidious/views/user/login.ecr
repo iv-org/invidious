@@ -1,0 +1,77 @@
+<% content_for "header" do %>
+<title><%= translate(locale, "Log in") %> - Invidious</title>
+<% end %>
+
+<div class="pure-g">
+    <div class="pure-u-1 pure-u-lg-1-5"></div>
+    <div class="pure-u-1 pure-u-lg-3-5">
+        <div class="h-box">
+            <% case account_type when %>
+            <% else # "invidious" %>
+                <form class="pure-form pure-form-stacked" action="/login?referer=<%= URI.encode_www_form(referer) %>&type=invidious" method="post">
+                    <fieldset>
+                        <% if email %>
+                            <input name="email" type="hidden" value="<%= HTML.escape(email) %>">
+                        <% else %>
+                            <label for="email"><%= translate(locale, "User ID") %> :</label>
+                            <input required class="pure-input-1" name="email" type="text" placeholder="<%= translate(locale, "User ID") %>">
+                        <% end %>
+
+                        <% if password %>
+                            <input name="password" type="hidden" value="<%= HTML.escape(password) %>">
+                        <% else %>
+                            <label for="password"><%= translate(locale, "Password") %> :</label>
+                            <input required class="pure-input-1" name="password" type="password" placeholder="<%= translate(locale, "Password") %>">
+                        <% end %>
+
+                        <% if captcha %>
+                            <% case captcha_type when %>
+                            <% when "image" %>
+                                <% captcha = captcha.not_nil! %>
+                                <img style="width:50%" src='<%= captcha[:question] %>'/>
+                                <% captcha[:tokens].each_with_index do |token, i| %>
+                                    <input type="hidden" name="token[<%= i %>]" value="<%= HTML.escape(token) %>">
+                                <% end %>
+                                <input type="hidden" name="captcha_type" value="image">
+                                <label for="answer"><%= translate(locale, "Time (h:mm:ss):") %></label>
+                                <input type="text" name="answer" type="text" placeholder="h:mm:ss">
+                            <% else # "text" %>
+                                <% captcha = captcha.not_nil! %>
+                                <% captcha[:tokens].each_with_index do |token, i| %>
+                                    <input type="hidden" name="token[<%= i %>]" value="<%= HTML.escape(token) %>">
+                                <% end %>
+                                <input type="hidden" name="captcha_type" value="text">
+                                <label for="answer"><%= captcha[:question] %></label>
+                                <input type="text" name="answer" type="text" placeholder="<%= translate(locale, "Answer") %>">
+                            <% end %>
+
+                            <button type="submit" name="action" value="signin" class="pure-button pure-button-primary">
+                                <%= translate(locale, "Register") %>
+                            </button>
+
+                            <% case captcha_type when %>
+                            <% when "image" %>
+                                <label>
+                                    <button type="submit" name="change_type" class="pure-button pure-button-primary" value="text">
+                                        <%= translate(locale, "Text CAPTCHA") %>
+                                    </button>
+                                </label>
+                            <% else # "text" %>
+                                <label>
+                                    <button type="submit" name="change_type" class="pure-button pure-button-primary" value="image">
+                                        <%= translate(locale, "Image CAPTCHA") %>
+                                    </button>
+                                </label>
+                            <% end %>
+                        <% else %>
+                            <button type="submit" name="action" value="signin" class="pure-button pure-button-primary">
+                                <%= translate(locale, "Sign In") %>/<%= translate(locale, "Register") %>
+                            </button>
+                        <% end %>
+                    </fieldset>
+                </form>
+            <% end %>
+        </div>
+    </div>
+    <div class="pure-u-1 pure-u-lg-1-5"></div>
+</div>

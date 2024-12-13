@@ -6,11 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="thumbnail" content="<%= thumbnail %>">
     <%= rendered "components/player_sources" %>
-    <link rel="stylesheet" href="/css/videojs-overlay.css?v=<%= ASSET_COMMIT %>">
-    <script src="/js/videojs-overlay.min.js?v=<%= ASSET_COMMIT %>"></script>
+    <link rel="stylesheet" href="/videojs/videojs-overlay/videojs-overlay.css?v=<%= ASSET_COMMIT %>">
+    <script src="/videojs/videojs-overlay/videojs-overlay.js?v=<%= ASSET_COMMIT %>"></script>
     <link rel="stylesheet" href="/css/default.css?v=<%= ASSET_COMMIT %>">
     <link rel="stylesheet" href="/css/embed.css?v=<%= ASSET_COMMIT %>">
     <title><%= HTML.escape(video.title) %> - Invidious</title>
+    <script src="/js/_helpers.js?v=<%= ASSET_COMMIT %>"></script>
 </head>
 
 <body class="dark-theme">
@@ -24,7 +25,8 @@
     "video_series" => video_series,
     "params" => params,
     "preferences" => preferences,
-    "premiere_timestamp" => video.premiere_timestamp.try &.to_unix
+    "premiere_timestamp" => video.premiere_timestamp.try &.to_unix,
+    "local_disabled" => CONFIG.disabled?("local")
 }.to_pretty_json
 %>
 </script>

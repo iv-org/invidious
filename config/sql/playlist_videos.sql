@@ -2,7 +2,7 @@
 
 -- DROP TABLE public.playlist_videos;
 
-CREATE TABLE playlist_videos
+CREATE TABLE IF NOT EXISTS public.playlist_videos
 (
     title text,
     id text,
@@ -16,4 +16,4 @@ CREATE TABLE playlist_videos
     PRIMARY KEY (index,plid)
 );
 
-GRANT ALL ON TABLE public.playlist_videos TO kemal;
+GRANT ALL ON TABLE public.playlist_videos TO current_user;

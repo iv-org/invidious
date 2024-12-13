@@ -1,0 +1,59 @@
+<% content_for "header" do %>
+<title><%= translate(locale, "History") %> - Invidious</title>
+<% end %>
+
+<div class="pure-g h-box">
+    <div class="pure-u-1-3">
+        <h3><%= translate_count(locale, "generic_videos_count", user.watched.size, NumberFormatting::HtmlSpan) %></h3>
+    </div>
+    <div class="pure-u-1-3">
+        <h3 style="text-align:center">
+            <a href="/feed/subscriptions"><%= translate_count(locale, "generic_subscriptions_count", user.subscriptions.size, NumberFormatting::HtmlSpan) %></a>
+        </h3>
+    </div>
+    <div class="pure-u-1-3">
+        <h3 style="text-align:right">
+            <a href="/clear_watch_history"><%= translate(locale, "Clear watch history") %></a>
+        </h3>
+    </div>
+</div>
+
+<script id="watched_data" type="application/json">
+<%=
+{
+    "csrf_token" => URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "")
+}.to_pretty_json
+%>
+</script>
+<script src="/js/watched_widget.js"></script>
+
+<div class="pure-g">
+    <% watched.each do |item| %>
+        <div class="pure-u-1 pure-u-md-1-4">
+            <div class="h-box">
+                <div class="thumbnail">
+                    <a style="width:100%" href="/watch?v=<%= item %>">
+                        <img class="thumbnail" src="/vi/<%= item %>/mqdefault.jpg" alt="" />
+                    </a>
+
+                    <div class="top-left-overlay"><div class="watched">
+                    <form data-onsubmit="return_false" action="/watch_ajax?action_mark_unwatched=1&id=<%= item %>&referer=<%= env.get("current_page") %>" method="post">
+                        <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>">
+                        <button type="submit" class="pure-button pure-button-secondary low-profile"
+                                data-onclick="mark_unwatched" data-id="<%= item %>"><i class="icon ion-md-trash"></i></button>
+                    </form>
+                    </div></div>
+                </div>
+                <p></p>
+            </div>
+        </div>
+    <% end %>
+</div>
+
+<%=
+  IV::Frontend::Pagination.nav_numeric(locale,
+    base_url: base_url,
+    current_page: page,
+    show_next: (watched.size >= max_results)
+  )
+%>

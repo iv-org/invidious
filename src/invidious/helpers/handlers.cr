@@ -97,18 +97,18 @@ class AuthHandler < Kemal::Handler
       if token = env.request.headers["Authorization"]?
         token = JSON.parse(URI.decode_www_form(token.lchop("Bearer ")))
         session = URI.decode_www_form(token["session"].as_s)
-        scopes, expire, signature = validate_request(token, session, env.request, HMAC_KEY, PG_DB, nil)
+        scopes, _, _ = validate_request(token, session, env.request, HMAC_KEY, nil)
 
-        if email = PG_DB.query_one?("SELECT email FROM session_ids WHERE id = $1", session, as: String)
-          user = PG_DB.query_one("SELECT * FROM users WHERE email = $1", email, as: User)
+        if email = Invidious::Database::SessionIDs.select_email(session)
+          user = Invidious::Database::Users.select!(email: email)
         end
       elsif sid = env.request.cookies["SID"]?.try &.value
         if sid.starts_with? "v1:"
           raise "Cannot use token as SID"
         end
 
-        if email = PG_DB.query_one?("SELECT email FROM session_ids WHERE id = $1", sid, as: String)
-          user = PG_DB.query_one("SELECT * FROM users WHERE email = $1", email, as: User)
+        if email = Invidious::Database::SessionIDs.select_email(sid)
+          user = Invidious::Database::Users.select!(email: email)
         end
 
         scopes = [":*"]
@@ -142,63 +142,8 @@ class APIHandler < Kemal::Handler
   exclude ["/api/v1/auth/notifications"], "POST"
 
   def call(env)
-    return call_next env unless only_match? env
-
-    env.response.headers["Access-Control-Allow-Origin"] = "*"
-
-    # Since /api/v1/notifications is an event-stream, we don't want
-    # to wrap the response
-    return call_next env if exclude_match? env
-
-    # Here we swap out the socket IO so we can modify the response as needed
-    output = env.response.output
-    env.response.output = IO::Memory.new
-
-    begin
-      call_next env
-
-      env.response.output.rewind
-
-      if env.response.output.as(IO::Memory).size != 0 &&
-         env.response.headers.includes_word?("Content-Type", "application/json")
-        response = JSON.parse(env.response.output)
-
-        if fields_text = env.params.query["fields"]?
-          begin
-            JSONFilter.filter(response, fields_text)
-          rescue ex
-            env.response.status_code = 400
-            response = {"error" => ex.message}
-          end
-        end
-
-        if env.params.query["pretty"]?.try &.== "1"
-          response = response.to_pretty_json
-        else
-          response = response.to_json
-        end
-      else
-        response = env.response.output.gets_to_end
-      end
-    rescue ex
-      env.response.content_type = "application/json" if env.response.headers.includes_word?("Content-Type", "text/html")
-      env.response.status_code = 500
-
-      if env.response.headers.includes_word?("Content-Type", "application/json")
-        response = {"error" => ex.message || "Unspecified error"}
-
-        if env.params.query["pretty"]?.try &.== "1"
-          response = response.to_pretty_json
-        else
-          response = response.to_json
-        end
-      end
-    ensure
-      env.response.output = output
-      env.response.print response
-
-      env.response.flush
-    end
+    env.response.headers["Access-Control-Allow-Origin"] = "*" if only_match?(env)
+    call_next env
   end
 end
 

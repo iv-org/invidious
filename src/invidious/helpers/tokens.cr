@@ -1,8 +1,8 @@
 require "crypto/subtle"
 
-def generate_token(email, scopes, expire, key, db)
+def generate_token(email, scopes, expire, key)
   session = "v1:#{Base64.urlsafe_encode(Random::Secure.random_bytes(32))}"
-  PG_DB.exec("INSERT INTO session_ids VALUES ($1, $2, $3)", session, email, Time.utc)
+  Invidious::Database::SessionIDs.insert(session, email)
 
   token = {
     "session" => session,
@@ -19,7 +19,7 @@ def generate_token(email, scopes, expire, key, db)
   return token.to_json
 end
 
-def generate_response(session, scopes, key, db, expire = 6.hours, use_nonce = false)
+def generate_response(session, scopes, key, expire = 6.hours, use_nonce = false)
   expire = Time.utc + expire
 
   token = {
@@ -30,7 +30,7 @@ def generate_response(session, scopes, key, db, expire = 6.hours, use_nonce = fa
 
   if use_nonce
     nonce = Random::Secure.hex(16)
-    db.exec("INSERT INTO nonces VALUES ($1, $2) ON CONFLICT DO NOTHING", nonce, expire)
+    Invidious::Database::Nonces.insert(nonce, expire)
     token["nonce"] = nonce
   end
 
@@ -42,11 +42,14 @@ end
 def sign_token(key, hash)
   string_to_sign = [] of String
 
+  # TODO: figure out which "key" variable is used
+  # Ameba reports a warning for "Lint/ShadowingOuterLocalVar" on this
+  # variable, but it's preferable to not touch that (works fine atm).
   hash.each do |key, value|
     next if key == "signature"
 
     if value.is_a?(JSON::Any) && value.as_a?
-      value = value.as_a.map { |i| i.as_s }
+      value = value.as_a.map(&.as_s)
     end
 
     case value
@@ -63,7 +66,7 @@ def sign_token(key, hash)
   return Base64.urlsafe_encode(OpenSSL::HMAC.digest(:sha256, key, string_to_sign)).strip
 end
 
-def validate_request(token, session, request, key, db, locale = nil)
+def validate_request(token, session, request, key, locale = nil)
   case token
   when String
     token = JSON.parse(URI.decode_www_form(token)).as_h
@@ -82,7 +85,7 @@ def validate_request(token, session, request, key, db, locale = nil)
     raise InfoException.new("Erroneous token")
   end
 
-  scopes = token["scopes"].as_a.map { |v| v.as_s }
+  scopes = token["scopes"].as_a.map(&.as_s)
   scope = "#{request.method}:#{request.path.lchop("/api/v1/auth/").lstrip("/")}"
   if !scopes_include_scope(scopes, scope)
     raise InfoException.new("Invalid scope")
@@ -92,9 +95,9 @@ def validate_request(token, session, request, key, db, locale = nil)
     raise InfoException.new("Invalid signature")
   end
 
-  if token["nonce"]? && (nonce = db.query_one?("SELECT * FROM nonces WHERE nonce = $1", token["nonce"], as: {String, Time}))
+  if token["nonce"]? && (nonce = Invidious::Database::Nonces.select(token["nonce"].as_s))
     if nonce[1] > Time.utc
-      db.exec("UPDATE nonces SET expire = $1 WHERE nonce = $2", Time.utc(1990, 1, 1), nonce[0])
+      Invidious::Database::Nonces.update_set_expired(nonce[0])
     else
       raise InfoException.new("Erroneous token")
     end
@@ -105,11 +108,11 @@ end
 
 def scope_includes_scope(scope, subset)
   methods, endpoint = scope.split(":")
-  methods = methods.split(";").map { |method| method.upcase }.reject { |method| method.empty? }.sort
+  methods = methods.split(";").map(&.upcase).reject(&.empty?).sort!
   endpoint = endpoint.downcase
 
   subset_methods, subset_endpoint = subset.split(":")
-  subset_methods = subset_methods.split(";").map { |method| method.upcase }.sort
+  subset_methods = subset_methods.split(";").map(&.upcase).sort!
   subset_endpoint = subset_endpoint.downcase
 
   if methods.empty?
