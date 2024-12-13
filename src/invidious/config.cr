@@ -67,6 +67,16 @@ end
 class Config
   include YAML::Serializable
 
+  class CompanionConfig
+    include YAML::Serializable
+
+    @[YAML::Field(converter: Preferences::URIConverter)]
+    property private_url : URI = URI.parse("")
+
+    @[YAML::Field(converter: Preferences::URIConverter)]
+    property public_url : URI = URI.parse("")
+  end
+
   # Number of threads to use for crawling videos from channels (for updating subscriptions)
   property channel_threads : Int32 = 1
   # Time interval between two executions of the job that crawls channel videos (subscriptions update).
@@ -151,6 +161,12 @@ class Config
   # poToken for passing bot attestation
   property po_token : String? = nil
 
+  # Invidious companion
+  property invidious_companion : Array(CompanionConfig) = [] of CompanionConfig
+
+  # Invidious companion API key
+  property invidious_companion_key : String = ""
+
   # Saved cookies in "name1=value1; name2=value2..." format
   @[YAML::Field(converter: Preferences::StringToCookies)]
   property cookies : HTTP::Cookies = HTTP::Cookies.new
@@ -221,6 +237,24 @@ class Config
             end
         end
     {% end %}
+
+    if !config.invidious_companion.empty?
+      # invidious_companion and signature_server can't work together
+      if config.signature_server
+        puts "Config: You can not run inv_sig_helper and invidious_companion at the same time."
+        exit(1)
+      end
+      if config.invidious_companion_key.empty?
+        puts "Config: Please configure a key if you are using invidious companion."
+        exit(1)
+      elsif config.invidious_companion_key == "CHANGE_ME!!"
+        puts "Config: The value of 'invidious_companion_key' needs to be changed!!"
+        exit(1)
+      elsif config.invidious_companion_key.size < 16
+        puts "Config: The value of 'invidious_companion_key' needs to be a size of 16 or more."
+        exit(1)
+      end
+    end
 
     # HMAC_key is mandatory
     # See: https://github.com/iv-org/invidious/issues/3854
