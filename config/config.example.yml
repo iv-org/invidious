@@ -83,6 +83,7 @@ db:
 
 ##
 ## API key for Invidious companion
+## The size of the key needs to be more or equal to 16.
 ##
 ## Needed when invidious_companion is configured
 ##

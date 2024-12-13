@@ -268,6 +268,9 @@ class Config
       elsif config.invidious_companion_key == "CHANGE_ME!!"
         puts "Config: The value of 'invidious_companion_key' needs to be changed!!"
         exit(1)
+      elsif config.invidious_companion_key.size < 16
+        puts "Config: The value of 'invidious_companion_key' needs to be a size of 16 or more."
+        exit(1)
       end
     end
 
