@@ -8,6 +8,13 @@ struct DBConfig
   property dbname : String
 end
 
+struct SocketBindingConfig
+  include YAML::Serializable
+
+  property path : String
+  property permissions : String
+end
+
 struct ConfigPreferences
   include YAML::Serializable
 
@@ -139,7 +146,7 @@ class Config
   # Host to bind (overridden by command line argument)
   property host_binding : String = "0.0.0.0"
   # Path and permissions to make Invidious listen on a UNIX socket instead of a TCP port - Example: /tmp/invidious.sock,777
-  property socket_binding : String? = nil
+  property socket_binding : SocketBindingConfig? = nil
   # Pool size for HTTP requests to youtube.com and ytimg.com (each domain has a separate pool of `pool_size`)
   property pool_size : Int32 = 100
   # HTTP Proxy configuration

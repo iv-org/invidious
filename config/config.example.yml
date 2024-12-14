@@ -140,7 +140,9 @@ https_only: false
 ## permissions following the UNIX octal convention.
 ## Default: <none>
 ##
-#socket_binding: /tmp/invidious.sock,777
+#socket_binding:
+#  path: /tmp/invidious.sock
+#  permissions: 777
 
 
 # -----------------------------
