@@ -496,5 +496,6 @@
     "crash_page_search_issue": "دنبال <a href=\"`x`\"> گشتیم بین مشکلات در گیت هاب </a>",
     "crash_page_report_issue": "اگر هیچ یک از روش های بالا کمکی نکردند لطفا <a href=\"`x`\"> (ترجیحا به انگلیسی) یک سوال جدید در گیت هاب بپرسید و </a> طوری که سوالتون شامل متن زیر باشه:",
     "channel_tab_releases_label": "آثار",
-    "toggle_theme": "تغییر وضعیت تم"
+    "toggle_theme": "تغییر وضعیت تم",
+    "preferences_preload_label": "پیش بار کردن داده‌های ویدیو: "
 }
