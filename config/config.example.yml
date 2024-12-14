@@ -139,7 +139,7 @@ https_only: false
 ## Accepted values: Any path to a new file (that doesn't exist yet)
 ## Default: <none>
 ##
-socket_binding: /tmp/invidious.sock
+#socket_binding: /tmp/invidious.sock
 
 ##
 ## Permissions for the UNIX socket specified by 'socket_binding'.
@@ -149,7 +149,7 @@ socket_binding: /tmp/invidious.sock
 ## Accepted values: 000-777
 ## Default: 777
 ##
-socket_permissions: 777
+#socket_permissions: 777
 
 
 # -----------------------------
