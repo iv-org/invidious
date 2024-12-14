@@ -138,8 +138,10 @@ class Config
   property port : Int32 = 3000
   # Host to bind (overridden by command line argument)
   property host_binding : String = "0.0.0.0"
-  # Make Invidious listening on UNIX sockets - Example: /tmp/invidious.sock
-  property bind_unix : String? = nil
+  # Make Invidious listen on a UNIX socket instead of a TCP port - Example: /tmp/invidious.sock
+  property socket_binding : String? = nil
+  # Permissions of the listening socket in octal
+  property socket_permissions : String = "777"
   # Pool size for HTTP requests to youtube.com and ytimg.com (each domain has a separate pool of `pool_size`)
   property pool_size : Int32 = 100
   # HTTP Proxy configuration
