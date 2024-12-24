@@ -88,15 +88,18 @@ db:
 #    public_url: "http://localhost:8282"
 
 ##
-## API key for Invidious companion
+## API key for Invidious companion, used for securing the communication
+## between Invidious and Invidious companion.
 ## The size of the key needs to be more or equal to 16.
 ##
-## Needed when invidious_companion is configured
+## Note: This parameter is mandatory when Invidious companion is enabled
+## and should be a random string.
+## Such random string can be generated on linux with the following
+## command: `pwgen 16 1`
 ##
-## Accepted values: "http(s)://<IP-HOSTNAME>:<Port>"
+## Accepted values: a string
 ## Default: <none>
 ##
-
 #invidious_companion_key: "CHANGE_ME!!"
 
 #########################################
