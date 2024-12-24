@@ -71,8 +71,14 @@ db:
 ## communication between the companion and Invidious.
 ## And public_url is the public URL from which companion is listening
 ## to the requests from the user(s).
+##
+## If you are using a reverse proxy then you will probably need to
+## configure the public_url to be the same as the domain used for Invidious.
+## Also apply when used from an external IP address (without a domain).
+## Examples: https://MYINVIDIOUSDOMAIN or http://192.168.1.100:8282
+##
 ## Both parameter can have identical URL when Invidious is hosted in
-## an internal network or at home.
+## an internal network or at home or locally (localhost).
 ##
 ## Accepted values: "http(s)://<IP-HOSTNAME>:<Port>"
 ## Default: <none>
