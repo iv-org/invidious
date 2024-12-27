@@ -191,7 +191,7 @@ https_only: false
 ## Configuration for using a HTTP proxy
 ##
 ## If unset, then no HTTP proxy will be used.
-##
+## 
 http_proxy:
   user:
   password:
@@ -853,7 +853,7 @@ default_user_preferences:
   ## Default: true
   ##
   #vr_mode: true
-
+  
   ##
   ## Save the playback position
   ## Allow to continue watching at the previous position when
