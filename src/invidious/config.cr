@@ -145,7 +145,7 @@ class Config
   property port : Int32 = 3000
   # Host to bind (overridden by command line argument)
   property host_binding : String = "0.0.0.0"
-  # Path and permissions to make Invidious listen on a UNIX socket instead of a TCP port - Example: /tmp/invidious.sock,777
+  # Path and permissions to make Invidious listen on a UNIX socket instead of a TCP port
   property socket_binding : SocketBindingConfig? = nil
   # Pool size for HTTP requests to youtube.com and ytimg.com (each domain has a separate pool of `pool_size`)
   property pool_size : Int32 = 100
@@ -254,6 +254,25 @@ class Config
         )
       else
         puts "Config: Either database_url or db.* is required"
+        exit(1)
+      end
+    end
+
+    # Check if the socket configuration is valid
+    if config.socket_binding
+      sb = config.socket_binding.not_nil!
+      if sb.path.ends_with?("/") || File.directory?(sb.path)
+        puts "Config: The socket path " + sb.path + " must not be a directory!"
+        exit(1)
+      end
+      d = File.dirname(sb.path)
+      if !File.directory?(d)
+        puts "Config: Socket directory " + sb.path + " does not exist or is not a directory!"
+        exit(1)
+      end
+      p = sb.permissions.to_i?(base: 8)
+      if !p || p < 0 || p > 0o777
+        puts "Config: Socket permissions must be an octal between 0 and 777!"
         exit(1)
       end
     end
