@@ -696,8 +696,8 @@ module YoutubeAPI
 
     begin
       invidious_companion = CONFIG.invidious_companion.sample
-      response = make_client(invidious_companion.private_url, use_http_proxy: false
-        &.post(endpoint, headers: headers, body: data.to_json))
+      response = make_client(invidious_companion.private_url, use_http_proxy: false &.post(endpoint, headers: headers, body: data.to_json)
+      )
       body = response.body
       if (response.status_code != 200)
         raise Exception.new(
