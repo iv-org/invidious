@@ -61,9 +61,9 @@ def add_yt_headers(request)
   end
 end
 
-def make_client(url : URI, region = nil, force_resolve : Bool = false, force_youtube_headers : Bool = false)
+def make_client(url : URI, region = nil, force_resolve : Bool = false, force_youtube_headers : Bool = false, use_http_proxy : Bool = true)
   client = HTTP::Client.new(url)
-  client.proxy = make_configured_http_proxy_client() if CONFIG.http_proxy
+  client.proxy = make_configured_http_proxy_client() if CONFIG.http_proxy && use_http_proxy
 
   # Force the usage of a specific configured IP Family
   if force_resolve
@@ -78,8 +78,8 @@ def make_client(url : URI, region = nil, force_resolve : Bool = false, force_you
   return client
 end
 
-def make_client(url : URI, region = nil, force_resolve : Bool = false, &)
-  client = make_client(url, region, force_resolve: force_resolve)
+def make_client(url : URI, region = nil, force_resolve : Bool = false, use_http_proxy : Bool = true, &)
+  client = make_client(url, region, force_resolve: force_resolve, use_http_proxy: use_http_proxy)
   begin
     yield client
   ensure
