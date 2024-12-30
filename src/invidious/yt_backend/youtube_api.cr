@@ -500,7 +500,7 @@ module YoutubeAPI
       data["params"] = params
     end
 
-    if !CONFIG.invidious_companion.empty?
+    if CONFIG.invidious_companion.present?
       return self._post_invidious_companion("/youtubei/v1/player", data)
     else
       return self._post_json("/youtubei/v1/player", data, client_config)
@@ -696,7 +696,7 @@ module YoutubeAPI
 
     begin
       invidious_companion = CONFIG.invidious_companion.sample
-      response = make_client(invidious_companion.private_url,
+      response = make_client(invidious_companion.private_url, use_http_proxy: false
         &.post(endpoint, headers: headers, body: data.to_json))
       body = response.body
       if (response.status_code != 200)

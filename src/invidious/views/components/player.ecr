@@ -23,7 +23,7 @@
                 src_url  = "/latest_version?id=#{video.id}&itag=#{fmt["itag"]}"
                 src_url += "&local=true" if params.local
                 src_url = video.invidious_companion["baseUrl"].as_s + src_url + 
-                            "&check=#{invidious_companion_encrypt(video.id)}" if (!CONFIG.invidious_companion.empty?)
+                            "&check=#{invidious_companion_encrypt(video.id)}" if (CONFIG.invidious_companion.present?)
 
                 bitrate = fmt["bitrate"]
                 mimetype = HTML.escape(fmt["mimeType"].as_s)
@@ -39,7 +39,7 @@
             <% if params.quality == "dash"
                src_url = "/api/manifest/dash/id/" + video.id + "?local=true&unique_res=1"
                src_url = video.invidious_companion["baseUrl"].as_s + src_url +
-                            "&check=#{invidious_companion_encrypt(video.id)}" if (!CONFIG.invidious_companion.empty?)
+                            "&check=#{invidious_companion_encrypt(video.id)}" if (CONFIG.invidious_companion.present?)
             %>
                 <source src="<%= src_url %>" type='application/dash+xml' label="dash">
             <% end %>
@@ -51,7 +51,7 @@
                 src_url  = "/latest_version?id=#{video.id}&itag=#{fmt["itag"]}"
                 src_url += "&local=true" if params.local
                 src_url = video.invidious_companion["baseUrl"].as_s + src_url +
-                            "&check=#{invidious_companion_encrypt(video.id)}" if (!CONFIG.invidious_companion.empty?)
+                            "&check=#{invidious_companion_encrypt(video.id)}" if (CONFIG.invidious_companion.present?)
 
                 quality = fmt["quality"]
                 mimetype = HTML.escape(fmt["mimeType"].as_s)
