@@ -248,11 +248,8 @@ Kemal.config.app_name = "Invidious"
 {% end %}
 
 Kemal.run do |config|
-  if CONFIG.socket_binding
-    socket_binding = CONFIG.socket_binding.not_nil!
-    if File.exists?(socket_binding.path)
-      File.delete(socket_binding.path)
-    end
+  if socket_binding = CONFIG.socket_binding
+File.delete?(socket_binding.path)
     # Create a socket and set its desired permissions
     server = UNIXServer.new(socket_binding.path)
     perms = socket_binding.permissions.to_i(base: 8)

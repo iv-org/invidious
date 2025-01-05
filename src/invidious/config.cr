@@ -259,8 +259,7 @@ class Config
     end
 
     # Check if the socket configuration is valid
-    if config.socket_binding
-      sb = config.socket_binding.not_nil!
+    if sb = config.socket_binding
       if sb.path.ends_with?("/") || File.directory?(sb.path)
         puts "Config: The socket path " + sb.path + " must not be a directory!"
         exit(1)
