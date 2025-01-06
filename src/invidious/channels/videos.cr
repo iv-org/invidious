@@ -1,78 +1,3 @@
-def produce_channel_content_continuation(ucid, content_type, page = 1, auto_generated = nil, sort_by = "newest", v2 = false)
-  object_inner_2 = {
-    "2:0:embedded" => {
-      "1:0:varint" => 0_i64,
-    },
-    "5:varint"  => 50_i64,
-    "6:varint"  => 1_i64,
-    "7:varint"  => (page * 30).to_i64,
-    "9:varint"  => 1_i64,
-    "10:varint" => 0_i64,
-  }
-
-  object_inner_2_encoded = object_inner_2
-    .try { |i| Protodec::Any.cast_json(i) }
-    .try { |i| Protodec::Any.from_json(i) }
-    .try { |i| Base64.urlsafe_encode(i) }
-    .try { |i| URI.encode_www_form(i) }
-
-  content_type_numerical =
-    case content_type
-    when "videos"      then 15
-    when "livestreams" then 14
-    else                    15 # Fallback to "videos"
-    end
-
-  sort_by_numerical =
-    case sort_by
-    when "newest"  then 1_i64
-    when "popular" then 2_i64
-    when "oldest"  then 4_i64
-    else                1_i64 # Fallback to "newest"
-    end
-
-  object_inner_1 = {
-    "110:embedded" => {
-      "3:embedded" => {
-        "#{content_type_numerical}:embedded" => {
-          "1:embedded" => {
-            "1:string" => object_inner_2_encoded,
-          },
-          "2:embedded" => {
-            "1:string" => "00000000-0000-0000-0000-000000000000",
-          },
-          "3:varint" => sort_by_numerical,
-        },
-      },
-    },
-  }
-
-  object_inner_1_encoded = object_inner_1
-    .try { |i| Protodec::Any.cast_json(i) }
-    .try { |i| Protodec::Any.from_json(i) }
-    .try { |i| Base64.urlsafe_encode(i) }
-    .try { |i| URI.encode_www_form(i) }
-
-  object = {
-    "80226972:embedded" => {
-      "2:string"  => ucid,
-      "3:string"  => object_inner_1_encoded,
-      "35:string" => "browse-feed#{ucid}videos102",
-    },
-  }
-
-  continuation = object.try { |i| Protodec::Any.cast_json(i) }
-    .try { |i| Protodec::Any.from_json(i) }
-    .try { |i| Base64.urlsafe_encode(i) }
-    .try { |i| URI.encode_www_form(i) }
-
-  return continuation
-end
-
-def make_initial_content_ctoken(ucid, content_type, sort_by) : String
-  return produce_channel_content_continuation(ucid, content_type, sort_by: sort_by)
-end
-
 module Invidious::Channel::Tabs
   extend self
 
@@ -101,7 +26,7 @@ module Invidious::Channel::Tabs
   end
 
   def get_videos(author : String, ucid : String, *, continuation : String? = nil, sort_by = "newest")
-    continuation ||= make_initial_content_ctoken(ucid, "videos", sort_by)
+    continuation ||= make_initial_videos_ctoken(ucid, sort_by)
     initial_data = YoutubeAPI.browse(continuation: continuation)
 
     return extract_items(initial_data, author, ucid)
@@ -130,14 +55,10 @@ module Invidious::Channel::Tabs
   #  Shorts
   # -------------------
 
-  def get_shorts(channel : AboutChannel, continuation : String? = nil)
-    if continuation.nil?
-      # EgZzaG9ydHPyBgUKA5oBAA%3D%3D is the protobuf object to load "shorts"
-      # TODO: try to extract the continuation tokens that allows other sorting options
-      initial_data = YoutubeAPI.browse(channel.ucid, params: "EgZzaG9ydHPyBgUKA5oBAA%3D%3D")
-    else
-      initial_data = YoutubeAPI.browse(continuation: continuation)
-    end
+  def get_shorts(channel : AboutChannel, *, continuation : String? = nil, sort_by = "newest")
+    continuation ||= make_initial_shorts_ctoken(channel.ucid, sort_by)
+    initial_data = YoutubeAPI.browse(continuation: continuation)
+
     return extract_items(initial_data, channel.author, channel.ucid)
   end
 
@@ -145,9 +66,8 @@ module Invidious::Channel::Tabs
   #  Livestreams
   # -------------------
 
-  def get_livestreams(channel : AboutChannel, continuation : String? = nil, sort_by = "newest")
-    continuation ||= make_initial_content_ctoken(channel.ucid, "livestreams", sort_by)
-
+  def get_livestreams(channel : AboutChannel, *, continuation : String? = nil, sort_by = "newest")
+    continuation ||= make_initial_livestreams_ctoken(channel.ucid, sort_by)
     initial_data = YoutubeAPI.browse(continuation: continuation)
 
     return extract_items(initial_data, channel.author, channel.ucid)
@@ -170,5 +90,103 @@ module Invidious::Channel::Tabs
     end
 
     return items, next_continuation
+  end
+
+  # -------------------
+  #  C-tokens
+  # -------------------
+
+  private def sort_options_videos_short(sort_by : String)
+    case sort_by
+    when "newest"  then return 4_i64
+    when "popular" then return 2_i64
+    when "oldest"  then return 5_i64
+    else                return 4_i64 # Fallback to "newest"
+    end
+  end
+
+  # Generate the initial "continuation token" to get the first page of the
+  # "videos" tab. The following page requires the ctoken provided in that
+  # first page, and so on.
+  private def make_initial_videos_ctoken(ucid : String, sort_by = "newest")
+    object = {
+      "15:embedded" => {
+        "2:embedded" => {
+          "1:string" => "00000000-0000-0000-0000-000000000000",
+        },
+        "4:varint" => sort_options_videos_short(sort_by),
+      },
+    }
+
+    return channel_ctoken_wrap(ucid, object)
+  end
+
+  # Generate the initial "continuation token" to get the first page of the
+  # "shorts" tab. The following page requires the ctoken provided in that
+  # first page, and so on.
+  private def make_initial_shorts_ctoken(ucid : String, sort_by = "newest")
+    object = {
+      "10:embedded" => {
+        "2:embedded" => {
+          "1:string" => "00000000-0000-0000-0000-000000000000",
+        },
+        "4:varint" => sort_options_videos_short(sort_by),
+      },
+    }
+
+    return channel_ctoken_wrap(ucid, object)
+  end
+
+  # Generate the initial "continuation token" to get the first page of the
+  # "livestreams" tab. The following page requires the ctoken provided in that
+  # first page, and so on.
+  private def make_initial_livestreams_ctoken(ucid : String, sort_by = "newest")
+    sort_by_numerical =
+      case sort_by
+      when "newest"  then 12_i64
+      when "popular" then 14_i64
+      when "oldest"  then 13_i64
+      else                12_i64 # Fallback to "newest"
+      end
+
+    object = {
+      "14:embedded" => {
+        "2:embedded" => {
+          "1:string" => "00000000-0000-0000-0000-000000000000",
+        },
+        "5:varint" => sort_by_numerical,
+      },
+    }
+
+    return channel_ctoken_wrap(ucid, object)
+  end
+
+  # The protobuf structure common between videos/shorts/livestreams
+  private def channel_ctoken_wrap(ucid : String, object)
+    object_inner = {
+      "110:embedded" => {
+        "3:embedded" => object,
+      },
+    }
+
+    object_inner_encoded = object_inner
+      .try { |i| Protodec::Any.cast_json(i) }
+      .try { |i| Protodec::Any.from_json(i) }
+      .try { |i| Base64.urlsafe_encode(i) }
+      .try { |i| URI.encode_www_form(i) }
+
+    object = {
+      "80226972:embedded" => {
+        "2:string" => ucid,
+        "3:string" => object_inner_encoded,
+      },
+    }
+
+    continuation = object.try { |i| Protodec::Any.cast_json(i) }
+      .try { |i| Protodec::Any.from_json(i) }
+      .try { |i| Base64.urlsafe_encode(i) }
+      .try { |i| URI.encode_www_form(i) }
+
+    return continuation
   end
 end

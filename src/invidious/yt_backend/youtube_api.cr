@@ -300,9 +300,8 @@ module YoutubeAPI
     end
 
     if client_config.screen == "EMBED"
-      # embedUrl https://www.google.com allow loading almost all video that are configured not embeddable
       client_context["thirdParty"] = {
-        "embedUrl" => "https://www.google.com/",
+        "embedUrl" => "https://www.youtube.com/embed/#{video_id}",
       } of String => String | Int64
     end
 
@@ -638,6 +637,11 @@ module YoutubeAPI
     # Send the POST request
     body = YT_POOL.client() do |client|
       client.post(url, headers: headers, body: data.to_json) do |response|
+        if response.status_code != 200
+          raise InfoException.new("Error: non 200 status code. Youtube API returned \
+            status code #{response.status_code}. See <a href=\"https://docs.invidious.io/youtube-errors-explained/\"> \
+            https://docs.invidious.io/youtube-errors-explained/</a> for troubleshooting.")
+        end
         self._decompress(response.body_io, response.headers["Content-Encoding"]?)
       end
     end

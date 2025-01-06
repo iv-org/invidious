@@ -322,13 +322,13 @@
     "channel_tab_community_label": "Gemenskap",
     "search_filters_sort_option_relevance": "relevans",
     "search_filters_sort_option_rating": "vurdering",
-    "search_filters_sort_option_date": "dato",
+    "search_filters_sort_option_date": "Opplastingsdato",
     "search_filters_sort_option_views": "visninger",
     "search_filters_type_label": "innholdstype",
     "search_filters_duration_label": "varighet",
     "search_filters_features_label": "funksjoner",
     "search_filters_sort_label": "sorter",
-    "search_filters_date_option_hour": "time",
+    "search_filters_date_option_hour": "Siste time",
     "search_filters_date_option_today": "i dag",
     "search_filters_date_option_week": "uke",
     "search_filters_date_option_month": "måned",
@@ -459,7 +459,7 @@
     "search_message_no_results": "Resultatløst.",
     "search_filters_type_option_all": "Alle typer",
     "search_filters_duration_option_none": "Enhver varighet",
-    "search_message_use_another_instance": " Du kan også <a href=\"`x`\">søke på en annen instans</a>.",
+    "search_message_use_another_instance": "Du kan også <a href=\"`x`\">søke på en annen instans</a>.",
     "search_filters_date_label": "Opplastningsdato",
     "search_filters_apply_button": "Bruk valgte filtre",
     "search_filters_date_option_none": "Siden begynnelsen",
@@ -494,5 +494,7 @@
     "carousel_slide": "Lysark {{current}} av {{total}}",
     "carousel_skip": "Hopp over karusellen",
     "Add to playlist": "Legg til i spilleliste",
-    "Add to playlist: ": "Legg til i spilleliste: "
+    "Add to playlist: ": "Legg til i spilleliste: ",
+    "The Popular feed has been disabled by the administrator.": "Populært-kilden er koblet ut av administratoren.",
+    "toggle_theme": "Endre utseende"
 }

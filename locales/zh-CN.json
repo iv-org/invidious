@@ -436,7 +436,7 @@
     "Turkish (auto-generated)": "土耳其语 (自动生成)",
     "Spanish (Spain)": "西班牙语 (西班牙)",
     "preferences_watch_history_label": "启用观看历史： ",
-    "search_message_use_another_instance": " 你也可以 <a href=\"`x`\">在另一实例上搜索</a>。",
+    "search_message_use_another_instance": "你也可以 <a href=\"`x`\">在另一实例上搜索</a>。",
     "search_filters_title": "过滤器",
     "search_filters_date_label": "上传日期",
     "search_filters_apply_button": "应用所选过滤器",

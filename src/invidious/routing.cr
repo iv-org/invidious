@@ -243,17 +243,16 @@ module Invidious::Routing
 
       # Channels
       get "/api/v1/channels/:ucid", {{namespace}}::Channels, :home
+      get "/api/v1/channels/:ucid/latest", {{namespace}}::Channels, :latest
+      get "/api/v1/channels/:ucid/videos", {{namespace}}::Channels, :videos
       get "/api/v1/channels/:ucid/shorts", {{namespace}}::Channels, :shorts
       get "/api/v1/channels/:ucid/streams", {{namespace}}::Channels, :streams
       get "/api/v1/channels/:ucid/podcasts", {{namespace}}::Channels, :podcasts
       get "/api/v1/channels/:ucid/releases", {{namespace}}::Channels, :releases
-
+      get "/api/v1/channels/:ucid/playlists", {{namespace}}::Channels, :playlists
+      get "/api/v1/channels/:ucid/community", {{namespace}}::Channels, :community
       get "/api/v1/channels/:ucid/channels", {{namespace}}::Channels, :channels
-
-      {% for route in {"videos", "latest", "playlists", "community", "search"} %}
-        get "/api/v1/channels/#{{{route}}}/:ucid", {{namespace}}::Channels, :{{route}}
-        get "/api/v1/channels/:ucid/#{{{route}}}", {{namespace}}::Channels, :{{route}}
-      {% end %}
+      get "/api/v1/channels/:ucid/search", {{namespace}}::Channels, :search
 
       # Posts
       get "/api/v1/post/:id", {{namespace}}::Channels, :post
@@ -270,11 +269,6 @@ module Invidious::Routing
 
 
       # Authenticated
-
-      # The notification APIs cannot be extracted yet! They require the *local* notifications constant defined in invidious.cr
-      #
-      # Invidious::Routing.get "/api/v1/auth/notifications", {{namespace}}::Authenticated, :notifications
-      # Invidious::Routing.post "/api/v1/auth/notifications", {{namespace}}::Authenticated, :notifications
 
       get "/api/v1/auth/preferences", {{namespace}}::Authenticated, :get_preferences
       post "/api/v1/auth/preferences", {{namespace}}::Authenticated, :set_preferences

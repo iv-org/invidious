@@ -13,6 +13,11 @@
             </div>
 
             <div class="pure-control-group">
+                <label for="preload"><%= translate(locale, "preferences_preload_label") %></label>
+                <input name="preload" id="preload" type="checkbox" <% if preferences.preload %>checked<% end %>>
+            </div>
+
+            <div class="pure-control-group">
                 <label for="autoplay"><%= translate(locale, "preferences_autoplay_label") %></label>
                 <input name="autoplay" id="autoplay" type="checkbox" <% if preferences.autoplay %>checked<% end %>>
             </div>
