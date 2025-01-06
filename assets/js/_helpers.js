@@ -153,8 +153,8 @@ window.helpers = window.helpers || {
             return;
         }
 
-        if (!options.entity_name) options.entity_name = 'unknown';
-        if (!options.retry_timeout) options.retry_timeout = 1000;
+        options.entity_name = options.entity_name || 'unknown';
+        options.retry_timeout = options.retry_timeout || 1000;
         const retries_total = options.retries;
         let currentTry = 1;
 
@@ -197,7 +197,7 @@ window.helpers = window.helpers || {
     storage: (function () {
         // access to localStorage throws exception in Tor Browser, so try is needed
         let localStorageIsUsable = false;
-        try{localStorageIsUsable = !!localStorage.setItem;}catch(e){}
+        try { localStorageIsUsable = !!localStorage.setItem; } catch {}
 
         if (localStorageIsUsable) {
             return {
@@ -206,7 +206,7 @@ window.helpers = window.helpers || {
                     if (!storageItem) return;
                     try {
                         return JSON.parse(decodeURIComponent(storageItem));
-                    } catch(e) {
+                    } catch {
                         // Erase non parsable value
                         helpers.storage.remove(key);
                     }
@@ -224,14 +224,13 @@ window.helpers = window.helpers || {
         return {
             get: function (key) {
                 const cookiePrefix = key + '=';
-                function findCallback(cookie) {return cookie.startsWith(cookiePrefix);}
-                const matchedCookie = document.cookie.split('; ').find(findCallback);
+                const matchedCookie = document.cookie.split('; ').find(cookie => cookie.startsWith(cookiePrefix));
                 if (matchedCookie) {
                     const cookieBody = matchedCookie.replace(cookiePrefix, '');
-                    if (cookieBody.length === 0) return;
+                    if (!cookieBody.length) return;
                     try {
                         return JSON.parse(decodeURIComponent(cookieBody));
-                    } catch(e) {
+                    } catch {
                         // Erase non parsable value
                         helpers.storage.remove(key);
                     }
@@ -240,9 +239,9 @@ window.helpers = window.helpers || {
             set: function (key, value) {
                 const cookie_data = encodeURIComponent(JSON.stringify(value));
 
-                // Set expiration in 2 year
+                // Set expiration for 2 years out
                 const date = new Date();
-                date.setFullYear(date.getFullYear()+2);
+                date.setFullYear(date.getFullYear() + 2);
 
                 document.cookie = key + '=' + cookie_data + '; expires=' + date.toGMTString();
             },
