@@ -227,7 +227,7 @@ window.helpers = window.helpers || {
                 const matchedCookie = document.cookie.split('; ').find(cookie => cookie.startsWith(cookiePrefix));
                 if (matchedCookie) {
                     const cookieBody = matchedCookie.replace(cookiePrefix, '');
-                    if (!cookieBody.length) return;
+                    if (cookieBody.length === 0) return;
                     try {
                         return JSON.parse(decodeURIComponent(cookieBody));
                     } catch {
