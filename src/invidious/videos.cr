@@ -106,7 +106,7 @@ struct Video
     if formats = info.dig?("streamingData", "adaptiveFormats")
       return formats
         .as_a.map(&.as_h)
-        .sort_by! { |f| f["width"]?.try &.as_i || 0 }
+        .sort_by! { |f| f["width"]?.try &.as_i || f["audioTrack"]?.try { |a| a["audioIsDefault"]?.try { |v| v.as_bool ? -1 : 0 } } || 0 }
     else
       return [] of Hash(String, JSON::Any)
     end
