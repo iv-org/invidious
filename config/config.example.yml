@@ -130,6 +130,20 @@ https_only: false
 ##
 #hsts: true
 
+##
+## Path and permissions of a UNIX socket to listen on for incoming connections.
+##
+## Note: Enabling socket will make invidious stop listening on the address
+## specified by 'host_binding' and 'port'.
+##
+## Accepted values: Any path to a new file (that doesn't exist yet) and its
+## permissions following the UNIX octal convention.
+## Default: <none>
+##
+#socket_binding:
+#  path: /tmp/invidious.sock
+#  permissions: 777
+
 
 # -----------------------------
 #  Network (outbound)
