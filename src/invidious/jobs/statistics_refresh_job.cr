@@ -27,6 +27,11 @@ class Invidious::Jobs::StatisticsRefreshJob < Invidious::Jobs::BaseJob
     "playback" => {} of String => Int64 | Float64,
   }
 
+  STATISTICS_PROMETHEUS = {
+    "invidious_updated_at"                => Time.utc.to_unix,
+    "invidious_last_channel_refreshed_at" => 0_i64,
+  }
+
   private getter db : DB::Database
 
   def initialize(@db, @software_config : Hash(String, String))
@@ -58,6 +63,9 @@ class Invidious::Jobs::StatisticsRefreshJob < Invidious::Jobs::BaseJob
     users["total"] = Invidious::Database::Statistics.count_users_total
     users["activeHalfyear"] = Invidious::Database::Statistics.count_users_active_6m
     users["activeMonth"] = Invidious::Database::Statistics.count_users_active_1m
+
+    STATISTICS_PROMETHEUS["invidious_updated_at"] = Time.utc.to_unix
+    STATISTICS_PROMETHEUS["invidious_last_channel_refreshed_at"] = Invidious::Database::Statistics.channel_last_update.try &.to_unix || 0_i64
 
     STATISTICS["metadata"] = {
       "updatedAt"              => Time.utc.to_unix,
