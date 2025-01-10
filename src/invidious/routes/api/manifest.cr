@@ -82,7 +82,7 @@ module Invidious::Routes::API::Manifest
 
                 xml.element("Role", schemeIdUri: "urn:mpeg:dash:role:2011", value: i == 0 ? "main" : "alternate")
 
-                xml.element("Representation", id: fmt["itag"], codecs: codecs, bandwidth: bandwidth) do
+                xml.element("Representation", id: fmt["itag"].as_i + rand(100), codecs: codecs, bandwidth: bandwidth) do
                   xml.element("AudioChannelConfiguration", schemeIdUri: "urn:mpeg:dash:23003:3:audio_channel_configuration:2011",
                     value: "2")
                   xml.element("BaseURL") { xml.text url }
