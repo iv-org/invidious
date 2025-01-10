@@ -68,7 +68,24 @@ function get_youtube_comments() {
         url += '&ucid=' + video_data.ucid
     }
 
-    var onNon200 = function (xhr) { comments.innerHTML = fallback; };
+    var onNon200 = function (xhr) {
+        if (!video_data.comments_enabled) {
+            comments.innerHTML = `
+            <div id="comments-turned-off-on-video-message" class="h-box v-box">
+                <p><b>${video_data.comments_youtube_disabled_text}</b></p>
+
+                <p><b><button href="javascript:void(0)" data-comments="reddit" id="try-reddit-comments-link" class="simulated_a">
+                    ${video_data.comments_youtube_disabled_try_reddit}
+                </button></b></p>
+            </div>`;
+
+            document.getElementById("try-reddit-comments-link").onclick = swap_comments;
+        } else {
+            comments.innerHTML = fallback; 
+        }
+
+    };
+
     if (video_data.params.comments[1] === 'youtube')
         onNon200 = function (xhr) {};
 
