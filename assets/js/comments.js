@@ -106,8 +106,8 @@ function get_youtube_comments() {
             }
         },
         onNon200: video_data.params.comments[1] === 'youtube' 
-          ? function (xhr) {}
-          : function (xhr) { comments.innerHTML = fallback; },
+            ? function (xhr) {}
+            : function (xhr) { comments.innerHTML = (xhr.response.error === 'Comments not found.' ? fallback.split('</noscript>')[1] : fallback.split('<p>')[0]) },
         onError: function (xhr) {
             comments.innerHTML = spinnerHTML;
         },

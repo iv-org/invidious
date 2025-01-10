@@ -72,7 +72,7 @@ function get_youtube_replies(target, load_more) {
             }
         },
         onNon200: function (xhr) {
-            body.innerHTML = fallback;
+            body.innerHTML = (xhr.response.error === 'Comments not found.' ? fallback.split('</noscript>')[1] : fallback.split('<p>')[0]);
         },
         onTimeout: function (xhr) {
             console.warn('Pulling comments failed');

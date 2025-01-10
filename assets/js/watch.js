@@ -117,10 +117,6 @@ function get_reddit_comments() {
         '?source=reddit&format=html' +
         '&hl=' + video_data.preferences.locale;
 
-    var onNon200 = function (xhr) { comments.innerHTML = fallback; };
-    if (video_data.params.comments[1] === 'youtube')
-        onNon200 = function (xhr) {};
-
     helpers.xhr('GET', url, {retries: 5, entity_name: ''}, {
         on200: function (response) {
             comments.innerHTML = ' \
@@ -152,7 +148,9 @@ function get_reddit_comments() {
             comments.children[0].children[0].children[0].onclick = toggle_comments;
             comments.children[0].children[1].children[0].onclick = swap_comments;
         },
-        onNon200: onNon200, // declared above
+        onNon200: video_data.params.comments[1] === 'youtube' 
+            ? function (xhr) {}
+            : function (xhr) { comments.innerHTML = (xhr.response.error === 'Comments not found.' ? fallback.split('</noscript>')[1] : fallback.split('<p>')[0]); }
     });
 }
 
