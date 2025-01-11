@@ -26,17 +26,20 @@ if (continue_button) {
     continue_button.onclick = continue_autoplay;
 }
 
+function set_search_params() {
+    if (video_data.params.autoplay || video_data.params.continue_autoplay)
+        url.searchParams.set('autoplay', '1');
+
+    ['listen', 'speed', 'local'].forEach(p => {
+      if (video_data.params[p] !== video_data.preferences[p])
+          url.searchParams.set(p, video_data.params[p]);
+    });
+}
+
 function next_video() {
     var url = new URL('https://example.com/watch?v=' + video_data.next_video);
 
-    if (video_data.params.autoplay || video_data.params.continue_autoplay)
-        url.searchParams.set('autoplay', '1');
-    if (video_data.params.listen !== video_data.preferences.listen)
-        url.searchParams.set('listen', video_data.params.listen);
-    if (video_data.params.speed !== video_data.preferences.speed)
-        url.searchParams.set('speed', video_data.params.speed);
-    if (video_data.params.local !== video_data.preferences.local)
-        url.searchParams.set('local', video_data.params.local);
+    set_search_params();
     url.searchParams.set('continue', '1');
 
     location.assign(url.pathname + url.search);
@@ -82,14 +85,7 @@ function get_playlist(plid) {
                 url.searchParams.set('list', plid);
                 if (!plid.startsWith('RD'))
                     url.searchParams.set('index', response.index);
-                if (video_data.params.autoplay || video_data.params.continue_autoplay)
-                    url.searchParams.set('autoplay', '1');
-                if (video_data.params.listen !== video_data.preferences.listen)
-                    url.searchParams.set('listen', video_data.params.listen);
-                if (video_data.params.speed !== video_data.preferences.speed)
-                    url.searchParams.set('speed', video_data.params.speed);
-                if (video_data.params.local !== video_data.preferences.local)
-                    url.searchParams.set('local', video_data.params.local);
+                set_search_params();
 
                 location.assign(url.pathname + url.search);
             });
@@ -116,10 +112,6 @@ function get_reddit_comments() {
     var url = '/api/v1/comments/' + video_data.id +
         '?source=reddit&format=html' +
         '&hl=' + video_data.preferences.locale;
-
-    var onNon200 = function (xhr) { comments.innerHTML = fallback; };
-    if (video_data.params.comments[1] === 'youtube')
-        onNon200 = function (xhr) {};
 
     helpers.xhr('GET', url, {retries: 5, entity_name: ''}, {
         on200: function (response) {
@@ -152,7 +144,9 @@ function get_reddit_comments() {
             comments.children[0].children[0].children[0].onclick = toggle_comments;
             comments.children[0].children[1].children[0].onclick = swap_comments;
         },
-        onNon200: onNon200, // declared above
+        onNon200: video_data.params.comments[1] === 'youtube' 
+            ? function (xhr) {}
+            : function (xhr) { comments.innerHTML = fallback; }
     });
 }
 
@@ -160,14 +154,7 @@ if (video_data.play_next) {
     player.on('ended', function () {
         var url = new URL('https://example.com/watch?v=' + video_data.next_video);
 
-        if (video_data.params.autoplay || video_data.params.continue_autoplay)
-            url.searchParams.set('autoplay', '1');
-        if (video_data.params.listen !== video_data.preferences.listen)
-            url.searchParams.set('listen', video_data.params.listen);
-        if (video_data.params.speed !== video_data.preferences.speed)
-            url.searchParams.set('speed', video_data.params.speed);
-        if (video_data.params.local !== video_data.preferences.local)
-            url.searchParams.set('local', video_data.params.local);
+        set_search_params();
         url.searchParams.set('continue', '1');
 
         location.assign(url.pathname + url.search);
@@ -178,13 +165,14 @@ addEventListener('load', function (e) {
     if (video_data.plid)
         get_playlist(video_data.plid);
 
-    if (video_data.params.comments[0] === 'youtube') {
+    const c = video_data.params.comments;
+    if (c[0] === 'youtube') {
         get_youtube_comments();
-    } else if (video_data.params.comments[0] === 'reddit') {
+    } else if (c[0] === 'reddit') {
         get_reddit_comments();
-    } else if (video_data.params.comments[1] === 'youtube') {
+    } else if (c[1] === 'youtube') {
         get_youtube_comments();
-    } else if (video_data.params.comments[1] === 'reddit') {
+    } else if (c[1] === 'reddit') {
         get_reddit_comments();
     } else {
         var comments = document.getElementById('comments');

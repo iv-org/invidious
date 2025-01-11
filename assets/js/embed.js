@@ -1,6 +1,16 @@
 'use strict';
 var video_data = JSON.parse(document.getElementById('video_data').textContent);
 
+function set_search_params() {
+  if (video_data.params.autoplay || video_data.params.continue_autoplay)
+      url.searchParams.set('autoplay', '1');
+
+  ['listen', 'speed', 'local'].forEach(p => {
+    if (video_data.params[p] !== video_data.preferences[p])
+        url.searchParams.set(p, video_data.params[p]);
+  });
+}
+
 function get_playlist(plid) {
     var plid_url;
     if (plid.startsWith('RD')) {
@@ -25,14 +35,7 @@ function get_playlist(plid) {
                 url.searchParams.set('list', plid);
                 if (!plid.startsWith('RD'))
                     url.searchParams.set('index', response.index);
-                if (video_data.params.autoplay || video_data.params.continue_autoplay)
-                    url.searchParams.set('autoplay', '1');
-                if (video_data.params.listen !== video_data.preferences.listen)
-                    url.searchParams.set('listen', video_data.params.listen);
-                if (video_data.params.speed !== video_data.preferences.speed)
-                    url.searchParams.set('speed', video_data.params.speed);
-                if (video_data.params.local !== video_data.preferences.local)
-                    url.searchParams.set('local', video_data.params.local);
+                set_search_params();
 
                 location.assign(url.pathname + url.search);
             });
@@ -47,14 +50,7 @@ addEventListener('load', function (e) {
         player.on('ended', function () {
             var url = new URL('https://example.com/embed/' + video_data.video_series.shift());
 
-            if (video_data.params.autoplay || video_data.params.continue_autoplay)
-                url.searchParams.set('autoplay', '1');
-            if (video_data.params.listen !== video_data.preferences.listen)
-                url.searchParams.set('listen', video_data.params.listen);
-            if (video_data.params.speed !== video_data.preferences.speed)
-                url.searchParams.set('speed', video_data.params.speed);
-            if (video_data.params.local !== video_data.preferences.local)
-                url.searchParams.set('local', video_data.params.local);
+            set_search_params();
             if (video_data.video_series.length !== 0)
                 url.searchParams.set('playlist', video_data.video_series.join(','));
 
