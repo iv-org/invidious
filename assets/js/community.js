@@ -1,34 +1,25 @@
 'use strict';
 var community_data = JSON.parse(document.getElementById('community_data').textContent);
 
-function hide_youtube_replies(event) {
-    var target = event.target;
-
+function toggle_youtube_replies(target, next_click_action) {
     var sub_text = target.getAttribute('data-inner-text');
     var inner_text = target.getAttribute('data-sub-text');
 
     var body = target.parentNode.parentNode.children[1];
-    body.style.display = 'none';
+    body.style.display = next_click_action === show_youtube_replies ? 'none' : '';
 
     target.innerHTML = sub_text;
-    target.onclick = show_youtube_replies;
+    target.onclick = next_click_action;
     target.setAttribute('data-inner-text', inner_text);
     target.setAttribute('data-sub-text', sub_text);
 }
 
+function hide_youtube_replies(event) {
+    toggle_youtube_replies(event.target, show_youtube_replies);
+}
+
 function show_youtube_replies(event) {
-    var target = event.target;
-
-    var sub_text = target.getAttribute('data-inner-text');
-    var inner_text = target.getAttribute('data-sub-text');
-
-    var body = target.parentNode.parentNode.children[1];
-    body.style.display = '';
-
-    target.innerHTML = sub_text;
-    target.onclick = hide_youtube_replies;
-    target.setAttribute('data-inner-text', inner_text);
-    target.setAttribute('data-sub-text', sub_text);
+    toggle_youtube_replies(event.target, hide_youtube_replies);
 }
 
 function get_youtube_replies(target, load_more) {
