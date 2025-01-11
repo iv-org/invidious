@@ -24,6 +24,7 @@ struct SearchVideo
   property length_seconds : Int32
   property premiere_timestamp : Time?
   property author_verified : Bool
+  property author_thumbnail : String?
   property badges : VideoBadges
 
   def to_xml(auto_generated, query_params, xml : XML::Builder)
@@ -87,6 +88,24 @@ struct SearchVideo
       json.field "authorId", self.ucid
       json.field "authorUrl", "/channel/#{self.ucid}"
       json.field "authorVerified", self.author_verified
+
+      author_thumbnail = self.author_thumbnail
+
+      if author_thumbnail
+        json.field "authorThumbnails" do
+          json.array do
+            qualities = {32, 48, 76, 100, 176, 512}
+
+            qualities.each do |quality|
+              json.object do
+                json.field "url", author_thumbnail.gsub(/=s\d+/, "=s#{quality}")
+                json.field "width", quality
+                json.field "height", quality
+              end
+            end
+          end
+        end
+      end
 
       json.field "videoThumbnails" do
         Invidious::JSONify::APIv1.thumbnails(json, self.id)
@@ -223,7 +242,7 @@ struct SearchChannel
 
           qualities.each do |quality|
             json.object do
-              json.field "url", self.author_thumbnail.gsub(/=\d+/, "=s#{quality}")
+              json.field "url", self.author_thumbnail.gsub(/=s\d+/, "=s#{quality}")
               json.field "width", quality
               json.field "height", quality
             end
