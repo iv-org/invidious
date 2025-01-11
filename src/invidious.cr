@@ -17,10 +17,8 @@
 require "digest/md5"
 require "file_utils"
 
-# Require kemal, kilt, then our own overrides
+# Require kemal, then our own overrides
 require "kemal"
-require "kilt"
-require "./ext/kemal_content_for.cr"
 require "./ext/kemal_static_file_handler.cr"
 
 require "http_proxy"
@@ -221,8 +219,8 @@ error 500 do |env, ex|
   error_template(500, ex)
 end
 
-static_headers do |response|
-  response.headers.add("Cache-Control", "max-age=2629800")
+static_headers do |env|
+  env.response.headers.add("Cache-Control", "max-age=2629800")
 end
 
 # Init Kemal
