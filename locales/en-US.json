@@ -81,6 +81,7 @@
     "preferences_speed_label": "Default speed: ",
     "preferences_quality_label": "Preferred video quality: ",
     "preferences_quality_option_dash": "DASH (adaptive quality)",
+    "preferences_quality_option_hls": "HLS",
     "preferences_quality_option_hd720": "HD720",
     "preferences_quality_option_medium": "Medium",
     "preferences_quality_option_small": "Small",
@@ -498,5 +499,11 @@
     "toggle_theme": "Toggle Theme",
     "carousel_slide": "Slide {{current}} of {{total}}",
     "carousel_skip": "Skip the Carousel",
-    "carousel_go_to": "Go to slide `x`"
+    "carousel_go_to": "Go to slide `x`",
+    "video_quality_livestream_label": "Livestream",
+    "video_quality_hls_label": "HLS",
+    "video_quality_dash_label": "DASH",
+    "video_quality_hd720_label": "hd720",
+    "video_quality_medium_label": "medium",
+    "video_quality_small_label": "small"
 }

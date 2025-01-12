@@ -111,6 +111,15 @@ def extract_video_info(video_id : String)
     # https://github.com/TeamNewPipe/NewPipeExtractor/issues/562
     client_config.client_type = YoutubeAPI::ClientType::AndroidTestSuite
     new_player_response = try_fetch_streaming_data(video_id, client_config)
+  else
+    if reason.nil?
+      # Fetch the video streams using an Android client in order to get the
+      # decrypted URLs and maybe fix throttling issues (#2194). See the
+      # following issue for an explanation about decrypted URLs:
+      # https://github.com/TeamNewPipe/NewPipeExtractor/issues/562
+      client_config.client_type = YoutubeAPI::ClientType::AndroidTestSuite
+      new_player_response = try_fetch_streaming_data(video_id, client_config)
+    end
   end
 
   # Replace player response and reset reason
@@ -142,6 +151,24 @@ def extract_video_info(video_id : String)
   params["version"] = JSON::Any.new(Video::SCHEMA_VERSION.to_i64)
 
   return params
+end
+
+def update_video_object_with_hls_data(id : String, video : Video)
+  client_config = YoutubeAPI::ClientConfig.new(client_type: YoutubeAPI::ClientType::IOS)
+
+  new_player_response = try_fetch_streaming_data(id, client_config)
+  current_streaming_data = video.info["streamingData"].try &.as_h
+
+  return nil if !new_player_response
+
+  if current_streaming_data && (manifest = new_player_response.dig?("streamingData", "hlsManifestUrl"))
+    current_streaming_data["hlsManifestUrl"] = JSON::Any.new(manifest.as_s)
+    video.info["streamingData"] = JSON::Any.new(current_streaming_data)
+
+    return video
+  end
+
+  return nil
 end
 
 def try_fetch_streaming_data(id : String, client_config : YoutubeAPI::ClientConfig) : Hash(String, JSON::Any)?

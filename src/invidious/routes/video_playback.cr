@@ -91,7 +91,7 @@ module Invidious::Routes::VideoPlayback
     end
 
     if url.includes? "&file=seg.ts"
-      if CONFIG.disabled?("livestreams")
+      if CONFIG.disabled?("livestreams") || CONFIG.disabled?("hls")
         return error_template(403, "Administrator has disabled this endpoint.")
       end
 
