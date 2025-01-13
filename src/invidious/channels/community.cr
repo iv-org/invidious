@@ -279,7 +279,7 @@ def extract_channel_community(items, *, ucid, locale, format, thin_mode, is_sing
 
   if format == "html"
     response = JSON.parse(response)
-    content_html = IV::Frontend::Comments.template_youtube(response, locale, thin_mode)
+    content_html = IV::Frontend::Comments.template_youtube(response, locale, thin_mode, ucid, "community")
 
     response = JSON.build do |json|
       json.object do
