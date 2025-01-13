@@ -310,7 +310,9 @@ struct Invidious::User
 
             db = DB.open("sqlite3://" + tempfile.path)
 
-            user.watched += db.query_all("SELECT url FROM streams", as: String)
+            user.watched += db.query_all(
+              "SELECT s.url FROM streams s JOIN stream_history sh ON s.uid = sh.stream_id",
+              as: String)
               .map(&.lchop("https://www.youtube.com/watch?v="))
 
             user.watched.uniq!
