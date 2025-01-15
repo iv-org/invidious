@@ -3,8 +3,98 @@
 ## vX.Y.0 (future)
 
 
+## v2.20241110.0
+
+### Wrap-up
+
+This release is most importantly here to fix to the annoying "Youtube API returned error 400"
+error that prevented all channel pages from loading.
+
+If you're updating from the previous release, it provides no improvements on the ability to play
+videos. If updating from a commit in-between release, it removes the "Please sign in" error caused
+by a previous attempt at restoring video playback on large instances.
+
+In the preferences, a new option allows for control of video preload. When enabled, this option
+tells the browser to load the video as soon as the page is loaded (this used to be the default).
+When disabled, the video starts loading only when the "play" button is pressed.
+
+New interface languages available: Bulgarian, Welsh and Lombard
+
+New dependency required: `tzdata`.
+
+An HTTP proxy can be configured directly in Invidious, if needed. \
+**NOTE:** In that case, it is recommended to comment out `force_resolve`.
+
+
+### New features & important changes
+
+#### For users
+
+* Channels: Fix "Youtube API returned error 400" error preventing channel pages from loading
+* Channels: Shorts can now be sorted by "newest", "oldest" and "popular"
+* Preferences: Addition of the new "preload" option
+* New interface languages available: Bulgarian, Welsh and Lombard
+* Added "Filipino (auto-generated)" to the list of caption languages available
+* Lots of new translations from Weblate
+
+#### For instance owners
+
+* Allow the configuration of an HTTP proxy to talk to Youtube
+* Invidious tries to reconnect to `inv_sig_helper` if the socket is closed
+* The instance list is downloaded in the background to improve redirection speed
+* New `colorize_logs` option makes each log level a different color
+
+#### For developpers
+
+* `/api/v1/channels/{id}/shorts` now supports the `sort-by` parameter with the following values:
+  `newest`, `oldest` and `popular`
+* Older `/api/v1/channels/xyz/{id}` (tab name before UCID) were removed
+* API/Search: New video metadata available: `isNew`, `is4k`, `is8k`, `isVr180`, `isVr360`,
+  `is3d` and `hasCaptions`
+
+### Bugs fixed
+
+#### User-side
+
+* Channels: The second page of shorts now loads as expected
+* Channels: Fixed intermittent empty "playlists" tab
+* Search: Fixed `youtu.be` URLs not being properly redirected to the watch page
+* Fixed `DB::MappingException` error on the subscriptions feed (due to missing `tzdata` in docker)
+* Switching to another instance is much faster
+* Fixed an "invalid byte sequence" error when subscribing to a playlist
+* Videos: Playback URLs were sometimes broken when cached and `inv_sig_helper` was used
+
+#### For instance owners
+
+* Fix `force_resolve` being ignored in some cases
+
+#### API
+
+* API/Videos: Fixed `live_now` and `premiere_timestamp` sometimes not having the right values
+
+
 ### Full list of pull requests merged since the last release (newest first)
 
+* API: Add "sort_by" parameter to channels/shorts endpoint ([#5071], thanks @iBicha)
+* Docker: Install tzdata in Dockerfile ([#5070], by @SamantazFox)
+* Videos: Stop using TVHTML5_SIMPLY_EMBEDDED_PLAYER ([#5063], thanks @unixfox)
+* Routing: Deprecate old channel API routes ([#5045], by @SamantazFox)
+* Videos: use WEB client instead of WEB CREATOR ([#4984], thanks @unixfox)
+* Parsers: Fix parsing live_now and premiere_timestamp ([#4934], thanks @absidue)
+* Stale bot updates ([#5060], thanks @syeopite)
+* Channels: Fix "Youtube API returned error 400" ([#5059], by @SamantazFox)
+* Channels: Fix for live videos ([#5027], thanks @iBicha)
+* Locales: Add Bulgarian, Welsh and Lombard to the list ([#5046], by @SamantazFox)
+* Shards: Update database dependencies ([#5034], by @SamantazFox)
+* Logger: Add color support for different log levels ([#4931], thanks @Fijxu)
+* Fix named arg syntax when passing force_resolve ([#4754], thanks @syeopite)
+* Use make_client instead of calling HTTP::Client ([#4709], thanks @syeopite)
+* Add "Filipino (auto-generated)" to the list of caption languages ([#4995], by @SamantazFox)
+* Makefile: Add MT option to enable the 'preview_mt' flag ([#4993], by @SamantazFox)
+* SigHelper: Reconnect to signature helper ([#4991], thanks @Fijxu)
+* Fix player menus hiding onHover ready ([#4750], thanks @giacomocerquone)
+* Use connection pools when requesting images from YouTube ([#4326], thanks @syeopite)
+* Add support for using Invidious through a HTTP Proxy ([#4270], thanks @syeopite)
 * Search: Fix 'youtu.be' URLs in sanitizer ([#4894], by @SamantazFox)
 * Ameba: Disable Style/RedundantNext rule ([#4888], thanks @syeopite)
 * Playlists: Fix 'invalid byte sequence' error when subscribing ([#4887], thanks @DmitrySandalov)
@@ -22,7 +112,12 @@
 
 [#4122]: https://github.com/iv-org/invidious/pull/4122
 [#4193]: https://github.com/iv-org/invidious/pull/4193
+[#4270]: https://github.com/iv-org/invidious/pull/4270
+[#4326]: https://github.com/iv-org/invidious/pull/4326
 [#4652]: https://github.com/iv-org/invidious/pull/4652
+[#4709]: https://github.com/iv-org/invidious/pull/4709
+[#4750]: https://github.com/iv-org/invidious/pull/4750
+[#4754]: https://github.com/iv-org/invidious/pull/4754
 [#4850]: https://github.com/iv-org/invidious/pull/4850
 [#4862]: https://github.com/iv-org/invidious/pull/4862
 [#4863]: https://github.com/iv-org/invidious/pull/4863
@@ -32,7 +127,22 @@
 [#4923]: https://github.com/iv-org/invidious/pull/4923
 [#4928]: https://github.com/iv-org/invidious/pull/4928
 [#4930]: https://github.com/iv-org/invidious/pull/4930
+[#4931]: https://github.com/iv-org/invidious/pull/4931
+[#4934]: https://github.com/iv-org/invidious/pull/4934
 [#4942]: https://github.com/iv-org/invidious/pull/4942
+[#4984]: https://github.com/iv-org/invidious/pull/4984
+[#4991]: https://github.com/iv-org/invidious/pull/4991
+[#4993]: https://github.com/iv-org/invidious/pull/4993
+[#4995]: https://github.com/iv-org/invidious/pull/4995
+[#5027]: https://github.com/iv-org/invidious/pull/5027
+[#5034]: https://github.com/iv-org/invidious/pull/5034
+[#5045]: https://github.com/iv-org/invidious/pull/5045
+[#5046]: https://github.com/iv-org/invidious/pull/5046
+[#5059]: https://github.com/iv-org/invidious/pull/5059
+[#5060]: https://github.com/iv-org/invidious/pull/5060
+[#5063]: https://github.com/iv-org/invidious/pull/5063
+[#5070]: https://github.com/iv-org/invidious/pull/5070
+[#5071]: https://github.com/iv-org/invidious/pull/5071
 
 
 ## v2.20240825.2 (2024-08-26)

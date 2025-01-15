@@ -53,10 +53,6 @@ end
 def extract_video_info(video_id : String)
   # Init client config for the API
   client_config = YoutubeAPI::ClientConfig.new
-  # Use the WEB_CREATOR when po_token is configured because it fully only works on this client
-  if CONFIG.po_token
-    client_config.client_type = YoutubeAPI::ClientType::WebCreator
-  end
 
   # Fetch data from the player endpoint
   player_response = YoutubeAPI.player(video_id: video_id, params: "2AMB", client_config: client_config)
@@ -106,29 +102,14 @@ def extract_video_info(video_id : String)
 
   new_player_response = nil
 
-  # Second try in case WEB_CREATOR doesn't work with po_token.
-  # Only trigger if reason found and po_token configured.
-  if reason && CONFIG.po_token
-    client_config.client_type = YoutubeAPI::ClientType::WebEmbeddedPlayer
-    new_player_response = try_fetch_streaming_data(video_id, client_config)
-  end
-
-  # Don't use Android client if po_token is passed because po_token doesn't
-  # work for Android client.
+  # Don't use Android test suite client if po_token is passed because po_token doesn't
+  # work for Android test suite client.
   if reason.nil? && CONFIG.po_token.nil?
     # Fetch the video streams using an Android client in order to get the
     # decrypted URLs and maybe fix throttling issues (#2194). See the
     # following issue for an explanation about decrypted URLs:
     # https://github.com/TeamNewPipe/NewPipeExtractor/issues/562
     client_config.client_type = YoutubeAPI::ClientType::AndroidTestSuite
-    new_player_response = try_fetch_streaming_data(video_id, client_config)
-  end
-
-  # Last hope
-  # Only trigger if reason found or didn't work wth Android client.
-  # TvHtml5ScreenEmbed now requires sig helper for it to work but doesn't work with po_token.
-  if reason && CONFIG.po_token.nil?
-    client_config.client_type = YoutubeAPI::ClientType::TvHtml5ScreenEmbed
     new_player_response = try_fetch_streaming_data(video_id, client_config)
   end
 
@@ -235,8 +216,17 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
   premiere_timestamp = microformat.dig?("liveBroadcastDetails", "startTimestamp")
     .try { |t| Time.parse_rfc3339(t.as_s) }
 
+  premiere_timestamp ||= player_response.dig?(
+    "playabilityStatus", "liveStreamability",
+    "liveStreamabilityRenderer", "offlineSlate",
+    "liveStreamOfflineSlateRenderer", "scheduledStartTime"
+  )
+    .try &.as_s.to_i64
+      .try { |t| Time.unix(t) }
+
   live_now = microformat.dig?("liveBroadcastDetails", "isLiveNow")
-    .try &.as_bool || false
+    .try &.as_bool
+  live_now ||= video_details.dig?("isLive").try &.as_bool || false
 
   post_live_dvr = video_details.dig?("isPostLiveDvr")
     .try &.as_bool || false

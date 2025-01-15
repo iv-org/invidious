@@ -55,6 +55,15 @@ struct ConfigPreferences
   end
 end
 
+struct HTTPProxyConfig
+  include YAML::Serializable
+
+  property user : String
+  property password : String
+  property host : String
+  property port : Int32
+end
+
 class Config
   include YAML::Serializable
 
@@ -69,6 +78,8 @@ class Config
   property output : String = "STDOUT"
   # Default log level, valid YAML values are ints and strings, see src/invidious/helpers/logger.cr
   property log_level : LogLevel = LogLevel::Info
+  # Enables colors in logs. Useful for debugging purposes
+  property colorize_logs : Bool = false
   # Database configuration with separate parameters (username, hostname, etc)
   property db : DBConfig? = nil
 
@@ -129,6 +140,8 @@ class Config
   property host_binding : String = "0.0.0.0"
   # Pool size for HTTP requests to youtube.com and ytimg.com (each domain has a separate pool of `pool_size`)
   property pool_size : Int32 = 100
+  # HTTP Proxy configuration
+  property http_proxy : HTTPProxyConfig? = nil
 
   # Use Innertube's transcripts API instead of timedtext for closed captions
   property use_innertube_for_captions : Bool = false

@@ -54,7 +54,7 @@ jobs:
 
       - name: Install required APT packages
         run: |
-          sudo apt install -y libsqlite3-dev 
+          sudo apt install -y libsqlite3-dev
         shell: bash
 
       - name: Install Crystal
@@ -65,7 +65,9 @@ jobs:
       - name: Cache Shards
         uses: actions/cache@v3
         with:
-          path: ./lib
+          path: |
+            ./lib
+            ./bin
           key: shards-${{ hashFiles('shard.lock') }}
 
       - name: Install Shards
@@ -76,14 +78,6 @@ jobs:
 
       - name: Run tests
         run: crystal spec
-
-      - name: Run lint
-        run: |
-          if ! crystal tool format --check; then
-            crystal tool format
-            git diff
-            exit 1
-          fi
 
       - name: Build
         run: crystal build --warnings all --error-on-warnings --error-trace src/invidious.cr
@@ -130,8 +124,12 @@ jobs:
       - name: Test Docker
         run: while curl -Isf http://localhost:3000; do sleep 1; done
 
-  ameba_lint:
+  lint:
+
     runs-on: ubuntu-latest
+
+    continue-on-error: true
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -151,7 +149,18 @@ jobs:
           key: shards-${{ hashFiles('shard.lock') }}
 
       - name: Install Shards
-        run: shards install
+        run: |
+          if ! shards check; then
+            shards install
+          fi
+
+      - name: Check Crystal formatter compliance
+        run: |
+          if ! crystal tool format --check; then
+            crystal tool format
+            git diff
+            exit 1
+          fi
 
       - name: Run Ameba linter
         run: bin/ameba

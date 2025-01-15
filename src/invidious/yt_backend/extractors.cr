@@ -21,6 +21,7 @@ private ITEM_PARSERS = {
   Parsers::ItemSectionRendererParser,
   Parsers::ContinuationItemRendererParser,
   Parsers::HashtagRendererParser,
+  Parsers::LockupViewModelParser,
 }
 
 private alias InitialData = Hash(String, JSON::Any)
@@ -467,9 +468,9 @@ private module Parsers
   # Parses an InnerTube richItemRenderer into a SearchVideo.
   # Returns nil when the given object isn't a RichItemRenderer
   #
-  # A richItemRenderer seems to be a simple wrapper for a videoRenderer, used
-  # by the result page for hashtags and for the podcast tab on channels.
-  # It is located inside a continuationItems container for hashtags.
+  # A richItemRenderer seems to be a simple wrapper for a various other types,
+  # used on the hashtags result page and the channel podcast tab. It is located
+  # itself inside a richGridRenderer container.
   #
   module RichItemRendererParser
     def self.process(item : JSON::Any, author_fallback : AuthorFallback)
@@ -482,6 +483,8 @@ private module Parsers
       child = VideoRendererParser.process(item_contents, author_fallback)
       child ||= ReelItemRendererParser.process(item_contents, author_fallback)
       child ||= PlaylistRendererParser.process(item_contents, author_fallback)
+      child ||= LockupViewModelParser.process(item_contents, author_fallback)
+      child ||= ShortsLockupViewModelParser.process(item_contents, author_fallback)
       return child
     end
 
@@ -495,6 +498,9 @@ private module Parsers
   #
   # reelItemRenderer items are used in the new (2022) channel layout,
   # in the "shorts" tab.
+  #
+  # NOTE: As of 10/2024, it might have been fully replaced by shortsLockupViewModel
+  # TODO: Confirm that hypothesis
   #
   module ReelItemRendererParser
     def self.process(item : JSON::Any, author_fallback : AuthorFallback)
@@ -568,6 +574,135 @@ private module Parsers
         author:             author,
         ucid:               ucid,
         published:          published,
+        views:              view_count,
+        description_html:   "",
+        length_seconds:     duration,
+        premiere_timestamp: Time.unix(0),
+        author_verified:    false,
+        badges:             VideoBadges::None,
+      })
+    end
+
+    def self.parser_name
+      return {{@type.name}}
+    end
+  end
+
+  # Parses an InnerTube lockupViewModel into a SearchPlaylist.
+  # Returns nil when the given object is not a lockupViewModel.
+  #
+  # This structure is present since November 2024 on the "podcasts" and
+  # "playlists" tabs of the channel page. It is usually encapsulated in either
+  # a richItemRenderer or a richGridRenderer.
+  #
+  module LockupViewModelParser
+    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+      if item_contents = item["lockupViewModel"]?
+        return self.parse(item_contents, author_fallback)
+      end
+    end
+
+    private def self.parse(item_contents, author_fallback)
+      playlist_id = item_contents["contentId"].as_s
+
+      thumbnail_view_model = item_contents.dig(
+        "contentImage", "collectionThumbnailViewModel",
+        "primaryThumbnail", "thumbnailViewModel"
+      )
+
+      thumbnail = thumbnail_view_model.dig("image", "sources", 0, "url").as_s
+
+      # This complicated sequences tries to extract the following data structure:
+      # "overlays": [{
+      #   "thumbnailOverlayBadgeViewModel": {
+      #     "thumbnailBadges": [{
+      #       "thumbnailBadgeViewModel": {
+      #         "text": "430 episodes",
+      #         "badgeStyle": "THUMBNAIL_OVERLAY_BADGE_STYLE_DEFAULT"
+      #       }
+      #     }]
+      #   }
+      # }]
+      #
+      # NOTE: this simplistic `.to_i` conversion might not work on larger
+      # playlists and hasn't been tested.
+      video_count = thumbnail_view_model.dig("overlays").as_a
+        .compact_map(&.dig?("thumbnailOverlayBadgeViewModel", "thumbnailBadges").try &.as_a)
+        .flatten
+        .find(nil, &.dig?("thumbnailBadgeViewModel", "text").try { |node|
+          {"episodes", "videos"}.any? { |str| node.as_s.ends_with?(str) }
+        })
+        .try &.dig("thumbnailBadgeViewModel", "text").as_s.to_i(strict: false)
+
+      metadata = item_contents.dig("metadata", "lockupMetadataViewModel")
+      title = metadata.dig("title", "content").as_s
+
+      # TODO: Retrieve "updated" info from metadata parts
+      # rows = metadata.dig("metadata", "contentMetadataViewModel", "metadataRows").as_a
+      # parts_text = rows.map(&.dig?("metadataParts", "text", "content").try &.as_s)
+      # One of these parts should contain a string like: "Updated 2 days ago"
+
+      # TODO: Maybe add a button to access the first video of the playlist?
+      # item_contents.dig("rendererContext", "commandContext", "onTap", "innertubeCommand", "watchEndpoint")
+      # Available fields: "videoId", "playlistId", "params"
+
+      return SearchPlaylist.new({
+        title:           title,
+        id:              playlist_id,
+        author:          author_fallback.name,
+        ucid:            author_fallback.id,
+        video_count:     video_count || -1,
+        videos:          [] of SearchPlaylistVideo,
+        thumbnail:       thumbnail,
+        author_verified: false,
+      })
+    end
+
+    def self.parser_name
+      return {{@type.name}}
+    end
+  end
+
+  # Parses an InnerTube shortsLockupViewModel into a SearchVideo.
+  # Returns nil when the given object is not a shortsLockupViewModel.
+  #
+  # This structure is present since around October 2024 on the "shorts" tab of
+  # the channel page and likely replaces the reelItemRenderer structure. It is
+  # usually (always?) encapsulated in a richItemRenderer.
+  #
+  module ShortsLockupViewModelParser
+    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+      if item_contents = item["shortsLockupViewModel"]?
+        return self.parse(item_contents, author_fallback)
+      end
+    end
+
+    private def self.parse(item_contents, author_fallback)
+      # TODO: Maybe add support for "oardefault.jpg" thumbnails?
+      # thumbnail = item_contents.dig("thumbnail", "sources", 0, "url").as_s
+      # Gives: https://i.ytimg.com/vi/{video_id}/oardefault.jpg?...
+
+      video_id = item_contents.dig(
+        "onTap", "innertubeCommand", "reelWatchEndpoint", "videoId"
+      ).as_s
+
+      title = item_contents.dig("overlayMetadata", "primaryText", "content").as_s
+
+      view_count = short_text_to_number(
+        item_contents.dig("overlayMetadata", "secondaryText", "content").as_s
+      )
+
+      # Approximate to one minute, as "shorts" generally don't exceed that.
+      # NOTE: The actual duration is not provided by Youtube anymore.
+      # TODO: Maybe use -1 as an error value and handle that on the frontend?
+      duration = 60_i32
+
+      SearchVideo.new({
+        title:              title,
+        id:                 video_id,
+        author:             author_fallback.name,
+        ucid:               author_fallback.id,
+        published:          Time.unix(0),
         views:              view_count,
         description_html:   "",
         length_seconds:     duration,

@@ -1,4 +1,4 @@
-FROM crystallang/crystal:1.12.1-alpine AS builder
+FROM crystallang/crystal:1.12.2-alpine AS builder
 
 RUN apk add --no-cache sqlite-static yaml-static
 
@@ -32,8 +32,8 @@ RUN if [[ "${release}" == 1 ]] ; then \
         --link-flags "-lxml2 -llzma"; \
     fi
 
-FROM alpine:3.18
-RUN apk add --no-cache rsvg-convert ttf-opensans tini
+FROM alpine:3.20
+RUN apk add --no-cache rsvg-convert ttf-opensans tini tzdata
 WORKDIR /invidious
 RUN addgroup -g 1000 -S invidious && \
     adduser -u 1000 -S invidious -G invidious

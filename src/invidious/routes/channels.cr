@@ -20,10 +20,11 @@ module Invidious::Routes::Channels
     sort_by = env.params.query["sort_by"]?.try &.downcase
 
     if channel.auto_generated
+      sort_by ||= "last"
       sort_options = {"last", "oldest", "newest"}
 
       items, next_continuation = fetch_channel_playlists(
-        channel.ucid, channel.author, continuation, (sort_by || "last")
+        channel.ucid, channel.author, continuation, sort_by
       )
 
       items.uniq! do |item|
@@ -49,9 +50,11 @@ module Invidious::Routes::Channels
         end
         next_continuation = nil
       else
+        sort_by ||= "newest"
         sort_options = {"newest", "oldest", "popular"}
-        items, next_continuation = Channel::Tabs.get_videos(
-          channel, continuation: continuation, sort_by: (sort_by || "newest")
+
+        items, next_continuation = Channel::Tabs.get_60_videos(
+          channel, continuation: continuation, sort_by: sort_by
         )
       end
     end
@@ -82,13 +85,12 @@ module Invidious::Routes::Channels
       end
       next_continuation = nil
     else
-      # TODO: support sort option for shorts
-      sort_by = ""
-      sort_options = [] of String
+      sort_by = env.params.query["sort_by"]?.try &.downcase || "newest"
+      sort_options = {"newest", "oldest", "popular"}
 
       # Fetch items and continuation token
       items, next_continuation = Channel::Tabs.get_shorts(
-        channel, continuation: continuation
+        channel, continuation: continuation, sort_by: sort_by
       )
     end
 

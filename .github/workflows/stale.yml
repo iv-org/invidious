@@ -13,14 +13,11 @@ jobs:
     - uses: actions/stale@v8
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
-        days-before-stale: 365
-        days-before-pr-stale: 90 
-        days-before-close: 30
-        exempt-pr-labels: blocked,exempt-stale
+        days-before-stale: 730
+        days-before-pr-stale: -1 
+        days-before-close: 60
         stale-issue-message: 'This issue has been automatically marked as stale and will be closed in 30 days because it has not had recent activity and is much likely outdated. If you think this issue is still relevant and applicable, you just have to post a comment and it will be unmarked.'
-        stale-pr-message: 'This pull request has been automatically marked as stale and will be closed in 30 days because it has not had recent activity and is much likely abandoned or outdated. If you think this pull request is still relevant and applicable, you just have to post a comment and it will be unmarked.'
         stale-issue-label: "stale"
-        stale-pr-label: "stale"
         ascending: true
-        # Never mark feature requests/enhancements as stale
-        exempt-issue-labels: "feature-request,enhancement,exempt-stale"
+        # Exempt the following types of issues from being staled
+        exempt-issue-labels: "feature-request,enhancement,discussion,exempt-stale"
