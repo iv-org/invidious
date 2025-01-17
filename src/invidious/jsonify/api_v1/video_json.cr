@@ -218,6 +218,14 @@ module Invidious::JSONify::APIv1
         end
       end
 
+      if !video.chapters.nil?
+        json.field "chapters" do
+          json.object do
+            video.chapters.to_json(json)
+          end
+        end
+      end
+
       if !video.music.empty?
         json.field "musicTracks" do
           json.array do
