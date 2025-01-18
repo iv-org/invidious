@@ -469,8 +469,8 @@
     "Spanish (auto-generated)": "Spagnolo (generati automaticamente)",
     "Spanish (Mexico)": "Spagnolo (Messico)",
     "Spanish (Spain)": "Spagnolo (Spagna)",
-    "Turkish (auto-generated)": "Turco (auto-generato)",
-    "Vietnamese (auto-generated)": "Vietnamita (auto-generato)",
+    "Turkish (auto-generated)": "Turco (generati automaticamente)",
+    "Vietnamese (auto-generated)": "Vietnamita (generati automaticamente)",
     "search_filters_date_label": "Data caricamento",
     "search_filters_date_option_none": "Qualunque data",
     "search_filters_type_option_all": "Qualunque tipo",
@@ -513,5 +513,7 @@
     "The Popular feed has been disabled by the administrator.": "La sezione dei contenuti popolari è stata disabilitata dall'amministratore.",
     "carousel_slide": "Fotogramma {{current}} di {{total}}",
     "carousel_skip": "Salta la galleria",
-    "carousel_go_to": "Vai al fotogramma `x`"
+    "carousel_go_to": "Vai al fotogramma `x`",
+    "preferences_preload_label": "Precarica dati video: ",
+    "Filipino (auto-generated)": "Filippino (generati automaticamente)"
 }
