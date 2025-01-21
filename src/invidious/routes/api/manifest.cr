@@ -74,12 +74,13 @@ module Invidious::Routes::API::Manifest
               lang = audio_track["id"]?.try &.as_s.split('.')[0] || "und"
               is_default = audio_track.has_key?("audioIsDefault") ? audio_track["audioIsDefault"].as_bool : i == 0
               displayname = audio_track["displayName"]?.try &.as_s || "Unknown"
+              bitrate = fmt["bitrate"]
 
               # Different representations of the same audio should be groupped into one AdaptationSet.
               # However, most players don't support auto quality switching, so we have to trick them
               # into providing a quality selector.
               # See https://github.com/iv-org/invidious/issues/3074 for more details.
-              xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true, label: displayname, lang: lang) do
+              xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true, label: "#{displayname} [#{bitrate}k]", lang: lang) do
                 codecs = fmt["mimeType"].as_s.split("codecs=")[1].strip('"')
                 bandwidth = fmt["bitrate"].as_i
                 itag = fmt["itag"].as_i
