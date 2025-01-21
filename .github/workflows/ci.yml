@@ -136,6 +136,7 @@ jobs:
           submodules: true
 
       - name: Install Crystal
+        id: lint_step_install_crystal
         uses: crystal-lang/install-crystal@v1.8.0
         with:
           crystal: latest
@@ -146,7 +147,7 @@ jobs:
           path: |
             ./lib
             ./bin
-          key: shards-${{ hashFiles('shard.lock') }}
+          key: shards-${{ hashFiles('shard.lock') }}-${{ steps.lint_step_install_crystal.outputs.crystal }}
 
       - name: Install Shards
         run: |
