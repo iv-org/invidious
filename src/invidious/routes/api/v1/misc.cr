@@ -141,9 +141,7 @@ module Invidious::Routes::API::V1::Misc
                 json.field "authorUrl", "/channel/#{video.ucid}"
 
                 json.field "videoThumbnails" do
-                  json.array do
-                    Invidious::JSONify::APIv1.thumbnails(json, video.id)
-                  end
+                  Invidious::JSONify::APIv1.thumbnails(json, video.id)
                 end
 
                 json.field "index", video.index
