@@ -128,7 +128,7 @@
 
                 <div class="top-left-overlay">
                     <%- if env.get? "show_watched" -%>
-                        <form data-onsubmit="return_false" action="/watch_ajax?action_mark_watched=1&id=<%= item.id %>&referer=<%= env.get("current_page") %>" method="post">
+                        <form data-onsubmit="return_false" action="/watch_ajax?action=mark_watched&id=<%= item.id %>&referer=<%= env.get("current_page") %>" method="post">
                             <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
                             <button type="submit" class="pure-button pure-button-secondary low-profile"
                                     data-onclick="mark_watched" data-id="<%= item.id %>">
@@ -138,14 +138,14 @@
                     <%- end -%>
 
                     <%- if plid_form = env.get?("add_playlist_items") -%>
-                        <%- form_parameters = "action_add_video=1&video_id=#{item.id}&playlist_id=#{plid_form}&referer=#{env.get("current_page")}" -%>
+                        <%- form_parameters = "action=add_video&video_id=#{item.id}&playlist_id=#{plid_form}&referer=#{env.get("current_page")}" -%>
                         <form data-onsubmit="return_false" action="/playlist_ajax?<%= form_parameters %>" method="post">
                             <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
                             <button type="submit" class="pure-button pure-button-secondary low-profile"
                                     data-onclick="add_playlist_item" data-id="<%= item.id %>" data-plid="<%= plid_form %>"><i class="icon ion-md-add"></i></button>
                         </form>
                     <%- elsif item.is_a?(PlaylistVideo) && (plid_form = env.get?("remove_playlist_items")) -%>
-                        <%- form_parameters = "action_remove_video=1&set_video_id=#{item.index}&playlist_id=#{plid_form}&referer=#{env.get("current_page")}" -%>
+                        <%- form_parameters = "action=remove_video&set_video_id=#{item.index}&playlist_id=#{plid_form}&referer=#{env.get("current_page")}" -%>
                         <form data-onsubmit="return_false" action="/playlist_ajax?<%= form_parameters %>" method="post">
                             <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
                             <button type="submit" class="pure-button pure-button-secondary low-profile"
