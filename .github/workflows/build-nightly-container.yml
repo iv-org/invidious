@@ -23,19 +23,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Crystal
-        uses: crystal-lang/install-crystal@v1.8.2
-        with:
-          crystal: 1.12.2
-
-      - name: Run lint
-        run: |
-          if ! crystal tool format --check; then
-            crystal tool format
-            git diff
-            exit 1
-          fi
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         with:
