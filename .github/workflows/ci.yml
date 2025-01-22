@@ -38,11 +38,10 @@ jobs:
       matrix:
         stable: [true]
         crystal:
-          - 1.10.1
-          - 1.11.2
           - 1.12.1
           - 1.13.2
           - 1.14.0
+          - 1.15.0
         include:
           - crystal: nightly
             stable: false
