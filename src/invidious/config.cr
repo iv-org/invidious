@@ -184,6 +184,9 @@ class Config
     config = Config.from_yaml(config_yaml)
 
     # Update config from env vars (upcased and prefixed with "INVIDIOUS_")
+    #
+    # Also checks if any top-level config options are set to "CHANGE_ME!!"
+    # TODO: Support non-top-level config options such as the ones in DBConfig
     {% for ivar in Config.instance_vars %}
         {% env_id = "INVIDIOUS_#{ivar.id.upcase}" %}
 
@@ -220,15 +223,18 @@ class Config
                 exit(1)
             end
         end
+
+        # Warn when any config attribute is set to "CHANGE_ME!!"
+        if config.{{ivar.id}} == "CHANGE_ME!!"
+          puts "Config: The value of '#{ {{ivar.stringify}} }' needs to be changed!!"
+          exit(1)
+        end
     {% end %}
 
     # HMAC_key is mandatory
     # See: https://github.com/iv-org/invidious/issues/3854
     if config.hmac_key.empty?
       puts "Config: 'hmac_key' is required/can't be empty"
-      exit(1)
-    elsif config.hmac_key == "CHANGE_ME!!"
-      puts "Config: The value of 'hmac_key' needs to be changed!!"
       exit(1)
     end
 
