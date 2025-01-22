@@ -194,6 +194,7 @@ module Invidious::Routes::Feeds
         length_seconds:     0,
         premiere_timestamp: nil,
         author_verified:    false,
+        author_thumbnail:   nil,
         badges:             VideoBadges::None,
       })
     end
