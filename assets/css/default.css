@@ -158,6 +158,8 @@ body a.pure-button {
 }
 
 button.pure-button-primary,
+summary.pure-button-primary,
+#share-widget > summary,
 body a.pure-button-primary,
 .channel-owner:hover,
 .channel-owner:focus {
@@ -534,13 +536,15 @@ span > select {
   background-color: #fff2;
 }
 
-.light-theme a {
+.light-theme a,
+.light-theme summary {
   color: #335d7a;
   text-decoration: none;
 }
 
 /* All links that do not fit with the default color goes here */
 .light-theme a:not([data-id]) > .icon,
+.light-theme summary > .icon,
 .light-theme .pure-u-lg-1-5 > .h-box > a[href^="/watch?"],
 .light-theme .playlist-restricted > ol > li > a {
   color: #303030;
@@ -573,13 +577,15 @@ span > select {
     background-color: #fff2;
   }
 
-  .no-theme a {
+  .no-theme a,
+  .no-theme summary {
     color: #335d7a;
     text-decoration: none;
   }
 
   /* All links that do not fit with the default color goes here */
   .no-theme a:not([data-id]) > .icon,
+  .no-theme summary > .icon,
   .no-theme .pure-u-lg-1-5 > .h-box > a[href^="/watch?"],
   .no-theme .playlist-restricted > ol > li > a {
     color: #303030;
@@ -625,7 +631,8 @@ span > select {
   color: #ddd;
 }
 
-.dark-theme a {
+.dark-theme a,
+.dark-theme summary {
   color: #adadad;
   text-decoration: none;
 }
@@ -661,8 +668,10 @@ body.dark-theme {
 @media (prefers-color-scheme: dark) {
   .no-theme a:hover,
   .no-theme a:active,
-  .no-theme a:focus {
-    color: rgb(0, 182, 240);
+  .no-theme summary:hover,
+  .no-theme a:focus,
+  .no-theme summary:focus {
+      color: rgb(0, 182, 240);
   }
 
   .no-theme .pure-button-primary:hover,
@@ -679,7 +688,7 @@ body.dark-theme {
     color: #ddd;
   }
 
-  .no-theme a {
+  .no-theme a, .no-theme summary {
     color: #adadad;
     text-decoration: none;
   }
@@ -815,4 +824,78 @@ h1, h2, h3, h4, h5, p,
 
 #download_widget {
     width: 100%;
+}
+
+#share-widget > summary {
+  display: block;
+  font-weight: bold;
+  text-align: center;
+  border-radius: 5px;
+  border:0;
+  padding: 10px;
+}
+
+#share-widget > div {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 20px;
+}
+
+#share-to-sites {
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  justify-content: space-between;
+}
+
+#add-time-to-share-link-container {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding-left: 5px;
+  font-size: 16px;
+}
+
+#add-time-to-share-link-container input {
+  width: 20px;
+  height: 20px;
+}
+
+#add-time-to-share-link-container input:checked + label {
+  color: unset;
+}
+
+#add-time-to-share-link-container input + label {
+  color: #adadad;
+}
+
+#share-to-sites > li {
+  padding: 5px;
+}
+
+#share-to-sites > li:has(>details[open]) {
+  flex-basis: 100%;
+  width: 100%;
+}
+
+.share-site > a, .share-site > details > summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#share-to-sites i {
+  font-size: 32px;
+}
+
+#share-widget-embed-section > div {
+  font-family: monospace;
+  padding: 5px;
+  border: 1px solid #adadad;
+  border-radius: 10px;
+  margin: 20px 0px;
+  width: 100%;
 }

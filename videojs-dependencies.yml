@@ -23,10 +23,6 @@ videojs-overlay:
   version: 2.1.4
   shasum: 5a103b25374dbb753eb87960d8360c2e8f39cc05
 
-videojs-share:
-  version: 3.2.1
-  shasum: 0a3024b981387b9d21c058c829760a72c14b8ceb
-
 videojs-vr:
   version: 1.8.0
   shasum: 7f2f07f760d8a329c615acd316e49da6ee8edd34
