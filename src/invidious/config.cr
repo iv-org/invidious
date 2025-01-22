@@ -138,8 +138,15 @@ class Config
   property port : Int32 = 3000
   # Host to bind (overridden by command line argument)
   property host_binding : String = "0.0.0.0"
-  # Pool size for HTTP requests to youtube.com and ytimg.com (each domain has a separate pool of `pool_size`)
+  # Max pool size for HTTP requests to youtube.com and ytimg.com (each domain has a separate pool)
   property pool_size : Int32 = 100
+
+  # Idle pool size for HTTP requests to youtube.com and ytimg.com (each domain has a separate pool)
+  property idle_pool_size : Int32? = nil
+
+  # Amount of seconds to wait for a client to be free from the pool before rasing an error
+  property pool_checkout_timeout : Float64 = 5
+
   # HTTP Proxy configuration
   property http_proxy : HTTPProxyConfig? = nil
 

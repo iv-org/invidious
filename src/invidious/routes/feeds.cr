@@ -168,7 +168,7 @@ module Invidious::Routes::Feeds
       "default" => "http://www.w3.org/2005/Atom",
     }
 
-    response = YT_POOL.client &.get("/feeds/videos.xml?channel_id=#{channel.ucid}")
+    response = YT_POOL.get("/feeds/videos.xml?channel_id=#{channel.ucid}")
     rss = XML.parse(response.body)
 
     videos = rss.xpath_nodes("//default:feed/default:entry", namespaces).map do |entry|
@@ -309,7 +309,7 @@ module Invidious::Routes::Feeds
       end
     end
 
-    response = YT_POOL.client &.get("/feeds/videos.xml?playlist_id=#{plid}")
+    response = YT_POOL.get("/feeds/videos.xml?playlist_id=#{plid}")
     document = XML.parse(response.body)
 
     document.xpath_nodes(%q(//*[@href]|//*[@url])).each do |node|
