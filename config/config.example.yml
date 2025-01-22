@@ -178,11 +178,11 @@ https_only: false
 ##
 ## If unset, then no HTTP proxy will be used.
 ## 
-http_proxy:
-  user:
-  password:
-  host:
-  port:
+#http_proxy:
+#  user:
+#  password:
+#  host:
+#  port:
 
 
 ##
