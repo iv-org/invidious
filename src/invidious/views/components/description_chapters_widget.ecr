@@ -1,0 +1,34 @@
+<% if chapters = video.chapters %>
+    <div class="description-chapters-section">
+        <hr class="description-content-separator"/>
+        <h4><%=HTML.escape(translate(locale, "video_chapters_label"))%></h4>
+
+        <% if chapters.auto_generated? %> 
+          <h5><%=HTML.escape(translate(locale, "video_chapters_auto_generated_label"))%> </h5>
+        <% end %>
+
+        <div class="description-chapters-content-container">
+            <% chapters.each do | chapter | %>
+                <%- start_in_seconds = chapter.start_ms.total_seconds.to_i %>
+                <a href="/watch?v=<%-= video.id %>&t=<%=start_in_seconds %>" data-jump-time="<%=start_in_seconds%>" class="chapter-widget-buttons">
+                    <div class="chapter">
+                        <div class="thumbnail">
+                            <%- if !env.get("preferences").as(Preferences).thin_mode -%>
+                                <img loading="lazy" class="thumbnail" src="<%-=URI.parse(chapter.thumbnails[-1]["url"].to_s).request_target %>" alt="<%=chapter.title%>"/>
+                            <%- else -%>
+                                <div class="thumbnail-placeholder"></div>
+                            <%- end -%>
+                        </div>
+                        <%- if start_in_seconds > 0 -%>
+                            <p><%-= recode_length_seconds(start_in_seconds) -%></p>
+                        <%- else -%>
+                            <p>0:00</p>
+                        <%- end -%>
+                        <p><%-=chapter.title-%></p>
+                    </div>
+                </a>
+            <% end %>
+        </div>
+        <hr class="description-content-separator"/>
+    </div>
+<% end %>

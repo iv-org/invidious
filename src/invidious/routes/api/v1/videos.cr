@@ -429,4 +429,41 @@ module Invidious::Routes::API::V1::Videos
       end
     end
   end
+
+  def self.chapters(env)
+    id = env.params.url["id"]
+    region = env.params.query["region"]? || env.params.body["region"]?
+
+    if id.nil? || id.size != 11 || !id.matches?(/^[\w-]+$/)
+      return error_json(400, "Invalid video ID")
+    end
+
+    format = env.params.query["format"]?
+
+    begin
+      video = get_video(id, region: region)
+    rescue ex : NotFoundException
+      haltf env, 404
+    rescue ex
+      haltf env, 500
+    end
+
+    begin
+      chapters = video.chapters
+    rescue ex
+      haltf env, 500
+    end
+
+    if chapters.nil?
+      return error_json(404, "No chapters are defined in video \"#{id}\"")
+    end
+
+    if format == "json"
+      env.response.content_type = "application/json"
+      return chapters.to_json
+    else
+      env.response.content_type = "text/vtt; charset=UTF-8"
+      return chapters.to_vtt
+    end
+  end
 end
