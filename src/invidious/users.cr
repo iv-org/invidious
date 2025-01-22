@@ -4,7 +4,6 @@ require "crypto/bcrypt/password"
 MATERIALIZED_VIEW_SQL = ->(email : String) { "SELECT cv.* FROM channel_videos cv WHERE EXISTS (SELECT subscriptions FROM users u WHERE cv.ucid = ANY (u.subscriptions) AND u.email = E'#{email.gsub({'\'' => "\\'", '\\' => "\\\\"})}') ORDER BY published DESC" }
 
 def create_user(sid, email, password)
-  password = Crypto::Bcrypt::Password.create(password, cost: 10)
   token = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
 
   user = Invidious::User.new({
@@ -13,13 +12,18 @@ def create_user(sid, email, password)
     subscriptions:     [] of String,
     email:             email,
     preferences:       Preferences.new(CONFIG.default_user_preferences.to_tuple),
-    password:          password.to_s,
+    password:          password,
     token:             token,
     watched:           [] of String,
     feed_needs_update: true,
   })
 
   return user, sid
+end
+
+def create_internal_user(sid, email, password)
+  password = Crypto::Bcrypt::Password.create(password.not_nil!, cost: 10)
+  create_user(sid, email, password.to_s)
 end
 
 def get_subscription_feed(user, max_results = 40, page = 1)
