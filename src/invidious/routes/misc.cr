@@ -57,6 +57,7 @@ module Invidious::Routes::Misc
       else
         # If the current instance is the only one, use the redirect URL as fallback
         instance_url = redirect_url
+      end
     end
 
     env.redirect "https://#{instance_url}#{referer}"
