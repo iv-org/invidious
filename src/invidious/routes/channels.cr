@@ -197,6 +197,26 @@ module Invidious::Routes::Channels
     templated "channel"
   end
 
+  def self.courses(env)
+    data = self.fetch_basic_information(env)
+    return data if !data.is_a?(Tuple)
+
+    locale, user, subscriptions, continuation, ucid, channel = data
+
+    sort_by = ""
+    sort_options = [] of String
+
+    items, next_continuation = fetch_channel_courses(
+      channel.ucid, channel.author, continuation
+    )
+
+    items = items.select(SearchPlaylist)
+    items.each(&.author = "")
+
+    selected_tab = Frontend::ChannelPage::TabsAvailable::Courses
+    templated "channel"
+  end
+
   def self.community(env)
     data = self.fetch_basic_information(env)
     if !data.is_a?(Tuple)
@@ -307,7 +327,7 @@ module Invidious::Routes::Channels
 
   private KNOWN_TABS = {
     "home", "videos", "shorts", "streams", "podcasts",
-    "releases", "playlists", "community", "channels", "about",
+    "releases", "courses", "playlists", "community", "channels", "about",
   }
 
   # Redirects brand url channels to a normal /channel/:ucid route
