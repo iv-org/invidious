@@ -559,10 +559,12 @@
     "toggle_theme": "تبديل الموضوع",
     "Add to playlist": "أضف إلى قائمة التشغيل",
     "Add to playlist: ": "أضف إلى قائمة التشغيل: ",
-    "Answer": "الرد",
+    "Answer": "اجابة",
     "Search for videos": "ابحث عن مقاطع الفيديو",
     "The Popular feed has been disabled by the administrator.": "تم تعطيل الخلاصة الشائعة من قبل المسؤول.",
     "carousel_slide": "الشريحة {{current}} من {{total}}",
     "carousel_skip": "تخطي الكاروسيل",
-    "carousel_go_to": "انتقل إلى الشريحة `x`"
+    "carousel_go_to": "انتقل إلى الشريحة `x`",
+    "preferences_preload_label": "التحميل المسبق لبيانات الفيديو: ",
+    "Filipino (auto-generated)": "الفلبينية (المولدة تلقائيًا)"
 }
