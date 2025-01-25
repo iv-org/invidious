@@ -48,8 +48,8 @@
     "preferences_category_player": "Настройки проигрывателя",
     "preferences_video_loop_label": "Всегда повторять: ",
     "preferences_autoplay_label": "Автовоспроизведение: ",
-    "preferences_continue_label": "Переходить к следующему видео? ",
-    "preferences_continue_autoplay_label": "Автопроигрывание следующего видео: ",
+    "preferences_continue_label": "Воспроизводить следующее видео: ",
+    "preferences_continue_autoplay_label": "Автовоспроизведение следующего видео: ",
     "preferences_listen_label": "Режим «только аудио» по умолчанию: ",
     "preferences_local_label": "Проигрывать видео через прокси? ",
     "preferences_speed_label": "Скорость видео по умолчанию: ",
@@ -513,5 +513,6 @@
     "toggle_theme": "Переключатель тем",
     "carousel_slide": "Пролистано {{current}} из {{total}}",
     "carousel_skip": "Пропустить всё",
-    "carousel_go_to": "Перейти к странице `x`"
+    "carousel_go_to": "Перейти к странице `x`",
+    "preferences_preload_label": "Предзагрузка видеоданных: "
 }
