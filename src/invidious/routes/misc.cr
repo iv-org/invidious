@@ -46,13 +46,13 @@ module Invidious::Routes::Misc
     if instance_list.empty?
       instance_url = redirect_url
     else
-      # Sample returns an array
-      # Instances are packaged as {region, domain} in the instance list
       # Filter out the current instance
       other_available_instances = instance_list.reject! { |region, domain| domain == CONFIG.domain }
 
       # If there are any other instances, select a random one
       if other_available_instances.any?
+        # Sample returns an array
+        # Instances are packaged as {region, domain} in the instance list
         instance_url = other_available_instances.sample(1)[0][1]
       else
         # If the current instance is the only one, use the redirect URL as fallback
