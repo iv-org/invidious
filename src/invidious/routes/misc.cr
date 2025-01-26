@@ -43,7 +43,7 @@ module Invidious::Routes::Misc
 
     instance_list = Invidious::Jobs::InstanceListRefreshJob::INSTANCES["INSTANCES"]
     # Filter out the current instance
-    other_available_instances = instance_list.reject! { |_, domain| domain == CONFIG.domain }
+    other_available_instances = instance_list.reject { |_, domain| domain == CONFIG.domain }
 
     if other_available_instances.empty?
       # If the current instance is the only one, use the redirect URL as fallback
