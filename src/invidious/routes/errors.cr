@@ -20,13 +20,13 @@ module Invidious::Routes::ErrorRoutes
       #  haltf env, status_code: 302
       #end
 
-      html = XML.parse_html(response.body)
-      ucid = html.xpath_node(%q(//link[@rel="canonical"])).try &.["href"].split("/")[-1]
+      #html = XML.parse_html(response.body)
+      #ucid = html.xpath_node(%q(//link[@rel="canonical"])).try &.["href"].split("/")[-1]
 
-      if ucid
-        env.response.headers["Location"] = "/channel/#{ucid}"
-        haltf env, status_code: 302
-      end
+      #if ucid
+      #  env.response.headers["Location"] = "/channel/#{ucid}"
+      #  haltf env, status_code: 302
+      #end
 
       params = [] of String
       env.params.query.each do |k, v|
