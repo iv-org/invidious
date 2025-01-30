@@ -15,10 +15,10 @@ module Invidious::Routes::ErrorRoutes
         response = YT_POOL.client &.get(URI.parse(response.headers["Location"]).request_target)
       end
 
-      if response.body.empty?
-        env.response.headers["Location"] = "/"
-        haltf env, status_code: 302
-      end
+      #if response.body.empty?
+      #  env.response.headers["Location"] = "/"
+      #  haltf env, status_code: 302
+      #end
 
       html = XML.parse_html(response.body)
       ucid = html.xpath_node(%q(//link[@rel="canonical"])).try &.["href"].split("/")[-1]
