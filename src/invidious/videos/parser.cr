@@ -36,6 +36,13 @@ def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
 
   LOGGER.trace("parse_related_video: Found \"watchNextEndScreenRenderer\" container")
 
+  if published_time_text = related["publishedTimeText"]?
+    decoded_time = decode_date(published_time_text["simpleText"].to_s)
+    published = decoded_time.to_rfc3339.to_s
+  else
+    published = nil
+  end
+
   # TODO: when refactoring video types, make a struct for related videos
   # or reuse an existing type, if that fits.
   return {
@@ -47,6 +54,7 @@ def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
     "view_count"       => JSON::Any.new(view_count || "0"),
     "short_view_count" => JSON::Any.new(short_view_count || "0"),
     "author_verified"  => JSON::Any.new(author_verified),
+    "published"        => JSON::Any.new(published || ""),
   }
 end
 

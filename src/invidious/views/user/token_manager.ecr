@@ -29,7 +29,7 @@
         </div>
         <div class="pure-u-1-5" style="text-align:right">
             <h3 style="padding-right:0.5em">
-                <form data-onsubmit="return_false" action="/token_ajax?action_revoke_token=1&session=<%= token[:session] %>&referer=<%= env.get("current_page") %>" method="post">
+                <form data-onsubmit="return_false" action="/token_ajax?action=revoke_token&session=<%= token[:session] %>&referer=<%= env.get("current_page") %>" method="post">
                     <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
                     <input style="all:unset" type="submit" data-onclick="revoke_token" data-session="<%= token[:session] %>" value="<%= translate(locale, "revoke") %>">
                 </form>
