@@ -63,7 +63,7 @@ function show_youtube_replies(event) {
 function get_youtube_comments() {
     var comments = document.getElementById('comments');
 
-    var fallback = comments.innerHTML;
+    var originalHTML = comments.innerHTML;
     comments.innerHTML = spinnerHTML;
 
     var baseUrl = video_data.base_url || '/api/v1/comments/'+ video_data.id
@@ -76,7 +76,7 @@ function get_youtube_comments() {
         url += '&ucid=' + video_data.ucid;
     }
 
-    var onNon200 = function (xhr) { comments.innerHTML = fallback; };
+    var onNon200 = function (xhr) { comments.innerHTML = originalHTML; };
     if (video_data.params.comments[1] === 'youtube')
         onNon200 = function (xhr) {};
 
@@ -142,11 +142,11 @@ function format_count_load_more(content, current_count, total_count) {
 }
 
 function format_count_toggle_replies_button(toggle_reply_button, current_count, total_count, has_more_replies) {
-    if (has_more_replies) {
-        if (current_count >= total_count) total_count = '?';
-    } else {
+    if (!has_more_replies) {
         // Accept the final current count as the total (comments may have been added or removed since loading)
         total_count = current_count;
+    } else if (current_count >= total_count) {
+        total_count = '?';
     }
 
     if (isRTL) [current_count, total_count] = [total_count, current_count];
