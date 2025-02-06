@@ -182,7 +182,7 @@ def error_redirect_helper(env : HTTP::Server::Context)
     go_to_youtube = translate(locale, "next_steps_error_message_go_to_youtube")
     switch_instance = translate(locale, "Switch Invidious Instance")
 
-    html = return <<-END_HTML
+    html = <<-END_HTML
       <p style="margin-bottom: 4px;">#{next_steps_text}</p>
       <ul>
         <li>
