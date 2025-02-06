@@ -208,6 +208,11 @@
                 <input name="automatic_instance_redirect" id="automatic_instance_redirect" type="checkbox" <% if preferences.automatic_instance_redirect %>checked<% end %>>
             </div>
 
+            <div class="pure-control-group">
+                <label for="include_youtube_links"><%= translate(locale, "preferences_include_youtube_links_label") %></label>
+                <input name="include_youtube_links" id="include_youtube_links" type="checkbox" <% if preferences.include_youtube_links %>checked<% end %>>
+            </div>
+
             <% if env.get? "user" %>
                 <legend><%= translate(locale, "preferences_category_subscription") %></legend>
 

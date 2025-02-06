@@ -415,6 +415,7 @@
     "preferences_quality_option_hd720": "HD720",
     "preferences_quality_dash_option_2160p": "2160p",
     "preferences_automatic_instance_redirect_label": "Автоматична зміна сервера (redirect.invidious.io як резерв): ",
+    "preferences_include_youtube_links_label": "Показати посилання на перенаправлення YouTube: ",
     "Switch Invidious Instance": "Інший сервер Invidious",
     "preferences_quality_dash_option_480p": "480p",
     "Chinese (Taiwan)": "Китайська (Тайвань)",

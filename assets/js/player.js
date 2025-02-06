@@ -136,11 +136,14 @@ player.on('timeupdate', function () {
     let elem_yt_watch = document.getElementById('link-yt-watch');
     let elem_yt_embed = document.getElementById('link-yt-embed');
 
-    let base_url_yt_watch = elem_yt_watch.getAttribute('data-base-url');
-    let base_url_yt_embed = elem_yt_embed.getAttribute('data-base-url');
-
-    elem_yt_watch.href = addCurrentTimeToURL(base_url_yt_watch);
-    elem_yt_embed.href = addCurrentTimeToURL(base_url_yt_embed);
+    // YT links could be turned off by the user
+    if (elem_yt_watch) {
+        let base_url_yt_watch = elem_yt_watch.getAttribute('data-base-url');
+        let base_url_yt_embed = elem_yt_embed.getAttribute('data-base-url');
+    
+        elem_yt_watch.href = addCurrentTimeToURL(base_url_yt_watch);
+        elem_yt_embed.href = addCurrentTimeToURL(base_url_yt_embed);
+    }
 
     // Invidious links
 
@@ -174,7 +177,7 @@ var shareOptions = {
 };
 
 if (location.pathname.startsWith('/embed/')) {
-    var overlay_content = '<h1><a rel="noopener" target="_blank" href="' + location.origin + '/watch?v=' + video_data.id + '">' + player_data.title + '</a></h1>';
+    var overlay_content = '<h1><a rel="noopener noreferrer" target="_blank" href="' + location.origin + '/watch?v=' + video_data.id + '">' + player_data.title + '</a></h1>';
     player.overlay({
         overlays: [
             { start: 'loadstart', content: overlay_content, end: 'playing', align: 'top'},

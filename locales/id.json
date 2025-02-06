@@ -78,6 +78,7 @@
     "preferences_thin_mode_label": "Mode tipis: ",
     "preferences_category_misc": "Preferensi lainnya",
     "preferences_automatic_instance_redirect_label": "Pengalihan peladen otomatis (balik kembali ke redirect.invidious.io): ",
+    "preferences_include_youtube_links_label": "Tampilkan tautan pengalihan YouTube: ",
     "preferences_category_subscription": "Preferensi langganan",
     "preferences_annotations_subscribed_label": "Tampilkan anotasi secara baku untuk kanal yang dilanggan? ",
     "Redirect homepage to feed: ": "Arahkan kembali laman beranda ke umpan: ",

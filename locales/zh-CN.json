@@ -78,6 +78,7 @@
     "preferences_thin_mode_label": "窄页模式: ",
     "preferences_category_misc": "其他选项",
     "preferences_automatic_instance_redirect_label": "自动实例重定向 (回退到redirect.invidious.io): ",
+    "preferences_include_youtube_links_label": "显示YouTube重定向链接: ",
     "preferences_category_subscription": "订阅设置",
     "preferences_annotations_subscribed_label": "默认情况下显示已订阅频道的注释: ",
     "Redirect homepage to feed: ": "跳转主页到 feed: ",

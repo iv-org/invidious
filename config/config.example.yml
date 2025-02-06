@@ -939,6 +939,20 @@ default_user_preferences:
   #automatic_instance_redirect: false
 
   ##
+  ## Display YouTube redirect links on pages where they are provided.
+  ##   - Watch on Youtube (video page) 
+  ##   - [YT] Comment link (comments)
+  ##   - After which you should try to page (error page)
+  ##   - watch on youtube button (search results page)
+  ##   - View channel on YouTube (channel page)
+  ##   - View playlist on YouTube (playlist page)
+  ##
+  ## Accepted values: true, false
+  ## Default: true
+  ##
+  #include_youtube_links: true
+
+  ##
   ## Show the entire video description by default (when set to 'false',
   ## only the first few lines of the description are shown and a
   ## "show more" button allows to expand it).

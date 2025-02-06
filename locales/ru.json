@@ -73,6 +73,7 @@
     "preferences_thin_mode_label": "Облегчённое оформление: ",
     "preferences_category_misc": "Прочие настройки",
     "preferences_automatic_instance_redirect_label": "Автоматическая смена зеркала (переход на redirect.invidious.io): ",
+    "preferences_include_youtube_links_label": "Показать ссылки перенаправления на YouTube: ",
     "preferences_category_subscription": "Настройки подписок",
     "preferences_annotations_subscribed_label": "Всегда показывать аннотации на каналах из ваших подписок? ",
     "Redirect homepage to feed: ": "Показывать подписки на главной странице: ",

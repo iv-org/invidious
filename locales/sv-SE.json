@@ -476,6 +476,7 @@
     "preferences_quality_dash_option_240p": "240p",
     "Chinese": "Kinesiska",
     "preferences_automatic_instance_redirect_label": "Automatisk instansomdirigering (återgång till redirect.invidious.io): ",
+    "preferences_include_youtube_links_label": "Visa omdirigeringslänkar för YouTube: ",
     "generic_button_delete": "Radera",
     "Import YouTube playlist (.csv)": "Importera YouTube spellista (.csv)",
     "next_steps_error_message": "Därefter bör du försöka: ",

@@ -320,6 +320,7 @@ module Invidious::Routes::API::V1::Videos
 
   def self.comments(env)
     locale = env.get("preferences").as(Preferences).locale
+    include_youtube_links = env.get("preferences").as(Preferences).include_youtube_links
     region = env.params.query["region"]?
 
     env.response.content_type = "application/json"
@@ -345,7 +346,7 @@ module Invidious::Routes::API::V1::Videos
       sort_by ||= "top"
 
       begin
-        comments = Comments.fetch_youtube(id, continuation, format, locale, thin_mode, region, sort_by: sort_by)
+        comments = Comments.fetch_youtube(id, continuation, format, locale, thin_mode, region, include_youtube_links, sort_by: sort_by)
       rescue ex : NotFoundException
         return error_json(404, ex)
       rescue ex

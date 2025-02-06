@@ -372,6 +372,7 @@
     "preferences_quality_dash_option_1080p": "1080p",
     "preferences_category_misc": "Setări diverse",
     "preferences_automatic_instance_redirect_label": "Redirecționare automată de instanță (trecere prin redirect.invidious.io): ",
+    "preferences_include_youtube_links_label": "Afișați linkurile de redirecționare YouTube: ",
     "preferences_quality_dash_option_480p": "480p",
     "preferences_quality_option_medium": "Medie",
     "Switch Invidious Instance": "Schimbă instanța Invidious",

@@ -130,6 +130,7 @@
     "preferences_thin_mode_label": "हल्का मोड: ",
     "preferences_category_misc": "विविध प्राथमिकताएँ",
     "preferences_automatic_instance_redirect_label": "अपने आप अनुप्रेषित करें (redirect.invidious.io पर फ़ॉलबैक करें): ",
+    "preferences_include_youtube_links_label": "यूट्यूब रीडायरेक्ट लिंक दिखाएं: ",
     "preferences_category_subscription": "सदस्यताओं की प्राथमिकताएँ",
     "preferences_annotations_subscribed_label": "सदस्यता लिए गए चैनलों पर डिफ़ॉल्ट से टिप्पणियाँ दिखाएँ? ",
     "Redirect homepage to feed: ": "फ़ीड पर मुखपृष्ठ को अनुप्रेषित करें: ",

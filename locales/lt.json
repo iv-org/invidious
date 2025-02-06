@@ -73,6 +73,7 @@
     "preferences_thin_mode_label": "Sugretintas rėžimas: ",
     "preferences_category_misc": "Įvairios nuostatos",
     "preferences_automatic_instance_redirect_label": "Automatinis šaltinio nukreipimas (atsarginis nukreipimas į redirect.Invidous.io): ",
+    "preferences_include_youtube_links_label": "Rodyti YouTube nukreipimo nuorodas: ",
     "preferences_category_subscription": "Prenumeratų nuostatos",
     "preferences_annotations_subscribed_label": "Prenumeruojamiems kanalams subtitrus rodyti pagal nutylėjimą: ",
     "Redirect homepage to feed: ": "Peradresuoti pagrindinį puslapį į kanalų sąrašą: ",

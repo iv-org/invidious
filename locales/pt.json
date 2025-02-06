@@ -10,6 +10,7 @@
     "Released under the AGPLv3 on Github.": "Disponibilizada sob a AGPLv3 no GitHub.",
     "preferences_show_nick_label": "Mostrar nome de utilizador em cima: ",
     "preferences_automatic_instance_redirect_label": "Redirecionamento de instância automática (solução de último recurso para redirect.invidious.io): ",
+    "preferences_include_youtube_links_label": "Mostrar links de redirecionamento do YouTube: ",
     "preferences_category_misc": "Preferências diversas",
     "preferences_vr_mode_label": "Vídeos interativos de 360 graus (requer WebGL): ",
     "preferences_extend_desc_label": "Expandir automaticamente a descrição do vídeo: ",

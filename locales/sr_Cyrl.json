@@ -317,6 +317,7 @@
     "Released under the AGPLv3 on Github.": "Објављено под лиценцом AGPLv3 на GitHub-у.",
     "Afrikaans": "Африканс",
     "preferences_automatic_instance_redirect_label": "Аутоматско преусмеравање инстанце (повратак на redirect.invidious.io): ",
+    "preferences_include_youtube_links_label": "Прикажи линкове за преусмеравање на YouTube-у: ",
     "Please log in": "Молимо, пријавите се",
     "English (auto-generated)": "Енглески (аутоматски генерисано)",
     "Hindi": "Хинди",

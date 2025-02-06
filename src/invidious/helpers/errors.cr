@@ -182,7 +182,7 @@ def error_redirect_helper(env : HTTP::Server::Context)
     go_to_youtube = translate(locale, "next_steps_error_message_go_to_youtube")
     switch_instance = translate(locale, "Switch Invidious Instance")
 
-    return <<-END_HTML
+    html = return <<-END_HTML
       <p style="margin-bottom: 4px;">#{next_steps_text}</p>
       <ul>
         <li>
@@ -191,11 +191,21 @@ def error_redirect_helper(env : HTTP::Server::Context)
         <li>
           <a href="/redirect?referer=#{env.get("current_page")}">#{switch_instance}</a>
         </li>
+    END_HTML
+
+    if env.get("preferences").as(Preferences).include_youtube_links
+      html += <<-END_HTML
         <li>
           <a rel="noreferrer noopener" href="https://youtube.com#{env.request.resource}">#{go_to_youtube}</a>
         </li>
+      END_HTML
+    end
+
+    html += <<-END_HTML
       </ul>
     END_HTML
+
+    return html
   else
     return ""
   end

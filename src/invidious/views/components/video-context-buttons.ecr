@@ -1,8 +1,11 @@
 <div class="flex-right flexible">
     <div class="icon-buttons">
-        <a title="<%=translate(locale, "videoinfo_watch_on_youTube")%>" rel="noreferrer noopener" href="https://www.youtube.com/watch<%=endpoint_params%>">
-            <i class="icon ion-logo-youtube"></i>
-        </a>
+        <% if env.get("preferences").as(Preferences).include_youtube_links%>
+            <a title="<%=translate(locale, "videoinfo_watch_on_youTube")%>" rel="noreferrer noopener" href="https://www.youtube.com/watch<%=endpoint_params%>">
+                <i class="icon ion-logo-youtube"></i>
+            </a>
+        <% end %>
+
         <a title="<%=translate(locale, "Audio mode")%>" href="/watch<%=endpoint_params%>&listen=1">
             <i class="icon ion-md-headset"></i>
         </a>

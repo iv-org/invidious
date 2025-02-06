@@ -73,6 +73,7 @@
     "preferences_thin_mode_label": "İnce Mod: ",
     "preferences_category_misc": "Çeşitli Tercihler",
     "preferences_automatic_instance_redirect_label": "Otomatik Örnek Yeniden Yönlendirmesi (Yedek: redirect.invidious.io): ",
+    "preferences_include_youtube_links_label": "Youtube yönlendirme bağlantılarını göster: ",
     "preferences_category_subscription": "Abonelik Tercihleri",
     "preferences_annotations_subscribed_label": "Abone Olunan Kanallar İçin Ek Açıklamaları Öntanımlı Olarak Göster: ",
     "Redirect homepage to feed: ": "Ana Sayfayı Akışa Yönlendir: ",

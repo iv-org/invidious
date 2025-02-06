@@ -481,6 +481,7 @@
     "error_video_not_in_playlist": "Το αιτούμενο βίντεο δεν υπάρχει στη δεδομένη λίστα αναπαραγωγής. <a href=\"`x`\">Πατήστε εδώ για επιστροφή στη κεντρική σελίδα λιστών αναπαραγωγής.</a>",
     "search_filters_duration_option_none": "Οποιαδήποτε διάρκεια",
     "preferences_automatic_instance_redirect_label": "Αυτόματη ανακατεύθυνση instance (εναλλακτική σε redirect.invidious.io): ",
+    "preferences_include_youtube_links_label": "Εμφάνιση συνδέσμων ανακατεύθυνσης YouTube: ",
     "generic_button_delete": "Διαγραφή",
     "Import YouTube playlist (.csv)": "Εισαγωγή λίστας αναπαραγωγής YouTube (.csv)",
     "Switch Invidious Instance": "Αλλαγή Instance Invidious",

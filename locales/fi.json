@@ -73,6 +73,7 @@
     "preferences_thin_mode_label": "Kapea tila: ",
     "preferences_category_misc": "Sekalaiset asetukset",
     "preferences_automatic_instance_redirect_label": "Automaattinen instanssin uudelleenohjaus (perääntyminen sivulle redirect.invidious.io): ",
+    "preferences_include_youtube_links_label": "Näytä YouTuben uudelleenohjauslinkit: ",
     "preferences_category_subscription": "Tilausten asetukset",
     "preferences_annotations_subscribed_label": "Näytä oletuksena tilattujen kanavien huomautukset: ",
     "Redirect homepage to feed: ": "Uudelleenohjaa kotisivu syötteeseen: ",

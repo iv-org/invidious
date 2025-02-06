@@ -7,6 +7,7 @@ struct Preferences
   property preload : Bool = CONFIG.default_user_preferences.preload
   property autoplay : Bool = CONFIG.default_user_preferences.autoplay
   property automatic_instance_redirect : Bool = CONFIG.default_user_preferences.automatic_instance_redirect
+  property include_youtube_links : Bool = CONFIG.default_user_preferences.include_youtube_links
 
   @[JSON::Field(converter: Preferences::StringToArray)]
   @[YAML::Field(converter: Preferences::StringToArray)]

@@ -155,6 +155,7 @@
     "preferences_thin_mode_label": "Kompaktni režim: ",
     "preferences_category_misc": "Ostala podešavanja",
     "preferences_automatic_instance_redirect_label": "Automatsko preusmeravanje instance (povratak na redirect.invidious.io): ",
+    "preferences_include_youtube_links_label": "Prikaži linkove za preusmeravanje na YouTube: ",
     "alphabetically - reverse": "abecedno - obrnuto",
     "Enable web notifications": "Omogući veb obaveštenja",
     "`x` is live": "`x` je uživo",

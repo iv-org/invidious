@@ -370,6 +370,7 @@ module Invidious::Routes::API::V1::Channels
 
   def self.community(env)
     locale = env.get("preferences").as(Preferences).locale
+    include_youtube_links = env.get("preferences").as(Preferences).include_youtube_links
 
     env.response.content_type = "application/json"
 
@@ -385,7 +386,7 @@ module Invidious::Routes::API::V1::Channels
     # sort_by = env.params.query["sort_by"]?.try &.downcase
 
     begin
-      fetch_channel_community(ucid, continuation, locale, format, thin_mode)
+      fetch_channel_community(ucid, continuation, locale, format, thin_mode, include_youtube_links)
     rescue ex
       return error_json(500, ex)
     end
@@ -393,6 +394,7 @@ module Invidious::Routes::API::V1::Channels
 
   def self.post(env)
     locale = env.get("preferences").as(Preferences).locale
+    include_youtube_links = env.get("preferences").as(Preferences).include_youtube_links
 
     env.response.content_type = "application/json"
     id = env.params.url["id"].to_s
@@ -413,7 +415,7 @@ module Invidious::Routes::API::V1::Channels
     end
 
     begin
-      fetch_channel_community_post(ucid, id, locale, format, thin_mode)
+      fetch_channel_community_post(ucid, id, locale, format, thin_mode, include_youtube_links)
     rescue ex
       return error_json(500, ex)
     end
@@ -421,6 +423,7 @@ module Invidious::Routes::API::V1::Channels
 
   def self.post_comments(env)
     locale = env.get("preferences").as(Preferences).locale
+    include_youtube_links = env.get("preferences").as(Preferences).include_youtube_links
 
     env.response.content_type = "application/json"
 
@@ -441,7 +444,7 @@ module Invidious::Routes::API::V1::Channels
     else
       comments = YoutubeAPI.browse(continuation: continuation)
     end
-    return Comments.parse_youtube(id, comments, format, locale, thin_mode, is_post: true)
+    return Comments.parse_youtube(id, comments, format, locale, thin_mode, include_youtube_links, is_post: true)
   end
 
   def self.channels(env)
