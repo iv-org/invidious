@@ -8,7 +8,7 @@ module Invidious::Frontend::ChannelPage
     Podcasts
     Releases
     Playlists
-    Community
+    Posts
     Channels
   end
 

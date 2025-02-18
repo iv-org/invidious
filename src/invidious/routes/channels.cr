@@ -198,6 +198,8 @@ module Invidious::Routes::Channels
   end
 
   def self.community(env)
+    return env.redirect env.request.path.sub("posts", "community") if env.request.path.split("/").last == "posts"
+
     data = self.fetch_basic_information(env)
     if !data.is_a?(Tuple)
       return data
@@ -214,7 +216,7 @@ module Invidious::Routes::Channels
 
     continuation = env.params.query["continuation"]?
 
-    if !channel.tabs.includes? "community"
+    if !channel.tabs.includes? "community" && "posts"
       return env.redirect "/channel/#{channel.ucid}"
     end
 
@@ -308,6 +310,7 @@ module Invidious::Routes::Channels
   private KNOWN_TABS = {
     "home", "videos", "shorts", "streams", "podcasts",
     "releases", "playlists", "community", "channels", "about",
+    "posts",
   }
 
   # Redirects brand url channels to a normal /channel/:ucid route
