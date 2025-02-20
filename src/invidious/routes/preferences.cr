@@ -114,6 +114,10 @@ module Invidious::Routes::PreferencesRoute
     automatic_instance_redirect ||= "off"
     automatic_instance_redirect = automatic_instance_redirect == "on"
 
+    include_youtube_links = env.params.body["include_youtube_links"]?.try &.as(String)
+    include_youtube_links ||= "off"
+    include_youtube_links = include_youtube_links == "on"
+
     region = env.params.body["region"]?.try &.as(String)
 
     locale = env.params.body["locale"]?.try &.as(String)
@@ -168,6 +172,7 @@ module Invidious::Routes::PreferencesRoute
       default_home:                default_home,
       feed_menu:                   feed_menu,
       automatic_instance_redirect: automatic_instance_redirect,
+      include_youtube_links:       include_youtube_links,
       region:                      region,
       related_videos:              related_videos,
       sort:                        sort,

@@ -1,7 +1,7 @@
 module Invidious::Comments
   extend self
 
-  def fetch_youtube(id, cursor, format, locale, thin_mode, region, sort_by = "top")
+  def fetch_youtube(id, cursor, format, locale, thin_mode, region, include_youtube_links, sort_by = "top")
     case cursor
     when nil, ""
       ctoken = Comments.produce_continuation(id, cursor: "", sort_by: sort_by)
@@ -13,7 +13,7 @@ module Invidious::Comments
 
     client_config = YoutubeAPI::ClientConfig.new(region: region)
     response = YoutubeAPI.next(continuation: ctoken, client_config: client_config)
-    return parse_youtube(id, response, format, locale, thin_mode, sort_by)
+    return parse_youtube(id, response, format, locale, thin_mode, include_youtube_links, sort_by)
   end
 
   def fetch_community_post_comments(ucid, post_id)
@@ -57,7 +57,7 @@ module Invidious::Comments
     return initial_data
   end
 
-  def parse_youtube(id, response, format, locale, thin_mode, sort_by = "top", is_post = false)
+  def parse_youtube(id, response, format, locale, thin_mode, include_youtube_links, sort_by = "top", is_post = false)
     contents = nil
 
     if on_response_received_endpoints = response["onResponseReceivedEndpoints"]?
@@ -302,7 +302,7 @@ module Invidious::Comments
 
     if format == "html"
       response = JSON.parse(response)
-      content_html = Frontend::Comments.template_youtube(response, locale, thin_mode)
+      content_html = Frontend::Comments.template_youtube(response, locale, thin_mode, include_youtube_links)
       response = JSON.build do |json|
         json.object do
           json.field "contentHtml", content_html

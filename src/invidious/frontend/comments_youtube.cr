@@ -1,7 +1,7 @@
 module Invidious::Frontend::Comments
   extend self
 
-  def template_youtube(comments, locale, thin_mode, is_replies = false)
+  def template_youtube(comments, locale, thin_mode, include_youtube_links, is_replies = false)
     String.build do |html|
       root = comments["comments"].as_a
       root.each do |child|
@@ -147,16 +147,18 @@ module Invidious::Frontend::Comments
           |
         END_HTML
 
-        if comments["videoId"]?
-          html << <<-END_HTML
-            <a rel="noreferrer noopener" href="https://www.youtube.com/watch?v=#{comments["videoId"]}&lc=#{child["commentId"]}" title="#{translate(locale, "YouTube comment permalink")}">[YT]</a>
-            |
-          END_HTML
-        elsif comments["authorId"]?
-          html << <<-END_HTML
-            <a rel="noreferrer noopener" href="https://www.youtube.com/channel/#{comments["authorId"]}/community?lb=#{child["commentId"]}" title="#{translate(locale, "YouTube comment permalink")}">[YT]</a>
-            |
-          END_HTML
+        if include_youtube_links
+          if comments["videoId"]?
+            html << <<-END_HTML
+              <a rel="noreferrer noopener" href="https://www.youtube.com/watch?v=#{comments["videoId"]}&lc=#{child["commentId"]}" title="#{translate(locale, "YouTube comment permalink")}">[YT]</a>
+              |
+            END_HTML
+          elsif comments["authorId"]?
+            html << <<-END_HTML
+              <a rel="noreferrer noopener" href="https://www.youtube.com/channel/#{comments["authorId"]}/community?lb=#{child["commentId"]}" title="#{translate(locale, "YouTube comment permalink")}">[YT]</a>
+              |
+            END_HTML
+          end
         end
 
         html << <<-END_HTML

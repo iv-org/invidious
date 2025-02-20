@@ -83,20 +83,22 @@
 
         <% if !playlist.is_a? InvidiousPlaylist %>
             <div class="pure-u-2-3">
+                <% if env.get("preferences").as(Preferences).include_youtube_links%>
                     <a rel="noreferrer noopener" href="https://www.youtube.com/playlist?list=<%= playlist.id %>">
                         <%= translate(locale, "View playlist on YouTube") %>
                     </a>
                     <span> | </span>
+                <% end %>
 
-                    <% if env.get("preferences").as(Preferences).automatic_instance_redirect%>
-                        <a href="/redirect?referer=<%= env.get?("current_page") %>">
-                            <%= translate(locale, "Switch Invidious Instance") %>
-                        </a>
-                    <% else %>
-                        <a href="https://redirect.invidious.io/playlist?list=<%= playlist.id %>">
-                            <%= translate(locale, "Switch Invidious Instance") %>
-                        </a>
-                    <% end %>
+                <% if env.get("preferences").as(Preferences).automatic_instance_redirect%>
+                    <a href="/redirect?referer=<%= env.get?("current_page") %>">
+                        <%= translate(locale, "Switch Invidious Instance") %>
+                    </a>
+                <% else %>
+                    <a href="https://redirect.invidious.io/playlist?list=<%= playlist.id %>">
+                        <%= translate(locale, "Switch Invidious Instance") %>
+                    </a>
+                <% end %>
             </div>
         <% end %>
     </div>

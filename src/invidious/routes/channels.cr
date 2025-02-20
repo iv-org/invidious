@@ -212,6 +212,8 @@ module Invidious::Routes::Channels
     thin_mode = env.params.query["thin_mode"]? || env.get("preferences").as(Preferences).thin_mode
     thin_mode = thin_mode == "true"
 
+    include_youtube_links = env.get("preferences").as(Preferences).include_youtube_links
+
     continuation = env.params.query["continuation"]?
 
     if !channel.tabs.includes? "community"
@@ -223,7 +225,7 @@ module Invidious::Routes::Channels
     sort_options = [] of String
 
     begin
-      items = JSON.parse(fetch_channel_community(ucid, continuation, locale, "json", thin_mode))
+      items = JSON.parse(fetch_channel_community(ucid, continuation, locale, "json", thin_mode, include_youtube_links))
     rescue ex : InfoException
       env.response.status_code = 500
       error_message = ex.message
@@ -245,6 +247,7 @@ module Invidious::Routes::Channels
     prefs = env.get("preferences").as(Preferences)
 
     locale = prefs.locale
+    include_youtube_links = prefs.include_youtube_links
 
     thin_mode = env.params.query["thin_mode"]? || prefs.thin_mode
     thin_mode = thin_mode == "true"
@@ -256,21 +259,19 @@ module Invidious::Routes::Channels
 
     if !ucid.nil?
       ucid = ucid.to_s
-      post_response = fetch_channel_community_post(ucid, id, locale, "json", thin_mode)
     else
       # resolve the url to get the author's UCID
       response = YoutubeAPI.resolve_url("https://www.youtube.com/post/#{id}")
       return error_template(400, "Invalid post ID") if response["error"]?
 
       ucid = response.dig("endpoint", "browseEndpoint", "browseId").as_s
-      post_response = fetch_channel_community_post(ucid, id, locale, "json", thin_mode)
     end
 
-    post_response = JSON.parse(post_response)
+    post_response = JSON.parse(fetch_channel_community_post(ucid, id, locale, "json", thin_mode, include_youtube_links))
 
     if nojs
       comments = Comments.fetch_community_post_comments(ucid, id)
-      comment_html = JSON.parse(Comments.parse_youtube(id, comments, "html", locale, thin_mode, is_post: true))["contentHtml"]
+      comment_html = JSON.parse(Comments.parse_youtube(id, comments, "html", locale, thin_mode, include_youtube_links, is_post: true))["contentHtml"]
     end
     templated "post"
   end

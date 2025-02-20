@@ -1,7 +1,7 @@
 private IMAGE_QUALITIES = {320, 560, 640, 1280, 2000}
 
 # TODO: Add "sort_by"
-def fetch_channel_community(ucid, cursor, locale, format, thin_mode)
+def fetch_channel_community(ucid, cursor, locale, format, thin_mode, include_youtube_links)
   if cursor.nil?
     # Egljb21tdW5pdHk%3D is the protobuf object to load "community"
     initial_data = YoutubeAPI.browse(ucid, params: "Egljb21tdW5pdHk%3D")
@@ -21,10 +21,10 @@ def fetch_channel_community(ucid, cursor, locale, format, thin_mode)
     items = container.as_a
   end
 
-  return extract_channel_community(items, ucid: ucid, locale: locale, format: format, thin_mode: thin_mode)
+  return extract_channel_community(items, ucid: ucid, locale: locale, format: format, thin_mode: thin_mode, include_youtube_links: include_youtube_links)
 end
 
-def fetch_channel_community_post(ucid, post_id, locale, format, thin_mode)
+def fetch_channel_community_post(ucid, post_id, locale, format, thin_mode, include_youtube_links)
   object = {
     "2:string"    => "community",
     "25:embedded" => {
@@ -47,10 +47,10 @@ def fetch_channel_community_post(ucid, post_id, locale, format, thin_mode)
     items << item
   end
 
-  return extract_channel_community(items, ucid: ucid, locale: locale, format: format, thin_mode: thin_mode, is_single_post: true)
+  return extract_channel_community(items, ucid: ucid, locale: locale, format: format, thin_mode: thin_mode, include_youtube_links: include_youtube_links, is_single_post: true)
 end
 
-def extract_channel_community(items, *, ucid, locale, format, thin_mode, is_single_post : Bool = false)
+def extract_channel_community(items, *, ucid, locale, format, thin_mode, include_youtube_links, is_single_post : Bool = false)
   if message = items[0]["messageRenderer"]?
     error_message = (message["text"]["simpleText"]? ||
                      message["text"]["runs"]?.try &.[0]?.try &.["text"]?)
@@ -279,7 +279,7 @@ def extract_channel_community(items, *, ucid, locale, format, thin_mode, is_sing
 
   if format == "html"
     response = JSON.parse(response)
-    content_html = IV::Frontend::Comments.template_youtube(response, locale, thin_mode)
+    content_html = IV::Frontend::Comments.template_youtube(response, locale, thin_mode, include_youtube_links)
 
     response = JSON.build do |json|
       json.object do

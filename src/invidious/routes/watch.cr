@@ -2,8 +2,12 @@
 
 module Invidious::Routes::Watch
   def self.handle(env)
-    locale = env.get("preferences").as(Preferences).locale
+    preferences = env.get("preferences").as(Preferences)
+
+    locale = preferences.locale
+    thin_mode = preferences.thin_mode
     region = env.params.query["region"]?
+    include_youtube_links = preferences.include_youtube_links
 
     if env.params.query.to_s.includes?("%20") || env.params.query.to_s.includes?("+")
       url = "/watch?" + env.params.query.to_s.gsub("%20", "").delete("+")
@@ -37,8 +41,6 @@ module Invidious::Routes::Watch
 
     nojs ||= "0"
     nojs = nojs == "1"
-
-    preferences = env.get("preferences").as(Preferences)
 
     user = env.get?("user").try &.as(User)
     if user
@@ -87,7 +89,7 @@ module Invidious::Routes::Watch
 
         if source == "youtube"
           begin
-            comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
+            comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, thin_mode, region, include_youtube_links))["contentHtml"]
           rescue ex
             if preferences.comments[1] == "reddit"
               comments, reddit_thread = Comments.fetch_reddit(id)
@@ -106,12 +108,12 @@ module Invidious::Routes::Watch
             comment_html = Comments.replace_links(comment_html)
           rescue ex
             if preferences.comments[1] == "youtube"
-              comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
+              comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, thin_mode, region, include_youtube_links))["contentHtml"]
             end
           end
         end
       else
-        comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
+        comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, thin_mode, region, include_youtube_links))["contentHtml"]
       end
 
       comment_html ||= ""
