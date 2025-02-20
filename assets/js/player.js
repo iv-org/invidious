@@ -2,16 +2,9 @@
 var player_data = JSON.parse(document.getElementById('player_data').textContent);
 var video_data = JSON.parse(document.getElementById('video_data').textContent);
 
-var player_css = [...Array.from(document.styleSheets).find(sS => sS.href?.includes('player.css')).cssRules]
-var caption_background_css = player_css.find(rule => rule.selectorText === '.vjs-text-track-display > div > div');
-var caption_text_css = player_css.find(rule => rule.selectorText === '.video-js .vjs-text-track-display > div > div > div');
-
 var options = {
     liveui: true,
     playbackRates: [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0],
-    captionSizes: ['22px', '27px', '32px', '37px'],
-    captionBackground: [0, 0.5, 0.8, 1].map(a => 'rgba(0, 0, 0, ' + a + ')'),
-    captionOpacity: [0.4, 0.7, 1].map(a => 'rgba(255, 255, 255, ' + a + ')'),
     controlBar: {
         children: [
             'playToggle',
@@ -143,11 +136,14 @@ player.on('timeupdate', function () {
     let elem_yt_watch = document.getElementById('link-yt-watch');
     let elem_yt_embed = document.getElementById('link-yt-embed');
 
-    let base_url_yt_watch = elem_yt_watch.getAttribute('data-base-url');
-    let base_url_yt_embed = elem_yt_embed.getAttribute('data-base-url');
+    // YT links could be turned off by the user
+    if (elem_yt_watch) {
+        let base_url_yt_watch = elem_yt_watch.getAttribute('data-base-url');
+        let base_url_yt_embed = elem_yt_embed.getAttribute('data-base-url');
 
-    elem_yt_watch.href = addCurrentTimeToURL(base_url_yt_watch);
-    elem_yt_embed.href = addCurrentTimeToURL(base_url_yt_embed);
+        elem_yt_watch.href = addCurrentTimeToURL(base_url_yt_watch);
+        elem_yt_embed.href = addCurrentTimeToURL(base_url_yt_embed);
+    }
 
     // Invidious links
 
@@ -181,7 +177,7 @@ var shareOptions = {
 };
 
 if (location.pathname.startsWith('/embed/')) {
-    var overlay_content = '<h1><a rel="noopener" target="_blank" href="' + location.origin + '/watch?v=' + video_data.id + '">' + player_data.title + '</a></h1>';
+    var overlay_content = '<h1><a rel="noopener noreferrer" target="_blank" href="' + location.origin + '/watch?v=' + video_data.id + '">' + player_data.title + '</a></h1>';
     player.overlay({
         overlays: [
             { start: 'loadstart', content: overlay_content, end: 'playing', align: 'top'},
@@ -598,31 +594,6 @@ function increase_playback_rate(steps) {
     player.playbackRate(options.playbackRates[newIndex]);
 }
 
-function increase_caption_size(steps) {
-    const maxIndex = options.captionSizes.length - 1;
-    const font_size = caption_text_css.style.getPropertyValue('font-size');
-    const curIndex = options.captionSizes.indexOf(font_size);
-    let newIndex = curIndex + steps;
-    newIndex = helpers.clamp(newIndex, 0, maxIndex);
-    caption_text_css.style.setProperty('font-size', options.captionSizes[newIndex], 'important');
-}
-
-function toggle_caption_window() {
-    const numOptions = options.captionBackground.length;
-    const backgroundColor = caption_background_css.style.getPropertyValue('background-color');
-    const curIndex = options.captionBackground.indexOf(backgroundColor);
-    const newIndex = (curIndex + 1) % numOptions;
-    caption_background_css.style.setProperty('background-color', options.captionBackground[newIndex], 'important');
-}
-
-function toggle_caption_opacity() {
-    const numOptions = options.captionOpacity.length;
-    const opacity = caption_text_css.style.getPropertyValue('color');
-    const curIndex = options.captionOpacity.indexOf(opacity);
-    const newIndex = (curIndex + 1) % numOptions;
-    caption_text_css.style.setProperty('color', options.captionOpacity[newIndex], 'important');
-}
-
 addEventListener('keydown', function (e) {
     if (e.target.tagName.toLowerCase() === 'input') {
         // Ignore input when focus is on certain elements, e.g. form fields.
@@ -718,12 +689,6 @@ addEventListener('keydown', function (e) {
 
         case '>': action = increase_playback_rate.bind(this, 1); break;
         case '<': action = increase_playback_rate.bind(this, -1); break;
-        
-        case '=': action = increase_caption_size.bind(this, 1); break;
-        case '-': action = increase_caption_size.bind(this, -1); break;
-
-        case 'w': action = toggle_caption_window; break;
-        case 'o': action = toggle_caption_opacity; break;
 
         default:
             console.info('Unhandled key down event: %s:', decoratedKey, e);

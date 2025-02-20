@@ -71,10 +71,8 @@
   padding-top: 2em
 }
 
-.video-js.player-style-youtube .vjs-progress-control .vjs-progress-holder, .video-js.player-style-youtube .vjs-progress-control {
-  height: 5px;
-  margin-bottom: 10px;
-}
+.video-js.player-style-youtube .vjs-progress-control .vjs-progress-holder, .video-js.player-style-youtube .vjs-progress-control {height: 5px;
+  margin-bottom: 10px;}
 
 ul.vjs-menu-content::-webkit-scrollbar {
   display: none;
@@ -85,19 +83,10 @@ ul.vjs-menu-content::-webkit-scrollbar {
 }
 
 /* Customizable CSS in player.js */
-.vjs-text-track-display > div > div
-{
-  background-color: rgba(0, 0, 0, 0); /* caption window background: toggle with "w" event */
-}
-
-/* Customizable CSS in player.js */
 .video-js .vjs-text-track-display > div > div > div {
-  font-size: 27px !important; /* caption size Toggle with "-/=" event */
-  background-color: rgba(0, 0, 0, 0.75) !important; /* caption background: toggle with "w" event */
-  color: rgb(255, 255, 255, 1) !important; /* caption text: toggle with "o" event */
+  background-color: rgba(0, 0, 0, 0.75) !important;
   border-radius: 9px !important;
   padding: 5px !important;
-  line-height: 1.5 !important;
 }
 
 .vjs-play-control,
