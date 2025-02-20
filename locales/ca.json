@@ -140,7 +140,6 @@
     "Default": "Per defecte",
     "Amharic": "Amàric",
     "preferences_automatic_instance_redirect_label": "Redirecció automàtica d'instàncies (retorna a redirect.invidious.io): ",
-    "preferences_include_youtube_links_label": "Mostra els enllaços de redirecció de YouTube: ",
     "Login enabled: ": "Activa inici de sessió: ",
     "Registration enabled: ": "Activa registre: ",
     "Whitelisted regions: ": "Regions a la llista blanca: ",

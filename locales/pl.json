@@ -73,7 +73,6 @@
     "preferences_thin_mode_label": "Tryb minimalny: ",
     "preferences_category_misc": "Różne preferencje",
     "preferences_automatic_instance_redirect_label": "Automatycznie przekierowanie instancji (powrót do redirect.invidious.io): ",
-    "preferences_include_youtube_links_label": "Pokaż linki przekierowujące do YouTube: ",
     "preferences_category_subscription": "Preferencje subskrypcji",
     "preferences_annotations_subscribed_label": "Domyślnie wyświetlaj adnotacje dla subskrybowanych kanałów: ",
     "Redirect homepage to feed: ": "Przekieruj stronę główną do subskrybcji: ",

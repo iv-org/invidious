@@ -344,7 +344,6 @@
     "Current version: ": "Huidige versie: ",
     "Switch Invidious Instance": "Schakel tussen de Invidious Instanties",
     "preferences_automatic_instance_redirect_label": "Automatische instantie-omleiding (terugval naar redirect.invidious.io): ",
-    "preferences_include_youtube_links_label": "Toon YouTube-omleidingslinks: ",
     "preferences_quality_dash_label": "Gewenste DASH-videokwaliteit: ",
     "preferences_region_label": "Inhoud land: ",
     "preferences_category_misc": "Diverse voorkeuren",

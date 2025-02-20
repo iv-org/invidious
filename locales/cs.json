@@ -422,7 +422,6 @@
     "Erroneous CAPTCHA": "Chybná CAPTCHA",
     "Password is a required field": "Heslo je vyžadované pole",
     "preferences_automatic_instance_redirect_label": "Automatické přesměrování instance (fallback na redirect.invidious.io): ",
-    "preferences_include_youtube_links_label": "Zobrazit přesměrovací odkazy na YouTube: ",
     "Switch Invidious Instance": "Přepnout instanci Invidious",
     "Empty playlist": "Prázdný playlist",
     "footer_source_code": "Zdrojový kód",

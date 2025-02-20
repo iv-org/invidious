@@ -78,7 +78,6 @@
     "preferences_thin_mode_label": "最小モード: ",
     "preferences_category_misc": "ほかの設定",
     "preferences_automatic_instance_redirect_label": "インスタンスの自動転送 (redirect.invidious.ioにフォールバック): ",
-    "preferences_include_youtube_links_label": "YouTubeのリダイレクトリンクを表示する: ",
     "preferences_category_subscription": "登録チャンネル設定",
     "preferences_annotations_subscribed_label": "最初から登録チャンネルのアノテーションを表示 ",
     "Redirect homepage to feed: ": "ホームからフィードにリダイレクト: ",

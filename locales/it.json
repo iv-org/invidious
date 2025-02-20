@@ -411,7 +411,6 @@
     "download_subtitles": "Sottotitoli - `x` (.vtt)",
     "user_saved_playlists": "playlist salvate da `x`",
     "preferences_automatic_instance_redirect_label": "Reindirizzamento automatico dell'istanza (ripiego su redirect.invidious.io): ",
-    "preferences_include_youtube_links_label": "Mostra i link di reindirizzamento di YouTube: ",
     "Video unavailable": "Video non disponibile",
     "preferences_show_nick_label": "Mostra nickname in alto: ",
     "videoinfo_youTube_embed_link": "Incorpora",

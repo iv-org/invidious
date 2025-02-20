@@ -82,7 +82,6 @@ ul.vjs-menu-content::-webkit-scrollbar {
   cursor: none;
 }
 
-/* Customizable CSS in player.js */
 .video-js .vjs-text-track-display > div > div > div {
   background-color: rgba(0, 0, 0, 0.75) !important;
   border-radius: 9px !important;

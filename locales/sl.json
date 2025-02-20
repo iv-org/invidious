@@ -54,7 +54,6 @@
     "light": "svetla",
     "preferences_thin_mode_label": "Tanki način: ",
     "preferences_automatic_instance_redirect_label": "Samodejna preusmeritev (na redirect.invidious.io): ",
-    "preferences_include_youtube_links_label": "Prikaži povezave za preusmeritev na YouTube: ",
     "preferences_annotations_subscribed_label": "Privzeto prikazati opombe za naročene kanale? ",
     "Redirect homepage to feed: ": "Preusmeri domačo stran na vir: ",
     "preferences_max_results_label": "Število videoposnetkov, prikazanih v viru: ",

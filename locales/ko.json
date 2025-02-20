@@ -5,7 +5,6 @@
     "preferences_annotations_subscribed_label": "구독한 채널에 기본으로 주석 표시: ",
     "preferences_category_subscription": "구독 설정",
     "preferences_automatic_instance_redirect_label": "자동 인스턴스 리디렉션 (redirect.invidious.io로 대체): ",
-    "preferences_include_youtube_links_label": "YouTube 리디렉션 링크 표시: ",
     "preferences_thin_mode_label": "단순 모드: ",
     "light": "라이트",
     "dark": "다크",

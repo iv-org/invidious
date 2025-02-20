@@ -74,7 +74,6 @@
     "preferences_thin_mode_label": "Schlanker Modus: ",
     "preferences_category_misc": "Sonstige Einstellungen",
     "preferences_automatic_instance_redirect_label": "Automatische Instanzweiterleitung (über redirect.invidious.io): ",
-    "preferences_include_youtube_links_label": "Zeige YouTube-Weiterleitungslinks: ",
     "preferences_category_subscription": "Abonnementeinstellungen",
     "preferences_annotations_subscribed_label": "Anmerkungen für abonnierte Kanäle standardmäßig anzeigen? ",
     "Redirect homepage to feed: ": "Startseite zu Feed umleiten: ",

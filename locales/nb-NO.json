@@ -73,7 +73,6 @@
     "preferences_thin_mode_label": "Tynt modus: ",
     "preferences_category_misc": "Ulike innstillinger",
     "preferences_automatic_instance_redirect_label": "Automatisk instansomdirigering (faller tilbake til redirect.invidious.io): ",
-    "preferences_include_youtube_links_label": "Vis YouTube-omdirigeringslenker: ",
     "preferences_category_subscription": "Abonnementsinnstillinger",
     "preferences_annotations_subscribed_label": "Vis merknader som forvalg for kanaler det abonneres på? ",
     "Redirect homepage to feed: ": "Videresend hjemmeside til kilde: ",

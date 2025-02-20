@@ -73,7 +73,6 @@
     "preferences_thin_mode_label": "Modo compacto: ",
     "preferences_category_misc": "Preferências diversas",
     "preferences_automatic_instance_redirect_label": "Redirecionamento automático de instâncias (alternativa para redirect.invidious.io): ",
-    "preferences_include_youtube_links_label": "Mostrar links de redirecionamento do YouTube: ",
     "preferences_category_subscription": "Preferências de inscrições",
     "preferences_annotations_subscribed_label": "Mostrar anotações por padrão para canais inscritos? ",
     "Redirect homepage to feed: ": "Redirecionar página inicial para o feed: ",

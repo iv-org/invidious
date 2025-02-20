@@ -78,7 +78,6 @@
     "preferences_thin_mode_label": "精簡模式： ",
     "preferences_category_misc": "其他偏好設定",
     "preferences_automatic_instance_redirect_label": "自動站台重新導向（汰退至 redirect.invidious.io）： ",
-    "preferences_include_youtube_links_label": "顯示YouTube重定向連結： ",
     "preferences_category_subscription": "訂閱偏好設定",
     "preferences_annotations_subscribed_label": "預設為已訂閱的頻道顯示註釋： ",
     "Redirect homepage to feed: ": "重新導向首頁至 feed： ",

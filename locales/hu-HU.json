@@ -388,7 +388,6 @@
     "footer_modfied_source_code": "Módosított forráskód",
     "adminprefs_modified_source_code_url_label": "A módosított forráskód repositoryjának URL-je:",
     "preferences_automatic_instance_redirect_label": "Váltáskor másik Invidious oldal automatikus betöltése (redirect.invidious.io töltődik, ha nem működne): ",
-    "preferences_include_youtube_links_label": "Mutassa a YouTube átirányító linkeket: ",
     "preferences_region_label": "Ország tartalmainak mutatása: ",
     "search_filters_sort_option_relevance": "Relevancia",
     "search_filters_sort_option_rating": "Pontszám",

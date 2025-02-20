@@ -96,7 +96,6 @@
     "preferences_thin_mode_label": "Mode léger : ",
     "preferences_category_misc": "Paramètres divers",
     "preferences_automatic_instance_redirect_label": "Redirection automatique vers une autre instance (via redirect.invidious.io) : ",
-    "preferences_include_youtube_links_label": "Afficher les liens de redirection YouTube : ",
     "preferences_category_subscription": "Préférences des abonnements",
     "preferences_annotations_subscribed_label": "Afficher les annotations par défaut sur les chaînes auxquelles vous êtes abonnés : ",
     "Redirect homepage to feed: ": "Rediriger la page d'accueil vers la page d'abonnements : ",

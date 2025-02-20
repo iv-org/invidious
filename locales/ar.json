@@ -73,7 +73,6 @@
     "preferences_thin_mode_label": "الوضع الخفيف: ",
     "preferences_category_misc": "تفضيلات متنوعة",
     "preferences_automatic_instance_redirect_label": "إعادة توجيه المثيل التلقائي (إعادة التوجيه إلى redirect.invidious.io): ",
-    "preferences_include_youtube_links_label": "عرض روابط إعادة التوجيه على يوتيوب: ",
     "preferences_category_subscription": "تفضيلات الاشتراك",
     "preferences_annotations_subscribed_label": "عرض الملاحظات في الفيديوهات تلقائيا في القنوات المشترك بها فقط: ",
     "Redirect homepage to feed: ": "إعادة التوجية من الصفحة الرئيسية لصفحة المشتركين (لرؤية اخر فيديوهات المشتركين): ",
