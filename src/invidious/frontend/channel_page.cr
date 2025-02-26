@@ -7,6 +7,7 @@ module Invidious::Frontend::ChannelPage
     Streams
     Podcasts
     Releases
+    Courses
     Playlists
     Community
     Channels
