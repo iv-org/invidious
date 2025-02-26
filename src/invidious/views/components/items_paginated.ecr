@@ -8,4 +8,14 @@
 
 <%= page_nav_html %>
 
+<script id="pagination-data" type="application/json">
+<%=
+{
+   "next_page" => translate(locale, "Next page"),
+   "prev_page" => translate(locale, "Previous page"),
+   "is_rtl"    => locale_is_rtl?(locale)
+}.to_pretty_json
+%>
+</script>
+
 <script src="/js/watched_indicator.js"></script>
