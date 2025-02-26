@@ -496,5 +496,6 @@
     "carousel_slide": "Sunum {{current}} / {{total}}",
     "carousel_skip": "Kayar menüyü atla",
     "carousel_go_to": "`x` sunumuna git",
-    "The Popular feed has been disabled by the administrator.": "Popüler akışı yönetici tarafından devre dışı bırakıldı."
+    "The Popular feed has been disabled by the administrator.": "Popüler akışı yönetici tarafından devre dışı bırakıldı.",
+    "preferences_preload_label": "Video verilerini önceden yükle: "
 }

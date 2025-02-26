@@ -505,7 +505,7 @@
     "channel_tab_releases_label": "Parutions",
     "channel_tab_podcasts_label": "Émissions audio",
     "Import YouTube watch history (.json)": "Importer l'historique de visionnement YouTube (.json)",
-    "Add to playlist: ": "Ajouter à la playlist : ",
+    "Add to playlist: ": "Ajouter à la playlist : ",
     "Add to playlist": "Ajouter à la playlist",
     "Answer": "Répondre",
     "Search for videos": "Rechercher des vidéos",
@@ -513,5 +513,7 @@
     "carousel_skip": "Passez le carrousel",
     "carousel_slide": "Diapositive {{current}} sur {{total}}",
     "carousel_go_to": "Aller à la diapositive `x`",
-    "toggle_theme": "Changer le Thème"
+    "toggle_theme": "Changer le Thème",
+    "Filipino (auto-generated)": "Philippines (automatiquement générer)",
+    "preferences_preload_label": "Précharger les données de la vidéo : "
 }

@@ -496,5 +496,6 @@
     "Add to playlist": "Legg til i spilleliste",
     "Add to playlist: ": "Legg til i spilleliste: ",
     "The Popular feed has been disabled by the administrator.": "Populært-kilden er koblet ut av administratoren.",
-    "toggle_theme": "Endre utseende"
+    "toggle_theme": "Endre utseende",
+    "preferences_preload_label": "Last videodata på forhånd: "
 }
