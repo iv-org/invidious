@@ -40,7 +40,7 @@ class Invidious::Jobs::NotificationJob < Invidious::Jobs::BaseJob
         hash[key] = Set(VideoNotification).new
       }
     )
-    notify_mutex = Mutex.new()
+    notify_mutex = Mutex.new
 
     # fiber to locally cache all incoming notifications (from pubsub webhooks and refresh channels job)
     spawn do
@@ -71,7 +71,7 @@ class Invidious::Jobs::NotificationJob < Invidious::Jobs::BaseJob
 
             LOGGER.info("NotificationJob: updating channel #{channel_id} with #{notifications.size} notifications")
             if CONFIG.enable_user_notifications
-              video_ids = notifications.map { |n| n.video_id }
+              video_ids = notifications.map(&.video_id)
               Invidious::Database::Users.add_multiple_notifications(channel_id, video_ids)
               PG_DB.using_connection do |conn|
                 notifications.each do |n|
