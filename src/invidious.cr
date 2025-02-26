@@ -240,8 +240,6 @@ add_context_storage_type(Preferences)
 add_context_storage_type(Invidious::User)
 
 Kemal.config.logger = LOGGER
-Kemal.config.host_binding = Kemal.config.host_binding != "0.0.0.0" ? Kemal.config.host_binding : CONFIG.host_binding
-Kemal.config.port = Kemal.config.port != 3000 ? Kemal.config.port : CONFIG.port
 Kemal.config.app_name = "Invidious"
 
 # Use in kemal's production mode.
@@ -250,4 +248,16 @@ Kemal.config.app_name = "Invidious"
   Kemal.config.env = "production" if !ENV.has_key?("KEMAL_ENV")
 {% end %}
 
-Kemal.run
+Kemal.run do |config|
+  if socket_binding = CONFIG.socket_binding
+File.delete?(socket_binding.path)
+    # Create a socket and set its desired permissions
+    server = UNIXServer.new(socket_binding.path)
+    perms = socket_binding.permissions.to_i(base: 8)
+    File.chmod(socket_binding.path, perms)
+    config.server.not_nil!.bind server
+  else
+    Kemal.config.host_binding = Kemal.config.host_binding != "0.0.0.0" ? Kemal.config.host_binding : CONFIG.host_binding
+    Kemal.config.port = Kemal.config.port != 3000 ? Kemal.config.port : CONFIG.port
+  end
+end
