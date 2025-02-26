@@ -9,7 +9,7 @@ module Invidious::Frontend::ChannelPage
     Releases
     Courses
     Playlists
-    Community
+    Posts
     Channels
   end
 
