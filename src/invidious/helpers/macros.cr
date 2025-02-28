@@ -55,12 +55,11 @@ macro templated(_filename, template = "template", navbar_search = true)
   {{ layout = "src/invidious/views/" + template + ".ecr" }}
 
   __content_filename__ = {{filename}}
-  content = Kilt.render({{filename}})
-  Kilt.render({{layout}})
+  render {{filename}}, {{layout}}
 end
 
 macro rendered(filename)
-  Kilt.render("src/invidious/views/#{{{filename}}}.ecr")
+  render("src/invidious/views/#{{{filename}}}.ecr")
 end
 
 # Similar to Kemals halt method but works in a
