@@ -49,7 +49,8 @@ require "./invidious/channels/*"
 require "./invidious/user/*"
 require "./invidious/search/*"
 require "./invidious/routes/**"
-require "./invidious/jobs/**"
+require "./invidious/jobs/base_job"
+require "./invidious/jobs/*"
 
 # Declare the base namespace for invidious
 module Invidious
