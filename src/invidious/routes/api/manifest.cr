@@ -214,7 +214,7 @@ module Invidious::Routes::API::Manifest
 
         raw_params["host"] = uri.host.not_nil!
 
-        "#{HOST_URL}/videoplayback?#{raw_params}"
+        "#{env.request.headers["Host"]}/videoplayback?#{raw_params}"
       end
     end
 

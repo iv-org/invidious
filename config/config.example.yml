@@ -158,6 +158,16 @@ db:
 domain:
 
 ##
+## Alternative domains. You can add other domains if you
+## serve invidious on more than one domain, like Tor
+## and I2P addresses.
+##
+## Accepted values: an array of fully qualified domain names (FQDN)
+## Default: <none>
+##
+#alternative_domains: []
+
+##
 ## Tell Invidious that it is behind a proxy that provides only
 ## HTTPS, so all links must use the https:// scheme. This
 ## setting MUST be set to true if invidious is behind a
