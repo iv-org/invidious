@@ -224,7 +224,13 @@ module Invidious::Routes::PreferencesRoute
         File.write("config/config.yml", CONFIG.to_yaml)
       end
     else
-      env.response.cookies["PREFS"] = Invidious::User::Cookies.prefs(CONFIG.domain, preferences)
+      # Checks if there is any alternative domain, like a second domain name,
+      # TOR or I2P address
+      if alt = CONFIG.alternative_domains.index(env.request.headers["Host"])
+        env.response.cookies["PREFS"] = Invidious::User::Cookies.prefs(CONFIG.alternative_domains[alt], preferences)
+      else
+        env.response.cookies["PREFS"] = Invidious::User::Cookies.prefs(CONFIG.domain, preferences)
+      end
     end
 
     env.redirect referer
@@ -259,7 +265,13 @@ module Invidious::Routes::PreferencesRoute
         preferences.dark_mode = "dark"
       end
 
-      env.response.cookies["PREFS"] = Invidious::User::Cookies.prefs(CONFIG.domain, preferences)
+      # Checks if there is any alternative domain, like a second domain name,
+      # TOR or I2P address
+      if alt = CONFIG.alternative_domains.index(env.request.headers["Host"])
+        env.response.cookies["PREFS"] = Invidious::User::Cookies.prefs(CONFIG.alternative_domains[alt], preferences)
+      else
+        env.response.cookies["PREFS"] = Invidious::User::Cookies.prefs(CONFIG.domain, preferences)
+      end
     end
 
     if redirect
