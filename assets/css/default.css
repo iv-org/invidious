@@ -833,11 +833,14 @@ h1, h2, h3, h4, h5, p,
   display: grid;
   grid-template-columns: max-content 1fr;
   grid-template-rows: 1fr max-content;
+  align-items: center;
   column-gap: 10px;
   row-gap: 4px;
 }
 
 .error-card > .explanation > i {
+  color: #f44;
+  font-size: 24px;
   grid-area: 1 / 1 / 2 / 2;
 }
 
