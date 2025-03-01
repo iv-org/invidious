@@ -27,6 +27,12 @@ class Invidious::Jobs::StatisticsRefreshJob < Invidious::Jobs::BaseJob
     "playback" => {} of String => Int64 | Float64,
   }
 
+  # Latches the playback success stats from before statistics gets refreshed
+  # Used to ensure that the object won't get reset back to an empty object
+  LATCHED_PLAYBACK_STATS = {
+    "playback" => {} of String => Int64 | Float64,
+  }
+
   private getter db : DB::Database
 
   def initialize(@db, @software_config : Hash(String, String))
@@ -65,6 +71,7 @@ class Invidious::Jobs::StatisticsRefreshJob < Invidious::Jobs::BaseJob
     }
 
     # Reset playback requests tracker
+    LATCHED_PLAYBACK_STATS["playback"] = STATISTICS["playback"].as(Hash(String, Int64 | Float64))
     STATISTICS["playback"] = {} of String => Int64 | Float64
   end
 end
