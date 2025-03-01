@@ -305,6 +305,8 @@ struct ProblematicTimelineItem
   def to_json(locale : String?, json : JSON::Builder)
     json.object do
       json.field "type", "parse-error"
+      json.field "errorMessage", @parse_exception.message
+      json.field "errorBacktrace", @parse_exception.inspect_with_backtrace
     end
   end
 end
