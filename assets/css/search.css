@@ -1,4 +1,4 @@
-summary {
+#filters-collapse summary {
 	/* This should hide the marker */
 	display: block;
 
@@ -8,10 +8,10 @@ summary {
 	cursor: pointer;
 }
 
-summary::-webkit-details-marker,
-summary::marker { display: none; }
+#filters-collapse summary::-webkit-details-marker,
+#filters-collapse summary::marker { display: none; }
 
-summary:before {
+#filters-collapse summary:before {
 	border-radius: 5px;
 	content: "[ + ]";
 	margin: -2px 10px 0 10px;
@@ -20,7 +20,7 @@ summary:before {
 	width: 40px;
 }
 
-details[open] > summary:before { content: "[ − ]"; }
+#filters-collapse details[open] > summary:before { content: "[ − ]"; }
 
 
 #filters-box {
