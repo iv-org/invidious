@@ -98,8 +98,16 @@
             </div>
         <% when Category %>
         <% when ProblematicTimelineItem %>
-            <div>
-            <h4> Unable to parse this item </h4>
+            <div class="error-card">
+                <div class="explanation">
+                    <i class="icon ion-ios-alert"></i>
+                    <h4><%=translate(locale, "timeline_parse_error_placeholder_heading")%></h4>
+                    <p><%=translate(locale, "timeline_parse_error_placeholder_message")%></p>
+                </div>
+                <details>
+                    <summary class="pure-button pure-button-secondary"> Show technical details </summary>
+                    <pre style="padding: 20px; background: rgba(0, 0, 0, 0.12345);"><%=get_issue_template(env, item.parse_exception)[1]%></pre>
+                </details>
             </div>
         <% else %>
             <%-
