@@ -291,6 +291,24 @@ struct SearchHashtag
   end
 end
 
+# A `ProblematicTimelineItem` is a `SearchItem` created by Invidious that
+# represents an item that caused an exception during parsing.
+#
+# This is not a parsed object from YouTube but rather an Invidious-only type
+# created to gracefully communicate parse errors without throwing away
+# the rest of the (hopefully) successfully parsed item on a page.
+struct ProblematicTimelineItem
+  property parse_exception : Exception
+
+  def initialize(@parse_exception); end
+
+  def to_json(locale : String?, json : JSON::Builder)
+    json.object do
+      json.field "type", "parse-error"
+    end
+  end
+end
+
 class Category
   include DB::Serializable
 
@@ -333,4 +351,4 @@ struct Continuation
   end
 end
 
-alias SearchItem = SearchVideo | SearchChannel | SearchPlaylist | SearchHashtag | Category
+alias SearchItem = SearchVideo | SearchChannel | SearchPlaylist | SearchHashtag | Category | ProblematicTimelineItem
