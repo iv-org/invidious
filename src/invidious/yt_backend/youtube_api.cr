@@ -681,7 +681,7 @@ module YoutubeAPI
   #
   def _post_invidious_companion(
     endpoint : String,
-    data : Hash
+    data : Hash,
   ) : Hash(String, JSON::Any)
     headers = HTTP::Headers{
       "Content-Type"  => "application/json; charset=UTF-8",
@@ -695,9 +695,7 @@ module YoutubeAPI
     # Send the POST request
 
     begin
-      invidious_companion = CONFIG.invidious_companion.sample
-      response = make_client(invidious_companion.private_url, use_http_proxy: false,
-        &.post(endpoint, headers: headers, body: data.to_json))
+      response = COMPANION_POOL.client &.post(endpoint, headers: headers, body: data.to_json)
       body = response.body
       if (response.status_code != 200)
         raise Exception.new(
