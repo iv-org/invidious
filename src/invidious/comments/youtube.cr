@@ -57,7 +57,7 @@ module Invidious::Comments
     return initial_data
   end
 
-  def parse_youtube(id, response, format, locale, thin_mode, sort_by = "top", is_post = false)
+  def parse_youtube(id, response, format, locale, thin_mode, sort_by = "top", type = "video", ucid = nil)
     contents = nil
 
     if on_response_received_endpoints = response["onResponseReceivedEndpoints"]?
@@ -115,7 +115,11 @@ module Invidious::Comments
           json.field "commentCount", comment_count
         end
 
-        if is_post
+        if !ucid.nil?
+          json.field "authorId", ucid
+        end
+
+        if type == "post"
           json.field "postId", id
         else
           json.field "videoId", id
@@ -302,7 +306,8 @@ module Invidious::Comments
 
     if format == "html"
       response = JSON.parse(response)
-      content_html = Frontend::Comments.template_youtube(response, locale, thin_mode)
+      content_html = Frontend::Comments.template_youtube(response, locale, thin_mode, id, type)
+
       response = JSON.build do |json|
         json.object do
           json.field "contentHtml", content_html
