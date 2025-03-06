@@ -184,6 +184,36 @@ module Invidious::Database::Users
     PG_DB.exec(request, pass, user.email)
   end
 
+  def update_username(user : User, username : String)
+    request = <<-SQL
+      UPDATE users
+      SET email = $1
+      WHERE email = $2
+    SQL
+
+    PG_DB.exec(request, username, user.email)
+  end
+
+  def update_user_session_id(user : User, username : String)
+    request = <<-SQL
+      UPDATE session_ids
+      SET email = $1
+      WHERE email = $2
+    SQL
+
+    PG_DB.exec(request, username, user.email)
+  end
+
+  def update_user_playlists_author(user : User, username : String)
+    request = <<-SQL
+      UPDATE playlists
+      SET author = $1
+      WHERE author = $2
+    SQL
+
+    PG_DB.exec(request, username, user.email)
+  end
+
   # -------------------
   #  Select
   # -------------------
