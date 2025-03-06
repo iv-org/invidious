@@ -303,6 +303,7 @@ module Invidious::Comments
     if format == "html"
       response = JSON.parse(response)
       content_html = Frontend::Comments.template_youtube(response, locale, thin_mode)
+      content_html = Comments.replace_external_links(content_html)
       response = JSON.build do |json|
         json.object do
           json.field "contentHtml", content_html

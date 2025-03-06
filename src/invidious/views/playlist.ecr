@@ -83,7 +83,11 @@
 
         <% if !playlist.is_a? InvidiousPlaylist %>
             <div class="pure-u-2-3">
-                    <a rel="noreferrer noopener" href="https://www.youtube.com/playlist?list=<%= playlist.id %>">
+                    <%-
+                        view_yt = "https://www.youtube.com/playlist?list=#{playlist.id}"
+                        confirm_view_yt = "/confirm_leave?link=#{URI.encode_path(view_yt)}"
+                    -%>
+                    <a href="<%= confirm_view_yt %>">
                         <%= translate(locale, "View playlist on YouTube") %>
                     </a>
                     <span> | </span>
