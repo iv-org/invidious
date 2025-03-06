@@ -143,6 +143,7 @@ module Invidious::Routes::Account
     Invidious::Database::Users.update_username(user, new_username.to_s)
     Invidious::Database::Users.update_user_session_id(user, new_username.to_s)
     Invidious::Database::Users.update_user_playlists_author(user, new_username.to_s)
+    Invidious::Database::Users.update_user_materialized_view(user, new_username.to_s)
 
     env.redirect referer
   end

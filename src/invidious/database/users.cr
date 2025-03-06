@@ -214,6 +214,13 @@ module Invidious::Database::Users
     PG_DB.exec(request, username, user.email)
   end
 
+  def update_user_materialized_view(user : User, username : String)
+    view_name = "public.subscriptions_#{sha256(user.email)}"
+    new_view_name = "subscriptions_#{sha256(username)}"
+
+    PG_DB.exec("ALTER MATERIALIZED VIEW #{view_name} RENAME TO #{new_view_name}")
+  end
+
   # -------------------
   #  Select
   # -------------------
