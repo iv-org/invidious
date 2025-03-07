@@ -814,5 +814,67 @@ h1, h2, h3, h4, h5, p,
 }
 
 #download_widget {
-    width: 100%;
+  width: 100%;
+}  
+
+/*
+ * Compilations
+ */
+
+input.compilation-video-timestamp {
+  width: 50px;
+  height: 20px;
+}
+
+div.compilation-video-panel {
+  display:flex;
+  justify-content:flex-start; 
+  width:calc(100% - 20px); 
+  height:100px; 
+  border:2px solid #ccc;
+  margin: 10px; 
+  /*background: #d9d9d9;*/
+}
+  
+div.compilation-order-swap-arrows {
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+
+svg.compilation-video-swap-arrow {
+  border: solid black;
+  width:20px;
+  height:50%;
+  background-color: beige;
+  margin: 10px;
+}
+
+div.compilation-video-input-panel {
+  display:flex; 
+  flex-direction:column;
+  min-width: 0;
+  margin: 10px;
+}
+
+div.compilation-video-title {
+  display:flex; 
+  justify-content:flex-start;
+}
+
+span.compilation-video-title {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+div.compilation-video-timestamp-set {
+  display:flex; 
+  justify-content: flex-start;
+  align-items: center;
+}
+
+div.compilation-video-thumbnail {
+  position: relative;
+  box-sizing: border-box;
 }
