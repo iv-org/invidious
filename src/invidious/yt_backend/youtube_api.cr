@@ -500,7 +500,11 @@ module YoutubeAPI
       data["params"] = params
     end
 
-    return self._post_json("/youtubei/v1/player", data, client_config)
+    if CONFIG.invidious_companion.present?
+      return self._post_invidious_companion("/youtubei/v1/player", data)
+    else
+      return self._post_json("/youtubei/v1/player", data, client_config)
+    end
   end
 
   ####################################################################
@@ -662,6 +666,49 @@ module YoutubeAPI
       raise InfoException.new("Could not extract JSON. Youtube API returned \
       error #{code} with message:<br>\"#{message}\"")
     end
+
+    return initial_data
+  end
+
+  ####################################################################
+  # _post_invidious_companion(endpoint, data)
+  #
+  # Internal function that does the actual request to Invidious companion
+  # and handles errors.
+  #
+  # The requested data is an endpoint (URL without the domain part)
+  # and the data as a Hash object.
+  #
+  def _post_invidious_companion(
+    endpoint : String,
+    data : Hash,
+  ) : Hash(String, JSON::Any)
+    headers = HTTP::Headers{
+      "Content-Type"  => "application/json; charset=UTF-8",
+      "Authorization" => "Bearer #{CONFIG.invidious_companion_key}",
+    }
+
+    # Logging
+    LOGGER.debug("Invidious companion: Using endpoint: \"#{endpoint}\"")
+    LOGGER.trace("Invidious companion: POST data: #{data}")
+
+    # Send the POST request
+
+    begin
+      response = COMPANION_POOL.client &.post(endpoint, headers: headers, body: data.to_json)
+      body = response.body
+      if (response.status_code != 200)
+        raise Exception.new(
+          "Error while communicating with Invidious companion: \
+          status code: #{response.status_code} and body: #{body.dump}"
+        )
+      end
+    rescue ex
+      raise InfoException.new("Error while communicating with Invidious companion: " + (ex.message || "no extra info found"))
+    end
+
+    # Convert result to Hash
+    initial_data = JSON.parse(body).as_h
 
     return initial_data
   end

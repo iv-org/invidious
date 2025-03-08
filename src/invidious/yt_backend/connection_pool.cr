@@ -46,6 +46,43 @@ struct YoutubeConnectionPool
   end
 end
 
+struct CompanionConnectionPool
+  property pool : DB::Pool(HTTP::Client)
+
+  def initialize(capacity = 5, timeout = 5.0)
+    options = DB::Pool::Options.new(
+      initial_pool_size: 0,
+      max_pool_size: capacity,
+      max_idle_pool_size: capacity,
+      checkout_timeout: timeout
+    )
+
+    @pool = DB::Pool(HTTP::Client).new(options) do
+      companion = CONFIG.invidious_companion.sample
+      next make_client(companion.private_url, use_http_proxy: false)
+    end
+  end
+
+  def client(&)
+    conn = pool.checkout
+
+    begin
+      response = yield conn
+    rescue ex
+      conn.close
+
+      companion = CONFIG.invidious_companion.sample
+      conn = make_client(companion.private_url, use_http_proxy: false)
+
+      response = yield conn
+    ensure
+      pool.release(conn)
+    end
+
+    response
+  end
+end
+
 def add_yt_headers(request)
   request.headers.delete("User-Agent") if request.headers["User-Agent"] == "Crystal"
   request.headers["User-Agent"] ||= "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
@@ -61,9 +98,9 @@ def add_yt_headers(request)
   end
 end
 
-def make_client(url : URI, region = nil, force_resolve : Bool = false, force_youtube_headers : Bool = false)
+def make_client(url : URI, region = nil, force_resolve : Bool = false, force_youtube_headers : Bool = false, use_http_proxy : Bool = true)
   client = HTTP::Client.new(url)
-  client.proxy = make_configured_http_proxy_client() if CONFIG.http_proxy
+  client.proxy = make_configured_http_proxy_client() if CONFIG.http_proxy && use_http_proxy
 
   # Force the usage of a specific configured IP Family
   if force_resolve
@@ -78,8 +115,8 @@ def make_client(url : URI, region = nil, force_resolve : Bool = false, force_you
   return client
 end
 
-def make_client(url : URI, region = nil, force_resolve : Bool = false, &)
-  client = make_client(url, region, force_resolve: force_resolve)
+def make_client(url : URI, region = nil, force_resolve : Bool = false, use_http_proxy : Bool = true, &)
+  client = make_client(url, region, force_resolve: force_resolve, use_http_proxy: use_http_proxy)
   begin
     yield client
   ensure
