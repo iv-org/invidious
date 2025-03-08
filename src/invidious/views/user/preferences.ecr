@@ -331,6 +331,10 @@
                 </div>
 
                 <div class="pure-control-group">
+                    <a href="/change_username?referer=<%= URI.encode_www_form(referer) %>"><%= translate(locale, "change_username") %></a>
+                </div>
+
+                <div class="pure-control-group">
                     <a href="/data_control?referer=<%= URI.encode_www_form(referer) %>"><%= translate(locale, "Import/export data") %></a>
                 </div>
 
