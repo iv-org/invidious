@@ -192,10 +192,6 @@ struct Video
     }
   end
 
-  def invidious_companion : Hash(String, JSON::Any)?
-    info["invidiousCompanion"]?.try &.as_h || {} of String => JSON::Any
-  end
-
   # Macros defining getters/setters for various types of data
 
   private macro getset_string(name)

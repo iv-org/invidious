@@ -133,7 +133,7 @@ def extract_video_info(video_id : String)
     end
   end
 
-  {"captions", "playabilityStatus", "playerConfig", "storyboards", "invidiousCompanion"}.each do |f|
+  {"captions", "playabilityStatus", "playerConfig", "storyboards"}.each do |f|
     params[f] = player_response[f] if player_response[f]?
   end
 

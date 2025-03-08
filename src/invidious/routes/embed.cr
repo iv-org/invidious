@@ -203,11 +203,12 @@ module Invidious::Routes::Embed
       return env.redirect url
     end
 
-    if companion_base_url = video.invidious_companion.try &.["baseUrl"].as_s
+    if CONFIG.invidious_companion.present?
+      invidious_companion = CONFIG.invidious_companion.sample
       env.response.headers["Content-Security-Policy"] =
         env.response.headers["Content-Security-Policy"]
-          .gsub("media-src", "media-src #{companion_base_url}")
-          .gsub("connect-src", "connect-src #{companion_base_url}")
+          .gsub("media-src", "media-src #{invidious_companion.public_url}")
+          .gsub("connect-src", "connect-src #{invidious_companion.public_url}")
     end
 
     rendered "embed"
