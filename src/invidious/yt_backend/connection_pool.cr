@@ -59,14 +59,12 @@ struct CompanionConnectionPool
 
     @pool = DB::Pool(HTTP::Client).new(options) do
       companion = CONFIG.invidious_companion.sample
-      next make_client(companion.private_url, force_resolve: true)
+      next make_client(companion.private_url, use_http_proxy: false)
     end
   end
 
   def client(&)
     conn = pool.checkout
-    # Proxy needs to be reinstated every time we get a client from the pool
-    conn.proxy = make_configured_http_proxy_client() if CONFIG.http_proxy
 
     begin
       response = yield conn
@@ -74,7 +72,7 @@ struct CompanionConnectionPool
       conn.close
 
       companion = CONFIG.invidious_companion.sample
-      conn = make_client(companion.private_url, force_resolve: true)
+      conn = make_client(companion.private_url, use_http_proxy: false)
 
       response = yield conn
     ensure
