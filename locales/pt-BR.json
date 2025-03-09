@@ -515,5 +515,8 @@
     "carousel_skip": "Ignorar carrossel",
     "carousel_go_to": "Ir ao slide `x`",
     "preferences_preload_label": "Pré-carregar dados do vídeo: ",
-    "Filipino (auto-generated)": "Filipino (gerado automaticamente)"
+    "Filipino (auto-generated)": "Filipino (gerado automaticamente)",
+    "channel_tab_posts_label": "Postagens",
+    "First page": "Primeira página",
+    "channel_tab_courses_label": "Cursos"
 }
