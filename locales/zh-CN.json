@@ -481,5 +481,8 @@
     "carousel_skip": "跳过图集",
     "carousel_go_to": "转到图 `x`",
     "preferences_preload_label": "预加载视频数据： ",
-    "Filipino (auto-generated)": "菲律宾语 (自动生成)"
+    "Filipino (auto-generated)": "菲律宾语 (自动生成)",
+    "channel_tab_posts_label": "帖子",
+    "First page": "第一页",
+    "channel_tab_courses_label": "课程"
 }
