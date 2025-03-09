@@ -343,7 +343,7 @@
     "search_filters_type_label": "種類",
     "search_filters_duration_label": "再生時間",
     "search_filters_features_label": "特徴",
-    "search_filters_sort_label": "順番",
+    "search_filters_sort_label": "並べ替え",
     "search_filters_date_option_hour": "1時間以内",
     "search_filters_date_option_today": "今日",
     "search_filters_date_option_week": "今週",
@@ -370,7 +370,7 @@
     "footer_documentation": "説明書",
     "footer_source_code": "ソースコード",
     "footer_original_source_code": "元のソースコード",
-    "footer_modfied_source_code": "改変して使用",
+    "footer_modfied_source_code": "改変し使用中",
     "adminprefs_modified_source_code_url_label": "改変されたソースコードのレポジトリのURL",
     "search_filters_duration_option_long": "20分以上",
     "preferences_region_label": "地域: ",
@@ -481,5 +481,8 @@
     "carousel_skip": "画像のスライド表示をスキップ",
     "toggle_theme": "テーマの切り替え",
     "preferences_preload_label": "動画データを事前に読み込む: ",
-    "Filipino (auto-generated)": "フィリピノ語 (自動生成)"
+    "Filipino (auto-generated)": "フィリピノ語 (自動生成)",
+    "First page": "最初のページ",
+    "channel_tab_posts_label": "投稿",
+    "channel_tab_courses_label": "コース"
 }
