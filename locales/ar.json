@@ -566,5 +566,8 @@
     "carousel_skip": "تخطي الكاروسيل",
     "carousel_go_to": "انتقل إلى الشريحة `x`",
     "preferences_preload_label": "التحميل المسبق لبيانات الفيديو: ",
-    "Filipino (auto-generated)": "الفلبينية (المولدة تلقائيًا)"
+    "Filipino (auto-generated)": "الفلبينية (المولدة تلقائيًا)",
+    "channel_tab_courses_label": "الدورات",
+    "channel_tab_posts_label": "المنشورات",
+    "First page": "الصفحة الأولى"
 }
