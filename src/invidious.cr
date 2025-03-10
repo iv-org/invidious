@@ -167,13 +167,13 @@ DECRYPT_FUNCTION =
   if sig_helper_address = CONFIG.signature_server.presence
     IV::DecryptFunction.new(sig_helper_address)
   else
-    LOGGER.warn("WARNING: inv-sig-helper is required for video playback")
+    LOGGER.warn("WARNING: inv-sig-helper is required for video playback. See https://docs.invidious.io/installation/#run-inv_sig_helper-in-background for more information")
     nil
   end
 
 {% for field in %w(po_token visitor_data) %}
   if !CONFIG.{{field.id}}
-    LOGGER.warn("WARNING: {{field.id}} is required to view and playback videos")
+    LOGGER.warn("WARNING: {{field.id}} is required to view and playback videos. See https://docs.invidious.io/installation/#generate-po_token-and-visitor_data-identities for more information")
   end
 {% end %}
 
