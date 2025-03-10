@@ -21,7 +21,7 @@ module Invidious::Routes::VideoPlayback
     end
 
     # Sanity check, to avoid being used as an open proxy
-    if !host.matches?(/[\w-]+.googlevideo.com/)
+    if !host.matches?(/[\w-]+.googlevideo.com/) && !host.matches?(/[\w-]+.c.youtube.com/)
       return error_template(400, "Invalid \"host\" parameter.")
     end
 
