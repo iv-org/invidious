@@ -76,7 +76,8 @@ module Invidious::Routes::API::Manifest
 
               audio_track = fmt["audioTrack"]?.try &.as_h? || {} of String => JSON::Any
               lang = audio_track["id"]?.try &.as_s.split('.')[0] || "und"
-
+              displayname = audio_track["displayName"]?.try &.as_s || "Unknown"
+    
               # Determine if this track should be default
               if original_track_found
                 # If any track has "original", only those tracks should be default
