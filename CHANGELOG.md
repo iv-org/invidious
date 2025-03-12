@@ -14,6 +14,8 @@ Tamil is now available as an interface language
 
 Automatic instance redirects will no longer have the chance to annoyingly redirect to the same instance you're on.
 
+Due to their requirements for video playback, Invidious will log warning messages when either inv-sig-helper, `po_token` or `visitor_data` is not configured
+
 Invidious is now able to listen through a UNIX socket
 
 User notifications are now batched for each channel
@@ -37,6 +39,7 @@ User notifications are now batched for each channel
 * **`1.12.0` is now the oldest Crystal version that Invidious supports**
 * The example config will no longer force an http proxy to be configured
 * Invidious will now warn when any top-level config option must be set to a custom value, instead of just `HMAC_KEY`
+* Due to their requirements for video playback, Invidious will log warning messages when either inv-sig-helper, `po_token` or `visitor_data` is not configured
 
 #### For developers
 * Invidious is now compliant to Crystal 1.15 formatting rules, which are incompatible with earlier versions.
@@ -94,8 +97,7 @@ User notifications are now batched for each channel
 * Channels: Fix community tab by (https://github.com/iv-org/invidious/pull/5183, thanks @Fijxu)
 * Fix typo in `src/invidious/routes/images.cr` (https://github.com/iv-org/invidious/pull/5184, by @syeopite)
 * Fix an issue with the HLS manifest check for livestream videos (https://github.com/iv-org/invidious/pull/5189, thanks @alexmaras)
-
-
+* Warn when `po_token`, `visitor_data` and/or `inv-sig-helper` is not configured (https://github.com/iv-org/invidious/pull/5202, by @syeopite)
 ## v2.20241110.0
 
 ### Wrap-up
