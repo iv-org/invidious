@@ -1,0 +1,60 @@
+name: invidious
+
+image:
+  repository: quay.io/invidious/invidious
+  tag: latest
+  pullPolicy: Always
+
+replicaCount: 1
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 16
+  targetCPUUtilizationPercentage: 50
+
+service:
+  type: ClusterIP
+  port: 3000
+  #loadBalancerIP:
+
+resources: {}
+  #requests:
+  #  cpu: 100m
+  #  memory: 64Mi
+  #limits:
+  #  cpu: 800m
+  #  memory: 512Mi
+
+securityContext:
+  allowPrivilegeEscalation: false
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+
+# See https://github.com/bitnami/charts/tree/master/bitnami/postgresql
+postgresql:
+  image:
+    tag: 13
+  auth:
+    username: kemal
+    password: kemal
+    database: invidious
+  primary:
+    initdb:
+      username: kemal
+      password: kemal
+      scriptsConfigMap: invidious-postgresql-init
+
+# Adapted from ../config/config.yml
+config:
+  channel_threads: 1
+  db:
+    user: kemal
+    password: kemal
+    host: invidious-postgresql
+    port: 5432
+    dbname: invidious
+  full_refresh: false
+  https_only: false
+  domain:
