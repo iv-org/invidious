@@ -271,6 +271,8 @@ class Config
         puts "Config: The value of 'invidious_companion_key' needs to be a size of 16 or more."
         exit(1)
       end
+    else
+      LOGGER.warn("WARNING: Invidious companion is required to view and playback videos. For more information see https://docs.invidious.io/companion-installation/")
     end
 
     # HMAC_key is mandatory
