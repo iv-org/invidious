@@ -515,5 +515,8 @@
     "The Popular feed has been disabled by the administrator.": "Администратор је онемогућио фид „Популарно“.",
     "carousel_slide": "Слајд {{current}} од {{total}}",
     "preferences_preload_label": "Унапред учитај податке о видео снимку: ",
-    "Filipino (auto-generated)": "Филипински (аутоматски генерисано)"
+    "Filipino (auto-generated)": "Филипински (аутоматски генерисано)",
+    "channel_tab_courses_label": "Курсеви",
+    "First page": "Прва страница",
+    "channel_tab_posts_label": "Објаве"
 }
