@@ -515,5 +515,8 @@
     "carousel_skip": "Pomiń karuzelę",
     "carousel_go_to": "Przejdź do slajdu `x`",
     "preferences_preload_label": "Wstępne ładowanie danych wideo: ",
-    "Filipino (auto-generated)": "filipiński (wygenerowany automatycznie)"
+    "Filipino (auto-generated)": "filipiński (wygenerowany automatycznie)",
+    "First page": "Pierwsza strona",
+    "channel_tab_posts_label": "Posty",
+    "channel_tab_courses_label": "Kursy"
 }
