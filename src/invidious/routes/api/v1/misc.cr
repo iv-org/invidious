@@ -1,3 +1,5 @@
+require "../../../metrics.cr"
+
 module Invidious::Routes::API::V1::Misc
   # Stats API endpoint for Invidious
   def self.stats(env)
@@ -23,6 +25,39 @@ module Invidious::Routes::API::V1::Misc
       end
 
       return Invidious::Jobs::StatisticsRefreshJob::STATISTICS.to_json
+    end
+  end
+
+  def self.metrics(env)
+    if !CONFIG.statistics_enabled
+      env.response.status_code = 204
+      return
+    end
+
+    env.response.content_type = "text/plain"
+
+    return String.build do |str|
+      Metrics::RouteMetricsCollector.num_of_request_counters.each do |metric_labels, value|
+        str << "http_requests_total{"
+        str << "method=\"" << metric_labels.request_method << "\" "
+        str << "route=\"" << metric_labels.request_route << "\" "
+        str << "response_code=\"" << metric_labels.response_code << "\""
+        str << "} "
+        str << value << "\n"
+      end
+
+      Metrics::RouteMetricsCollector.request_duration_seconds_sums.each do |metric_labels, value|
+        str << "http_request_duration_seconds_sum{"
+        str << "method=\"" << metric_labels.request_method << "\" "
+        str << "route=\"" << metric_labels.request_route << "\" "
+        str << "response_code=\"" << metric_labels.response_code << "\""
+        str << "} "
+        str << value << "\n"
+      end
+
+      Invidious::Jobs::StatisticsRefreshJob::STATISTICS_PROMETHEUS.each.each do |key, value|
+        str << key << " " << value << "\n"
+      end
     end
   end
 
