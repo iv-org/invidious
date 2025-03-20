@@ -539,9 +539,9 @@ const toggle_captions = (function () {
         bindChange('off');
         track.mode = mode;
         setTimeout(function () {
-          bindChange('on');
+            bindChange('on');
         }, 0);
-      }
+    }
 
     bindChange('on');
     return function () {
@@ -584,9 +584,9 @@ const toggle_captions = (function () {
 
 // For real-time updates to captions (if currently showing)
 function update_captions() {
-  if (document.body.querySelector('.vjs-text-track-cue')) {
-    toggle_captions(); toggle_captions();
-  }
+    if (document.body.querySelector('.vjs-text-track-cue')) {
+        toggle_captions(); toggle_captions();
+    }
 }
 
 function toggle_fullscreen() {
@@ -620,7 +620,7 @@ function toggle_caption_window() {
     update_captions();
 }
   
-  function toggle_caption_opacity() {
+function toggle_caption_opacity() {
     const numOptions = options.textOpacity.length;
     const textOpacity = player.textTrackSettings.getValues().textOpacity || '1';
     const curIndex = options.textOpacity.indexOf(textOpacity);
