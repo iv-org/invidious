@@ -2,16 +2,12 @@
 var player_data = JSON.parse(document.getElementById('player_data').textContent);
 var video_data = JSON.parse(document.getElementById('video_data').textContent);
 
-var player_css = [...Array.from(document.styleSheets).find(sS => sS.href?.includes('player.css')).cssRules]
-var caption_background_css = player_css.find(rule => rule.selectorText === '.vjs-text-track-display > div > div');
-var caption_text_css = player_css.find(rule => rule.selectorText === '.video-js .vjs-text-track-display > div > div > div');
-
 var options = {
     liveui: true,
     playbackRates: [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0],
-    captionSizes: ['22px', '27px', '32px', '37px'],
-    captionBackground: [0, 0.5, 0.8, 1].map(a => 'rgba(0, 0, 0, ' + a + ')'),
-    captionOpacity: [0.4, 0.7, 1].map(a => 'rgba(255, 255, 255, ' + a + ')'),
+    fontPercent: [0.5, 0.75, 1.25, 1.5, 1.75, 2, 3, 4],
+    windowOpacity: ['0', '0.5', '1'],
+    textOpacity: ['0.5', '1'],
     controlBar: {
         children: [
             'playToggle',
@@ -543,9 +539,9 @@ const toggle_captions = (function () {
         bindChange('off');
         track.mode = mode;
         setTimeout(function () {
-            bindChange('on');
+          bindChange('on');
         }, 0);
-    }
+      }
 
     bindChange('on');
     return function () {
@@ -586,6 +582,13 @@ const toggle_captions = (function () {
     };
 })();
 
+// For real-time updates to captions (if currently showing)
+function update_captions() {
+  if (document.body.querySelector('.vjs-text-track-cue')) {
+    toggle_captions(); toggle_captions();
+  }
+}
+
 function toggle_fullscreen() {
     player.isFullscreen() ? player.exitFullscreen() : player.requestFullscreen();
 }
@@ -599,28 +602,31 @@ function increase_playback_rate(steps) {
 }
 
 function increase_caption_size(steps) {
-    const maxIndex = options.captionSizes.length - 1;
-    const font_size = caption_text_css.style.getPropertyValue('font-size');
-    const curIndex = options.captionSizes.indexOf(font_size);
+    const maxIndex = options.fontPercent.length - 1;
+    const fontPercent = player.textTrackSettings.getValues().fontPercent || 1.25;
+    const curIndex = options.fontPercent.indexOf(fontPercent);
     let newIndex = curIndex + steps;
     newIndex = helpers.clamp(newIndex, 0, maxIndex);
-    caption_text_css.style.setProperty('font-size', options.captionSizes[newIndex], 'important');
+    player.textTrackSettings.setValues({ fontPercent: options.fontPercent[newIndex] });
+    update_captions();
 }
 
 function toggle_caption_window() {
-    const numOptions = options.captionBackground.length;
-    const backgroundColor = caption_background_css.style.getPropertyValue('background-color');
-    const curIndex = options.captionBackground.indexOf(backgroundColor);
+    const numOptions = options.windowOpacity.length;
+    const windowOpacity = player.textTrackSettings.getValues().windowOpacity || '0';
+    const curIndex = options.windowOpacity.indexOf(windowOpacity);
     const newIndex = (curIndex + 1) % numOptions;
-    caption_background_css.style.setProperty('background-color', options.captionBackground[newIndex], 'important');
+    player.textTrackSettings.setValues({ windowOpacity: options.windowOpacity[newIndex] });
+    update_captions();
 }
-
-function toggle_caption_opacity() {
-    const numOptions = options.captionOpacity.length;
-    const opacity = caption_text_css.style.getPropertyValue('color');
-    const curIndex = options.captionOpacity.indexOf(opacity);
+  
+  function toggle_caption_opacity() {
+    const numOptions = options.textOpacity.length;
+    const textOpacity = player.textTrackSettings.getValues().textOpacity || '1';
+    const curIndex = options.textOpacity.indexOf(textOpacity);
     const newIndex = (curIndex + 1) % numOptions;
-    caption_text_css.style.setProperty('color', options.captionOpacity[newIndex], 'important');
+    player.textTrackSettings.setValues({ textOpacity: options.textOpacity[newIndex] });
+    update_captions();
 }
 
 addEventListener('keydown', function (e) {
