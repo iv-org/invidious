@@ -309,6 +309,32 @@ struct ProblematicTimelineItem
       json.field "errorBacktrace", @parse_exception.inspect_with_backtrace
     end
   end
+
+  # Provides compatibility with PlaylistVideo
+  def to_json(json : JSON::Builder, *args, **kwargs)
+    return to_json("", json)
+  end
+
+  def to_xml(env, locale, xml : XML::Builder)
+    xml.element("entry") do
+      xml.element("id") { xml.text "iv-err-#{Random.new.base64(8)}" }
+      xml.element("title") { xml.text "Parse Error: This item has failed to parse" }
+      xml.element("updated") { xml.text Time.utc.to_rfc3339 }
+
+      xml.element("content", type: "xhtml") do
+        xml.element("div", xmlns: "http://www.w3.org/1999/xhtml") do
+          xml.element("div") do
+            xml.element("h4") { translate(locale, "timeline_parse_error_placeholder_heading") }
+            xml.element("p") { translate(locale, "timeline_parse_error_placeholder_message") }
+          end
+
+          xml.element("pre") do
+            get_issue_template(env, @parse_exception)
+          end
+        end
+      end
+    end
+  end
 end
 
 class Category
