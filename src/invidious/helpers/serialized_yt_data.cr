@@ -299,8 +299,11 @@ end
 # the rest of the (hopefully) successfully parsed item on a page.
 struct ProblematicTimelineItem
   property parse_exception : Exception
+  property id : String
 
-  def initialize(@parse_exception); end
+  def initialize(@parse_exception)
+    @id = Random.new.hex(8)
+  end
 
   def to_json(locale : String?, json : JSON::Builder)
     json.object do
