@@ -858,9 +858,9 @@ default_user_preferences:
   ## Default video quality.
   ##
   ## Accepted values: dash, hd720, medium, small
-  ## Default: hd720
+  ## Default: dash
   ##
-  #quality: hd720
+  #quality: dash
 
   ##
   ## Default dash video quality.
