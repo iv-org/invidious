@@ -1,7 +1,10 @@
 <%= page_nav_html %>
+<% exclude_members_only_videos = env.get("preferences").as(Preferences).exclude_members_only_videos %>
 
 <div class="pure-g">
     <%- items.each do |item| -%>
+        <% next if exclude_members_only_videos && item.responds_to?(:badges) &&
+        item.is_a? SearchVideo && item.badges.members_only? %>
         <%= rendered "components/item" %>
     <%- end -%>
 </div>

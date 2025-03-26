@@ -502,5 +502,6 @@
     "carousel_slide": "Slide {{current}} of {{total}}",
     "carousel_skip": "Skip the Carousel",
     "carousel_go_to": "Go to slide `x`",
-    "video_badges_members_only": "Members only"
+    "video_badges_members_only": "Members only",
+    "preferences_exclude_members_only_videos_label": "Hide channel member-only videos"
 }
