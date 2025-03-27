@@ -125,19 +125,19 @@ module Invidious::Routes::Account
 
     new_username = env.params.body["new_username"]?.try &.downcase.byte_slice(0, 254)
     if new_username.nil?
-      return error_template(401, "username_required_field")
+      return error_template(401, "accounts_username_required_field")
     end
 
     if new_username.empty?
-      return error_template(401, "username_empty")
+      return error_template(401, "accounts_username_empty")
     end
 
     if new_username == user.email
-      return error_template(401, "username_is_the_same")
+      return error_template(401, "accounts_username_is_the_same")
     end
 
     if Invidious::Database::Users.select(email: new_username)
-      return error_template(401, "username_taken")
+      return error_template(401, "accounts_username_taken")
     end
 
     Invidious::Database::Users.update_username(user, new_username.to_s)

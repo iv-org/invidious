@@ -184,14 +184,14 @@ module Invidious::Database::Users
     PG_DB.exec(request, pass, user.email)
   end
 
-  def update_username(user : User, username : String)
+  def update_username(user : User, new_username : String)
     request = <<-SQL
       UPDATE users
       SET email = $1
       WHERE email = $2
     SQL
 
-    PG_DB.exec(request, username, user.email)
+    PG_DB.exec(request, new_username, user.email)
   end
 
   def update_user_session_id(user : User, username : String)

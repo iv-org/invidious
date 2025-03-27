@@ -1,5 +1,5 @@
 <% content_for "header" do %>
-<title><%= translate(locale, "change_username") %> - Invidious</title>
+<title><%= translate(locale, "accounts_change_username") %> - Invidious</title>
 <% end %>
 
 <div class="pure-g">
@@ -10,11 +10,11 @@
                 <legend><%= translate(locale, "") %></legend>
 
                 <fieldset>
-                    <label for="new_username"><%= translate(locale, "new_username") %> :</label>
+                    <label for="accounts_new_username"><%= translate(locale, "new_username") %> :</label>
                     <input required class="pure-input-1" name="new_username" type="text" placeholder="<%= translate(locale, "new_username") %>">
 
                     <button type="submit" name="action" value="change_username" class="pure-button pure-button-primary">
-                        <%= translate(locale, "change_username") %>
+                        <%= translate(locale, "accounts_change_username") %>
                     </button>
 
                     <input type="hidden" name="csrf_token" value="<%= HTML.escape(csrf_token) %>">
