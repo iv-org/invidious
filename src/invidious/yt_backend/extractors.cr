@@ -67,6 +67,8 @@ private module Parsers
         author_id = author_fallback.id
       end
 
+      author_thumbnail = item_contents.dig?("channelThumbnailSupportedRenderers", "channelThumbnailWithLinkRenderer", "thumbnail", "thumbnails", 0, "url").try &.as_s
+
       author_verified = has_verified_badge?(item_contents["ownerBadges"]?)
 
       # For live videos (and possibly recently premiered videos) there is no published information.
@@ -148,6 +150,7 @@ private module Parsers
         length_seconds:     length_seconds,
         premiere_timestamp: premiere_timestamp,
         author_verified:    author_verified,
+        author_thumbnail:   author_thumbnail,
         badges:             badges,
       })
     end
@@ -579,6 +582,7 @@ private module Parsers
         length_seconds:     duration,
         premiere_timestamp: Time.unix(0),
         author_verified:    false,
+        author_thumbnail:   nil,
         badges:             VideoBadges::None,
       })
     end
@@ -708,6 +712,7 @@ private module Parsers
         length_seconds:     duration,
         premiere_timestamp: Time.unix(0),
         author_verified:    false,
+        author_thumbnail:   nil,
         badges:             VideoBadges::None,
       })
     end
@@ -1024,7 +1029,7 @@ end
 def extract_items(
   initial_data : InitialData,
   author_fallback : String? = nil,
-  author_id_fallback : String? = nil
+  author_id_fallback : String? = nil,
 ) : {Array(SearchItem), String?}
   items = [] of SearchItem
   continuation = nil

@@ -111,7 +111,7 @@ module Invidious::Routes::Images
     if name == "maxres.jpg"
       build_thumbnails(id).each do |thumb|
         thumbnail_resource_path = "/vi/#{id}/#{thumb[:url]}.jpg"
-        if get_ytimg_pool("i9").client &.head(thumbnail_resource_path, headers).status_code == 200
+        if get_ytimg_pool("i").client &.head(thumbnail_resource_path, headers).status_code == 200
           name = thumb[:url] + ".jpg"
           break
         end

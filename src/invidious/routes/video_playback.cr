@@ -164,10 +164,13 @@ module Invidious::Routes::VideoPlayback
               env.response.headers["Access-Control-Allow-Origin"] = "*"
 
               if location = resp.headers["Location"]?
-                location = URI.parse(location)
-                location = "#{location.request_target}&host=#{location.host}#{region ? "&region=#{region}" : ""}"
+                url = Invidious::HttpServer::Utils.proxy_video_url(location, region: region)
 
-                env.redirect location
+                if title = query_params["title"]?
+                  url = "#{url}&title=#{URI.encode_www_form(title)}"
+                end
+
+                env.redirect url
                 break
               end
 
@@ -253,6 +256,11 @@ module Invidious::Routes::VideoPlayback
   # YouTube /videoplayback links expire after 6 hours,
   # so we have a mechanism here to redirect to the latest version
   def self.latest_version(env)
+    if CONFIG.invidious_companion.present?
+      invidious_companion = CONFIG.invidious_companion.sample
+      return env.redirect "#{invidious_companion.public_url}/latest_version?#{env.params.query}"
+    end
+
     id = env.params.query["id"]?
     itag = env.params.query["itag"]?.try &.to_i?
 

@@ -67,6 +67,10 @@ function get_playlist(plid) {
             '&format=html&hl=' + video_data.preferences.locale;
     }
 
+    if (video_data.params.listen) {
+        plid_url += '&listen=1'
+    }
+
     helpers.xhr('GET', plid_url, {retries: 5, entity_name: 'playlist'}, {
         on200: function (response) {
             playlist.innerHTML = response.playlistHtml;

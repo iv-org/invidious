@@ -460,7 +460,7 @@
     "search_filters_apply_button": "Ota valitut suodattimet käyttöön",
     "search_filters_date_label": "Latausaika",
     "search_filters_duration_option_medium": "Keskipituinen (4 - 20 minuuttia)",
-    "search_message_use_another_instance": " Voit myös <a href=\"`x`\">hakea toisella instanssilla</a>.",
+    "search_message_use_another_instance": "Voit myös <a href=\"`x`\">hakea toisella instanssilla</a>.",
     "search_filters_date_option_none": "Milloin tahansa",
     "search_filters_type_option_all": "Mikä tahansa tyyppi",
     "Popular enabled: ": "Suosittu käytössä: ",
@@ -496,5 +496,6 @@
     "generic_channels_count_plural": "{{count}} kanavaa",
     "The Popular feed has been disabled by the administrator.": "Järjestelmänvalvoja on poistanut Suositut-syötteen.",
     "Import YouTube watch history (.json)": "Tuo Youtube-katseluhistoria (.json)",
-    "toggle_theme": "Vaihda teemaa"
+    "toggle_theme": "Vaihda teemaa",
+    "preferences_preload_label": "Esilataa video data. "
 }

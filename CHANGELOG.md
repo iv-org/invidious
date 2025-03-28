@@ -2,7 +2,102 @@
 
 ## vX.Y.0 (future)
 
+## v2.20250314.0
 
+### Wrap-up
+
+This release brings the long awaited feature of supporting multiple audio tracks in a video, some bug fixes and UX improvements, and many other things primarily oriented to self-hosting instances, and developers using the API.
+
+The `Community` channel tab has been replaced by `Posts` in light of YouTube changes, but the URL remains the same.
+
+Tamil is now available as an interface language
+
+Automatic instance redirects will no longer have the chance to annoyingly redirect to the same instance you're on.
+
+Due to their requirements for video playback, Invidious will log warning messages when either inv-sig-helper, `po_token` or `visitor_data` is not configured
+
+Invidious is now able to listen through a UNIX socket
+
+User notifications are now batched for each channel
+
+**The minimum Crystal version supported by Invidious now `1.12.0`**
+
+### New features & important changes
+
+#### For users
+
+* Invidious now supports videos with multiple audio tracks allowing you to select which one you want to hear with!
+* Channel pages now have a proper previous page button
+* RSS feeds for channels will no longer contain the channel's profile picture
+* Support for channel `courses` page has been added
+* `Community` tabs has been replaced with `Posts` to comply with YouTube changes
+* Tamil is now an available interface language.
+
+#### For instance owners
+* Invidious is now able to listen on a UNIX socket
+* User notifications are now batched by channels, significantly reducing database load.
+* **`1.12.0` is now the oldest Crystal version that Invidious supports**
+* The example config will no longer force an http proxy to be configured
+* Invidious will now warn when any top-level config option must be set to a custom value, instead of just `HMAC_KEY`
+* Due to their requirements for video playback, Invidious will log warning messages when either inv-sig-helper, `po_token` or `visitor_data` is not configured
+
+#### For developers
+* Invidious is now compliant to Crystal 1.15 formatting rules, which are incompatible with earlier versions.
+* `/api/v1/transcripts/{id}` has been added to the API to allow for fetching the transcripts for a video. The arguments are the same as the captions endpoint.
+* `author_thumbnail` field has been added to videos in the various paged api endpoints
+* `published` field has been added to the API response for a video's related videos.
+* Docker builds now uses the Crystal compiler cache, reducing build times on repeated builds significantly.
+* Invidious ajax action handlers has undergone a clean up and may face compatibility issues with code that depends on these endpoints.
+* The versions of Crystal that we test in CI/CD are now: `1.12.1`, `1.13.2`, `1.14.0`, `1.15.0`
+
+### Bugs fixed
+
+#### User-side
+* Local video listen mode is now preserved when clicking on a video in the sidebar playlist widget
+* Automatic instance redirects will no longer redirect to the same instance the user is on
+* Fix some thumbnails responses returning 404
+* Videos: Fix missing host parameter on playback URLs when `local=true`
+* Fix HLS being used for non-livestream videos
+* Fix timeupdate event errors when required elements are missing
+* User: Ensure IO is properly closed when importing NewPipe subscriptions
+
+#### For instance owners
+* Fix http proxy configuration being forced by the standard example config
+
+#### API
+* `/api/v1/videos/{id}` will no longer return an occasional empty JSON response
+
+### Full list of pull requests merged since the last release (newest first)
+* Make Invidious compliant to Crystal 1.15 formatting rules (https://github.com/iv-org/invidious/pull/5014, by @syeopite)
+* Remove formatter check on container workflows (https://github.com/iv-org/invidious/pull/5153, by @syeopite)
+* Videos: Fix missing host parameter on playback URLs when `local=true` (https://github.com/iv-org/invidious/pull/4992, by @SamantazFox)
+* Remove stdlib override for proxy initialization (https://github.com/iv-org/invidious/pull/5065, by @syeopite)
+* Add support for author thumbnails in search api for videos (https://github.com/iv-org/invidious/pull/5072, thanks @ChunkyProgrammer)
+* Skip route if resp got closed by before handlers (https://github.com/iv-org/invidious/pull/5073, by @syeopite)
+* Fix video thumbnails in mixes (https://github.com/iv-org/invidious/pull/5116, thanks @iBicha)
+* CI: Drop support for versions prior to 1.12 and add 1.15.0 (https://github.com/iv-org/invidious/pull/5148, by @syeopite)
+* [Continuing #5094] Set language info for dash audio streams and sort (https://github.com/iv-org/invidious/pull/5149, thanks @giuliano-macedo)
+* Warn when any top-level config is "CHANGE_ME!!" (https://github.com/iv-org/invidious/pull/5150, by @syeopite)
+* Comment out http_proxy in example config (https://github.com/iv-org/invidious/pull/5151, by @syeopite)
+* API: Add a 'published' video parameter for related videos (https://github.com/iv-org/invidious/pull/4149, thanks @RadoslavL)
+* Ensure IO is properly closed when importing NewPipe subscriptions (https://github.com/iv-org/invidious/pull/4346, thanks @ChunkyProgrammer)
+* Carry over audio-only mode in playlist links (https://github.com/iv-org/invidious/pull/4784, thanks @krystof1119)
+* Routes: Clean ajax actions handlers (https://github.com/iv-org/invidious/pull/5036, by @SamantazFox)
+* Frontend: Add a first page and previous page buttons for channel navigation (https://github.com/iv-org/invidious/pull/4123, thanks @RadoslavL)
+* RSS: Channel + Playlist improvements (https://github.com/iv-org/invidious/pull/4298, thanks @ChunkyProgrammer)
+* Batch user notifications together (https://github.com/iv-org/invidious/pull/4486, thanks @999eagle)
+* JS: Update timeupdate event making it more defensive to prevent errors (https://github.com/iv-org/invidious/pull/4782, thanks @PMK)
+* Add API endpoint for fetching transcripts from YouTube by (https://github.com/iv-org/invidious/pull/4788, by @syeopite)
+* Translations update from Hosted Weblate by (https://github.com/iv-org/invidious/pull/4989, thanks to our many translators)
+* Add the ability to listen on UNIX sockets (https://github.com/iv-org/invidious/pull/5112, thanks @Caian)
+* Pick a different instance upon redirect (https://github.com/iv-org/invidious/pull/5154, thanks @epicsam123)
+* Add Courses to channel page and channel API (https://github.com/iv-org/invidious/pull/5158, thanks @ChunkyProgrammer)
+* fix /api/v1/videos/:id returns 200 with no content (https://github.com/iv-org/invidious/pull/5162, thanks @Drikanis)
+* Use Crystal compiler cache in docker builds (https://github.com/iv-org/invidious/pull/5163, by @syeopite)
+* Channels: Fix community tab by (https://github.com/iv-org/invidious/pull/5183, thanks @Fijxu)
+* Fix typo in `src/invidious/routes/images.cr` (https://github.com/iv-org/invidious/pull/5184, by @syeopite)
+* Fix an issue with the HLS manifest check for livestream videos (https://github.com/iv-org/invidious/pull/5189, thanks @alexmaras)
+* Warn when `po_token`, `visitor_data` and/or `inv-sig-helper` is not configured (https://github.com/iv-org/invidious/pull/5202, by @syeopite)
 ## v2.20241110.0
 
 ### Wrap-up

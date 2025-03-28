@@ -11,6 +11,7 @@
     "last": "neueste",
     "Next page": "Nächste Seite",
     "Previous page": "Vorherige Seite",
+    "First page": "Erste Seite",
     "Clear watch history?": "Verlauf löschen?",
     "New password": "Neues Passwort",
     "New passwords must match": "Neue Passwörter müssen übereinstimmen",
@@ -490,12 +491,13 @@
     "generic_channels_count_plural": "{{count}} Kanäle",
     "Import YouTube watch history (.json)": "YouTube Wiedergabeverlauf importieren (.json)",
     "Answer": "Antwort",
-    "The Popular feed has been disabled by the administrator.": "Der Angesagt-Feed wurde vom Administrator deaktiviert.",
+    "The Popular feed has been disabled by the administrator.": "Der Feed für beliebte Inhalte wurde vom Administrator deaktiviert.",
     "Add to playlist": "Einer Wiedergabeliste hinzufügen",
     "Search for videos": "Nach Videos suchen",
     "toggle_theme": "Thema wechseln",
     "Add to playlist: ": "Einer Wiedergabeliste hinzufügen: ",
-    "carousel_go_to": "Zu Folie `x` gehen",
-    "carousel_slide": "Folie {{current}} von {{total}}",
-    "carousel_skip": "Karussell überspringen"
+    "carousel_go_to": "Zu Element `x` springen",
+    "carousel_slide": "Seite {{current}} von {{total}}",
+    "carousel_skip": "Galerie überspringen",
+    "Filipino (auto-generated)": "Philippinisch (automatisch generiert)"
 }

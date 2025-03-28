@@ -6,7 +6,7 @@ function mark_watched(target) {
     var tile = target.parentNode.parentNode.parentNode.parentNode.parentNode;
     tile.style.display = 'none';
 
-    var url = '/watch_ajax?action_mark_watched=1&redirect=false' +
+    var url = '/watch_ajax?action=mark_watched&redirect=false' +
         '&id=' + target.getAttribute('data-id');
 
     helpers.xhr('POST', url, {payload: payload}, {
@@ -22,7 +22,7 @@ function mark_unwatched(target) {
     var count = document.getElementById('count');
     count.textContent--;
 
-    var url = '/watch_ajax?action_mark_unwatched=1&redirect=false' +
+    var url = '/watch_ajax?action=mark_unwatched&redirect=false' +
         '&id=' + target.getAttribute('data-id');
 
     helpers.xhr('POST', url, {payload: payload}, {
