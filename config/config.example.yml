@@ -484,9 +484,8 @@ jobs:
     ##
     enable: true
 
-
 # -----------------------------
-#  Miscellaneous
+#  Instance customization
 # -----------------------------
 
 ##
@@ -497,6 +496,78 @@ jobs:
 ## Default: <none>
 ##
 #banner:
+
+##
+## custom text displayed at the bottom of every page within Invidious' footer. This can
+## used for instance announcements, e.g
+##
+## When unset Invidious defaults to some text that describes what Invidious is. See
+## localization key default_invidious_footer_text 
+##
+## Accepted values: any string. HTML is accepted.
+## Default: <none>
+##
+#footer:
+
+##
+## Source code URL. If your instance is running a modified source
+## code, you MUST publish it somewhere and set this option.
+##
+## Accepted values: a string
+## Default: <none>
+##
+#modified_source_code_url: ""
+
+##
+## Email to contact the instance maintainer; used in a mailto: link within the footer. 
+##
+## Accepted values: string
+## Default: <none>
+##
+# instance_maintainer_email:
+
+##
+## Link to the terms of service of the instance (if any)
+##
+## Displayed within the instance section of the footer
+##
+## Accepted values: String (link)
+## Default: <none>
+##
+# footer_instance_tos_link:
+
+##
+## Link to the privacy-policy of the instance (if any)
+##
+## Displayed within the instance section of the footer
+##
+## Accepted values: String (link)
+## Default: <none>
+##
+# footer_instance_privacy_policy_link:
+
+##
+## Instance donation URL. If your instance has a donation option.
+## you can add it here so it will be present in the footer along
+## with the donation link for the project itself.
+##
+## Accepted values: a string
+## Default: <none>
+##
+#footer_instance_donate_link: ""
+
+##
+## Custom fields to be displayed within the footer's instance section
+##
+## Accepted values: A nested array mapping field name and links together.
+## IE: [ ["field1", "https://example.com/1"], ["field2", "https://example.com/2"] ]
+## Default: <none>
+##
+# footer_instance_section_custom_fields: []
+
+# -----------------------------
+#  Miscellaneous
+# -----------------------------
 
 ##
 ## Subscribe to channels using PubSubHub (Google PubSubHubbub service).
@@ -552,21 +623,13 @@ hmac_key: "CHANGE_ME!!"
 #cache_annotations: false
 
 ##
-## Source code URL. If your instance is running a modified source
-## code, you MUST publish it somewhere and set this option.
-##
-## Accepted values: a string
-## Default: <none>
-##
-#modified_source_code_url: ""
-
-##
 ## Maximum custom playlist length limit.
 ##
 ## Accepted values: Integer
 ## Default: 500
 ##
 #playlist_length_limit: 500
+
 
 #########################################
 #

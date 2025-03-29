@@ -131,8 +131,6 @@ class Config
   property check_tables : Bool = false
   # Cache annotations requested from IA, will not cache empty annotations or annotations that only contain cards
   property cache_annotations : Bool = false
-  # Optional banner to be displayed along top of page for announcements, etc.
-  property banner : String? = nil
   # Enables 'Strict-Transport-Security'. Ensure that `domain` and all subdomains are served securely
   property hsts : Bool? = true
   # Disable proxying server-wide: options: 'dash', 'livestreams', 'downloads', 'local'
@@ -140,9 +138,23 @@ class Config
   # Enable the user notifications for all users
   property enable_user_notifications : Bool = true
 
+  # Optional banner to be displayed along top of page for announcements, etc.
+  property banner : String? = nil
+  # Optional footer text to be displayed within Invidious' footer. Can be used for maintainer contact info, etc.
+  property footer : String? = nil
+  # Email to contact the instance maintainer. This is used within the footer as an mailto link.
+  property instance_maintainer_email : String? = nil
   # URL to the modified source code to be easily AGPL compliant
-  # Will display in the footer, next to the main source code link
+  # Will display in the footer
   property modified_source_code_url : String? = nil
+  # Link to the terms of service of the instance (if any). Will be displayed in the footer.
+  property footer_instance_tos_link : String? = nil
+  # Link to the privacy policy of the instance (if any). Will be displayed in the footer.
+  property footer_instance_privacy_policy_link : String? = nil
+  # Instance donation URL displayed in the "Instance" section of the footer
+  property footer_instance_donate_link : String? = nil
+  # Custom fields to be displayed within the footer's instance section
+  property footer_instance_section_custom_fields : Array(Array(String)) = [] of Array(String)
 
   # Connect to YouTube over 'ipv6', 'ipv4'. Will sometimes resolve fix issues with rate-limiting (see https://github.com/ytdl-org/youtube-dl/issues/21729)
   @[YAML::Field(converter: Preferences::FamilyConverter)]
