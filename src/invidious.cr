@@ -133,7 +133,7 @@ Kemal.config.extra_options do |parser|
     puts SOFTWARE.to_pretty_json
     exit
   end
-  parser.on("--migrate", "Run any migrations (beta, use at your own risk!!") do
+  parser.on("--migrate", "Run any migrations (beta, use at your own risk!!)") do
     Invidious::Database::Migrator.new(PG_DB).migrate
     exit
   end

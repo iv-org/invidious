@@ -1,0 +1,97 @@
+<% title = HTML.escape(compilation.title) %>
+<% author = HTML.escape(compilation.author) %>
+
+<% content_for "header" do %>
+<title><%= title %> - Invidious</title>
+<link rel="alternate" type="application/rss+xml" title="RSS" href="/feed/compilation/<%= compid %>" />
+<% end %>
+
+<div class="h-box flexible title">
+    <div class="flex-left"><h3><%= title %></h3></div>
+
+        <div class="flex-right button-container">
+        <%- if compilation.is_a?(InvidiousCompilation) && compilation.author == user.try &.email -%>
+            <%- if compilation.index.size > 0 -%>
+                <div class="pure-u">
+                    <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/watch?v=<%= compilation.first_video_id %>&comp=<%= compid %>&index=<%= compilation.index[0] %>&t=<%= compilation.first_video_starting_timestamp_seconds %>&end=<%= compilation.first_video_ending_timestamp_seconds %>">
+                        <i class="icon ion-md-play"></i>&nbsp;<%= translate(locale, "compilation_button_play") %>
+                    </a>
+                </div>
+            <%- end -%>
+            <div class="pure-u">
+                <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/add_compilation_items?comp=<%= compid %>">
+                    <i class="icon ion-md-add"></i>&nbsp;<%= translate(locale, "compilation_button_add_items") %>
+                </a>
+            </div>
+            <div class="pure-u">
+                <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/edit_compilation?comp=<%= compid %>">
+                    <i class="icon ion-md-create"></i>&nbsp;<%= translate(locale, "generic_button_edit") %>
+                </a>
+            </div>
+            <div class="pure-u">
+                <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/delete_compilation?comp=<%= compid %>">
+                    <i class="icon ion-md-trash"></i>&nbsp;<%= translate(locale, "generic_button_delete") %>
+                </a>
+            </div>
+        <%- end -%>
+
+        <div class="pure-u">
+            <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/feed/compilation/<%= compid %>">
+                <i class="icon ion-logo-rss"></i>&nbsp;<%= translate(locale, "generic_button_rss") %>
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="pure-g h-box">
+    <div class="pure-u-1-1">
+        <% if compilation.is_a? InvidiousCompilation %>
+            <b>
+                <% if compilation.author == user.try &.email %>
+                <a href="/feed/compilations"><%= author %></a> |
+                <% else %>
+                <%= author %> |
+                <% end %>
+                <%= translate_count(locale, "generic_videos_count", compilation.video_count) %> |
+                <%= translate(locale, "Updated `x` ago", recode_date(compilation.updated, locale)) %> |
+                <% case compilation.as(InvidiousCompilation).privacy when %>
+                <% when CompilationPrivacy::Unlisted %>
+                    <i class="icon ion-ios-unlock"></i> <%= translate(locale, "Unlisted") %>
+                <% when CompilationPrivacy::Private %>
+                    <i class="icon ion-ios-lock"></i> <%= translate(locale, "Private") %>
+                <% end %>
+            </b>
+        <% else %>
+            <b>
+                <a href="/channel/<%= compilation.ucid %>"><%= author %></a> |
+                <%= translate_count(locale, "generic_videos_count", compilation.video_count) %> |
+                <%= translate(locale, "Updated `x` ago", recode_date(compilation.updated, locale)) %>
+            </b>
+        <% end %>
+    </div>
+</div>
+
+<div class="h-box">
+    <div id="descriptionWrapper"><%= compilation.description_html %></div>
+</div>
+
+<div class="h-box">
+    <hr>
+</div>
+
+<% if compilation.is_a?(InvidiousCompilation) && compilation.author == user.try &.email %>
+<script id="compilation_data" type="application/json">
+<%=
+{
+    "csrf_token" => URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "")
+}.to_pretty_json
+%>
+</script>
+<script src="/js/compilation_widget.js?v=<%= ASSET_COMMIT %>"></script>
+<% end %>
+
+<div class="pure-g">
+<% videos.each do |compilation_video| %>
+    <%= rendered "components/compilation_video" %>
+<% end %>
+</div>
