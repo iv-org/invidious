@@ -513,7 +513,10 @@
     "Answer": "Odgovor",
     "Search for videos": "Pretražite video snimke",
     "carousel_skip": "Preskoči karusel",
-    "toggle_theme": "Подеси тему",
+    "toggle_theme": "Podesi temu",
     "preferences_preload_label": "Unapred učitaj podatke o video snimku: ",
-    "Filipino (auto-generated)": "Filipinski (automatski generisano)"
+    "Filipino (auto-generated)": "Filipinski (automatski generisano)",
+    "channel_tab_posts_label": "Objave",
+    "First page": "Prva stranica",
+    "channel_tab_courses_label": "Kursevi"
 }
