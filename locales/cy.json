@@ -141,7 +141,7 @@
     "An alternative front-end to YouTube": "Pen blaen amgen i YouTube",
     "source": "ffynhonnell",
     "Log in": "Mewngofnodi",
-    "Log in/register": "Mewngofnodi/Cofrestru",
+    "Log in/register": "Mewngofnodi/cofrestru",
     "User ID": "Enw defnyddiwr",
     "preferences_quality_option_dash": "DASH (ansawdd addasol)",
     "Sign In": "Mewngofnodi",
@@ -381,5 +381,18 @@
     "channel_tab_channels_label": "Sianeli",
     "channel_tab_community_label": "Cymuned",
     "channel_tab_shorts_label": "Fideos byrion",
-    "channel_tab_videos_label": "Fideos"
+    "channel_tab_videos_label": "Fideos",
+    "generic_playlists_count_0": "{{count}} rhestr chwarae",
+    "generic_playlists_count_1": "{{count}} rhestr chwarae",
+    "generic_playlists_count_2": "{{count}} rhestri chwarae",
+    "generic_playlists_count_3": "{{count}} rhestri chwarae",
+    "generic_playlists_count_4": "{{count}} rhestri chwarae",
+    "generic_playlists_count_5": "{{count}} rhestri chwarae",
+    "New passwords must match": "Rhaid i'r cyfrineiriau newydd cyfateb â'i gilydd",
+    "last": "diwethaf",
+    "First page": "Tudalen gyntaf",
+    "preferences_preload_label": "Cynlwytho data fideo: ",
+    "preferences_extend_desc_label": "Ymestyn disgrifiad fideo'n awtomatig: ",
+    "preferences_vr_mode_label": "Fideos rhyngweithiol 360 gradd (angen WebGL): ",
+    "preferences_video_loop_label": "Doleniwch bob amser: "
 }
