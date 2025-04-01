@@ -237,7 +237,7 @@ module Invidious::Routes::API::Manifest
     manifest = response.body
 
     if local
-      manifest = manifest.gsub("https://www.youtube.com", HOST_URL)
+      manifest = manifest.gsub("https://www.youtube.com", env.request.headers["Host"])
       manifest = manifest.gsub("index.m3u8", "index.m3u8?local=true")
     end
 
