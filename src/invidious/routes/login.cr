@@ -57,13 +57,7 @@ module Invidious::Routes::Login
           sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
           Invidious::Database::SessionIDs.insert(sid, email)
 
-          # Checks if there is any alternative domain, like a second domain name,
-          # TOR or I2P address
-          if alt = CONFIG.alternative_domains.index(env.request.headers["Host"])
-            env.response.cookies["SID"] = Invidious::User::Cookies.sid(CONFIG.alternative_domains[alt], sid)
-          else
-            env.response.cookies["SID"] = Invidious::User::Cookies.sid(CONFIG.domain, sid)
-          end
+          env.response.cookies["SID"] = Invidious::User::Cookies.sid(env.request.headers["Host"], sid)
         else
           return error_template(401, "Wrong username or password")
         end
@@ -127,13 +121,7 @@ module Invidious::Routes::Login
         view_name = "subscriptions_#{sha256(user.email)}"
         PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(user.email)}")
 
-        # Checks if there is any alternative domain, like a second domain name,
-        # TOR or I2P address
-        if alt = CONFIG.alternative_domains.index(env.request.headers["Host"])
-          env.response.cookies["SID"] = Invidious::User::Cookies.sid(CONFIG.alternative_domains[alt], sid)
-        else
-          env.response.cookies["SID"] = Invidious::User::Cookies.sid(CONFIG.domain, sid)
-        end
+        env.response.cookies["SID"] = Invidious::User::Cookies.sid(env.request.headers["Host"], sid)
 
         if env.request.cookies["PREFS"]?
           user.preferences = env.get("preferences").as(Preferences)
