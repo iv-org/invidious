@@ -22,34 +22,25 @@ function toggle_comments(event) {
     }
 }
 
-function hide_youtube_replies(event) {
-    var target = event.target;
-
+function toggle_youtube_replies(target, next_click_action) {
     var sub_text = target.getAttribute('data-inner-text');
     var inner_text = target.getAttribute('data-sub-text');
 
     var body = target.parentNode.parentNode.children[1];
-    body.style.display = 'none';
+    body.style.display = next_click_action === show_youtube_replies ? 'none' : '';
 
     target.textContent = sub_text;
-    target.onclick = show_youtube_replies;
+    target.onclick = next_click_action;
     target.setAttribute('data-inner-text', inner_text);
     target.setAttribute('data-sub-text', sub_text);
 }
 
+function hide_youtube_replies(event) {
+    toggle_youtube_replies(event.target, show_youtube_replies);
+}
+
 function show_youtube_replies(event) {
-    var target = event.target;
-
-    var sub_text = target.getAttribute('data-inner-text');
-    var inner_text = target.getAttribute('data-sub-text');
-
-    var body = target.parentNode.parentNode.children[1];
-    body.style.display = '';
-
-    target.textContent = sub_text;
-    target.onclick = hide_youtube_replies;
-    target.setAttribute('data-inner-text', inner_text);
-    target.setAttribute('data-sub-text', sub_text);
+    toggle_youtube_replies(event.target, hide_youtube_replies);
 }
 
 function get_youtube_comments() {
@@ -58,7 +49,7 @@ function get_youtube_comments() {
     var fallback = comments.innerHTML;
     comments.innerHTML = spinnerHTML;
 
-    var baseUrl = video_data.base_url || '/api/v1/comments/'+ video_data.id
+    var baseUrl = video_data.base_url || '/api/v1/comments/' + video_data.id
     var url = baseUrl +
         '?format=html' +
         '&hl=' + video_data.preferences.locale +
@@ -67,10 +58,6 @@ function get_youtube_comments() {
     if (video_data.ucid) {
         url += '&ucid=' + video_data.ucid
     }
-
-    var onNon200 = function (xhr) { comments.innerHTML = fallback; };
-    if (video_data.params.comments[1] === 'youtube')
-        onNon200 = function (xhr) {};
 
     helpers.xhr('GET', url, {retries: 5, entity_name: 'comments'}, {
         on200: function (response) {
@@ -109,7 +96,9 @@ function get_youtube_comments() {
                 comments.children[0].children[1].children[0].onclick = swap_comments;
             }
         },
-        onNon200: onNon200, // declared above
+        onNon200: video_data.params.comments[1] === 'youtube' 
+          ? function (xhr) {}
+          : function (xhr) { comments.innerHTML = fallback; },
         onError: function (xhr) {
             comments.innerHTML = spinnerHTML;
         },
@@ -125,7 +114,7 @@ function get_youtube_replies(target, load_more, load_replies) {
     var body = target.parentNode.parentNode;
     var fallback = body.innerHTML;
     body.innerHTML = spinnerHTML;
-    var baseUrl = video_data.base_url || '/api/v1/comments/'+ video_data.id
+    var baseUrl = video_data.base_url || '/api/v1/comments/' + video_data.id
     var url = baseUrl +
         '?format=html' +
         '&hl=' + video_data.preferences.locale +
