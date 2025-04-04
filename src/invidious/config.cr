@@ -35,7 +35,7 @@ struct ConfigPreferences
   property max_results : Int32 = 40
   property notifications_only : Bool = false
   property player_style : String = "invidious"
-  property quality : String = "hd720"
+  property quality : String = "dash"
   property quality_dash : String = "auto"
   property default_home : String? = "Popular"
   property feed_menu : Array(String) = ["Popular", "Trending", "Subscriptions", "Playlists"]
