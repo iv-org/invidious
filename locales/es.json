@@ -500,7 +500,7 @@
     "generic_button_cancel": "Cancelar",
     "generic_button_rss": "RSS",
     "channel_tab_podcasts_label": "Podcasts",
-    "channel_tab_releases_label": "Publicaciones",
+    "channel_tab_releases_label": "Lanzamientos",
     "generic_channels_count_0": "{{count}} canal",
     "generic_channels_count_1": "{{count}} canales",
     "generic_channels_count_2": "{{count}} canales",
@@ -515,5 +515,8 @@
     "carousel_skip": "Saltar el carrusel",
     "carousel_go_to": "Ir a la diapositiva `x`",
     "preferences_preload_label": "Precargar datos del vídeo: ",
-    "Filipino (auto-generated)": "Filipino (generado automáticamente)"
+    "Filipino (auto-generated)": "Filipino (generado automáticamente)",
+    "channel_tab_posts_label": "Publicaciones",
+    "First page": "Primera página",
+    "channel_tab_courses_label": "Cursos"
 }

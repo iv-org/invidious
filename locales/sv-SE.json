@@ -498,5 +498,8 @@
     "carousel_skip": "Hoppa över karusellen",
     "carousel_go_to": "Gå till bildspel `x`",
     "preferences_preload_label": "Förladda video data: ",
-    "Filipino (auto-generated)": "Filippinska (auto-genererad)"
+    "Filipino (auto-generated)": "Filippinska (auto-genererad)",
+    "First page": "Första sidan",
+    "channel_tab_courses_label": "Kurser",
+    "channel_tab_posts_label": "Inlägg"
 }
