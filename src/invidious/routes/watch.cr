@@ -30,6 +30,10 @@ module Invidious::Routes::Watch
       return env.redirect "/"
     end
 
+    if CONFIG.dmca_content.includes?(id)
+      return error_template(403, "dmca_content")
+    end
+
     plid = env.params.query["list"]?.try &.gsub(/[^a-zA-Z0-9_-]/, "")
     continuation = process_continuation(env.params.query, plid, id)
 
