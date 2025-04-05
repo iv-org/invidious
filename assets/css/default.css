@@ -881,3 +881,8 @@ h1, h2, h3, h4, h5, p,
 .error-card pre {
   height: 300px;
 }
+
+.error-issue-template {
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.12345);
+}

@@ -62,7 +62,7 @@ private module Parsers
     extend self
     include BaseParser
 
-    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+    def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = (item["videoRenderer"]? || item["gridVideoRenderer"]?)
         return self.parse(item_contents, author_fallback)
       end
@@ -190,7 +190,7 @@ private module Parsers
     extend self
     include BaseParser
 
-    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+    def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = (item["channelRenderer"]? || item["gridChannelRenderer"]?)
         return self.parse(item_contents, author_fallback)
       end
@@ -253,7 +253,7 @@ private module Parsers
     extend self
     include BaseParser
 
-    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+    def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["hashtagTileRenderer"]?
         return self.parse(item_contents)
       end
@@ -306,7 +306,7 @@ private module Parsers
     extend self
     include BaseParser
 
-    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+    def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["gridPlaylistRenderer"]?
         return self.parse(item_contents, author_fallback)
       end
@@ -350,7 +350,7 @@ private module Parsers
     extend self
     include BaseParser
 
-    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+    def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["playlistRenderer"]?
         return self.parse(item_contents, author_fallback)
       end
@@ -413,7 +413,7 @@ private module Parsers
     extend self
     include BaseParser
 
-    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+    def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["shelfRenderer"]?
         return self.parse(item_contents, author_fallback)
       end
@@ -481,7 +481,7 @@ private module Parsers
     extend self
     include BaseParser
 
-    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+    def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item.dig?("itemSectionRenderer", "contents", 0)
         return self.parse(item_contents, author_fallback)
       end
@@ -510,7 +510,7 @@ private module Parsers
     extend self
     include BaseParser
 
-    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+    def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item.dig?("richItemRenderer", "content")
         return self.parse(item_contents, author_fallback)
       end
@@ -543,7 +543,7 @@ private module Parsers
     extend self
     include BaseParser
 
-    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+    def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["reelItemRenderer"]?
         return self.parse(item_contents, author_fallback)
       end
@@ -640,7 +640,7 @@ private module Parsers
     extend self
     include BaseParser
 
-    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+    def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["lockupViewModel"]?
         return self.parse(item_contents, author_fallback)
       end
@@ -718,7 +718,7 @@ private module Parsers
     extend self
     include BaseParser
 
-    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+    def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["shortsLockupViewModel"]?
         return self.parse(item_contents, author_fallback)
       end

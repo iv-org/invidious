@@ -31,7 +31,7 @@ def get_issue_template(env : HTTP::Server::Context, exception : Exception) : Tup
 
   issue_template += github_details("Backtrace", exception.inspect_with_backtrace)
 
-  return {issue_title, issue_template}
+  return issue_title, issue_template
 end
 
 def error_template_helper(env : HTTP::Server::Context, status_code : Int32, exception : Exception)
@@ -78,7 +78,7 @@ def error_template_helper(env : HTTP::Server::Context, status_code : Int32, exce
       <p>#{translate(locale, "crash_page_report_issue", url_new_issue)}</p>
 
       <!-- TODO: Add a "copy to clipboard" button -->
-      <pre style="padding: 20px; background: rgba(0, 0, 0, 0.12345);">#{issue_template}</pre>
+      <pre class="error-issue-template">#{issue_template}</pre>
     </div>
   END_HTML
 

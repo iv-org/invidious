@@ -501,9 +501,7 @@ def extract_playlist_videos(initial_data : Hash(String, JSON::Any))
       })
     end
   rescue ex
-    videos << ProblematicTimelineItem.new(
-      parse_exception: ex
-    )
+    videos << ProblematicTimelineItem.new(parse_exception: ex)
   end
 
   return videos

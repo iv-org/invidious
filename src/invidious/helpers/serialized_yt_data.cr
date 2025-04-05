@@ -320,7 +320,7 @@ struct ProblematicTimelineItem
 
   def to_xml(env, locale, xml : XML::Builder)
     xml.element("entry") do
-      xml.element("id") { xml.text "iv-err-#{Random.new.base64(8)}" }
+      xml.element("id") { xml.text "iv-err-#{@id}" }
       xml.element("title") { xml.text "Parse Error: This item has failed to parse" }
       xml.element("updated") { xml.text Time.utc.to_rfc3339 }
 
