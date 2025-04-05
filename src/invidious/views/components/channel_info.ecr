@@ -37,7 +37,10 @@
 <div class="pure-g h-box">
     <div class="pure-u-1-2">
         <div class="pure-u-1 pure-md-1-3">
-            <a href="<%= youtube_url %>"><%= translate(locale, "View channel on YouTube") %></a>
+            <%-
+                confirm_view_yt = "/confirm_leave?link=#{URI.encode_path(youtube_url)}"
+            -%>
+            <a href="<%= confirm_view_yt %>"><%= translate(locale, "View channel on YouTube") %></a>
         </div>
         <div class="pure-u-1 pure-md-1-3">
             <a href="<%= redirect_url %>"><%= translate(locale, "Switch Invidious Instance") %></a>

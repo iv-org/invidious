@@ -1,3 +1,5 @@
+require "uri"
+
 module Invidious::Frontend::Comments
   extend self
 
@@ -148,13 +150,17 @@ module Invidious::Frontend::Comments
         END_HTML
 
         if comments["videoId"]?
+          permalink = "https://www.youtube.com/watch?v=#{comments["videoId"]}&lc=#{child["commentId"]}"
+          permalink_confirm = "/confirm_leave?link=#{URI.encode_path(permalink)}"
           html << <<-END_HTML
-            <a rel="noreferrer noopener" href="https://www.youtube.com/watch?v=#{comments["videoId"]}&lc=#{child["commentId"]}" title="#{translate(locale, "YouTube comment permalink")}">[YT]</a>
+            <a href="#{permalink_confirm}" title="#{translate(locale, "YouTube comment permalink")}">[YT]</a>
             |
           END_HTML
         elsif comments["authorId"]?
+          permalink = "https://www.youtube.com/channel/#{comments["authorId"]}/community?lb=#{child["commentId"]}"
+          permalink_confirm = "/confirm_leave?link=#{URI.encode_path(permalink)}"
           html << <<-END_HTML
-            <a rel="noreferrer noopener" href="https://www.youtube.com/channel/#{comments["authorId"]}/community?lb=#{child["commentId"]}" title="#{translate(locale, "YouTube comment permalink")}">[YT]</a>
+            <a href="#{permalink_confirm}" title="#{translate(locale, "YouTube comment permalink")}">[YT]</a>
             |
           END_HTML
         end
