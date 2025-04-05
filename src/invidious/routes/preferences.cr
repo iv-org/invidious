@@ -144,6 +144,10 @@ module Invidious::Routes::PreferencesRoute
     notifications_only ||= "off"
     notifications_only = notifications_only == "on"
 
+    exclude_members_only_videos = env.params.body["exclude_members_only_videos"]?.try &.as(String)
+    exclude_members_only_videos ||= "off"
+    exclude_members_only_videos = exclude_members_only_videos == "on"
+
     # Convert to JSON and back again to take advantage of converters used for compatibility
     preferences = Preferences.from_json({
       annotations:                 annotations,
@@ -180,6 +184,7 @@ module Invidious::Routes::PreferencesRoute
       vr_mode:                     vr_mode,
       show_nick:                   show_nick,
       save_player_pos:             save_player_pos,
+      exclude_members_only_videos: exclude_members_only_videos,
     }.to_json)
 
     if user = env.get? "user"
