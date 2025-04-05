@@ -501,5 +501,11 @@
     "toggle_theme": "Toggle Theme",
     "carousel_slide": "Slide {{current}} of {{total}}",
     "carousel_skip": "Skip the Carousel",
-    "carousel_go_to": "Go to slide `x`"
+    "carousel_go_to": "Go to slide `x`",
+    "accounts_new_username": "New username",
+    "accounts_change_username": "Change username",
+    "accounts_username_required_field": "Username is a required field",
+    "accounts_username_empty": "Username cannot be empty",
+    "accounts_username_is_the_same": "This is your username, use another one",
+    "accounts_username_taken": "Username is already taken, use another one"
 }
