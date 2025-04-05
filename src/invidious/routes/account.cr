@@ -124,12 +124,8 @@ module Invidious::Routes::Account
     end
 
     new_username = env.params.body["new_username"]?.try &.downcase.byte_slice(0, 254)
-    if new_username.nil?
+    if new_username.nil? || new_username.empty?
       return error_template(401, "accounts_username_required_field")
-    end
-
-    if new_username.empty?
-      return error_template(401, "accounts_username_empty")
     end
 
     if new_username == user.email
