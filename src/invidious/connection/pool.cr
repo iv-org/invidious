@@ -29,6 +29,8 @@ module Invidious::ConnectionPool
     abstract def pool : DB::Pool(PoolClient)
 
     {% for method in %w[get post put patch delete head options] %}
+      # Streaming API for {{method.id.upcase}} request.
+      # The response will have its body as an `IO` accessed via `HTTP::Client::Response#body_io`.
       def {{method.id}}(*args, **kwargs, &)
         self.client do | client |
           client.{{method.id}}(*args, **kwargs) do | response |
@@ -42,11 +44,11 @@ module Invidious::ConnectionPool
         end
       end
 
+      # Executes a {{method.id.upcase}} request.
+      # The response will have its body as a `String`, accessed via `HTTP::Client::Response#body`.
       def {{method.id}}(*args, **kwargs)
-        {{method.id}}(*args, **kwargs) do | response |
-          return response
-        ensure
-          response.body_io?.try &. skip_to_end
+        self.client do | client |
+          return client.{{method.id}}(*args, **kwargs)
         end
       end
     {% end %}
