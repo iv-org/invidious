@@ -206,13 +206,26 @@ https_only: false
 #disable_proxy: false
 
 ##
-## Size of the HTTP pool used to connect to youtube. Each
+## Max size of the HTTP pool used to connect to youtube. Each
 ## domain ('youtube.com', 'ytimg.com', ...) has its own pool.
 ##
 ## Accepted values: a positive integer
 ## Default: 100
 ##
 #pool_size: 100
+
+
+##
+## Idle size of the HTTP pool used to connect to youtube. Each
+## domain ('youtube.com', 'ytimg.com', ...) has its own pool.
+##
+## When unset this value has the same value as pool_size 
+##
+## Accepted values: a positive integer
+## Default: <none> (internally this means that it has the same value as pool_size)
+##
+#idle pool_size: 100
+
 
 
 ##
