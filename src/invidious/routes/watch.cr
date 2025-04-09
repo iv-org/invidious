@@ -321,6 +321,9 @@ module Invidious::Routes::Watch
       env.params.query["title"] = filename
       env.params.query["label"] = URI.decode_www_form(label.as_s)
 
+      # Set content disposition header to force download
+      env.response.headers["Content-Disposition"] = "attachment; filename=\"#{filename}\""
+
       return Invidious::Routes::API::V1::Videos.captions(env)
     elsif itag = download_widget["itag"]?.try &.as_i.to_s
       # URL params specific to /latest_version
