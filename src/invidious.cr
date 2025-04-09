@@ -91,14 +91,19 @@ SOFTWARE = {
   "branch"  => "#{CURRENT_BRANCH}",
 }
 
-YT_POOL = YoutubeConnectionPool.new(YT_URL, capacity: CONFIG.pool_size)
+YT_POOL = YoutubeConnectionPool.new(YT_URL, max_capacity: CONFIG.pool_size, idle_capacity: CONFIG.idle_pool_size)
 
 # Image request pool
 
-GGPHT_POOL = YoutubeConnectionPool.new(URI.parse("https://yt3.ggpht.com"), capacity: CONFIG.pool_size)
+GGPHT_POOL = YoutubeConnectionPool.new(
+  URI.parse("https://yt3.ggpht.com"),
+  max_capacity: CONFIG.pool_size,
+  idle_capacity: CONFIG.idle_pool_size
+)
 
 COMPANION_POOL = CompanionConnectionPool.new(
-  capacity: CONFIG.pool_size
+  max_capacity: CONFIG.pool_size,
+  idle_capacity: CONFIG.idle_pool_size
 )
 
 # CLI

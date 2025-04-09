@@ -4,11 +4,24 @@ private YTIMG_POOLS = {} of String => YoutubeConnectionPool
 
 struct YoutubeConnectionPool
   property! url : URI
-  property! capacity : Int32
+  property! max_capacity : Int32
+  property! idle_capacity : Int32
   property! timeout : Float64
   property pool : DB::Pool(HTTP::Client)
 
-  def initialize(url : URI, @capacity = 5, @timeout = 5.0)
+  def initialize(
+    url : URI,
+    *,
+    @max_capacity : Int32 = 5,
+    idle_capacity : Int32? = nil,
+    @timeout : Float64 = 5.0,
+  )
+    if idle_capacity.nil?
+      @idle_capacity = @max_capacity
+    else
+      @idle_capacity = idle_capacity
+    end
+
     @url = url
     @pool = build_pool()
   end
@@ -33,10 +46,12 @@ struct YoutubeConnectionPool
   end
 
   private def build_pool
+    # We call the getter for the instance variables instead of using them directly
+    # because the getters defined by property! ensures that the value is not a nil
     options = DB::Pool::Options.new(
       initial_pool_size: 0,
-      max_pool_size: capacity,
-      max_idle_pool_size: capacity,
+      max_pool_size: max_capacity,
+      max_idle_pool_size: idle_capacity,
       checkout_timeout: timeout
     )
 
@@ -47,13 +62,22 @@ struct YoutubeConnectionPool
 end
 
 struct CompanionConnectionPool
+  property! max_capacity : Int32
+  property! idle_capacity : Int32
+  property! timeout : Float64
   property pool : DB::Pool(HTTP::Client)
 
-  def initialize(capacity = 5, timeout = 5.0)
+  def initialize(*, @max_capacity : Int32 = 5, idle_capacity : Int32? = nil, @timeout : Float64 = 5.0)
+    if idle_capacity.nil?
+      @idle_capacity = @max_capacity
+    else
+      @idle_capacity = idle_capacity
+    end
+
     options = DB::Pool::Options.new(
       initial_pool_size: 0,
-      max_pool_size: capacity,
-      max_idle_pool_size: capacity,
+      max_pool_size: max_capacity,
+      max_idle_pool_size: idle_capacity.not_nil!,
       checkout_timeout: timeout
     )
 
@@ -145,7 +169,11 @@ def get_ytimg_pool(subdomain)
     return pool
   else
     LOGGER.info("ytimg_pool: Creating a new HTTP pool for \"https://#{subdomain}.ytimg.com\"")
-    pool = YoutubeConnectionPool.new(URI.parse("https://#{subdomain}.ytimg.com"), capacity: CONFIG.pool_size)
+    pool = YoutubeConnectionPool.new(
+      URI.parse("https://#{subdomain}.ytimg.com"),
+      max_capacity: CONFIG.pool_size,
+      idle_capacity: CONFIG.idle_pool_size
+    )
     YTIMG_POOLS[subdomain] = pool
 
     return pool
