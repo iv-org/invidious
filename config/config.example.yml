@@ -214,25 +214,6 @@ https_only: false
 ##
 #pool_size: 100
 
-
-##
-## Max idle size of the HTTP pool used to connect to youtube. Each
-## domain ('youtube.com', 'ytimg.com', ...) has its own pool.
-##
-## This means that when releasing a connection back into the pool, it will
-## be closed if there are already more than idle_pool_size connections within
-## the pool
-##
-## Do note that idle connections are kept around forever without any way of
-## timing them out.
-##
-## When unset this value has the same value as pool_size 
-##
-## Accepted values: a positive integer
-## Default: <none> (internally this means that it has the same value as pool_size)
-##
-#idle_pool_size:
-
 ##
 ## Amount of seconds to wait for a client to be free from the pool
 ## before raising an error

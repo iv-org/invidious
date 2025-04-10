@@ -7,18 +7,13 @@ module Invidious::ConnectionPool
     def initialize(
       *,
       max_capacity : Int32 = 5,
-      idle_capacity : Int32? = nil,
       timeout : Float64 = 5.0,
       &client_factory : -> HTTP::Client
     )
-      if idle_capacity.nil?
-        idle_capacity = max_capacity
-      end
-
       pool_options = DB::Pool::Options.new(
         initial_pool_size: 0,
         max_pool_size: max_capacity,
-        max_idle_pool_size: idle_capacity,
+        max_idle_pool_size: max_capacity,
         checkout_timeout: timeout
       )
 
@@ -106,7 +101,6 @@ module Invidious::ConnectionPool
 
       pool = ConnectionPool::Pool.new(
         max_capacity: CONFIG.pool_size,
-        idle_capacity: CONFIG.idle_pool_size,
         timeout: CONFIG.pool_checkout_timeout
       ) do
         next make_client(url, force_resolve: true)

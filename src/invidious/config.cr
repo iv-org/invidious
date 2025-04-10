@@ -160,8 +160,6 @@ class Config
 
   # Max pool size for HTTP requests to youtube.com and ytimg.com (each domain has a separate pool)
   property pool_size : Int32 = 100
-  # Idle pool size for HTTP requests to youtube.com and ytimg.com (each domain has a separate pool)
-  property idle_pool_size : Int32? = nil
 
   # Amount of seconds to wait for a client to be free from the pool before rasing an error
   property pool_checkout_timeout : Float64 = 5
