@@ -32,7 +32,7 @@ module Invidious::ConnectionPool
       # Streaming API for {{method.id.upcase}} request.
       # The response will have its body as an `IO` accessed via `HTTP::Client::Response#body_io`.
       def {{method.id}}(*args, **kwargs, &)
-        self.client do | client |
+        self.checkout do | client |
           client.{{method.id}}(*args, **kwargs) do | response |
 
             result = yield response
@@ -47,14 +47,14 @@ module Invidious::ConnectionPool
       # Executes a {{method.id.upcase}} request.
       # The response will have its body as a `String`, accessed via `HTTP::Client::Response#body`.
       def {{method.id}}(*args, **kwargs)
-        self.client do | client |
+        self.checkout do | client |
           return client.{{method.id}}(*args, **kwargs)
         end
       end
     {% end %}
 
     # Checks out a client in the pool
-    private def client(&)
+    def checkout(&)
       # If a client has been deleted from the pool
       # we won't try to release it
       client_exists_in_pool = true

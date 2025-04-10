@@ -58,8 +58,24 @@ Spectator.describe Invidious::ConnectionPool do
       expect(pool.post("/post") { |r| r.body_io.gets_to_end }).to eq("post")
     end
 
-    # it "Can checkout a client" do
-    # end
+    it "Allows more than one clients to be checked out (if applicable)" do
+      pool = Invidious::ConnectionPool::Pool.new(URI.parse("http://localhost:12345"), max_capacity: 100)
+
+      pool.checkout do | client |
+        expect(pool.post("/post").body).to eq("post")
+      end
+    end
+
+    it "Can make multiple requests with the same client" do
+      pool = Invidious::ConnectionPool::Pool.new(URI.parse("http://localhost:12345"), max_capacity: 100)
+
+      pool.checkout do | client |
+        expect(client.get("/get").body).to eq("get")
+        expect(client.post("/post").body).to eq("post")
+        expect(client.get("/get").body).to eq("get")
+      end
+
+    end
 
     it "Allows concurrent requests" do
       pool = Invidious::ConnectionPool::Pool.new(URI.parse("http://localhost:12345"), max_capacity: 100)
