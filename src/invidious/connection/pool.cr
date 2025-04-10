@@ -1,15 +1,15 @@
 module Invidious::ConnectionPool
-  # The base connection pool that provides the underlying logic that all connection pools are based around
-  #
-  # Uses `DB::Pool` for the pooling logic
-  abstract struct BaseConnectionPool(PoolClient)
+  # A connection pool to reuse `HTTP::Client` connections
+  struct Pool
+    getter pool : DB::Pool(HTTP::Client)
+
     # Creates a connection pool with the provided options, and client factory block.
     def initialize(
       *,
       max_capacity : Int32 = 5,
       idle_capacity : Int32? = nil,
       timeout : Float64 = 5.0,
-      &client_factory : -> PoolClient
+      &client_factory : -> HTTP::Client
     )
       if idle_capacity.nil?
         idle_capacity = max_capacity
@@ -22,11 +22,8 @@ module Invidious::ConnectionPool
         checkout_timeout: timeout
       )
 
-      @pool = DB::Pool(PoolClient).new(pool_options, &client_factory)
+      @pool = DB::Pool(HTTP::Client).new(pool_options, &client_factory)
     end
-
-    # Returns the underlying `DB::Pool` object
-    abstract def pool : DB::Pool(PoolClient)
 
     {% for method in %w[get post put patch delete head options] %}
       # Streaming API for {{method.id.upcase}} request.
@@ -89,45 +86,6 @@ module Invidious::ConnectionPool
     end
   end
 
-  # A basic connection pool where each client within is set to connect to a single resource
-  struct Pool < BaseConnectionPool(HTTP::Client)
-    getter pool : DB::Pool(HTTP::Client)
-
-    # Creates a pool of clients that connects to the given url, with the provided options.
-    def initialize(
-      url : URI,
-      *,
-      max_capacity : Int32 = 5,
-      idle_capacity : Int32? = nil,
-      timeout : Float64 = 5.0,
-    )
-      super(max_capacity: max_capacity, idle_capacity: idle_capacity, timeout: timeout) do
-        next make_client(url, force_resolve: true)
-      end
-    end
-  end
-
-  # A modified connection pool for the interacting with Invidious companion.
-  #
-  # The main difference is that clients in this pool are created with different urls
-  # based on what is randomly selected from the configured list of companions
-  struct CompanionPool < BaseConnectionPool(HTTP::Client)
-    getter pool : DB::Pool(HTTP::Client)
-
-    # Creates a pool of clients with the provided options.
-    def initialize(
-      *,
-      max_capacity : Int32 = 5,
-      idle_capacity : Int32? = nil,
-      timeout : Float64 = 5.0,
-    )
-      super(max_capacity: max_capacity, idle_capacity: idle_capacity, timeout: timeout) do
-        companion = CONFIG.invidious_companion.sample
-        next make_client(companion.private_url, use_http_proxy: false)
-      end
-    end
-  end
-
   class Error < Exception
   end
 
@@ -147,12 +105,16 @@ module Invidious::ConnectionPool
       return pool
     else
       LOGGER.info("ytimg_pool: Creating a new HTTP pool for \"https://#{subdomain}.ytimg.com\"")
+      url = URI.parse("https://#{subdomain}.ytimg.com")
+
       pool = ConnectionPool::Pool.new(
-        URI.parse("https://#{subdomain}.ytimg.com"),
         max_capacity: CONFIG.pool_size,
         idle_capacity: CONFIG.idle_pool_size,
         timeout: CONFIG.pool_checkout_timeout
-      )
+      ) do
+        next make_client(url, force_resolve: true)
+      end
+
       YTIMG_POOLS[subdomain] = pool
 
       return pool
