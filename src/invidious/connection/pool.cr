@@ -31,12 +31,10 @@ module Invidious::ConnectionPool
       def {{method.id}}(*args, **kwargs, &)
         self.checkout do | client |
           client.{{method.id}}(*args, **kwargs) do | response |
-
             result = yield response
             return result
-
           ensure
-            response.body_io?.try &. skip_to_end
+            response.body_io?.try &.skip_to_end
           end
         end
       end
@@ -85,7 +83,6 @@ module Invidious::ConnectionPool
       pool.release(http_client) if http_client && client_exists_in_pool
     end
   end
-
   class Error < Exception
   end
 
