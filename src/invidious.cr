@@ -115,7 +115,7 @@ COMPANION_POOL = Invidious::ConnectionPool::Pool.new(
   reinitialize_proxy: false
 ) do
   companion = CONFIG.invidious_companion.sample
-  next make_client(companion.private_url, use_http_proxy: false)
+  next make_client(companion.private_url, use_http_proxy: false, allow_auto_reconnect: false)
 end
 
 # CLI
