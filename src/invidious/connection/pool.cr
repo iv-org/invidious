@@ -72,7 +72,7 @@ module Invidious::ConnectionPool
       response = yield http_client
     rescue ex : DB::PoolTimeout
       # Failed to checkout a client
-      raise ConnectionPool::Error.new(ex.message, cause: ex)
+      raise ConnectionPool::PoolCheckoutError.new(ex.message)
     rescue ex
       # An error occurred with the client itself.
       # Delete the client from the pool and close the connection
@@ -129,6 +129,10 @@ module Invidious::ConnectionPool
   end
 
   class Error < Exception
+  end
+
+  # Raised when the pool failed to get a client in time
+  class PoolCheckoutError < Error
   end
 
   # Mapping of subdomain => Invidious::ConnectionPool::Pool
