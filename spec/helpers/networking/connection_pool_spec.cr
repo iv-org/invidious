@@ -17,7 +17,7 @@ require "db"
 require "pg"
 require "spectator"
 
-require "../../load_config"
+require "../../load_config_helper"
 require "../../../src/invidious/helpers/crystal_class_overrides"
 require "../../../src/invidious/connection/*"
 
@@ -55,15 +55,15 @@ Spectator.describe Invidious::ConnectionPool do
     it "Can make streaming requests" do
       pool = Invidious::ConnectionPool::Pool.new(max_capacity: 100) { next make_client(TEST_SERVER_URL) }
 
-      expect(pool.get("/get") { |r| r.body_io.gets_to_end }).to eq("get")
-      expect(pool.get("/post") { |r| r.body }).to eq("")
-      expect(pool.post("/post") { |r| r.body_io.gets_to_end }).to eq("post")
+      expect(pool.get("/get", &.body_io.gets_to_end)).to eq("get")
+      expect(pool.get("/post", &.body)).to eq("")
+      expect(pool.post("/post", &.body_io.gets_to_end)).to eq("post")
     end
 
     it "Allows more than one clients to be checked out (if applicable)" do
       pool = Invidious::ConnectionPool::Pool.new(max_capacity: 100) { next make_client(TEST_SERVER_URL) }
 
-      pool.checkout do |client|
+      pool.checkout do |_|
         expect(pool.post("/post").body).to eq("post")
       end
     end
