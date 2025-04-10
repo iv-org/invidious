@@ -21,6 +21,8 @@ require "../../load_config"
 require "../../../src/invidious/helpers/crystal_class_overrides"
 require "../../../src/invidious/connection/*"
 
+TEST_SERVER_URL = URI.parse("http://localhost:12345")
+
 server = HTTP::Server.new do |context|
   request = context.request
   response = context.response
@@ -44,14 +46,14 @@ Fiber.yield
 Spectator.describe Invidious::ConnectionPool do
   describe "Pool" do
     it "Can make a requests through standard HTTP methods" do
-      pool = Invidious::ConnectionPool::Pool.new(URI.parse("http://localhost:12345"), max_capacity: 100)
+      pool = Invidious::ConnectionPool::Pool.new(max_capacity: 100) { next make_client(TEST_SERVER_URL) }
 
       expect(pool.get("/get").body).to eq("get")
       expect(pool.post("/post").body).to eq("post")
     end
 
     it "Can make streaming requests" do
-      pool = Invidious::ConnectionPool::Pool.new(URI.parse("http://localhost:12345"), max_capacity: 100)
+      pool = Invidious::ConnectionPool::Pool.new(max_capacity: 100) { next make_client(TEST_SERVER_URL) }
 
       expect(pool.get("/get") { |r| r.body_io.gets_to_end }).to eq("get")
       expect(pool.get("/post") { |r| r.body }).to eq("")
@@ -59,26 +61,25 @@ Spectator.describe Invidious::ConnectionPool do
     end
 
     it "Allows more than one clients to be checked out (if applicable)" do
-      pool = Invidious::ConnectionPool::Pool.new(URI.parse("http://localhost:12345"), max_capacity: 100)
+      pool = Invidious::ConnectionPool::Pool.new(max_capacity: 100) { next make_client(TEST_SERVER_URL) }
 
-      pool.checkout do | client |
+      pool.checkout do |client|
         expect(pool.post("/post").body).to eq("post")
       end
     end
 
     it "Can make multiple requests with the same client" do
-      pool = Invidious::ConnectionPool::Pool.new(URI.parse("http://localhost:12345"), max_capacity: 100)
+      pool = Invidious::ConnectionPool::Pool.new(max_capacity: 100) { next make_client(TEST_SERVER_URL) }
 
-      pool.checkout do | client |
+      pool.checkout do |client|
         expect(client.get("/get").body).to eq("get")
         expect(client.post("/post").body).to eq("post")
         expect(client.get("/get").body).to eq("get")
       end
-
     end
 
     it "Allows concurrent requests" do
-      pool = Invidious::ConnectionPool::Pool.new(URI.parse("http://localhost:12345"), max_capacity: 100)
+      pool = Invidious::ConnectionPool::Pool.new(max_capacity: 100) { next make_client(TEST_SERVER_URL) }
       responses = [] of HTTP::Client::Response
 
       WaitGroup.wait do |wg|
@@ -91,7 +92,7 @@ Spectator.describe Invidious::ConnectionPool do
     end
 
     it "Raises on checkout timeout" do
-      pool = Invidious::ConnectionPool::Pool.new(URI.parse("http://localhost:12345"), max_capacity: 2, timeout: 0.01)
+      pool = Invidious::ConnectionPool::Pool.new(max_capacity: 2, timeout: 0.01) { next make_client(TEST_SERVER_URL) }
 
       # Long running requests
       2.times do
@@ -103,8 +104,8 @@ Spectator.describe Invidious::ConnectionPool do
       expect { pool.get("/get") }.to raise_error(Invidious::ConnectionPool::Error)
     end
 
-    it "Raises when an error is encounter" do
-      pool = Invidious::ConnectionPool::Pool.new(URI.parse("http://localhost:12345"), max_capacity: 100, timeout: 0.01)
+    it "Raises when an error is encountered" do
+      pool = Invidious::ConnectionPool::Pool.new(max_capacity: 100) { next make_client(TEST_SERVER_URL) }
       expect { pool.get("/get") { raise IO::Error.new } }.to raise_error(Invidious::ConnectionPool::Error)
     end
   end

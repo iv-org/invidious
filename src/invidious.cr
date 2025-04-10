@@ -93,25 +93,32 @@ SOFTWARE = {
 }
 
 YT_POOL = Invidious::ConnectionPool::Pool.new(
-  YT_URL,
   max_capacity: CONFIG.pool_size,
   idle_capacity: CONFIG.idle_pool_size,
   timeout: CONFIG.pool_checkout_timeout
-)
+) do
+  next make_client(YT_URL, force_resolve: true)
+end
 
 # Image request pool
 
+GGPHT_URL = URI.parse("https://yt3.ggpht.com")
+
 GGPHT_POOL = Invidious::ConnectionPool::Pool.new(
-  URI.parse("https://yt3.ggpht.com"),
   max_capacity: CONFIG.pool_size,
   idle_capacity: CONFIG.idle_pool_size,
   timeout: CONFIG.pool_checkout_timeout
-)
+) do
+  next make_client(GGPHT_URL, force_resolve: true)
+end
 
-COMPANION_POOL = Invidious::ConnectionPool::CompanionPool.new(
+COMPANION_POOL = Invidious::ConnectionPool::Pool.new(
   max_capacity: CONFIG.pool_size,
   idle_capacity: CONFIG.idle_pool_size
-)
+) do
+  companion = CONFIG.invidious_companion.sample
+  next make_client(companion.private_url, use_http_proxy: false)
+end
 
 # CLI
 Kemal.config.extra_options do |parser|
