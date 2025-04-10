@@ -1008,3 +1008,12 @@ default_user_preferences:
   ## Default: false
   ##
   #extend_desc: false
+
+  ##
+  ## Allows excluding videos that are exclusive to channel members
+  ## from the frontend
+  ##
+  ## Accepted values: true, false
+  ## Default: false
+  ##
+  #exclude_members_only_videos: false
