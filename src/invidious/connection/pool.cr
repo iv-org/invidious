@@ -25,10 +25,9 @@ module Invidious::ConnectionPool
       # Streaming API for {{method.id.upcase}} request.
       # The response will have its body as an `IO` accessed via `HTTP::Client::Response#body_io`.
       def {{method.id}}(*args, **kwargs, &)
-        self.checkout do | client |
+        self.checkout_with_retry do | client |
           client.{{method.id}}(*args, **kwargs) do | response |
-            result = yield response
-            return result
+            return yield response
           ensure
             response.body_io?.try &.skip_to_end
           end
@@ -38,45 +37,82 @@ module Invidious::ConnectionPool
       # Executes a {{method.id.upcase}} request.
       # The response will have its body as a `String`, accessed via `HTTP::Client::Response#body`.
       def {{method.id}}(*args, **kwargs)
-        self.checkout do | client |
+        self.checkout_with_retry do | client |
           return client.{{method.id}}(*args, **kwargs)
         end
       end
     {% end %}
 
     # Checks out a client in the pool
+    #
+    # This method will NOT delete a client that has errored from the pool.
+    # Use `#checkout_with_retry` to ensure that the pool does not get poisoned.
     def checkout(&)
-      # If a client has been deleted from the pool
-      # we won't try to release it
-      client_exists_in_pool = true
+      pool.checkout do |client|
+        # When the HTTP::Client connection is closed, the automatic reconnection
+        # feature will create a new IO to connect to the server with
+        #
+        # This new TCP IO will be a direct connection to the server and will not go
+        # through the proxy. As such we'll need to reinitialize the proxy connection
+        client.proxy = make_configured_http_proxy_client() if @reinitialize_proxy && CONFIG.http_proxy
 
-      http_client = pool.checkout
+        response = yield client
 
-      # When the HTTP::Client connection is closed, the automatic reconnection
-      # feature will create a new IO to connect to the server with
-      #
-      # This new TCP IO will be a direct connection to the server and will not go
-      # through the proxy. As such we'll need to reinitialize the proxy connection
-
-      http_client.proxy = make_configured_http_proxy_client() if @reinitialize_proxy && CONFIG.http_proxy
-
-      response = yield http_client
-    rescue ex : DB::PoolTimeout
-      # Failed to checkout a client
-      raise ConnectionPool::PoolCheckoutError.new(ex.message)
-    rescue ex
-      # An error occurred with the client itself.
-      # Delete the client from the pool and close the connection
-      if http_client
-        client_exists_in_pool = false
-        @pool.delete(http_client)
-        http_client.close
+        return response
+      rescue ex : DB::PoolTimeout
+        # Failed to checkout a client
+        raise ConnectionPool::PoolCheckoutError.new(ex.message)
       end
+    end
 
-      # Raise exception for outer methods to handle
-      raise ConnectionPool::Error.new(ex.message, cause: ex)
-    ensure
-      pool.release(http_client) if http_client && client_exists_in_pool
+    # Checks out a client from the pool; retries only if a connection is lost or refused
+    #
+    # Will cycle through all of the existing connections at no delay, but any new connections
+    # that is created will be subject to a delay.
+    #
+    # The first attempt to make a new connection will not have the delay, but all subsequent
+    # attempts will.
+    #
+    # To `DB::Pool#retry`:
+    #   - `DB::PoolResourceLost` means that the connection has been lost
+    #     and should be deleted from the pool.
+    #
+    #   - `DB::PoolResourceRefused` means a new connection was intended to be created but failed
+    #     but the client can be safely released back into the pool to try again later with
+    #
+    # See the following code of `crystal-db` for more information
+    #
+    # https://github.com/crystal-lang/crystal-db/blob/023dc5de90c11927656fc747601c5f08ea3c906f/src/db/pool.cr#L191
+    # https://github.com/crystal-lang/crystal-db/blob/023dc5de90c11927656fc747601c5f08ea3c906f/src/db/pool_statement.cr#L41
+    # https://github.com/crystal-lang/crystal-db/blob/023dc5de90c11927656fc747601c5f08ea3c906f/src/db/pool_prepared_statement.cr#L13
+    #
+    def checkout_with_retry(&)
+      @pool.retry do
+        self.checkout do |client|
+          begin
+            return yield client
+          rescue ex : IO::TimeoutError
+            LOGGER.trace("Client: #{client} has failed to complete the request. Retrying with a new client")
+            raise DB::PoolResourceRefused.new
+          rescue ex : InfoException
+            raise ex
+          rescue ex : Exception
+            # Any other errors should cause the client to be deleted from the pool
+
+            # This means that the client is closed and needs to be deleted from the pool
+            # due its inability to reconnect
+            if ex.message == "This HTTP::Client cannot be reconnected"
+              LOGGER.trace("Checked out client is closed and cannot be reconnected. Trying the next retry attempt...")
+            else
+              LOGGER.error("Client: #{client} has encountered an error: #{ex} #{ex.message} and will be removed from the pool")
+            end
+
+            raise DB::PoolResourceLost(HTTP::Client).new(client)
+          end
+        end
+      rescue ex : DB::PoolRetryAttemptsExceeded
+        raise PoolRetryAttemptsExceeded.new
+      end
     end
   end
 
@@ -85,6 +121,10 @@ module Invidious::ConnectionPool
 
   # Raised when the pool failed to get a client in time
   class PoolCheckoutError < Error
+  end
+
+  # Raised when too many retries
+  class PoolRetryAttemptsExceeded < Error
   end
 
   # Mapping of subdomain => Invidious::ConnectionPool::Pool
