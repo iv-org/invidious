@@ -8,6 +8,7 @@ module Invidious::ConnectionPool
       *,
       max_capacity : Int32 = 5,
       timeout : Float64 = 5.0,
+      @reinitialize_proxy : Bool = true, # Whether or not http-proxy should be reinitialized on checkout
       &client_factory : -> HTTP::Client
     )
       pool_options = DB::Pool::Options.new(
@@ -57,7 +58,7 @@ module Invidious::ConnectionPool
       # This new TCP IO will be a direct connection to the server and will not go
       # through the proxy. As such we'll need to reinitialize the proxy connection
 
-      http_client.proxy = make_configured_http_proxy_client() if CONFIG.http_proxy
+      http_client.proxy = make_configured_http_proxy_client() if @reinitialize_proxy && CONFIG.http_proxy
 
       response = yield http_client
     rescue ex : DB::PoolTimeout

@@ -112,6 +112,7 @@ end
 
 COMPANION_POOL = Invidious::ConnectionPool::Pool.new(
   max_capacity: CONFIG.pool_size,
+  reinitialize_proxy: false
 ) do
   companion = CONFIG.invidious_companion.sample
   next make_client(companion.private_url, use_http_proxy: false)
