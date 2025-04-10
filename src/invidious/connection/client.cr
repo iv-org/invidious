@@ -12,6 +12,15 @@ module Invidious
   end
 
   class HTTPClient < HTTP::Client
+    def initialize(uri : URI, tls : TLSContext = nil, allow_auto_reconnect : Bool = true)
+      tls = HTTP::Client.tls_flag(uri, tls)
+      host = HTTP::Client.validate_host(uri)
+
+      super(host, uri.port, tls)
+
+      @reconnect = allow_auto_reconnect
+    end
+
     def initialize(uri : URI, tls : TLSContext = nil, force_resolve : Socket::Family = Socket::Family::UNSPEC)
       tls = HTTP::Client.tls_flag(uri, tls)
 
@@ -72,14 +81,21 @@ def add_yt_headers(request)
   end
 end
 
-def make_client(url : URI, region = nil, force_resolve : Bool = false, force_youtube_headers : Bool = true, use_http_proxy : Bool = true)
+def make_client(
+  url : URI,
+  region = nil,
+  force_resolve : Bool = false,
+  force_youtube_headers : Bool = true,
+  use_http_proxy : Bool = true,
+  allow_auto_reconnect : Bool = true,
+)
   if CONFIG.http_proxy && use_http_proxy
     client = Invidious::HTTPClient.new(url)
     client.proxy = make_configured_http_proxy_client() if CONFIG.http_proxy && use_http_proxy
   elsif force_resolve
     client = Invidious::HTTPClient.new(url, force_resolve: CONFIG.force_resolve)
   else
-    client = Invidious::HTTPClient.new(url)
+    client = Invidious::HTTPClient.new(url, allow_auto_reconnect: allow_auto_reconnect)
   end
 
   client.before_request { |r| add_yt_headers(r) } if url.host.try &.ends_with?("youtube.com") || force_youtube_headers
