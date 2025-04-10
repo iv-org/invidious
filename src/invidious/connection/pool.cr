@@ -78,6 +78,7 @@ module Invidious::ConnectionPool
       pool.release(http_client) if http_client && client_exists_in_pool
     end
   end
+
   class Error < Exception
   end
 
