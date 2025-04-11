@@ -217,7 +217,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
   views_txt ||= video_details["viewCount"]?.try &.as_s || ""
   views = views_txt.gsub(/\D/, "").to_i64?
 
-  length_txt = (microformat["lengthSeconds"]? || video_details["lengthSeconds"])
+  length_txt = (microformat["lengthSeconds"]? || video_details["lengthSeconds"]?)
     .try &.as_s.to_i64
 
   published = microformat["publishDate"]?
