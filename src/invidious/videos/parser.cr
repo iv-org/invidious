@@ -446,6 +446,9 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     subs_text = author_info["subscriberCountText"]?
       .try { |t| t["simpleText"]? || t.dig?("runs", 0, "text") }
       .try &.as_s.split(" ", 2)[0]
+
+    author ||= author_info.dig?("title", "runs", 0, "text").try &.as_s
+    ucid ||= author_info.dig?("title", "runs", 0, "navigationEndpoint", "browseEndpoint", "browseId").try &.as_s
   end
 
   # Return data
