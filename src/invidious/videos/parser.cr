@@ -223,6 +223,19 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
   published = microformat["publishDate"]?
     .try { |t| Time.parse(t.as_s, "%Y-%m-%d", Time::Location::UTC) } || Time.utc
 
+  if published.nil?
+    published_txt = video_primary_renderer
+      .try &.dig?("dateText", "simpleText")
+
+    if published_txt.try &.as_s.includes?("ago") && !published_txt.nil?
+      published = decode_date(published_txt.as_s.lchop("Started streaming "))
+    elsif published_txt && published_txt.try &.as_s.matches?(/(\w{3} \d{1,2}, \d{4})$/)
+      published = Time.parse(published_txt.as_s.match!(/(\w{3} \d{1,2}, \d{4})$/)[0], "%b %-d, %Y", Time::Location::UTC)
+    else
+      published = Time.utc
+    end
+  end
+
   premiere_timestamp = microformat.dig?("liveBroadcastDetails", "startTimestamp")
     .try { |t| Time.parse_rfc3339(t.as_s) }
 
