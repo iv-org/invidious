@@ -68,18 +68,20 @@ def extract_video_info(video_id : String)
   playability_status = player_response.dig?("playabilityStatus", "status").try &.as_s
 
   if playability_status != "OK"
-    subreason = player_response.dig?("playabilityStatus", "errorScreen", "playerErrorMessageRenderer", "subreason")
-    reason = subreason.try &.[]?("simpleText").try &.as_s
-    reason ||= subreason.try &.[]("runs").as_a.map(&.[]("text")).join("")
-    reason ||= player_response.dig("playabilityStatus", "reason").as_s
+    reason = player_response.dig?("playabilityStatus", "reason").try &.as_s
+    reason ||= player_response.dig("playabilityStatus", "errorScreen", "playerErrorMessageRenderer", "reason", "simpleText").as_s
+    subreason_main = player_response.dig?("playabilityStatus", "errorScreen", "playerErrorMessageRenderer", "subreason")
+    subreason = subreason_main.try &.[]?("simpleText").try &.as_s
+    subreason ||= subreason_main.try &.[]("runs").as_a.map(&.[]("text")).join("")
 
-    # Stop here if video is not a scheduled livestream or
-    # for LOGIN_REQUIRED when videoDetails element is not found because retrying won't help
-    if !{"LIVE_STREAM_OFFLINE", "LOGIN_REQUIRED"}.any?(playability_status) ||
-       playability_status == "LOGIN_REQUIRED" && !player_response.dig?("videoDetails")
+    # Stop if private video or video not found.
+    # But for video unavailable, only stop if playability_status is ERROR because playability_status UNPLAYABLE
+    # still gives all the necessary info for displaying the video page (title, description and more)
+    if {"Private video", "Video unavailable"}.any?(reason) && !{"UNPLAYABLE"}.any?(playability_status)
       return {
-        "version" => JSON::Any.new(Video::SCHEMA_VERSION.to_i64),
-        "reason"  => JSON::Any.new(reason),
+        "version"   => JSON::Any.new(Video::SCHEMA_VERSION.to_i64),
+        "reason"    => JSON::Any.new(reason),
+        "subreason" => JSON::Any.new(subreason),
       }
     end
   elsif video_id != player_response.dig("videoDetails", "videoId")
@@ -99,11 +101,8 @@ def extract_video_info(video_id : String)
     reason = nil
   end
 
-  # Don't fetch the next endpoint if the video is unavailable.
-  if {"OK", "LIVE_STREAM_OFFLINE", "LOGIN_REQUIRED"}.any?(playability_status)
-    next_response = YoutubeAPI.next({"videoId": video_id, "params": ""})
-    player_response = player_response.merge(next_response)
-  end
+  next_response = YoutubeAPI.next({"videoId": video_id, "params": ""})
+  player_response = player_response.merge(next_response)
 
   params = parse_video_info(video_id, player_response)
   params["reason"] = JSON::Any.new(reason) if reason
@@ -197,15 +196,19 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
   end
 
   video_details = player_response.dig?("videoDetails")
+  video_details ||= {} of String => JSON::Any
   if !(microformat = player_response.dig?("microformat", "playerMicroformatRenderer"))
     microformat = {} of String => JSON::Any
   end
 
-  raise BrokenTubeException.new("videoDetails") if !video_details
-
   # Basic video infos
 
   title = video_details["title"]?.try &.as_s
+
+  title ||= extract_text(
+    video_primary_renderer
+      .try &.dig?("title")
+  )
 
   # We have to try to extract viewCount from videoPrimaryInfoRenderer first,
   # then from videoDetails, as the latter is "0" for livestreams (we want
@@ -483,7 +486,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     # Description
     "description"      => JSON::Any.new(description || ""),
     "descriptionHtml"  => JSON::Any.new(description_html || "<p></p>"),
-    "shortDescription" => JSON::Any.new(short_description.try &.as_s || nil),
+    "shortDescription" => JSON::Any.new(short_description.try &.as_s || ""),
     # Video metadata
     "genre"     => JSON::Any.new(genre.try &.as_s || ""),
     "genreUcid" => JSON::Any.new(genre_ucid.try &.as_s?),

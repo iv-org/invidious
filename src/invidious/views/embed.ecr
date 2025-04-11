@@ -31,7 +31,17 @@
 %>
 </script>
 
-<%= rendered "components/player" %>
+<% if video.reason.nil? %>
+<div id="player-container" class="h-box">
+    <%= rendered "components/player" %>
+</div>
+<% else %>
+<div id="player-error-container" class="h-box">
+    <h3>
+        <%= video.reason %>
+    </h3>
+</div>
+<% end %>
 <script src="/js/embed.js?v=<%= ASSET_COMMIT %>"></script>
 </body>
 </html>
