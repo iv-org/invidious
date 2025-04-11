@@ -271,6 +271,16 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
   end
 
   is_listed = video_details["isCrawlable"]?.try &.as_bool
+  if is_listed.nil?
+    if video_badges = video_primary_renderer.try &.dig?("badges")
+      is_listed = !has_unlisted_badge?(video_badges)
+    else
+      # If video has no badges and videoDetails is not
+      # available, then assume isListed
+      is_listed = true
+    end
+  end
+
   is_upcoming = video_details["isUpcoming"]?.try &.as_bool
 
   keywords = video_details["keywords"]?
@@ -461,7 +471,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     "allowedRegions"   => JSON::Any.new(allowed_regions.map { |v| JSON::Any.new(v) }),
     "allowRatings"     => JSON::Any.new(allow_ratings || false),
     "isFamilyFriendly" => JSON::Any.new(family_friendly),
-    "isListed"         => JSON::Any.new(is_listed || false),
+    "isListed"         => JSON::Any.new(is_listed),
     "isUpcoming"       => JSON::Any.new(is_upcoming || false),
     "keywords"         => JSON::Any.new(keywords.map { |v| JSON::Any.new(v) }),
     "isPostLiveDvr"    => JSON::Any.new(post_live_dvr),
