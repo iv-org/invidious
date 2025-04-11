@@ -264,7 +264,12 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     .try &.as_a.map &.as_s || [] of String
 
   allow_ratings = video_details["allowRatings"]?.try &.as_bool
+
   family_friendly = microformat["isFamilySafe"]?.try &.as_bool
+  if family_friendly.nil?
+    family_friendly = true # if isFamilySafe not found then assume is safe
+  end
+
   is_listed = video_details["isCrawlable"]?.try &.as_bool
   is_upcoming = video_details["isUpcoming"]?.try &.as_bool
 
@@ -455,7 +460,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     # Extra video infos
     "allowedRegions"   => JSON::Any.new(allowed_regions.map { |v| JSON::Any.new(v) }),
     "allowRatings"     => JSON::Any.new(allow_ratings || false),
-    "isFamilyFriendly" => JSON::Any.new(family_friendly || false),
+    "isFamilyFriendly" => JSON::Any.new(family_friendly),
     "isListed"         => JSON::Any.new(is_listed || false),
     "isUpcoming"       => JSON::Any.new(is_upcoming || false),
     "keywords"         => JSON::Any.new(keywords.map { |v| JSON::Any.new(v) }),
