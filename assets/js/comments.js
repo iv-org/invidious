@@ -123,17 +123,17 @@ function get_youtube_comments() {
 }
 
 function format_count_load_more(content, current_count, total_count) {
-  var load_more_end_str = content.split('data-load-more');
-  if (load_more_end_str.length === 1)
-      return [content, false];  // no Load More button, return false for has_more_replies
-  load_more_end_str = load_more_end_str[1].split('\n')[0];  // ' >("Load more" translated string)</a>'
-  var slice_index = content.indexOf(load_more_end_str) + load_more_end_str.length - 4;  // backtrace </a>
-  var num_remaining = total_count - current_count;
-  return [
-      // More replies may have been added since initally loading parent comment
-      content.slice(0, slice_index) + ' (+' + (num_remaining > 0 ? num_remaining : '?') + ')' + content.slice(slice_index),
-      true  // Load More button present, return true for has_more_replies
-  ];
+    var load_more_end_str = content.split('data-load-more');
+    if (load_more_end_str.length === 1)
+        return [content, false];  // no Load More button, return false for has_more_replies
+    load_more_end_str = load_more_end_str[1].split('\n')[0];  // ' >("Load more" translated string)</a>'
+    var slice_index = content.indexOf(load_more_end_str) + load_more_end_str.length - 4;  // backtrace </a>
+    var num_remaining = total_count - current_count;
+    return [
+        // More replies may have been added since initally loading parent comment
+        content.slice(0, slice_index) + ' (+' + (num_remaining > 0 ? num_remaining : '?') + ')' + content.slice(slice_index),
+        true  // Load More button present, return true for has_more_replies
+    ];
 }
 
 function format_count_toggle_replies_button(toggle_reply_button, current_count, total_count, has_more_replies) {
@@ -141,6 +141,7 @@ function format_count_toggle_replies_button(toggle_reply_button, current_count, 
         // Accept the final current count as the total (comments may have been added or removed since loading)
         total_count = current_count;
     } else if (current_count >= total_count) {
+        // An unknown number of new replies have been added since retrieving data
         total_count = '?';
     }
 
@@ -148,10 +149,13 @@ function format_count_toggle_replies_button(toggle_reply_button, current_count, 
     ['data-sub-text', 'data-inner-text'].forEach(attr => {
         toggle_reply_button.setAttribute(attr, 
             toggle_reply_button.getAttribute(attr)
-                .replace(/\(\d+\/\d+\)/, ' (' + current_count + '/' + total_count + ')')
+                .replace(/\d+\/\d+/, total_count === current_count
+                    ? total_count
+                    : current_count + '/' + total_count
+                )
         );
     });
-    toggle_reply_button.textContent = toggle_reply_button.getAttribute('data-sub-text');
+    toggle_reply_button.textContent = toggle_reply_button.title = toggle_reply_button.getAttribute('data-sub-text');
 }
 
 function get_youtube_replies(target, load_more, load_replies) {
@@ -206,7 +210,8 @@ function get_youtube_replies(target, load_more, load_replies) {
                 a.onclick = hide_youtube_replies;
 
                 var num_total_replies = originalHTML.split('data-load-replies')[1].match(/\d+/)[0] - 0;
-                var num_replies_text = ' (0/0)';  // replace later
+                // Replaced later with real counts
+                var num_replies_text = ' (0/0 ' + video_data.replies_loaded_text + ')';
                 var hide_replies_text = video_data.hide_replies_text + num_replies_text;
                 a.setAttribute('data-sub-text', hide_replies_text);
                 a.setAttribute('data-inner-text', video_data.show_replies_text + num_replies_text);
