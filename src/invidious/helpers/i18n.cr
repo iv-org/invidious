@@ -54,6 +54,7 @@ LOCALES_LIST = {
   "sr"      => "Srpski (latinica)",     # Serbian (Latin)
   "sr_Cyrl" => "Српски (ћирилица)",     # Serbian (Cyrillic)
   "sv-SE"   => "Svenska",               # Swedish
+  "ta"      => "தமிழ்",                 # Tamil
   "tr"      => "Türkçe",                # Turkish
   "uk"      => "Українська",            # Ukrainian
   "vi"      => "Tiếng Việt",            # Vietnamese

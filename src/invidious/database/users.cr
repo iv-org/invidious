@@ -119,15 +119,15 @@ module Invidious::Database::Users
   #  Update (notifs)
   # -------------------
 
-  def add_notification(video : ChannelVideo)
+  def add_multiple_notifications(channel_id : String, video_ids : Array(String))
     request = <<-SQL
       UPDATE users
-      SET notifications = array_append(notifications, $1),
+      SET notifications = array_cat(notifications, $1),
           feed_needs_update = true
       WHERE $2 = ANY(subscriptions)
     SQL
 
-    PG_DB.exec(request, video.id, video.ucid)
+    PG_DB.exec(request, video_ids, channel_id)
   end
 
   def remove_notification(user : User, vid : String)
@@ -154,14 +154,14 @@ module Invidious::Database::Users
   #  Update (misc)
   # -------------------
 
-  def feed_needs_update(video : ChannelVideo)
+  def feed_needs_update(channel_id : String)
     request = <<-SQL
       UPDATE users
       SET feed_needs_update = true
       WHERE $1 = ANY(subscriptions)
     SQL
 
-    PG_DB.exec(request, video.ucid)
+    PG_DB.exec(request, channel_id)
   end
 
   def update_preferences(user : User)

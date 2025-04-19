@@ -7,7 +7,7 @@
   youtube_url = "https://www.youtube.com#{relative_url}"
   redirect_url = Invidious::Frontend::Misc.redirect_url(env)
 
-  selected_tab = Invidious::Frontend::ChannelPage::TabsAvailable::Community
+  selected_tab = Invidious::Frontend::ChannelPage::TabsAvailable::Posts
 -%>
 
 <% content_for "header" do %>

@@ -44,3 +44,12 @@ def fetch_channel_releases(ucid, author, continuation)
   end
   return extract_items(initial_data, author, ucid)
 end
+
+def fetch_channel_courses(ucid, author, continuation)
+  if continuation
+    initial_data = YoutubeAPI.browse(continuation)
+  else
+    initial_data = YoutubeAPI.browse(ucid, params: "Egdjb3Vyc2Vz8gYFCgPCAQA%3D")
+  end
+  return extract_items(initial_data, author, ucid)
+end

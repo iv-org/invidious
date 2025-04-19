@@ -120,8 +120,10 @@ module Invidious::Routing
     get "/channel/:ucid/streams", Routes::Channels, :streams
     get "/channel/:ucid/podcasts", Routes::Channels, :podcasts
     get "/channel/:ucid/releases", Routes::Channels, :releases
+    get "/channel/:ucid/courses", Routes::Channels, :courses
     get "/channel/:ucid/playlists", Routes::Channels, :playlists
     get "/channel/:ucid/community", Routes::Channels, :community
+    get "/channel/:ucid/posts", Routes::Channels, :community
     get "/channel/:ucid/channels", Routes::Channels, :channels
     get "/channel/:ucid/about", Routes::Channels, :about
 
@@ -236,6 +238,7 @@ module Invidious::Routing
       get "/api/v1/annotations/:id", {{namespace}}::Videos, :annotations
       get "/api/v1/comments/:id", {{namespace}}::Videos, :comments
       get "/api/v1/clips/:id", {{namespace}}::Videos, :clips
+      get "/api/v1/transcripts/:id", {{namespace}}::Videos, :transcripts
 
       # Feeds
       get "/api/v1/trending", {{namespace}}::Feeds, :trending
@@ -249,8 +252,10 @@ module Invidious::Routing
       get "/api/v1/channels/:ucid/streams", {{namespace}}::Channels, :streams
       get "/api/v1/channels/:ucid/podcasts", {{namespace}}::Channels, :podcasts
       get "/api/v1/channels/:ucid/releases", {{namespace}}::Channels, :releases
+      get "/api/v1/channels/:ucid/courses", {{namespace}}::Channels, :courses
       get "/api/v1/channels/:ucid/playlists", {{namespace}}::Channels, :playlists
       get "/api/v1/channels/:ucid/community", {{namespace}}::Channels, :community
+      get "/api/v1/channels/:ucid/posts", {{namespace}}::Channels, :community
       get "/api/v1/channels/:ucid/channels", {{namespace}}::Channels, :channels
       get "/api/v1/channels/:ucid/search", {{namespace}}::Channels, :search
 
