@@ -208,6 +208,9 @@
                     <% if item.badges.members_only? %>
                         <span><i class="icon ion ion-md-lock"></i><%=translate(locale, "video_badges_members_only")%></span>
                     <% end %>
+                    <% if item.badges.members_first? %>
+                        <span><i class="icon ion ion-md-lock"></i><%=translate(locale, "video_badges_members_first")%></span>
+                    <% end %>
                 </div>
             <%end%>
         <% end %>

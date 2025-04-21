@@ -136,9 +136,9 @@ private module Parsers
           # TODO: Potentially available as item_contents["topStandaloneBadge"]["metadataBadgeRenderer"]
           badges |= VideoBadges::Premium
         when "Members only"
-          # TODO: Identify based on style attribute instead of label
-          # It should be more resistant to Youtube changes.
           badges |= VideoBadges::MembersOnly
+        when "Members first"
+          badges |= VideoBadges::MembersFirst
         else nil # Ignore
         end
       end

@@ -3,8 +3,7 @@
 
 <div class="pure-g">
     <%- items.each do |item| -%>
-        <% next if exclude_members_only_videos && item.responds_to?(:badges) &&
-        item.is_a? SearchVideo && item.badges.members_only? %>
+        <% next if exclude_members_only_videos && item.responds_to?(:restricted_to_members?) && item.restricted_to_members? %>
         <%= rendered "components/item" %>
     <%- end -%>
 </div>
