@@ -1,8 +1,5 @@
 var video_data = JSON.parse(document.getElementById('video_data').textContent);
 
-// Arabic, Persian, Hebrew
-var isRTL = ["ar", "fa", "he"].includes(video_data.preferences.locale);
-
 var spinnerHTML = '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>';
 var spinnerHTMLwithHR = spinnerHTML + '<hr>';
 
@@ -145,7 +142,6 @@ function format_count_toggle_replies_button(toggle_reply_button, current_count, 
         total_count = '?';
     }
 
-    if (isRTL) [current_count, total_count] = [total_count, current_count];
     ['data-sub-text', 'data-inner-text'].forEach(attr => {
         toggle_reply_button.setAttribute(attr, 
             toggle_reply_button.getAttribute(attr)
@@ -190,7 +186,6 @@ function get_youtube_replies(target, load_more, load_replies) {
                 }
 
                 var [prev_num_replies, num_total_replies] = toggle_replies_button.textContent.match(/\d+/g);
-                if (isRTL) [prev_num_replies, num_total_replies] = [num_total_replies, prev_num_replies];
                 prev_num_replies -= 0; num_total_replies -= 0;  // convert to integers
                 var num_current_replies = prev_num_replies + num_incoming_replies;
 
