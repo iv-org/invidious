@@ -15,19 +15,6 @@ module Invidious::Routes::ErrorRoutes
         response = YT_POOL.client &.get(URI.parse(response.headers["Location"]).request_target)
       end
 
-      #if response.body.empty?
-      #  env.response.headers["Location"] = "/"
-      #  haltf env, status_code: 302
-      #end
-
-      #html = XML.parse_html(response.body)
-      #ucid = html.xpath_node(%q(//link[@rel="canonical"])).try &.["href"].split("/")[-1]
-
-      #if ucid
-      #  env.response.headers["Location"] = "/channel/#{ucid}"
-      #  haltf env, status_code: 302
-      #end
-
       params = [] of String
       env.params.query.each do |k, v|
         params << "#{k}=#{v}"
@@ -42,6 +29,19 @@ module Invidious::Routes::ErrorRoutes
       # Check if item is video ID
       if item.match(/^[a-zA-Z0-9_-]{11}$/) && YT_POOL.client &.head("/watch?v=#{item}").status_code != 404
         env.response.headers["Location"] = url
+        haltf env, status_code: 302
+      end
+
+      if response.body.empty?
+        env.response.headers["Location"] = "/"
+        haltf env, status_code: 302
+      end
+
+      html = XML.parse_html(response.body)
+      ucid = html.xpath_node(%q(//link[@rel="canonical"])).try &.["href"].split("/")[-1]
+
+      if ucid
+        env.response.headers["Location"] = "/channel/#{ucid}"
         haltf env, status_code: 302
       end
     end
