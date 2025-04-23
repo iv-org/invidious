@@ -496,5 +496,7 @@
     "Answer": "Antwoorden",
     "Search for videos": "Naar video's zoeken",
     "carousel_skip": "Carousel overslaan",
-    "toggle_theme": "Thema omschakelen"
+    "toggle_theme": "Thema omschakelen",
+    "preferences_preload_label": "Videogegevens vooraf laden: ",
+    "Filipino (auto-generated)": "Filipijns (automatisch gegenereerd)"
 }

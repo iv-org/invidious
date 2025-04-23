@@ -8,6 +8,11 @@ module Invidious::Routes::API::Manifest
     id = env.params.url["id"]
     region = env.params.query["region"]?
 
+    if CONFIG.invidious_companion.present?
+      invidious_companion = CONFIG.invidious_companion.sample
+      return env.redirect "#{invidious_companion.public_url}/api/manifest/dash/id/#{id}?#{env.params.query}"
+    end
+
     # Since some implementations create playlists based on resolution regardless of different codecs,
     # we can opt to only add a source to a representation if it has a unique height within that representation
     unique_res = env.params.query["unique_res"]?.try { |q| (q == "true" || q == "1").to_unsafe }

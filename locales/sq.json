@@ -492,5 +492,7 @@
     "The Popular feed has been disabled by the administrator.": "Prurja Popullore është çaktivizuar nga përgjegjësi.",
     "carousel_skip": "Anashkaloje Rrotullamen",
     "carousel_slide": "Diapozitiv {{current}} nga {{total}}",
-    "carousel_go_to": "Kalo te diapozitivi `x`"
+    "carousel_go_to": "Kalo te diapozitivi `x`",
+    "Filipino (auto-generated)": "Filipineze (të prodhuara automatikisht)",
+    "preferences_preload_label": "Parangarko të dhëna videoje: "
 }

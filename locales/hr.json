@@ -513,5 +513,7 @@
     "toggle_theme": "Uklj./Isklj. temu",
     "carousel_slide": "Kadar {{current}} od {{total}}",
     "carousel_go_to": "Idi na kadar `x`",
-    "carousel_skip": "Preskoči vrtuljak"
+    "carousel_skip": "Preskoči vrtuljak",
+    "Filipino (auto-generated)": "Filipinski (automatski generirano)",
+    "preferences_preload_label": "Unaprijed učitaj podatke videa: "
 }

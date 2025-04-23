@@ -192,6 +192,14 @@ module Invidious::Routes::Watch
       captions: video.captions
     )
 
+    if CONFIG.invidious_companion.present?
+      invidious_companion = CONFIG.invidious_companion.sample
+      env.response.headers["Content-Security-Policy"] =
+        env.response.headers["Content-Security-Policy"]
+          .gsub("media-src", "media-src #{invidious_companion.public_url}")
+          .gsub("connect-src", "connect-src #{invidious_companion.public_url}")
+    end
+
     templated "watch"
   end
 
@@ -314,14 +322,19 @@ module Invidious::Routes::Watch
       env.params.query["label"] = URI.decode_www_form(label.as_s)
 
       return Invidious::Routes::API::V1::Videos.captions(env)
-    elsif itag = download_widget["itag"]?.try &.as_i
+    elsif itag = download_widget["itag"]?.try &.as_i.to_s
       # URL params specific to /latest_version
       env.params.query["id"] = video_id
-      env.params.query["itag"] = itag.to_s
       env.params.query["title"] = filename
       env.params.query["local"] = "true"
 
-      return Invidious::Routes::VideoPlayback.latest_version(env)
+      if (CONFIG.invidious_companion.present?)
+        video = get_video(video_id)
+        invidious_companion = CONFIG.invidious_companion.sample
+        return env.redirect "#{invidious_companion.public_url}/latest_version?#{env.params.query}"
+      else
+        return Invidious::Routes::VideoPlayback.latest_version(env)
+      end
     else
       return error_template(400, "Invalid label or itag")
     end
