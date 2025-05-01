@@ -31,7 +31,11 @@ async function get_subscriptions_call() {
 }
 
 // Start the retry mechanism
-const get_subscriptions = exponential_backoff(get_subscriptions_call, 100, 1000);
+const get_subscriptions = exponential_backoff(
+  get_subscriptions_call,
+  100,
+  1000,
+);
 
 function create_notification_stream(subscriptions) {
   // sse.js can't be replaced to EventSource in place as it lack support of payload and headers
@@ -96,7 +100,6 @@ function create_notification_stream(subscriptions) {
       "Something went wrong with notifications, trying to reconnect...",
     );
     notifications = notifications_mock;
-
   });
 
   notifications.stream();
@@ -177,7 +180,7 @@ function exponential_backoff(
   return function tryFunction() {
     fn()
       .then((response) => {
-				attempt = 0;
+        attempt = 0;
       })
       .catch((error) => {
         if (attempt < maxRetries) {
@@ -193,5 +196,5 @@ function exponential_backoff(
           console.log("Max retries reached. Operation failed:", error);
         }
       });
-  }
+  };
 }

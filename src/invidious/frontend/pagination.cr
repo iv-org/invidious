@@ -90,13 +90,6 @@ module Invidious::Frontend::Pagination
 
   def nav_ctoken(locale : String?, *, base_url : String | URI, ctoken : String?, first_page : Bool, params : URI::Params)
     return String.build do |str|
-      if !ctoken.nil?
-        str << %(<nav class="pagination">\n<ul>\n)
-        str << %(<li>)
-        params_next = URI::Params{"continuation" => ctoken}
-        url_next = HttpServer::Utils.add_params_to_url(base_url, params_next)
-
-    return String.build do |str|
       str << %(<nav class="pagination">\n<ul>\n)
       str << %(<li>)
       if !first_page
@@ -106,13 +99,13 @@ module Invidious::Frontend::Pagination
       if !ctoken.nil?
         params["continuation"] = ctoken
         url_next = HttpServer::Utils.add_params_to_url(base_url, params)
-
-        self.next_page(str, locale, url_next.to_s)
-
-        str << %(</li>\n)
-
-        str << %(</ul>\n</nav>\n)
       end
+
+      self.next_page(str, locale, url_next.to_s)
+
+      str << %(</li>\n)
+
+      str << %(</ul>\n</nav>\n)
     end
   end
 end
