@@ -4,18 +4,16 @@
 # If you want to use Invidious in production, see the docker-compose.yml file provided
 # in the installation documentation: https://docs.invidious.io/installation/
 
----
-
 version: "3"
 services:
 
   invidious:
-    image: quay.io/invidious/invidious:master
-    # image: quay.io/invidious/invidious:master-arm64 # ARM64/AArch64 devices
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
     restart: unless-stopped
-    # Remove "127.0.0.1:" if used from an external IP
     ports:
-      - "127.0.0.1:9999:3000"
+      - "127.0.0.1:3000:3000"
     environment:
       # Please read the following file for a comprehensive list of all available
       # configuration options and their associated syntax:
@@ -28,63 +26,22 @@ services:
           host: invidious-db
           port: 5432
         check_tables: true
-        invidious_companion:
-        # URL used for the internal communication between invidious and invidious companion
-        # There is no need to change that except if Invidious companion does not run on the same docker compose file.
-        - private_url: "http://companion:8282"
-        # (public) URL used for the communication between your browser and invidious companion
-        # IF you are using a reverse proxy OR accessing invidious from an external IP then you NEED to change this value
-        # Please consult for more doc: https://github.com/unixfox/invidious/blob/invidious-companion/config/config.example.yml#L57-L88
-        # And make sure to add the routes from the post install when using a reverse proxy!
-          public_url: "http://localhost:8282"
-        # IT is NOT recommended to use the same key as HMAC KEY. Generate a new key!
-        # Use the key generated in the 2nd step
-        invidious_companion_key: "foo0te5naijooTho"
         # external_port:
         # domain:
         # https_only: false
         # statistics_enabled: false
-        # Use the key generated in the 2nd step
-        hmac_key: "foo0te5naijooTho"
+        hmac_key: "CHANGE_ME!!"
     healthcheck:
       test: wget -nv --tries=1 --spider http://127.0.0.1:3000/api/v1/trending || exit 1
       interval: 30s
       timeout: 5s
       retries: 2
-    logging:
-      options:
-        max-size: "1G"
-        max-file: "4"
-    depends_on:
-      - invidious-db
-
-  companion:
-    image: quay.io/invidious/invidious-companion:latest
-    environment:
-    # Use the key generated in the 2nd step
-       - SERVER_SECRET_KEY=foo0te5naijooTho 
-    restart: unless-stopped
-    # Remove "127.0.0.1:" if used from an external IP
-    ports:
-      - "127.0.0.1:8282:8282"
-    logging:
-      options:
-        max-size: "1G"
-        max-file: "4"
-    cap_drop:
-      - ALL
-    read_only: true
-    # cache for youtube library
-    volumes:
-      - companioncache:/var/tmp/youtubei.js:rw
-    security_opt:
-      - no-new-privileges:true
 
   invidious-db:
     image: docker.io/library/postgres:14
     restart: unless-stopped
     volumes:
-      - postgresdata-companion:/var/lib/postgresql/data
+      - postgresdata:/var/lib/postgresql/data
       - ./config/sql:/config/sql
       - ./docker/init-invidious-db.sh:/docker-entrypoint-initdb.d/init-invidious-db.sh
     environment:
@@ -95,5 +52,4 @@ services:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
 
 volumes:
-  postgresdata-companion:
-  companioncache:
+  postgresdata:
