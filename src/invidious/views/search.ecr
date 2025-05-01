@@ -5,15 +5,17 @@
 
 <!-- Search redirection and filtering UI -->
 <%= Invidious::Frontend::SearchFilters.generate(query.filters, query.text, query.page, locale) %>
-<hr/>
-
 
 <%- if items.empty? -%>
-<div class="h-box no-results-error">
+<div class="no-results-error">
     <div>
-        <%= translate(locale, "search_message_no_results") %><br/><br/>
-        <%= translate(locale, "search_message_change_filters_or_query") %><br/><br/>
-        <%= translate(locale, "search_message_use_another_instance", redirect_url) %>
+			<%= translate(locale, "search_message_no_results") %>
+		</div>
+		<div>
+			<%= translate(locale, "search_message_change_filters_or_query") %>
+		</div>
+		<div>
+			<%= translate(locale, "search_message_use_another_instance", redirect_url) %>
     </div>
 </div>
 <%- else -%>

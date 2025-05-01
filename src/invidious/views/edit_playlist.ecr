@@ -5,56 +5,62 @@
 <link rel="alternate" type="application/rss+xml" title="RSS" href="/feed/playlist/<%= plid %>" />
 <% end %>
 
-<form class="pure-form" action="/edit_playlist?list=<%= plid %>" method="post">
-    <div class="h-box flexible">
-        <div class="flex-right button-container">
-            <div class="pure-u">
-                <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/playlist?list=<%= plid %>">
+<form  action="/edit_playlist?list=<%= plid %>" method="post">
+
+<div class="header-group">
+	<nav class="menu">
+		<ul>
+			<li>
+
+                <a class="secondary" role="button" dir="auto" href="/playlist?list=<%= plid %>">
                     <i class="icon ion-md-close"></i>&nbsp;<%= translate(locale, "generic_button_cancel") %>
                 </a>
-            </div>
-            <div class="pure-u">
-                <button class="pure-button pure-button-secondary low-profile" dir="auto" type="submit">
-                    <i class="icon ion-md-save"></i>&nbsp;<%= translate(locale, "generic_button_save") %>
-                </button>
-            </div>
-            <div class="pure-u">
-                <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/delete_playlist?list=<%= plid %>">
+			</li>
+			<li>
+                <a class="secondary" role="button" dir="auto" href="/delete_playlist?list=<%= plid %>">
                     <i class="icon ion-md-trash"></i>&nbsp;<%= translate(locale, "generic_button_delete") %>
                 </a>
-            </div>
-        </div>
-    </div>
+			</li>
+		</ul>
+	</nav>
+</div>
+	
 
-    <div class="h-box flexible title">
-        <div>
-            <h3><input class="pure-input-1" maxlength="150" name="title" type="text" value="<%= title %>"></h3>
-        </div>
-    </div>
-
-    <div class="h-box">
-        <div class="pure-u-1-1">
-            <b>
-                <%= HTML.escape(playlist.author) %> |
-                <%= translate_count(locale, "generic_videos_count", playlist.video_count) %> |
-            </b>
+						<ul>
+							<li>
+                <%= HTML.escape(playlist.author) %>
+							</li>
+							<li>
+                <%= translate_count(locale, "generic_videos_count", playlist.video_count) %>
+							</li>
+							<li>
             <select name="privacy">
             <%- {"Public", "Unlisted", "Private"}.each do |option| -%>
                 <option value="<%= option %>" <% if option == playlist.privacy.to_s %>selected<% end %>><%= translate(locale, option) %></option>
             <%- end -%>
             </select>
-        </div>
-    </div>
+						</li>
+        </ul>
 
-    <div class="h-box">
-        <textarea maxlength="5000" name="description" style="margin-top:10px;max-width:100%;height:20vh" class="pure-input-1"><%= playlist.description %></textarea>
-    </div>
+		<fieldset class="form">
+				<legend>Edit playlist</legend>
+				<div class="control-group">
+						<label for="title">Title</label>
+            <input  id="title" maxlength="150" name="title" type="text" value="<%= title %>">
+				</div>
+
+		<div class="control-group">
+			<label for="description">Description</label>
+      <textarea maxlength="5000" name="description"><%= playlist.description %></textarea>
+		</div>
     <input type="hidden" name="csrf_token" value="<%= HTML.escape(csrf_token) %>">
+		<div class="action-controls">
+					<button class="primary" dir="auto" type="submit">
+							<i class="icon ion-md-save"></i>&nbsp;<%= translate(locale, "generic_button_save") %>
+					</button>
+		</div>
+		</fieldset>
 </form>
-
-<div class="h-box">
-    <hr>
-</div>
 
 
 <%= rendered "components/items_paginated" %>

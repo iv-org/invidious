@@ -69,6 +69,8 @@ function get_playlist(plid) {
 
     helpers.xhr('GET', plid_url, {retries: 5, entity_name: 'playlist'}, {
         on200: function (response) {
+						if (response === null) return;
+
             playlist.innerHTML = response.playlistHtml;
 
             if (!response.nextVideo) return;

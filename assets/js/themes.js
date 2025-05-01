@@ -1,13 +1,13 @@
 'use strict';
 var toggle_theme = document.getElementById('toggle_theme');
-toggle_theme.href = 'javascript:void(0)';
 
 const STORAGE_KEY_THEME = 'dark_mode';
 const THEME_DARK = 'dark';
 const THEME_LIGHT = 'light';
 
 // TODO: theme state controlled by system
-toggle_theme.addEventListener('click', function () {
+toggle_theme.addEventListener('click', function (e) {
+		e.preventDefault();
     const isDarkTheme = helpers.storage.get(STORAGE_KEY_THEME) === THEME_DARK;
     const newTheme = isDarkTheme ? THEME_LIGHT : THEME_DARK;
     setTheme(newTheme);

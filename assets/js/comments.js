@@ -1,6 +1,6 @@
 var video_data = JSON.parse(document.getElementById('video_data').textContent);
 
-var spinnerHTML = '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>';
+var spinnerHTML = '<div class="loading"><i class="icon ion-ios-refresh"></i></div>';
 var spinnerHTMLwithHR = spinnerHTML + '<hr>';
 
 String.prototype.supplant = function (o) {
@@ -11,14 +11,14 @@ String.prototype.supplant = function (o) {
 };
 
 function toggle_comments(event) {
-    var target = event.target;
-    var body = target.parentNode.parentNode.parentNode.children[1];
-    if (body.style.display === 'none') {
-        target.textContent = '[ − ]';
-        body.style.display = '';
+		const target = event.target;
+		const comments = document.querySelector(".comments");
+    if (comments.style.display === 'none') {
+        target.textContent = '−';
+        comments.style.display = '';
     } else {
-        target.textContent = '[ + ]';
-        body.style.display = 'none';
+        target.textContent = '+';
+        comments.style.display = 'none';
     }
 }
 
@@ -39,6 +39,7 @@ function hide_youtube_replies(event) {
 
 function show_youtube_replies(event) {
     var target = event.target;
+	console.log(target);
 
     var sub_text = target.getAttribute('data-inner-text');
     var inner_text = target.getAttribute('data-sub-text');
@@ -75,23 +76,24 @@ function get_youtube_comments() {
     helpers.xhr('GET', url, {retries: 5, entity_name: 'comments'}, {
         on200: function (response) {
             var commentInnerHtml = ' \
-            <div> \
-                <h3> \
-                    <a href="javascript:void(0)">[ − ]</a> \
+							<nav class="comments-header"> \
+								<ul> \
+                <li> \
+                    <button class="secondary" id="toggle-comments">−</button> \
                     {commentsText}  \
-                </h3> \
-                <b> \
-                '
+                </li> \
+                 \
+                <li>'
                 if (video_data.support_reddit) {
-                    commentInnerHtml += ' <a href="javascript:void(0)" data-comments="reddit"> \
+                    commentInnerHtml += ' <button  data-comments="reddit"> \
                         {redditComments} \
-                    </a> \
+                    </button> \
                     '
                 }
-                commentInnerHtml += ' </b> \
-            </div> \
-            <div>{contentHtml}</div> \
-            <hr>'
+                commentInnerHtml += ' </li> \
+								</ul> \
+            </nav> \
+            <div class="comments">{contentHtml}</div>'
             commentInnerHtml = commentInnerHtml.supplant({
                 contentHtml: response.contentHtml,
                 redditComments: video_data.reddit_comments_text,
@@ -104,9 +106,9 @@ function get_youtube_comments() {
                 })
             });
             comments.innerHTML = commentInnerHtml;
-            comments.children[0].children[0].children[0].onclick = toggle_comments;
+            document.getElementById("toggle-comments").onclick = toggle_comments;
             if (video_data.support_reddit) {
-                comments.children[0].children[1].children[0].onclick = swap_comments;
+                comments.children[1].children[1].onclick = swap_comments;
             }
         },
         onNon200: onNon200, // declared above
@@ -122,7 +124,7 @@ function get_youtube_comments() {
 function get_youtube_replies(target, load_more, load_replies) {
     var continuation = target.getAttribute('data-continuation');
 
-    var body = target.parentNode.parentNode;
+    var body = target.parentNode;
     var fallback = body.innerHTML;
     body.innerHTML = spinnerHTML;
     var baseUrl = video_data.base_url || '/api/v1/comments/'+ video_data.id
@@ -140,26 +142,24 @@ function get_youtube_replies(target, load_more, load_replies) {
     helpers.xhr('GET', url, {}, {
         on200: function (response) {
             if (load_more) {
-                body = body.parentNode.parentNode;
+                body = body.parentNode;
                 body.removeChild(body.lastElementChild);
                 body.insertAdjacentHTML('beforeend', response.contentHtml);
             } else {
                 body.removeChild(body.lastElementChild);
 
-                var p = document.createElement('p');
-                var a = document.createElement('a');
-                p.appendChild(a);
+                var div = document.createElement('div');
+                var button = document.createElement('button');
+                div.appendChild(button);
 
-                a.href = 'javascript:void(0)';
-                a.onclick = hide_youtube_replies;
-                a.setAttribute('data-sub-text', video_data.hide_replies_text);
-                a.setAttribute('data-inner-text', video_data.show_replies_text);
-                a.textContent = video_data.hide_replies_text;
+                button.onclick = hide_youtube_replies;
+                button.setAttribute('data-sub-text', video_data.hide_replies_text);
+                button.setAttribute('data-inner-text', video_data.show_replies_text);
+                button.textContent = video_data.hide_replies_text;
 
                 var div = document.createElement('div');
                 div.innerHTML = response.contentHtml;
 
-                body.appendChild(p);
                 body.appendChild(div);
             }
         },

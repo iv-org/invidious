@@ -1,121 +1,111 @@
 summary {
-	/* This should hide the marker */
-	display: block;
-
-	font-size: 1.17em;
-	font-weight: bold;
-	margin: 0 auto 10px auto;
-	cursor: pointer;
+  display: block;
+  font-size: 1.17em;
+  margin: 0 auto 0.625em;
+  cursor: pointer;
 }
 
 summary::-webkit-details-marker,
-summary::marker { display: none; }
-
-summary:before {
-	border-radius: 5px;
-	content: "[ + ]";
-	margin: -2px 10px 0 10px;
-	padding: 1px 0 3px 0;
-	text-align: center;
-	width: 40px;
+summary::marker {
+  display: none;
 }
 
-details[open] > summary:before { content: "[ − ]"; }
-
-
-#filters-box {
-	padding: 10px 20px 20px 10px;
-	margin: 10px 15px;
+summary::before {
+  content: "+ ";
+  text-align: center;
 }
-#filters-flex {
+
+details[open] > summary::before {
+  content: "− ";
+}
+
+.filters {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(12em, 1fr));
+	grid-gap: var(--secondary-gap);
+	margin: var(--gap) 0;
+}
+
+.filters fieldset {
+	display: grid;
+	grid-gap: var(--secondary-gap);
+	align-content: baseline;
+}
+
+.filters fieldset div {
 	display: flex;
-	flex-wrap: wrap;
-	flex-direction: row;
-	align-items: flex-start;
-	align-content: flex-start;
-	justify-content: flex-start;
+	gap: var(--secondary-gap);
 }
 
-
-fieldset, legend {
-	display: contents !important;
-	border: none !important;
-	margin: 0 !important;
-	padding: 0 !important;
-}
-
-
-.filter-column {
-	display: inline-block;
-	display: inline-flex;
-	width: max-content;
-	min-width: max-content;
-	max-width: 16em;
-	margin: 15px;
-	flex-grow: 2;
-	flex-basis: auto;
-	flex-direction: column;
-}
-.filter-name, .filter-options {
-	display: block;
-	padding: 5px 10px;
-	margin: 0;
-	text-align: start;
-}
-
-.filter-options div { margin: 6px 0; }
-.filter-options div * { vertical-align: middle; }
-.filter-options label { margin: 0 10px; }
-
-
-#filters-apply {
-	text-align: right; /* IE11 only */
-	text-align: end;   /* Override for compatible browsers */
-}
+/* #filters-box { */
+/*   background-color: var(--secondary-bg-color); */
+/* } */
+/**/
+/* #filters-flex { */
+/*   display: flex; */
+/*   flex-flow: row wrap; */
+/*   align-items: flex-start; */
+/*   place-content: flex-start flex-start; */
+/* } */
+/**/
+/* .filter-column { */
+/*   display: inline-block; */
+/*   display: inline-flex; */
+/*   width: max-content; */
+/*   min-width: max-content; */
+/*   max-width: 16em; */
+/*   margin: 0.9375rem; */
+/*   flex-grow: 2; */
+/*   flex-basis: auto; */
+/*   flex-direction: column; */
+/* } */
+/**/
+/* .filter-name, */
+/* .filter-options { */
+/*   display: block; */
+/*   padding: 0.3125rem 0.625rem; */
+/*   margin: 0; */
+/*   text-align: start; */
+/* } */
+/**/
+/* .filter-options div { */
+/*   margin: 0.375rem 0; */
+/* } */
+/**/
+/* .filter-options div * { */
+/*   vertical-align: middle; */
+/* } */
+/**/
+/* .filter-options label { */
+/*   margin: 0 0.625rem; */
+/* } */
+/**/
+/* #filters-apply { */
+/*   text-align: right; /* IE11 only */ */
+/*   text-align: end; /* Override for compatible browsers */ */
+/* } */
 
 /* Error message */
 
 .no-results-error {
-	text-align: center;
-	line-height: 180%;
-	font-size: 110%;
-	padding: 15px 15px 125px 15px;
+  text-align: center;
+  font-size: 1.1em;
+  padding: 1em 1em 8em;
 }
 
-/* Responsive rules */
-
-@media only screen and (max-width: 800px) {
-	summary { font-size: 1.30em; }
-	#filters-box {
-		margin: 10px 0 0 0;
-		padding: 0;
-	}
-	#filters-apply {
-		text-align: center;
-		padding: 15px;
-	}
-}
-
-/* Light theme */
-
-.light-theme #filters-box {
-	background: #dfdfdf;
-}
-
-@media (prefers-color-scheme: light) {
-	.no-theme #filters-box {
-		background: #dfdfdf;
-	}
-}
-
-/* Dark theme */
-
-.dark-theme #filters-box {
-	background: #373737;
-}
-
-@media (prefers-color-scheme: dark) {
-	.no-theme #filters-box {
-		background: #373737;
-	}
-}
+/* @media only screen and (max-width: 50px) { */
+/*   summary { */
+/*     font-size: 1.3em; */
+/*   } */
+/**/
+/*   #filters-box { */
+/*     margin: 0.6em 0 0; */
+/*     padding: 0; */
+/*   } */
+/**/
+/*   #filters-apply { */
+/*     text-align: center; */
+/*     padding: 1em; */
+/*   } */
+/* } */
+/**/

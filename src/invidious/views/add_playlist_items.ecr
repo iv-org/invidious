@@ -3,24 +3,37 @@
 <link rel="alternate" type="application/rss+xml" title="RSS" href="/feed/playlist/<%= plid %>" />
 <% end %>
 
-<div class="pure-g">
-    <div class="pure-u-1 pure-u-lg-1-5"></div>
-    <div class="pure-u-1 pure-u-lg-3-5">
-        <div class="h-box">
-            <form class="pure-form pure-form-aligned" action="/add_playlist_items" method="get">
-                <legend><a href="/playlist?list=<%= playlist.id %>"><%= translate(locale, "Editing playlist `x`", %|"#{HTML.escape(playlist.title)}"|) %></a></legend>
-
-                <fieldset>
-                    <input class="pure-input-1" type="search" name="q"
-                      <% if query %>value="<%= HTML.escape(query.text) %>"<% end %>
-                      placeholder="<%= translate(locale, "Search for videos") %>">
-                    <input type="hidden" name="list" value="<%= plid %>">
-                </fieldset>
-            </form>
-        </div>
-    </div>
-    <div class="pure-u-1 pure-u-lg-1-5"></div>
+<div class="playlist-header">
+		<h1><%= translate(locale, "Editing playlist") %></h1>
+		<nav>
+			<ul>
+				<li><a href="/playlist?list=<%= playlist.id %>"><%= translate(locale, "View playlist") %></a></li>
+			</ul>
+		</nav>
 </div>
+
+<h2><%= HTML.escape(playlist.title) %></h2>
+
+<form action="/add_playlist_items" method="get">
+	<fieldset>
+		<legend><%= translate(locale, "Search for videos") %></legend>
+
+		<div class="search-box">
+			<input type="search" class="search" autocorrect="off"
+				autocapitalize="none" spellcheck="false" autofocus
+				name="q" 
+				id="playlist-video-search"
+				<% if query %>value="<%= HTML.escape(query.text) %>"<% end %>
+				placeholder="<%= translate(locale, "Search for videos") %>"
+				title="<%= translate(locale, "search") %>">
+
+			<button type="submit" class="search-action" aria-label="<%= translate(locale, "search") %>">
+				<i class="icon ion-ios-search"></i>
+			</button>
+		</div>
+		<input type="hidden" name="list" value="<%= plid %>">
+	</fieldset>
+</form>
 
 <script id="playlist_data" type="application/json">
 <%=
@@ -30,6 +43,5 @@
 %>
 </script>
 <script src="/js/playlist_widget.js?v=<%= ASSET_COMMIT %>"></script>
-
 
 <%= rendered "components/items_paginated" %>

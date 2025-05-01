@@ -11,10 +11,10 @@
 
 <%= rendered "components/feed_menu" %>
 
-<div class="pure-g">
+<main class="videos">
 <% popular_videos.each do |item| %>
     <%= rendered "components/item" %>
 <% end %>
-</div>
+</main>
 
 <script src="/js/watched_indicator.js"></script>

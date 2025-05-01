@@ -58,13 +58,13 @@
         el.onclick = function () { mark_unwatched(el); };
     });
     document.querySelectorAll('[data-onclick="add_playlist_video"]').forEach(function (el) {
-        el.onclick = function () { add_playlist_video(el); };
+        el.onclick = function (e) { add_playlist_video(e); };
     });
     document.querySelectorAll('[data-onclick="add_playlist_item"]').forEach(function (el) {
-        el.onclick = function () { add_playlist_item(el); };
+        el.onclick = function (e) { add_playlist_item(e); };
     });
     document.querySelectorAll('[data-onclick="remove_playlist_item"]').forEach(function (el) {
-        el.onclick = function () { remove_playlist_item(el); };
+        el.onclick = function (e) { remove_playlist_item(e); };
     });
     document.querySelectorAll('[data-onclick="revoke_token"]').forEach(function (el) {
         el.onclick = function () { revoke_token(el); };

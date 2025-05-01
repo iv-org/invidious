@@ -267,6 +267,8 @@ module Invidious::Routes::Playlists
       show_next: (items.size >= 20)
     )
 
+    puts items
+
     env.set "add_playlist_items", plid
     templated "add_playlist_items"
   end

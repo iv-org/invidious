@@ -67,6 +67,10 @@ module Invidious::Routes::Search
 
       redirect_url = Invidious::Frontend::Misc.redirect_url(env)
 
+      puts items.size
+      puts (items.size >= 20)
+      puts query.page
+
       # Pagination
       page_nav_html = Frontend::Pagination.nav_numeric(locale,
         base_url: "/search?#{query.to_http_params}",

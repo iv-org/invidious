@@ -13,14 +13,9 @@ module Invidious::Frontend::Comments
           )
 
           replies_html = <<-END_HTML
-          <div id="replies" class="pure-g">
-            <div class="pure-u-1-24"></div>
-            <div class="pure-u-23-24">
-              <p>
-                <a href="javascript:void(0)" data-continuation="#{child["replies"]["continuation"]}"
-                  data-onclick="get_youtube_replies" data-load-replies>#{replies_count_text}</a>
-              </p>
-            </div>
+          <div class="replies">
+            <button data-continuation="#{child["replies"]["continuation"]}"
+              data-onclick="get_youtube_replies" data-load-replies>#{replies_count_text}</button>
           </div>
           END_HTML
         elsif comments["authorId"]? && !comments["singlePost"]?
@@ -32,21 +27,20 @@ module Invidious::Frontend::Comments
           )
 
           replies_html = <<-END_HTML
-          <div class="pure-g">
-            <div class="pure-u-1-24"></div>
-            <div class="pure-u-23-24">
-              <p>
-                <a href="/post/#{child["commentId"]}?ucid=#{comments["authorId"]}">#{replies_count_text}</a>
-              </p>
-            </div>
+          <div class="reply-count">
+            <a role="button" href="/post/#{child["commentId"]}?ucid=#{comments["authorId"]}">#{replies_count_text}</a>
           </div>
           END_HTML
         end
 
-        if !thin_mode
-          author_thumbnail = "/ggpht#{URI.parse(child["authorThumbnails"][-1]["url"].as_s).request_target}"
-        else
+        if thin_mode
           author_thumbnail = ""
+        else
+          author_thumbnail_url = "/ggpht#{URI.parse(child["authorThumbnails"][-1]["url"].as_s).request_target}"
+
+          author_thumbnail = <<-THUMBNAIL
+                <img loading="lazy" src="#{author_thumbnail_url}" class="profile-pic" alt="" />
+          THUMBNAIL
         end
 
         author_name = HTML.escape(child["author"].as_s)
@@ -65,18 +59,76 @@ module Invidious::Frontend::Comments
             str << %(width="16" height="16" />)
           end
         end
+
         html << <<-END_HTML
-        <div class="pure-g" style="width:100%">
-          <div class="channel-profile pure-u-4-24 pure-u-md-2-24">
-            <img loading="lazy" style="margin-right:1em;margin-top:1em;width:90%" src="#{author_thumbnail}" alt="" />
+        <div class="comment" id="comment_#{child["commentId"]}">
+          <div class="comment-header">
+            <div class="comment-temporal">
+              <div class="channel-profile">
+                #{author_thumbnail}
+                <h4>
+                    <a class="#{child["authorIsChannelOwner"] == true ? "channel-owner" : ""}" href="#{child["authorUrl"]}">#{author_name}</a>
+                  #{sponsor_icon}
+                </h4>
+
+              </div>
+              <time datetime="#{Time.unix(child["published"].as_i64).to_s("%Y-%m-%d")}" title="#{Time.unix(child["published"].as_i64).to_s(translate(locale, "%A %B %-d, %Y"))}">#{translate(locale, "`x` ago", recode_date(Time.unix(child["published"].as_i64), locale))} #{child["isEdited"] == true ? translate(locale, "(edited)") : ""}</time>
           </div>
-          <div class="pure-u-20-24 pure-u-md-22-24">
-            <p>
-              <b>
-                <a class="#{child["authorIsChannelOwner"] == true ? "channel-owner" : ""}" href="#{child["authorUrl"]}">#{author_name}</a>
-              </b>
-              #{sponsor_icon}
-              <p style="white-space:pre-wrap">#{child["contentHtml"]}</p>
+        END_HTML
+
+        html << <<-END_HTML
+        <ul class="comment-meta-sub">
+        END_HTML
+
+
+        if child["likeCount"]?
+          html << <<-END_HTML
+            <li>
+              <i class="icon ion-ios-thumbs-up"></i> #{number_with_separator(child["likeCount"])}
+            </li>
+          END_HTML
+        end
+
+        if child["creatorHeart"]?
+          if !thin_mode
+            creator_thumbnail = "/ggpht#{URI.parse(child["creatorHeart"]["creatorThumbnail"].as_s).request_target}"
+          else
+            creator_thumbnail = ""
+          end
+
+          html << <<-END_HTML
+            <li>
+              <span class="creator-heart-container" title="#{translate(locale, "`x` marked it with a ❤", child["creatorHeart"]["creatorName"].as_s)}">
+                  <span class="creator-heart">
+                      <img loading="lazy" class="creator-heart-background-hearted" src="#{creator_thumbnail}" alt="" />
+                      <span class="creator-heart-small-hearted">
+                          <span class="icon ion-ios-heart creator-heart-small-container"></span>
+                      </span>
+                  </span>
+              </span>
+            </li>
+          END_HTML
+        end
+
+        if comments["videoId"]?
+          html << <<-END_HTML
+            <li>
+              <a rel="noreferrer noopener" href="https://www.youtube.com/watch?v=#{comments["videoId"]}&lc=#{child["commentId"]}" title="#{translate(locale, "YouTube comment permalink")}" title="View on YouTube">YT</a>
+            </li>
+          END_HTML
+        elsif comments["authorId"]?
+          html << <<-END_HTML
+            <li>
+              <a rel="noreferrer noopener" href="https://www.youtube.com/channel/#{comments["authorId"]}/community?lb=#{child["commentId"]}" title="#{translate(locale, "YouTube comment permalink")}" title="View on YouTube">YT</a>
+            </li>
+          END_HTML
+        end
+
+        html << <<-END_HTML
+          </ul>
+          </div>
+          <div class="_comment">
+          <p class="raw-text">#{child["contentHtml"]}</p>
         END_HTML
 
         if child["attachment"]?
@@ -87,10 +139,8 @@ module Invidious::Frontend::Comments
             attachment = attachment["imageThumbnails"][1]
 
             html << <<-END_HTML
-            <div class="pure-g">
-              <div class="pure-u-1 pure-u-md-1-2">
-                <img loading="lazy" style="width:100%" src="/ggpht#{URI.parse(attachment["url"].as_s).request_target}" alt="" />
-              </div>
+            <div>
+              <img loading="lazy" src="/ggpht#{URI.parse(attachment["url"].as_s).request_target}" alt="" />
             </div>
             END_HTML
           when "video"
@@ -141,50 +191,8 @@ module Invidious::Frontend::Comments
           end
         end
 
-        html << <<-END_HTML
-        <p>
-          <span title="#{Time.unix(child["published"].as_i64).to_s(translate(locale, "%A %B %-d, %Y"))}">#{translate(locale, "`x` ago", recode_date(Time.unix(child["published"].as_i64), locale))} #{child["isEdited"] == true ? translate(locale, "(edited)") : ""}</span>
-          |
-        END_HTML
-
-        if comments["videoId"]?
-          html << <<-END_HTML
-            <a rel="noreferrer noopener" href="https://www.youtube.com/watch?v=#{comments["videoId"]}&lc=#{child["commentId"]}" title="#{translate(locale, "YouTube comment permalink")}">[YT]</a>
-            |
-          END_HTML
-        elsif comments["authorId"]?
-          html << <<-END_HTML
-            <a rel="noreferrer noopener" href="https://www.youtube.com/channel/#{comments["authorId"]}/community?lb=#{child["commentId"]}" title="#{translate(locale, "YouTube comment permalink")}">[YT]</a>
-            |
-          END_HTML
-        end
 
         html << <<-END_HTML
-          <i class="icon ion-ios-thumbs-up"></i> #{number_with_separator(child["likeCount"])}
-        END_HTML
-
-        if child["creatorHeart"]?
-          if !thin_mode
-            creator_thumbnail = "/ggpht#{URI.parse(child["creatorHeart"]["creatorThumbnail"].as_s).request_target}"
-          else
-            creator_thumbnail = ""
-          end
-
-          html << <<-END_HTML
-            &nbsp;
-            <span class="creator-heart-container" title="#{translate(locale, "`x` marked it with a ❤", child["creatorHeart"]["creatorName"].as_s)}">
-                <span class="creator-heart">
-                    <img loading="lazy" class="creator-heart-background-hearted" src="#{creator_thumbnail}" alt="" />
-                    <span class="creator-heart-small-hearted">
-                        <span class="icon ion-ios-heart creator-heart-small-container"></span>
-                    </span>
-                </span>
-            </span>
-          END_HTML
-        end
-
-        html << <<-END_HTML
-            </p>
             #{replies_html}
           </div>
         </div>
@@ -193,16 +201,17 @@ module Invidious::Frontend::Comments
 
       if comments["continuation"]?
         html << <<-END_HTML
-        <div class="pure-g">
-          <div class="pure-u-1">
-            <p>
-              <a href="javascript:void(0)" data-continuation="#{comments["continuation"]}"
-                data-onclick="get_youtube_replies" data-load-more #{"data-load-replies" if is_replies}>#{translate(locale, "Load more")}</a>
-            </p>
-          </div>
+        <div>
+            <button data-continuation="#{comments["continuation"]}"
+                data-onclick="get_youtube_replies" data-load-more #{"data-load-replies" if is_replies}>#{translate(locale, "Load more")}</button>
         </div>
         END_HTML
       end
+
+      # Closes comment box
+      html << <<-END_HTML
+      </div>
+      END_HTML
     end
   end
 end
