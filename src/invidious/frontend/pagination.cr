@@ -74,7 +74,6 @@ module Invidious::Frontend::Pagination
         str << %(</li>\n)
       end
 
-
       if show_next
         str << %(<li>)
         params_next = URI::Params{"page" => (current_page + 1).to_s}

@@ -80,7 +80,6 @@ module Invidious::Frontend::Comments
         <ul class="comment-meta-sub">
         END_HTML
 
-
         if child["likeCount"]?
           html << <<-END_HTML
             <li>
@@ -190,7 +189,6 @@ module Invidious::Frontend::Comments
           else nil # Ignore
           end
         end
-
 
         html << <<-END_HTML
             #{replies_html}

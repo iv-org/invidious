@@ -68,7 +68,7 @@ module Invidious::Routes::Search
       redirect_url = Invidious::Frontend::Misc.redirect_url(env)
 
       puts items.size
-      puts (items.size >= 20)
+      puts(items.size >= 20)
       puts query.page
 
       # Pagination
