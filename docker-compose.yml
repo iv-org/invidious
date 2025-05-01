@@ -1,3 +1,11 @@
+# Warning: This docker-compose file is made for development purposes.
+# Using it will build an image from the locally cloned repository.
+#
+# If you want to use Invidious in production, see the docker-compose.yml file provided
+# in the installation documentation: https://docs.invidious.io/installation/
+
+---
+
 version: "3"
 services:
 
@@ -7,7 +15,7 @@ services:
     restart: unless-stopped
     # Remove "127.0.0.1:" if used from an external IP
     ports:
-      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:9999:3000"
     environment:
       # Please read the following file for a comprehensive list of all available
       # configuration options and their associated syntax:

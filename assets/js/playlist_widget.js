@@ -7,7 +7,7 @@ function add_playlist_video(event) {
     var select = document.querySelector("#playlists");
     var option = select.children[select.selectedIndex];
 
-    var url = '/playlist_ajax?action_add_video=1&redirect=false' +
+    var url = '/playlist_ajax?action=add_video&redirect=false' +
         '&video_id=' + target.getAttribute('data-id') +
         '&playlist_id=' + option.getAttribute('data-plid');
 
@@ -25,8 +25,8 @@ function add_playlist_item(event) {
     var card = document.querySelector(`#video-card-${video_id}`);
     card.classList.add("hide");
 
-    var url = '/playlist_ajax?action_add_video=1&redirect=false' +
-        '&video_id=' + video_id +
+    var url = '/playlist_ajax?action=add_video&redirect=false' +
+        '&video_id=' + target.getAttribute('data-id') +
         '&playlist_id=' + target.getAttribute('data-plid');
 
     helpers.xhr('POST', url, {payload: payload}, {
@@ -43,8 +43,8 @@ function remove_playlist_item(event) {
 		const card = document.querySelector(`.video-card [data-index="${video_index}"]`)
     card.classList.add("hide");
 
-    var url = '/playlist_ajax?action_remove_video=1&redirect=false' +
-        '&set_video_id=' + video_index +
+    var url = '/playlist_ajax?action=remove_video&redirect=false' +
+        '&set_video_id=' + target.getAttribute('data-index') +
         '&playlist_id=' + target.getAttribute('data-plid');
 
     helpers.xhr('POST', url, {payload: payload}, {

@@ -328,17 +328,9 @@ module Invidious::Routes::Account
       end
     end
 
-    if env.params.query["action_revoke_token"]?
-      action = "action_revoke_token"
-    else
-      return env.redirect referer
-    end
-
-    session = env.params.query["session"]?
-    session ||= ""
-
-    case action
-    when .starts_with? "action_revoke_token"
+    case action = env.params.query["action"]?
+    when "revoke_token"
+      session = env.params.query["session"]
       Invidious::Database::SessionIDs.delete(sid: session, email: user.email)
     else
       return error_json(400, "Unsupported action #{action}")

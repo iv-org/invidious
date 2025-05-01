@@ -513,5 +513,7 @@
     "carousel_slide": "Diapositivo {{current}} de{{total}}",
     "carousel_skip": "Ignorar carrossel",
     "carousel_go_to": "Ir para o diapositivo`x`",
-    "The Popular feed has been disabled by the administrator.": "O feed Popular foi desativado por um administrador."
+    "The Popular feed has been disabled by the administrator.": "O feed Popular foi desativado por um administrador.",
+    "preferences_preload_label": "Pré-carregamento dos dados: ",
+    "Filipino (auto-generated)": "Filipino (gerado automaticamente)"
 }

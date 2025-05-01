@@ -10,8 +10,10 @@ assignees: ''
 <!--
   BEFORE TRYING TO REPORT A BUG:
  
-  * Read the FAQ!
-  * Use the search function to check if there is already an issue open for your problem!
+  * Read the FAQ: https://docs.invidious.io/faq/!
+  * Use the search function to check if there is already an issue open for your problem: https://github.com/search?q=repo%3Aiv-org%2Finvidious+replace+me+with+your+bug&type=issues!
+
+  MAKE SURE TO FOLLOW THE TWO STEPS ABOVE BEFORE REPORTING A BUG. A BUG THAT ALREADY EXIST WILL IMMEDIATELY CLOSED.
 
   If you want to suggest a new feature please use "Feature request" instead
   If you want to suggest an enhancement to an existing feature please use "Enhancement" instead

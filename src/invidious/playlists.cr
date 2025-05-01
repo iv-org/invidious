@@ -510,7 +510,7 @@ def extract_playlist_videos(initial_data : Hash(String, JSON::Any))
   return videos
 end
 
-def template_playlist(playlist)
+def template_playlist(playlist, listen)
   html = <<-END_HTML
   <h3>
     <a href="/playlist?list=#{playlist["playlistId"]}">
@@ -525,7 +525,7 @@ def template_playlist(playlist)
     html += <<-END_HTML
       <li id="#{video["videoId"]}">
           <div class="thumbnail">
-            <a href="/watch?v=#{video["videoId"]}&list=#{playlist["playlistId"]}&index=#{video["index"]}">
+            <a href="/watch?v=#{video["videoId"]}&list=#{playlist["playlistId"]}&index=#{video["index"]}#{listen ? "&listen=1" : ""}">
               <img loading="lazy" class="thumbnail" src="/vi/#{video["videoId"]}/mqdefault.jpg" alt="" />
               <div class="length">#{recode_length_seconds(video["lengthSeconds"].as_i)}</div>
             </a>

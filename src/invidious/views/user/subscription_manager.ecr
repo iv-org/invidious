@@ -32,9 +32,9 @@
                 <h3>
                     <a href="/channel/<%= channel.id %>"><%= HTML.escape(channel.author) %></a>
                 </h3>
-								<form data-onsubmit="return_false" action="/subscription_ajax?action_remove_subscriptions=1&c=<%= channel.id %>&referer=<%= env.get("current_page") %>" method="post">
-										<input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
-										<input class="secondary-button" type="submit" data-onclick="remove_subscription" data-ucid="<%= channel.id %>" value="<%= translate(locale, "unsubscribe") %>">
+                    <form data-onsubmit="return_false" action="/subscription_ajax?action=remove_subscriptions&c=<%= channel.id %>&referer=<%= env.get("current_page") %>" method="post">
+                        <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
+                        <input style="all:unset" type="submit" data-onclick="remove_subscription" data-ucid="<%= channel.id %>" value="<%= translate(locale, "unsubscribe") %>">
 								</form>
           </div>
 <% end %>
