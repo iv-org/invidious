@@ -26,23 +26,23 @@
 <script src="/js/watched_widget.js"></script>
 
 <div class="videos">
-    <% watched.each do |item| %>
-				<div class="video-card">
-						<div class="thumbnail">
-								<a href="/watch?v=<%= item %>">
-										<img class="thumbnail" src="/vi/<%= item %>/mqdefault.jpg" alt="" />
-								</a>
+	<% watched.each do |item| %>
+    <div class="video-card">
+      <div class="thumbnail">
+        <a href="/watch?v=<%= item %>">
+          <img class="thumbnail" src="/vi/<%= item %>/mqdefault.jpg" alt="" />
+        </a>
 
-                    <div class="top-left-overlay"><div class="watched">
-                    <form data-onsubmit="return_false" action="/watch_ajax?action=mark_unwatched&id=<%= item %>&referer=<%= env.get("current_page") %>" method="post">
-                        <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>">
-                        <button type="submit" class="pure-button pure-button-secondary low-profile"
-                                data-onclick="mark_unwatched" data-id="<%= item %>"><i class="icon ion-md-trash"></i></button>
-                    </form>
-                    </div></div>
-                </div>
-            </div>
+        <div class="top-left-overlay"><div class="watched">
+          <form data-onsubmit="return_false" action="/watch_ajax?action=mark_unwatched&id=<%= item %>&referer=<%= env.get("current_page") %>" method="post">
+            <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>">
+            <button type="submit" class="pure-button pure-button-secondary low-profile"
+              data-onclick="mark_unwatched" data-id="<%= item %>"><i class="icon ion-md-trash"></i></button>
+          </form>
         </div>
+      </div>
+    </div>
+  </div>
     <% end %>
 </div>
 
