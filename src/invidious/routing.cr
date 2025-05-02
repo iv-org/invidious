@@ -188,7 +188,7 @@ module Invidious::Routing
   end
 
   # -------------------
-  #  Media proxy routes
+  #  Proxy routes
   # -------------------
 
   def register_api_manifest_routes
@@ -221,6 +221,13 @@ module Invidious::Routing
     get "/s_p/:id/:name", Routes::Images, :s_p_image
     get "/yts/img/:name", Routes::Images, :yts_image
     get "/vi/:id/:name", Routes::Images, :thumbnails
+  end
+
+  def register_companion_routes
+    if CONFIG.invidious_companion.present?
+      get "/companion/*", Routes::Companion, :get_companion
+      options "/companion/*", Routes::Companion, :options_companion
+    end
   end
 
   # -------------------

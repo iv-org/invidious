@@ -75,7 +75,7 @@ db:
 ## If you are using a reverse proxy then you will probably need to
 ## configure the public_url to be the same as the domain used for Invidious.
 ## Also apply when used from an external IP address (without a domain).
-## Examples: https://MYINVIDIOUSDOMAIN or http://192.168.1.100:8282
+## Examples: https://MYINVIDIOUSDOMAIN/companion or http://192.168.1.100:8282/companion
 ##
 ## Both parameter can have identical URL when Invidious is hosted in
 ## an internal network or at home or locally (localhost).
@@ -84,8 +84,8 @@ db:
 ## Default: <none>
 ##
 #invidious_companion:
-#  - private_url: "http://localhost:8282"
-#    public_url: "http://localhost:8282"
+#  - private_url: "http://localhost:8282/companion"
+#    public_url: "http://localhost:8282/companion"
 
 ##
 ## API key for Invidious companion, used for securing the communication
