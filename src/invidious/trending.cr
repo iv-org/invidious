@@ -1,4 +1,4 @@
-def fetch_trending(trending_type, region, locale)
+def fetch_trending(trending_type, region, locale, env)
   region ||= "US"
   region = region.upcase
 
@@ -6,7 +6,8 @@ def fetch_trending(trending_type, region, locale)
 
   case trending_type.try &.downcase
   when "music"
-    params = "4gINGgt5dG1hX2NoYXJ0cw%3D%3D"
+    # params = "4gINGgt5dG1hX2NoYXJ0cw%3D%3D"
+    return fetch_subscription_related_videoids(env, region, locale)
   when "gaming"
     params = "4gIcGhpnYW1pbmdfY29ycHVzX21vc3RfcG9wdWxhcg%3D%3D"
   when "movies"
@@ -39,4 +40,34 @@ def fetch_trending(trending_type, region, locale)
 
   # Deduplicate items before returning results
   return extracted.select(SearchVideo).uniq!(&.id), plid
+end
+
+def fetch_subscription_related_videoids(env, region, locale)
+  user = env.get("user").as(Invidious::User)
+  channel_videos, notifications = get_subscription_feed(user, 5, 1)
+
+  videos = [] of SearchVideo
+  channel_videos.each do |video|
+    video = get_video(video.id)
+    related = video.related_videos
+    related.each do |related_video|
+      related_id = related_video["id"]
+      videos << SearchVideo.new({
+        title:              related_video["title"],
+        id:                 related_video["id"],
+        author:             related_video["author"],
+        ucid:               related_video["ucid"]? || "",
+        published:          related_video["published"]?.try { |p| Time.parse_rfc3339(p) } || Time.utc,
+        views:              related_video["view_count"]?.try &.to_i64 || 0_i64,
+        description_html:   "", # not available
+        length_seconds:     related_video["length_seconds"]?.try &.to_i || 0,
+        premiere_timestamp: nil,
+        author_verified:    related_video["author_verified"]? == "true",
+        author_thumbnail:   related_video["author_thumbnail"]?,
+        badges:             VideoBadges::None,
+      })
+    end
+  end
+
+  return videos.uniq!(&.id), nil
 end

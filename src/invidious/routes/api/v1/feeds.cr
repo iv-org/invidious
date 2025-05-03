@@ -8,7 +8,7 @@ module Invidious::Routes::API::V1::Feeds
     trending_type = env.params.query["type"]?
 
     begin
-      trending, plid = fetch_trending(trending_type, region, locale)
+      trending, plid = fetch_trending(trending_type, region, locale, env)
     rescue ex
       return error_json(500, ex)
     end
