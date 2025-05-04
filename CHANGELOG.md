@@ -2,6 +2,12 @@
 
 ## vX.Y.0 (future)
 
+## v2.20250504.0
+
+Small release with quick workaround fix for issue #4251 (Nil assertion failed).
+
+PR: https://github.com/iv-org/invidious/issues/5263
+
 ## v2.20250314.0
 
 ### Wrap-up
