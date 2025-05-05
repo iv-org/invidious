@@ -159,6 +159,9 @@ def get_about_info(ucid, locale) : AboutChannel
     end
   end
 
+  # use comments link_utils to replace external links with the confirmation page
+  description_html = Invidious::Comments.replace_external_links(description_html)
+
   sub_count = 0
 
   if (metadata_rows = initdata.dig?("header", "pageHeaderRenderer", "content", "pageHeaderViewModel", "metadata", "contentMetadataViewModel", "metadataRows").try &.as_a)

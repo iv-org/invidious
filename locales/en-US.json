@@ -501,5 +501,6 @@
     "toggle_theme": "Toggle Theme",
     "carousel_slide": "Slide {{current}} of {{total}}",
     "carousel_skip": "Skip the Carousel",
-    "carousel_go_to": "Go to slide `x`"
+    "carousel_go_to": "Go to slide `x`",
+    "confirm_dialog_external_link": "You are leaving Invidious. Continue to external link?"
 }
