@@ -1,0 +1,35 @@
+FROM alpine:3.18 AS builder
+
+RUN apk add --no-cache gcc make yaml-static libxml2-static sqlite-static zlib-static \
+    xz-static openssl-libs-static openssl-dev pcre-dev pcre2-dev gc-dev libevent-static musl-dev
+
+ARG release
+
+COPY ./Makefile .
+COPY ./invidious-arm64-musl.o .
+
+RUN make invidious-arm64-musl STATIC=1
+
+
+FROM alpine:3.18
+
+RUN apk add --no-cache librsvg ttf-opensans tini
+WORKDIR /invidious
+
+RUN addgroup -g 1000 -S invidious && \
+    adduser -u 1000 -S invidious -G invidious
+
+COPY --chown=invidious ./config/ ./config/
+RUN mv -n config/config.example.yml config/config.yml
+RUN sed -i 's/host: \(127.0.0.1\|localhost\)/host: invidious-db/' config/config.yml
+
+COPY ./locales/ ./locales/
+COPY ./assets ./assets/
+RUN chmod o+rX -R ./assets ./config ./locales
+
+COPY --from=builder /invidious-arm64-musl .
+
+EXPOSE 3000
+USER invidious
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD [ "/invidious/invidious-arm64-musl" ]
