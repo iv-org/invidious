@@ -1,8 +1,12 @@
-<%
-  locale = env.get("preferences").as(Preferences).locale
-  dark_mode = env.get("preferences").as(Preferences).dark_mode
-%>
 <!DOCTYPE html>
+<%-
+  user = env.get?("user").try &.as(IV::User)
+  prefs = env.get?("preferences").try &.as(Preferences)
+
+  locale = prefs.try &.locale || "en-US"
+  dark_mode = prefs.try &.dark_mode || "auto"
+  show_nick = prefs.try &.show_nick || false
+-%>
 <html lang="<%= locale %>">
 
 <head>
@@ -40,7 +44,7 @@
                 <% end %>
 
                 <div class="pure-u-1 pure-u-md-8-24 user-field">
-                    <% if env.get? "user" %>
+                    <% if user %>
                         <div class="pure-u-1-4">
                             <a id="toggle_theme" href="/toggle_theme?referer=<%= env.get?("current_page") %>" class="pure-menu-heading" title="<%= translate(locale, "toggle_theme") %>">
                                 <% if dark_mode == "dark" %>
@@ -52,7 +56,7 @@
                         </div>
                         <div class="pure-u-1-4">
                             <a id="notification_ticker" title="<%= translate(locale, "Subscriptions") %>" href="/feed/subscriptions" class="pure-menu-heading">
-                                <% notification_count = env.get("user").as(Invidious::User).notifications.size %>
+                                <% notification_count = user.try &.notifications.size || 0 %>
                                 <% if CONFIG.enable_user_notifications && notification_count > 0 %>
                                     <span id="notification_count"><%= notification_count %></span> <i class="icon ion-ios-notifications"></i>
                                 <% else %>
@@ -65,11 +69,11 @@
                                 <i class="icon ion-ios-cog"></i>
                             </a>
                         </div>
-                        <% if env.get("preferences").as(Preferences).show_nick %>
+                        <%- if show_nick -%>
                             <div class="pure-u-1-4" style="overflow: hidden; white-space: nowrap;">
-                                <span id="user_name"><%= HTML.escape(env.get("user").as(Invidious::User).email) %></span>
+                                <span id="user_name"><%= HTML.escape(user.try &.email) %></span>
                             </div>
-                        <% end %>
+                        <%- end -%>
                         <div class="pure-u-1-4">
                             <form action="/signout?referer=<%= env.get?("current_page") %>" method="post">
                                 <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
@@ -158,7 +162,7 @@
     </div>
     <script src="/js/handlers.js?v=<%= ASSET_COMMIT %>"></script>
     <script src="/js/themes.js?v=<%= ASSET_COMMIT %>"></script>
-    <% if env.get? "user" %>
+    <% if user %>
         <script src="/js/sse.js?v=<%= ASSET_COMMIT %>"></script>
         <script id="notification_data" type="application/json">
         <%=
