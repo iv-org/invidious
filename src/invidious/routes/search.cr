@@ -11,8 +11,8 @@ module Invidious::Routes::Search
         xml.element("LongName") { xml.text "Invidious Search" }
         xml.element("Description") { xml.text "Search for videos, channels, and playlists on Invidious" }
         xml.element("InputEncoding") { xml.text "UTF-8" }
-        xml.element("Image", width: 48, height: 48, type: "image/x-icon") { xml.text "#{HOST_URL}/favicon.ico" }
-        xml.element("Url", type: "text/html", method: "get", template: "#{HOST_URL}/search?q={searchTerms}")
+        xml.element("Image", width: 48, height: 48, type: "image/x-icon") { xml.text "#{env.request.headers["Host"]}/favicon.ico" }
+        xml.element("Url", type: "text/html", method: "get", template: "#{env.request.headers["Host"]}/search?q={searchTerms}")
       end
     end
   end

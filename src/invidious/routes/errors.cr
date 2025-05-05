@@ -1,7 +1,7 @@
 module Invidious::Routes::ErrorRoutes
   def self.error_404(env)
     # Workaround for #3117
-    if HOST_URL.empty? && env.request.path.starts_with?("/v1/storyboards/sb")
+    if env.request.headers["Host"].empty? && env.request.path.starts_with?("/v1/storyboards/sb")
       return env.redirect "#{env.request.path[15..]}?#{env.params.query}"
     end
 
