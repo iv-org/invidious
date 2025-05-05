@@ -79,6 +79,72 @@ module Invidious::Routes::Account
   end
 
   # -------------------
+  #  Username update
+  # -------------------
+
+  # Show the username change interface (GET request)
+  def get_change_username(env)
+    locale = env.get("preferences").as(Preferences).locale
+
+    user = env.get? "user"
+    sid = env.get? "sid"
+    referer = get_referer(env)
+
+    if !user
+      return env.redirect referer
+    end
+
+    user = user.as(User)
+    sid = sid.as(String)
+    csrf_token = generate_response(sid, {":change_username"}, HMAC_KEY)
+
+    templated "user/change_username"
+  end
+
+  # Handle the username change (POST request)
+  def post_change_username(env)
+    locale = env.get("preferences").as(Preferences).locale
+
+    user = env.get? "user"
+    sid = env.get? "sid"
+    referer = get_referer(env)
+
+    if !user
+      return env.redirect referer
+    end
+
+    user = user.as(User)
+    sid = sid.as(String)
+    token = env.params.body["csrf_token"]?
+
+    begin
+      validate_request(token, sid, env.request, HMAC_KEY, locale)
+    rescue ex
+      return error_template(400, ex)
+    end
+
+    new_username = env.params.body["new_username"]?.try &.downcase.byte_slice(0, 254)
+    if new_username.nil? || new_username.empty?
+      return error_template(401, "accounts_username_required_field")
+    end
+
+    if new_username == user.email
+      return error_template(401, "accounts_username_is_the_same")
+    end
+
+    if Invidious::Database::Users.select(email: new_username)
+      return error_template(401, "accounts_username_taken")
+    end
+
+    Invidious::Database::Users.update_username(user, new_username.to_s)
+    Invidious::Database::Users.update_user_session_id(user, new_username.to_s)
+    Invidious::Database::Users.update_user_playlists_author(user, new_username.to_s)
+    Invidious::Database::Users.update_user_materialized_view(user, new_username.to_s)
+
+    env.redirect referer
+  end
+
+  # -------------------
   #  Account deletion
   # -------------------
 
