@@ -35,8 +35,10 @@ def decode_length_seconds(string)
 end
 
 def recode_length_seconds(time)
-  if time <= 0
+  if time < 0
     return ""
+  elsif time == 0
+    return "0:00"
   else
     time = time.seconds
     text = "#{time.minutes.to_s.rjust(2, '0')}:#{time.seconds.to_s.rjust(2, '0')}"

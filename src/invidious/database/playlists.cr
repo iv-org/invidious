@@ -91,7 +91,7 @@ module Invidious::Database::Playlists
   end
 
   # -------------------
-  #  Salect
+  #  Select
   # -------------------
 
   def select(*, id : String) : InvidiousPlaylist?
@@ -113,7 +113,7 @@ module Invidious::Database::Playlists
   end
 
   # -------------------
-  #  Salect (filtered)
+  #  Select (filtered)
   # -------------------
 
   def select_like_iv(email : String) : Array(InvidiousPlaylist)
@@ -160,7 +160,7 @@ module Invidious::Database::Playlists
     return PG_DB.query_one?(request, id, as: String).nil?
   end
 
-  # Count how many playlist a user has created.
+  # Count how many playlists a user has created.
   def count_owned_by(author : String) : Int64
     request = <<-SQL
       SELECT count(*) FROM playlists
@@ -213,7 +213,7 @@ module Invidious::Database::PlaylistVideos
   end
 
   # -------------------
-  #  Salect
+  #  Select
   # -------------------
 
   def select(plid : String, index : VideoIndex, offset, limit = 100) : Array(PlaylistVideo)

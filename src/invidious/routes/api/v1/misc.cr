@@ -26,6 +26,72 @@ module Invidious::Routes::API::V1::Misc
     end
   end
 
+  def self.get_compilation(env : HTTP::Server::Context)
+    env.response.content_type = "application/json"
+    compid = env.params.url["compid"]
+    offset = env.params.query["index"]?.try &.to_i?
+    offset ||= env.params.query["page"]?.try &.to_i?.try { |page| (page - 1) * 100 }
+    offset ||= 0
+
+    video_id = env.params.query["continuation"]?
+
+    format = env.params.query["format"]?
+    format ||= "json"
+
+    if compid.starts_with? "RD"
+      return env.redirect "/api/v1/mixes/#{compid}"
+    end
+
+    begin
+      compilation = get_compilation(compid)
+    rescue ex : InfoException
+      return error_json(404, ex)
+    rescue ex
+      return error_json(404, "Compilation does not exist.")
+    end
+
+    user = env.get?("user").try &.as(User)
+    if !compilation || compilation.privacy.private? && compilation.author != user.try &.email
+      return error_json(404, "Compilation does not exist.")
+    end
+
+    # includes into the compilation a maximum of 50 videos, before the offset
+    if offset > 0
+      lookback = offset < 50 ? offset : 50
+      response = compilation.to_json(offset - lookback)
+      json_response = JSON.parse(response)
+    else
+      #  Unless the continuation is really the offset 0, it becomes expensive.
+      #  It happens when the offset is not set.
+      #  First we find the actual offset, and then we lookback
+      #  it shouldn't happen often though
+
+      lookback = 0
+      response = compilation.to_json(offset, video_id: video_id)
+      json_response = JSON.parse(response)
+
+      if json_response["videos"].as_a[0]["index"] != offset
+        offset = json_response["videos"].as_a[0]["index"].as_i
+        lookback = offset < 50 ? offset : 50
+        response = compilation.to_json(offset - lookback)
+        json_response = JSON.parse(response)
+      end
+    end
+
+    if format == "html"
+      compilation_html = template_compilation(json_response)
+      index, next_video = json_response["videos"].as_a.skip(1 + lookback).select { |video| !video["author"].as_s.empty? }[0]?.try { |v| {v["index"], v["videoId"]} } || {nil, nil}
+
+      response = {
+        "compilationHtml" => compilation_html,
+        "index"           => index,
+        "nextVideo"       => next_video,
+      }.to_json
+    end
+
+    response
+  end
+
   # APIv1 currently uses the same logic for both
   # user playlists and Invidious playlists. This means that we can't
   # reasonably split them yet. This should be addressed in APIv2

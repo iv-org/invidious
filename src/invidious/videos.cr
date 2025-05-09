@@ -345,9 +345,9 @@ def fetch_video(id, region)
   return video
 end
 
-def process_continuation(query, plid, id)
+def process_continuation(query, list_id, id)
   continuation = nil
-  if plid
+  if list_id
     if index = query["index"]?.try &.to_i?
       continuation = index
     else

@@ -10,11 +10,14 @@ module Invidious::Database
   def check_integrity(cfg)
     return if !cfg.check_tables
     Invidious::Database.check_enum("privacy", PlaylistPrivacy)
+    Invidious::Database.check_enum("compilation_privacy", CompilationPrivacy)
 
     Invidious::Database.check_table("channels", InvidiousChannel)
     Invidious::Database.check_table("channel_videos", ChannelVideo)
     Invidious::Database.check_table("playlists", InvidiousPlaylist)
     Invidious::Database.check_table("playlist_videos", PlaylistVideo)
+    Invidious::Database.check_table("compilations", InvidiousCompilation)
+    Invidious::Database.check_table("compilation_videos", CompilationVideo)
     Invidious::Database.check_table("nonces", Nonce)
     Invidious::Database.check_table("session_ids", SessionId)
     Invidious::Database.check_table("users", User)

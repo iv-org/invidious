@@ -1,0 +1,60 @@
+<% title = HTML.escape(compilation.title) %>
+
+<% content_for "header" do %>
+<title><%= title %> - Invidious </title>
+<link rel="alternate" type="application/rss+xml" title="RSS" href="/feed/compilation/<%= compid %>" />
+<% end %>
+
+<form action="/edit_compilation?comp=<%= compid %>" method="post">
+    <div class="h-box flexible">
+        <div class="flex-right button-container">
+            <div class="pure-u">
+                <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/compilation?comp=<%= compid %>">
+                    <i class="icon ion-md-close"></i>&nbsp;<%= translate(locale, "generic_button_cancel") %>
+                </a>
+            </div>
+            <div class="pure-u">
+                <button class="pure-button pure-button-secondary low-profile" dir="auto" type="submit">
+                    <i class="icon ion-md-save"></i>&nbsp;<%= translate(locale, "generic_button_save") %>
+                </button>
+            </div>
+            <div class="pure-u">
+                <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/delete_compilation?comp=<%= compid %>">
+                    <i class="icon ion-md-trash"></i>&nbsp;<%= translate(locale, "generic_button_delete") %>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="h-box flexible title">
+        <div>
+            <h3><input class="pure-input-1" maxlength="150" name="title" type="text" value="<%= title %>"></h3>
+        </div>
+    </div>
+
+    <div class="h-box">
+        <div class="pure-u-1-1">
+            <b>
+                <%= HTML.escape(compilation.author) %> |
+                <%= translate_count(locale, "generic_videos_count", compilation.video_count) %> |
+            </b>
+            <select name="privacy">
+            <%- {"Unlisted", "Private"}.each do |option| -%>
+                <option value="<%= option %>" <% if option == compilation.privacy.to_s %>selected<% end %>><%= translate(locale, option) %></option>
+            <%- end -%>
+            </select>
+        </div>
+    </div>
+
+    <input type="hidden" name="csrf_token" value="<%= HTML.escape(csrf_token) %>">
+
+    <div class="h-box">
+        <hr>
+    </div>
+    
+    <div class="pure-g">
+        <% videos.each do |compilation_video| %>
+            <%= rendered "components/compilation_video" %>
+        <% end %>
+    </div>
+</form>

@@ -1,0 +1,34 @@
+<% content_for "header" do %>
+<title><%= compilation.title %> - Invidious</title>
+<link rel="alternate" type="application/rss+xml" title="RSS" href="/feed/compilation/<%= compid %>" />
+<% end %>
+
+<div class="pure-g">
+    <div class="pure-u-1 pure-u-lg-1-5"></div>
+    <div class="pure-u-1 pure-u-lg-3-5">
+        <div class="h-box">
+            <form class="pure-form pure-form-aligned" action="/add_compilation_items" method="get">
+                <legend><a href="/compilation?comp=<%= compilation.id %>"><%= translate(locale, "Editing compilation `x`", %|"#{HTML.escape(compilation.title)}"|) %></a></legend>
+
+                <fieldset>
+                    <input class="pure-input-1" type="search" name="q"
+                      <% if query %>value="<%= HTML.escape(query.text) %>"<% end %>
+                      placeholder="<%= translate(locale, "Search for videos") %>">
+                    <input type="hidden" name="comp" value="<%= compid %>">
+                </fieldset>
+            </form>
+        </div>
+    </div>
+    <div class="pure-u-1 pure-u-lg-1-5"></div>
+</div>
+
+<script id="compilation_data" type="application/json">
+<%=
+{
+    "csrf_token" => URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "")
+}.to_pretty_json
+%>
+</script>
+<script src="/js/compilation_widget.js?v=<%= ASSET_COMMIT %>"></script>
+
+<%= rendered "components/items_paginated" %>
