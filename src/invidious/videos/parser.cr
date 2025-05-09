@@ -409,6 +409,18 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
       .try &.as_s.split(" ", 2)[0]
   end
 
+  # Comments enabled?
+  comments_enabled = false
+
+  # When comments are enabled there should be a comments-entry-point section in the primary results
+  if primary_results
+    section = primary_results.as_a.find(&.dig?("itemSectionRenderer", "sectionIdentifier").== "comments-entry-point")
+
+    if section
+      comments_enabled = true
+    end
+  end
+
   # Return data
 
   if live_now
@@ -434,6 +446,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     "isFamilyFriendly" => JSON::Any.new(family_friendly || false),
     "isListed"         => JSON::Any.new(is_listed || false),
     "isUpcoming"       => JSON::Any.new(is_upcoming || false),
+    "commentsEnabled"  => JSON::Any.new(comments_enabled),
     "keywords"         => JSON::Any.new(keywords.map { |v| JSON::Any.new(v) }),
     "isPostLiveDvr"    => JSON::Any.new(post_live_dvr),
     # Related videos

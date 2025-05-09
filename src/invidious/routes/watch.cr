@@ -80,7 +80,8 @@ module Invidious::Routes::Watch
 
     if nojs
       if preferences
-        source = preferences.comments[0]
+        source = video.comments? ? preferences.comments[0] : "reddit"
+
         if source.empty?
           source = preferences.comments[1]
         end
