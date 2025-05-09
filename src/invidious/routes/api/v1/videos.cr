@@ -106,7 +106,7 @@ module Invidious::Routes::API::V1::Videos
       # Auto-generated captions often have cues that aren't aligned properly with the video,
       # as well as some other markup that makes it cumbersome, so we try to fix that here
       if caption.name.includes? "auto-generated"
-        caption_xml = YT_POOL.client &.get(url).body
+        caption_xml = YT_POOL.get(url).body
 
         settings_field = {
           "Kind"     => "captions",
@@ -147,7 +147,7 @@ module Invidious::Routes::API::V1::Videos
         query_params = uri.query_params
         query_params["fmt"] = "vtt"
         uri.query_params = query_params
-        webvtt = YT_POOL.client &.get(uri.request_target).body
+        webvtt = YT_POOL.get(uri.request_target).body
 
         if webvtt.starts_with?("<?xml")
           webvtt = caption.timedtext_to_vtt(webvtt)
@@ -300,7 +300,7 @@ module Invidious::Routes::API::V1::Videos
         cache_annotation(id, annotations)
       end
     else # "youtube"
-      response = YT_POOL.client &.get("/annotations_invideo?video_id=#{id}")
+      response = YT_POOL.get("/annotations_invideo?video_id=#{id}")
 
       if response.status_code != 200
         haltf env, response.status_code

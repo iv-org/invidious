@@ -166,7 +166,7 @@ def fetch_channel(ucid, pull_all_videos : Bool)
   }
 
   LOGGER.trace("fetch_channel: #{ucid} : Downloading RSS feed")
-  rss = YT_POOL.client &.get("/feeds/videos.xml?channel_id=#{ucid}").body
+  rss = YT_POOL.get("/feeds/videos.xml?channel_id=#{ucid}").body
   LOGGER.trace("fetch_channel: #{ucid} : Parsing RSS feed")
   rss = XML.parse(rss)
 

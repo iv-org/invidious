@@ -25,7 +25,7 @@ Lint/NotNil:
 
 Lint/SpecFilename:
   Excluded:
-    - spec/parsers_helper.cr
+    - spec/*_helper.cr
 
 
 #
