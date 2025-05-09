@@ -1,21 +1,29 @@
-<div class="flex-right flexible">
     <div class="icon-buttons">
+			<nav>
+			<ul>
+				<li>
         <a title="<%=translate(locale, "videoinfo_watch_on_youTube")%>" rel="noreferrer noopener" href="https://www.youtube.com/watch<%=endpoint_params%>">
             <i class="icon ion-logo-youtube"></i>
         </a>
+				</li>
+				<li>
         <a title="<%=translate(locale, "Audio mode")%>" href="/watch<%=endpoint_params%>&listen=1">
             <i class="icon ion-md-headset"></i>
         </a>
 
+				</li>
+				<li>
         <% if env.get("preferences").as(Preferences).automatic_instance_redirect%>
-            <a title="<%=translate(locale, "Switch Invidious Instance")%>" href="/redirect?referer=%2Fwatch<%=URI.encode_www_form(endpoint_params)%>">
+            <a title="<%=translate(locale, "Switch Invidious Instance")%>" href="/redirect?referer=%2Fwatch<%=URI.encode_www_form(endpoint_params)%>" rel="noreferrer noopener">
                 <i class="icon ion-md-jet"></i>
             </a>
         <% else %>
-            <a title="<%=translate(locale, "Switch Invidious Instance")%>" href="https://redirect.invidious.io/watch<%=endpoint_params%>">
+            <a title="<%=translate(locale, "Switch Invidious Instance")%>" href="https://redirect.invidious.io/watch<%=endpoint_params%>" rel="noreferrer noopener" >
                 <i class="icon ion-md-jet"></i>
             </a>
         <% end %>
+				</li>
 
+			</ul>
+			</nav>
     </div>
-</div>
