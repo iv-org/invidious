@@ -62,7 +62,7 @@ jobs:
           crystal: ${{ matrix.crystal }}
 
       - name: Cache Shards
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ./lib
@@ -141,7 +141,7 @@ jobs:
           crystal: latest
 
       - name: Cache Shards
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ./lib
