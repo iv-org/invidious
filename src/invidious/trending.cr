@@ -44,20 +44,28 @@ end
 
 def fetch_subscription_related_videoids(env, region, locale)
   user = env.get("user").as(Invidious::User)
-  channel_videos, notifications = get_subscription_feed(user, 5, 1)
+  channel_videos, notifications = get_subscription_feed(user, 10, 1)
 
   videos = [] of SearchVideo
-  channel_videos.each do |video|
-    video = get_video(video.id)
-    related = video.related_videos
+  channel_videos.sample((channel_videos.size / 3).to_i).each do |channel_video|
+    next if channel_video.live_now || channel_video.premiere_timestamp || channel_video.length_seconds == 0 || channel_video.views == 0
+    
+    video = get_video(channel_video.id)
+    next unless video.video_type == VideoType::Video
+
+    related = video.related_videos.sample(10) # pick random related videos
     related.each do |related_video|
-      related_id = related_video["id"]
+      next unless id = related_video["id"]?
+      next unless related_video["view_count"]? && related_video["view_count"]? != 0
+      next unless related_video["published"]?
+      next unless related_video["length_seconds"]? && related_video["length_seconds"]? != 0
+      
       videos << SearchVideo.new({
         title:              related_video["title"],
-        id:                 related_video["id"],
+        id:                 id,
         author:             related_video["author"],
         ucid:               related_video["ucid"]? || "",
-        published:          related_video["published"]?.try { |p| Time.parse_rfc3339(p) } || Time.utc,
+        published:          (Time.parse_rfc3339(related_video["published"].to_s) rescue Time.utc),
         views:              related_video["view_count"]?.try &.to_i64 || 0_i64,
         description_html:   "", # not available
         length_seconds:     related_video["length_seconds"]?.try &.to_i || 0,
