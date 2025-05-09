@@ -135,6 +135,10 @@ private module Parsers
         when "Premium"
           # TODO: Potentially available as item_contents["topStandaloneBadge"]["metadataBadgeRenderer"]
           badges |= VideoBadges::Premium
+        when "Members only"
+          badges |= VideoBadges::MembersOnly
+        when "Members first"
+          badges |= VideoBadges::MembersFirst
         else nil # Ignore
         end
       end
