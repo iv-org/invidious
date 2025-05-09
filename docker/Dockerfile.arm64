@@ -1,5 +1,5 @@
 FROM alpine:3.21 AS builder
-RUN apk add --no-cache 'crystal=1.12.2-r0' shards sqlite-static yaml-static yaml-dev libxml2-static \
+RUN apk add --no-cache 'crystal=1.14.0-r0' shards sqlite-static yaml-static yaml-dev libxml2-static \
        zlib-static openssl-libs-static openssl-dev musl-dev xz-static
 
 ARG release
