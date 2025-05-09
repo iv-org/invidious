@@ -57,3 +57,7 @@
 
 
 <%= rendered "components/items_paginated" %>
+
+<% if selected_tab == Frontend::ChannelPage::TabsAvailable::Playlists %>
+<div id="footer_buffer"></div>  
+<% end %>
