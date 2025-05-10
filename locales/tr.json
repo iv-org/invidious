@@ -497,5 +497,9 @@
     "carousel_skip": "Kayar menüyü atla",
     "carousel_go_to": "`x` sunumuna git",
     "The Popular feed has been disabled by the administrator.": "Popüler akışı yönetici tarafından devre dışı bırakıldı.",
-    "preferences_preload_label": "Video verilerini önceden yükle: "
+    "preferences_preload_label": "Video verilerini önceden yükle: ",
+    "First page": "İlk sayfa",
+    "Filipino (auto-generated)": "Filipince (oto-oluşturuldu)",
+    "channel_tab_courses_label": "Kurslar",
+    "channel_tab_posts_label": "Yazılar"
 }
