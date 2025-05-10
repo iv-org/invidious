@@ -479,5 +479,8 @@
     "carousel_skip": "Bỏ qua Carousel",
     "carousel_go_to": "Đi tới trang `x`",
     "Search for videos": "Tìm kiếm video",
-    "The Popular feed has been disabled by the administrator.": "Bảng tin phổ biến đã bị tắt bởi ban quản lý."
+    "The Popular feed has been disabled by the administrator.": "Bảng tin phổ biến đã bị tắt bởi ban quản lý.",
+    "preferences_preload_label": "Tải trước dữ liệu video: ",
+    "Filipino (auto-generated)": "Tiếng Philippines (tự động tạo)",
+    "First page": "Trang đầu"
 }
