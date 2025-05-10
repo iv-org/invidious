@@ -73,10 +73,6 @@ def error_template_helper(env : HTTP::Server::Context, status_code : Int32, exce
     </div>
   END_HTML
 
-  # Don't show the usual "next steps" widget. The same options are
-  # proposed above the error message, just worded differently.
-  next_steps = ""
-
   return templated "error"
 end
 
@@ -86,8 +82,13 @@ def error_template_helper(env : HTTP::Server::Context, status_code : Int32, mess
 
   locale = env.get("preferences").as(Preferences).locale
 
-  error_message = translate(locale, message)
-  next_steps = error_redirect_helper(env)
+  error_message = <<-END_HTML
+    <div class="error_message">
+      <h2>#{translate(locale, "error_processing_data_youtube")}</h2>
+      <p>#{translate(locale, message)}</p>
+      #{error_redirect_helper(env)}
+    </div>
+  END_HTML
 
   return templated "error"
 end
