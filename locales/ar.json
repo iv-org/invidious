@@ -154,8 +154,8 @@
     "View YouTube comments": "عرض تعليقات اليوتيوب",
     "View more comments on Reddit": "عرض المزيد من التعليقات على\\من موقع ريديت",
     "View `x` comments": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "عرض `x` تعليقات",
-        "": "عرض `x` تعليقات."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "عرض `x` تعليق",
+        "": "عرض `x` تعليقات"
     },
     "View Reddit comments": "عرض تعليقات ريديت",
     "Hide replies": "إخفاء الردود",
@@ -566,5 +566,8 @@
     "carousel_skip": "تخطي الكاروسيل",
     "carousel_go_to": "انتقل إلى الشريحة `x`",
     "preferences_preload_label": "التحميل المسبق لبيانات الفيديو: ",
-    "Filipino (auto-generated)": "الفلبينية (المولدة تلقائيًا)"
+    "Filipino (auto-generated)": "الفلبينية (المولدة تلقائيًا)",
+    "channel_tab_courses_label": "الدورات",
+    "channel_tab_posts_label": "المنشورات",
+    "First page": "الصفحة الأولى"
 }
