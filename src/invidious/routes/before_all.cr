@@ -108,10 +108,11 @@ module Invidious::Routes::BeforeAll
     # `!preferences.local` has to be checked after setting and
     # reading `preferences` from the "PREFS" cookie and
     # saved user preferences from the database, otherwise
-    # the `extra_media_csp` variable will be always empty if
+    # `https://*.googlevideo.com:443 https://*.youtube.com:443`
+    # will not be set in the CSP header if
     # `default_user_preferences.local` is set to true on the
     # configuration file, causing preference “Proxy Videos”
-    # not to work.
+    # not to work while having it disabled and using medium quality.
     if CONFIG.disabled?("local") || !preferences.local
       env.response.headers["Content-Security-Policy"] = env.response.headers["Content-Security-Policy"].gsub("media-src", "media-src https://*.googlevideo.com:443 https://*.youtube.com:443")
     end
