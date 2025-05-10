@@ -12,13 +12,15 @@ module Invidious::Routes::Embed
           url = "/playlist?list=#{plid}"
           raise NotFoundException.new(translate(locale, "error_video_not_in_playlist", url))
         end
+
+        first_playlist_video = videos[0].as(PlaylistVideo)
       rescue ex : NotFoundException
         return error_template(404, ex)
       rescue ex
         return error_template(500, ex)
       end
 
-      url = "/embed/#{videos[0].id}?#{env.params.query}"
+      url = "/embed/#{first_playlist_video}?#{env.params.query}"
 
       if env.params.query.size > 0
         url += "?#{env.params.query}"
@@ -72,13 +74,15 @@ module Invidious::Routes::Embed
             url = "/playlist?list=#{plid}"
             raise NotFoundException.new(translate(locale, "error_video_not_in_playlist", url))
           end
+
+          first_playlist_video = videos[0].as(PlaylistVideo)
         rescue ex : NotFoundException
           return error_template(404, ex)
         rescue ex
           return error_template(500, ex)
         end
 
-        url = "/embed/#{videos[0].id}"
+        url = "/embed/#{first_playlist_video.id}"
       elsif video_series
         url = "/embed/#{video_series.shift}"
         env.params.query["playlist"] = video_series.join(",")

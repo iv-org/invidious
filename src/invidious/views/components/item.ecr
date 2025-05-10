@@ -1,6 +1,6 @@
 <%-
   thin_mode = env.get("preferences").as(Preferences).thin_mode
-  item_watched = !item.is_a?(SearchChannel | SearchHashtag | SearchPlaylist | InvidiousPlaylist | Category) && env.get?("user").try &.as(User).watched.index(item.id) != nil
+  item_watched = !item.is_a?(SearchChannel | SearchHashtag | SearchPlaylist | InvidiousPlaylist | Category | ProblematicTimelineItem) && env.get?("user").try &.as(User).watched.index(item.id) != nil
   author_verified = item.responds_to?(:author_verified) && item.author_verified
 -%>
 
@@ -97,6 +97,18 @@
                 </div>
             </div>
         <% when Category %>
+        <% when ProblematicTimelineItem %>
+            <div class="error-card">
+                <div class="explanation">
+                    <i class="icon ion-ios-alert"></i>
+                    <h4><%=translate(locale, "timeline_parse_error_placeholder_heading")%></h4>
+                    <p><%=translate(locale, "timeline_parse_error_placeholder_message")%></p>
+                </div>
+                <details>
+                    <summary class="pure-button pure-button-secondary"><%=translate(locale, "timeline_parse_error_show_technical_details")%></summary>
+                    <pre class="error-issue-template"><%=get_issue_template(env, item.parse_exception)[1]%></pre>
+                </details>
+            </div>
         <% else %>
             <%-
               # `endpoint_params` is used for the "video-context-buttons" component
