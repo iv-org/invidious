@@ -114,7 +114,7 @@ module Invidious::Routes::BeforeAll
     # configuration file, causing preference “Proxy Videos”
     # not to work while having it disabled and using medium quality.
     if CONFIG.disabled?("local") || !preferences.local
-      env.response.headers.update("Content-Security-Policy", &.gsub("media-src", "media-src https://*.googlevideo.com:443 https://*.youtube.com:443"))
+      env.response.headers["Content-Security-Policy"] = env.response.headers["Content-Security-Policy"].gsub("media-src", "media-src https://*.googlevideo.com:443 https://*.youtube.com:443")
     end
 
     current_page = env.request.path
