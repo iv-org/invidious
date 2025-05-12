@@ -420,7 +420,7 @@
     "Chinese": "中文",
     "Chinese (China)": "中文 (中国)",
     "Chinese (Hong Kong)": "中文 (中国香港)",
-    "Chinese (Taiwan)": "中文 (中国台湾)",
+    "Chinese (Taiwan)": "中文 (台湾)",
     "German (auto-generated)": "德语 (自动生成)",
     "Indonesian (auto-generated)": "印尼语 (自动生成)",
     "Interlingue": "国际语",
@@ -481,5 +481,8 @@
     "carousel_skip": "跳过图集",
     "carousel_go_to": "转到图 `x`",
     "preferences_preload_label": "预加载视频数据： ",
-    "Filipino (auto-generated)": "菲律宾语 (自动生成)"
+    "Filipino (auto-generated)": "菲律宾语 (自动生成)",
+    "channel_tab_posts_label": "帖子",
+    "First page": "第一页",
+    "channel_tab_courses_label": "课程"
 }
