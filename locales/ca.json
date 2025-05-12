@@ -204,7 +204,7 @@
     "View JavaScript license information.": "Consulta la informació de la llicència de JavaScript.",
     "Playlist privacy": "Privacitat de la llista de reproducció",
     "search_message_no_results": "No s'han trobat resultats.",
-    "search_message_use_another_instance": " També es pot <a href=\"`x`\">buscar en una altra instància</a>.",
+    "search_message_use_another_instance": "També es pot <a href=\"`x`\">cercar en una altra instància</a>.",
     "Genre: ": "Gènere: ",
     "Hidden field \"challenge\" is a required field": "El camp ocult \"repte\" és un camp obligatori",
     "Burmese": "Birmà",
@@ -489,5 +489,16 @@
     "generic_button_delete": "Suprimeix",
     "Import YouTube watch history (.json)": "Importa l'historial de visualitzacions de YouTube (.json)",
     "Answer": "Resposta",
-    "toggle_theme": "Commuta el tema"
+    "toggle_theme": "Commuta el tema",
+    "Add to playlist": "Afegeix a la llista de reproducció",
+    "Add to playlist: ": "Afegeix a la llista de reproducció: ",
+    "Search for videos": "Cercar vídeos",
+    "carousel_slide": "Diapositiva {{current}} de {{total}}",
+    "preferences_preload_label": "Precarregar dades del vídeo: ",
+    "carousel_go_to": "Anar a la diapositiva `x`",
+    "First page": "Primera pàgina",
+    "Filipino (auto-generated)": "Filipí (generat automàticament)",
+    "channel_tab_courses_label": "Cursos",
+    "channel_tab_posts_label": "Missatges",
+    "carousel_skip": "Saltar l'exhibició"
 }
