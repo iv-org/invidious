@@ -398,7 +398,8 @@ module Invidious::Routes::API::V1::Authenticated
     user = env.get("user").as(User)
     locale = env.get("preferences").as(Preferences).locale
 
-    case env.request.headers["Content-Type"]?
+    content_type = env.request.headers["Content-Type"]?
+    case content_type
     when "application/x-www-form-urlencoded"
       scopes = env.params.body.select { |k, _| k.match(/^scopes\[\d+\]$/) }.map { |_, v| v }
       callback_url = env.params.body["callbackUrl"]?
@@ -419,11 +420,16 @@ module Invidious::Routes::API::V1::Authenticated
       callback_url = URI.parse(callback_url)
     end
 
-    if sid = env.get?("sid").try &.as(String)
-      env.response.content_type = "text/html"
+    if content_type != "application/json"
+      if sid = env.get?("sid").try &.as(String)
+        env.response.content_type = "text/html"
 
-      csrf_token = generate_response(sid, {":authorize_token"}, HMAC_KEY, use_nonce: true)
-      return templated "user/authorize_token"
+        csrf_token = generate_response(sid, {":authorize_token"}, HMAC_KEY, use_nonce: true)
+        return templated "user/authorize_token"
+      else
+        # is it enough?
+        env.response.status_code = 403
+      end
     else
       env.response.content_type = "application/json"
 
