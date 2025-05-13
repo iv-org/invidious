@@ -1,3 +1,10 @@
+# SSL Contexts are designed to be reused and supports infinite connections.
+#
+# This *significantly* improves the performance of spinning up new clients/reconnections
+#
+# For more information see https://github.com/crystal-lang/crystal/issues/15419
+private GLOBAL_SSL_CONTEXT = OpenSSL::SSL::Context::Client.new
+
 module Invidious
   class IVTCPSocket < TCPSocket
     def initialize(host : String, port, dns_timeout = nil, connect_timeout = nil, blocking = false, family = Socket::Family::UNSPEC)
@@ -89,13 +96,19 @@ def make_client(
   use_http_proxy : Bool = true,
   allow_auto_reconnect : Bool = true,
 )
+  tls = if url.scheme == "https"
+          GLOBAL_SSL_CONTEXT
+        else
+          nil
+        end
+
   if CONFIG.http_proxy && use_http_proxy
-    client = Invidious::HTTPClient.new(url)
+    client = Invidious::HTTPClient.new(url, tls: tls)
     client.proxy = make_configured_http_proxy_client() if CONFIG.http_proxy && use_http_proxy
   elsif force_resolve
-    client = Invidious::HTTPClient.new(url, force_resolve: CONFIG.force_resolve)
+    client = Invidious::HTTPClient.new(url, tls: tls, force_resolve: CONFIG.force_resolve)
   else
-    client = Invidious::HTTPClient.new(url, allow_auto_reconnect: allow_auto_reconnect)
+    client = Invidious::HTTPClient.new(url, tls: tls, allow_auto_reconnect: allow_auto_reconnect)
   end
 
   client.before_request { |r| add_yt_headers(r) } if url.host.try &.ends_with?("youtube.com") || force_youtube_headers
