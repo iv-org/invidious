@@ -1,3 +1,78 @@
+# SSL Contexts are designed to be reused and supports infinite connections.
+#
+# This *significantly* improves the performance of spinning up new clients/reconnections
+#
+# For more information see https://github.com/crystal-lang/crystal/issues/15419
+private GLOBAL_SSL_CONTEXT = OpenSSL::SSL::Context::Client.new
+
+module Invidious
+  class IVTCPSocket < TCPSocket
+    def initialize(host : String, port, dns_timeout = nil, connect_timeout = nil, blocking = false, family = Socket::Family::UNSPEC)
+      Addrinfo.tcp(host, port, timeout: dns_timeout, family: family) do |addrinfo|
+        super(addrinfo.family, addrinfo.type, addrinfo.protocol, blocking)
+        connect(addrinfo, timeout: connect_timeout) do |error|
+          close
+          error
+        end
+      end
+    end
+  end
+
+  class HTTPClient < HTTP::Client
+    def initialize(uri : URI, tls : TLSContext = nil, allow_auto_reconnect : Bool = true)
+      tls = HTTP::Client.tls_flag(uri, tls)
+      host = HTTP::Client.validate_host(uri)
+
+      super(host, uri.port, tls)
+
+      @reconnect = allow_auto_reconnect
+    end
+
+    def initialize(uri : URI, tls : TLSContext = nil, force_resolve : Socket::Family = Socket::Family::UNSPEC)
+      tls = HTTP::Client.tls_flag(uri, tls)
+
+      {% if flag?(:without_openssl) %}
+        if tls
+          raise "HTTP::Client TLS is disabled because `-D without_openssl` was passed at compile time"
+        end
+        @tls = nil
+      {% else %}
+        @tls = case tls
+               when true
+                 OpenSSL::SSL::Context::Client.new
+               when OpenSSL::SSL::Context::Client
+                 tls
+               when false, nil
+                 nil
+               end
+      {% end %}
+
+      @host = HTTP::Client.validate_host(uri)
+      @port = (uri.port || (@tls ? 443 : 80)).to_i
+
+      tcp_socket = IVTCPSocket.new(
+        host: @host,
+        port: @port,
+        family: force_resolve,
+      )
+
+      if tls = @tls
+        begin
+          @io = OpenSSL::SSL::Socket::Client.new(tcp_socket, context: tls, sync_close: true, hostname: @host.rchop('.'))
+        rescue ex
+          # Don't leak the TCP socket when the SSL connection failed
+          tcp_socket.close
+          raise ex
+        end
+      else
+        @io = tcp_socket
+      end
+
+      @reconnect = false
+    end
+  end
+end
+
 def add_yt_headers(request)
   request.headers.delete("User-Agent") if request.headers["User-Agent"] == "Crystal"
   request.headers["User-Agent"] ||= "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
@@ -13,14 +88,27 @@ def add_yt_headers(request)
   end
 end
 
-def make_client(url : URI, region = nil, force_resolve : Bool = false, force_youtube_headers : Bool = false, use_http_proxy : Bool = true)
-  client = HTTP::Client.new(url)
-  client.proxy = make_configured_http_proxy_client() if CONFIG.http_proxy && use_http_proxy
+def make_client(
+  url : URI,
+  region = nil,
+  force_resolve : Bool = false,
+  force_youtube_headers : Bool = true,
+  use_http_proxy : Bool = true,
+  allow_auto_reconnect : Bool = true,
+)
+  tls = if url.scheme == "https"
+          GLOBAL_SSL_CONTEXT
+        else
+          nil
+        end
 
-  # Force the usage of a specific configured IP Family
-  if force_resolve
-    client.family = CONFIG.force_resolve
-    client.family = Socket::Family::INET if client.family == Socket::Family::UNSPEC
+  if CONFIG.http_proxy && use_http_proxy
+    client = Invidious::HTTPClient.new(url, tls: tls)
+    client.proxy = make_configured_http_proxy_client() if CONFIG.http_proxy && use_http_proxy
+  elsif force_resolve
+    client = Invidious::HTTPClient.new(url, tls: tls, force_resolve: CONFIG.force_resolve)
+  else
+    client = Invidious::HTTPClient.new(url, tls: tls, allow_auto_reconnect: allow_auto_reconnect)
   end
 
   client.before_request { |r| add_yt_headers(r) } if url.host.try &.ends_with?("youtube.com") || force_youtube_headers
