@@ -314,11 +314,11 @@
     "search_filters_duration_label": "Thời lượng",
     "search_filters_features_label": "Đặc điểm",
     "search_filters_sort_label": "Sắp xếp theo",
-    "search_filters_date_option_hour": "Một giờ qua",
+    "search_filters_date_option_hour": "Một giờ trước",
     "search_filters_date_option_today": "Hôm nay",
     "search_filters_date_option_week": "Tuần này",
     "search_filters_date_option_month": "Tháng này",
-    "search_filters_date_option_year": "Năm này",
+    "search_filters_date_option_year": "Năm nay",
     "search_filters_type_option_video": "video",
     "search_filters_type_option_channel": "Kênh",
     "search_filters_type_option_playlist": "Danh sách phát",
@@ -479,5 +479,8 @@
     "carousel_skip": "Bỏ qua Carousel",
     "carousel_go_to": "Đi tới trang `x`",
     "Search for videos": "Tìm kiếm video",
-    "The Popular feed has been disabled by the administrator.": "Bảng tin phổ biến đã bị tắt bởi ban quản lý."
+    "The Popular feed has been disabled by the administrator.": "Bảng tin phổ biến đã bị tắt bởi ban quản lý.",
+    "preferences_preload_label": "Tải trước dữ liệu video: ",
+    "Filipino (auto-generated)": "Tiếng Philippines (tự động tạo)",
+    "First page": "Trang đầu"
 }

@@ -481,5 +481,8 @@
     "carousel_go_to": "跳到投影片 `x`",
     "The Popular feed has been disabled by the administrator.": "熱門 feed 已被管理員停用。",
     "preferences_preload_label": "預先載入影片資訊 ",
-    "Filipino (auto-generated)": "菲律賓語（自動產生）"
+    "Filipino (auto-generated)": "菲律賓語（自動產生）",
+    "channel_tab_courses_label": "課程",
+    "First page": "第一頁",
+    "channel_tab_posts_label": "貼文"
 }

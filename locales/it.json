@@ -515,5 +515,8 @@
     "carousel_skip": "Salta la galleria",
     "carousel_go_to": "Vai al fotogramma `x`",
     "preferences_preload_label": "Precarica dati video: ",
-    "Filipino (auto-generated)": "Filippino (generati automaticamente)"
+    "Filipino (auto-generated)": "Filippino (generati automaticamente)",
+    "First page": "Prima pagina",
+    "channel_tab_courses_label": "Corsi",
+    "channel_tab_posts_label": "Post"
 }
