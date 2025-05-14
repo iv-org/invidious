@@ -1,4 +1,4 @@
-FROM crystallang/crystal:1.16.2-alpine AS builder
+FROM crystallang/crystal:1.16.3-alpine AS builder
 
 RUN apk add --no-cache sqlite-static yaml-static
 
