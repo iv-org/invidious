@@ -80,14 +80,15 @@ module Invidious::Videos
       initial_segments.each do |line|
         if unpacked_line = line["transcriptSectionHeaderRenderer"]?
           line_type = HeadingLine
+          text = (unpacked_line.dig?("sectionHeader", "sectionHeaderViewModel", "headline", "content").try &.as_s) || ""
         else
           unpacked_line = line["transcriptSegmentRenderer"]
+          text = extract_text(unpacked_line["snippet"]) || ""
           line_type = RegularLine
         end
 
         start_ms = unpacked_line["startMs"].as_s.to_i.millisecond
         end_ms = unpacked_line["endMs"].as_s.to_i.millisecond
-        text = extract_text(unpacked_line["snippet"]) || ""
 
         lines << line_type.new(start_ms, end_ms, text)
       end

@@ -501,5 +501,11 @@
     "toggle_theme": "Toggle Theme",
     "carousel_slide": "Slide {{current}} of {{total}}",
     "carousel_skip": "Skip the Carousel",
-    "carousel_go_to": "Go to slide `x`"
+    "carousel_go_to": "Go to slide `x`",
+    "video_description_toggle_transcript_widget_label": "Transcripts",
+    "video_description_toggle_transcript_widget_button_label_show": "Show transcript",
+    "video_description_toggle_transcript_widget_button_label_hide": "Hide transcript",
+    "error_transcripts_none_available": "No transcripts are available",
+    "transcript_widget_title": "Transcript",
+    "transcript_widget_no_js_change_transcript_btn": "Swap"
 }

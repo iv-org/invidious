@@ -253,10 +253,14 @@ we're going to need to do it here in order to allow for translations.
 
             <div id="description-box"> <!-- Description -->
                 <% if video.description.size < 200 || params.extend_desc %>
-                    <div id="descriptionWrapper"><%= video.description_html %></div>
+                    <div id="descriptionWrapper"><%= video.description_html %>
+                        <%= rendered "components/description_toggle_transcripts_widget" %>
+                    </div>
                 <% else %>
                     <input id="descexpansionbutton" type="checkbox"/>
-                    <div id="descriptionWrapper"><%= video.description_html %></div>
+                    <div id="descriptionWrapper"><%-= video.description_html %>
+                        <%= rendered "components/description_toggle_transcripts_widget" %>
+                    </div>
                     <label for="descexpansionbutton">
                         <a></a>
                     </label>
@@ -303,6 +307,10 @@ we're going to need to do it here in order to allow for translations.
 
     <% if params.related_videos || plid %>
         <div class="pure-u-1 pure-u-lg-1-5">
+            <% if transcript %>
+                <%= rendered "components/no-js-transcript-ui" %>
+            <% end %>
+
             <% if plid %>
                 <div id="playlist" class="h-box"></div>
             <% end %>

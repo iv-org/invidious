@@ -1,0 +1,46 @@
+<section class="video-transcript">
+    <header><h3><%=translate(locale, "transcript_widget_title")%></h3></header>
+    <div id="lines">
+        <% transcript_time_url_param = env.params.query.dup %>
+        <% transcript_time_url_param.delete_all("t") %>
+
+        <% transcript.lines.each do | line | %>
+            <% if line.is_a? Invidious::Videos::Transcript::HeadingLine %>
+                <div class="transcript-title-line"> <h4> <%= line.line %> </h4> </div>
+            <% else %>
+                <% jump_time = line.start_ms.total_seconds.to_s %>
+                <% transcript_time_url_param["t"] = jump_time %>
+                <a href="/watch?<%= transcript_time_url_param %>" data-onclick="jump_to_time" data-jump-time="<%=jump_time%>">
+                    <div class="transcript-line">
+                        <p class="length"><%= recode_length_seconds(line.start_ms.total_seconds) %></p>
+                        <p><%= line.line %></p>
+                    </div>
+                </a>
+            <% end %> 
+        <% end %>
+    </div>
+    <footer>
+        <% transcript_select_args = env.params.query.dup %>
+        <% transcript_select_args.delete_all("use_this_transcript") %>
+        <form class="select-transcript" method="get" action="/watch?<%=transcript_select_args%>">
+            <% # Preserve query parameters %>
+            <% transcript_select_args.each do | k, v | %>
+                <input type="hidden" name="<%=k%>" value="<%=v%>">
+            <% end %>
+
+            <select name="use_this_transcript">
+                <% {preferred_captions, captions}.each do | transcript_list |%>
+                    <% transcript_list.each do | transcript_option | %>
+                        <% if target_transcript.not_nil!.name == transcript_option.name %>
+                            <option value="<%=URI.encode_www_form(transcript_option.name)%>" selected><%=transcript_option.name%></option>
+                        <% else%>
+                            <option value="<%=URI.encode_www_form(transcript_option.name)%>"><%=transcript_option.name%></option>
+                        <% end %>
+                    <% end %>
+                <% end  %>
+            </select>
+
+            <input type="submit" value="<%= translate(locale, "transcript_widget_no_js_change_transcript_btn") %>"/>
+        </form>
+    </footer>
+</section>
