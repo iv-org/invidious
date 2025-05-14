@@ -53,6 +53,8 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           build-args: |
             "release=1"
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Docker meta
         id: meta-arm64
@@ -79,3 +81,5 @@ jobs:
           tags: ${{ steps.meta-arm64.outputs.tags }}
           build-args: |
             "release=1"
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

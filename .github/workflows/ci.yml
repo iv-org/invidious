@@ -119,6 +119,8 @@ jobs:
           file: docker/Dockerfile.arm64
           platforms: linux/arm64/v8
           build-args: release=0
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Test Docker
         run: while curl -Isf http://localhost:3000; do sleep 1; done
