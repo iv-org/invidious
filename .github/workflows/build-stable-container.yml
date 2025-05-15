@@ -16,7 +16,7 @@ jobs:
             name: "AMD64"
             dockerfile: "docker/Dockerfile"
             tag_suffix: ""
-            # GitHub doesn't has a ubuntu-latest-arm runner
+            # GitHub doesn't have a ubuntu-latest-arm runner
           - os: ubuntu-24.04-arm
             platform: linux/arm64/v8
             name: "ARM64"
