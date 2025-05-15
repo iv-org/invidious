@@ -104,7 +104,7 @@ jobs:
         run: docker compose -f ${{ matrix.docker_compose_file }} build
 
       - name: Run Docker
-        run: docker compose up -d
+        run: docker compose -f ${{ matrix.docker_compose_file }} up -d
 
       - name: Test Docker
         run: while curl -Isf http://localhost:3000; do sleep 1; done
