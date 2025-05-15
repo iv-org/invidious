@@ -14,6 +14,10 @@ services:
     restart: unless-stopped
     ports:
       - "127.0.0.1:3000:3000"
+    depends_on:
+      invidious-db:
+        condition: service_healthy
+        restart: true
     environment:
       # Please read the following file for a comprehensive list of all available
       # configuration options and their associated syntax:
