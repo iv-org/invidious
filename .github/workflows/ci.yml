@@ -90,7 +90,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build Docker
-        run: docker compose build --build-arg release=0
+        run: docker compose build
 
       - name: Run Docker
         run: docker compose up -d
@@ -106,7 +106,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build Docker
-        run: docker compose -f docker-compose-arm64.yml build --build-arg release=0
+        run: docker compose -f docker-compose-arm64.yml build
 
       - name: Run Docker
         run: docker compose -f docker-compose-arm64.yml up -d
