@@ -12,13 +12,13 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            platforms: linux/amd64
+            platform: linux/amd64
             name: "AMD64"
             dockerfile: "docker/Dockerfile"
             tag_suffix: ""
             # GitHub doesn't has a ubuntu-latest-arm runner
           - os: ubuntu-24.04-arm
-            platforms: linux/arm64/v8
+            platform: linux/arm64/v8
             name: "ARM64"
             dockerfile: "docker/Dockerfile.arm64"
             tag_suffix: "-arm64"
