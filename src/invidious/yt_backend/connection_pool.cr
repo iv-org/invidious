@@ -46,8 +46,22 @@ struct YoutubeConnectionPool
   end
 end
 
+class CompanionWrapper
+  property client : HTTP::Client
+  property companion : Config::CompanionConfig
+
+  def initialize(companion : Config::CompanionConfig)
+    @companion = companion
+    @client = HTTP::Client.new(companion.private_url)
+  end
+
+  def close
+    @client.close
+  end
+end
+
 struct CompanionConnectionPool
-  property pool : DB::Pool(HTTP::Client)
+  property pool : DB::Pool(CompanionWrapper)
 
   def initialize(capacity = 5, timeout = 5.0)
     options = DB::Pool::Options.new(
@@ -57,26 +71,28 @@ struct CompanionConnectionPool
       checkout_timeout: timeout
     )
 
-    @pool = DB::Pool(HTTP::Client).new(options) do
+    @pool = DB::Pool(CompanionWrapper).new(options) do
       companion = CONFIG.invidious_companion.sample
-      next make_client(companion.private_url, use_http_proxy: false)
+      client = make_client(companion.private_url, use_http_proxy: false)
+      CompanionWrapper.new(companion: companion)
     end
   end
 
   def client(&)
-    conn = pool.checkout
+    wrapper = pool.checkout
 
     begin
-      response = yield conn
+      response = yield wrapper
     rescue ex
-      conn.close
+      wrapper.client.close
 
       companion = CONFIG.invidious_companion.sample
-      conn = make_client(companion.private_url, use_http_proxy: false)
+      client = make_client(companion.private_url, use_http_proxy: false)
+      wrapper = CompanionWrapper.new(companion: companion)
 
-      response = yield conn
+      response = yield wrapper
     ensure
-      pool.release(conn)
+      pool.release(wrapper)
     end
 
     response
