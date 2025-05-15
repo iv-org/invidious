@@ -17,16 +17,26 @@ on:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platforms: linux/amd64
+            name: "AMD64"
+            dockerfile: "docker/Dockerfile"
+            tag_suffix: ""
+            # GitHub doesn't has a ubuntu-latest-arm runner
+          - os: ubuntu-24.04-arm
+            platforms: linux/arm64/v8
+            name: "ARM64"
+            dockerfile: "docker/Dockerfile.arm64"
+            tag_suffix: "-arm64"
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: arm64
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -43,45 +53,22 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: quay.io/invidious/invidious
+          flavor: |
+            suffix=${{ matrix.tag_suffix }}
           tags: |
             type=sha,format=short,prefix={{date 'YYYY.MM.DD'}}-,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
             type=raw,value=master,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
           labels: |
             quay.expires-after=12w
 
-      - name: Build and push Docker AMD64 image for Push Event
+      - name: Build and push Docker ${{ matrix.name }} image for Push Event
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: docker/Dockerfile
-          platforms: linux/amd64
+          file:  ${{ matrix.dockerfile }}
+          platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
-          build-args: |
-            "release=1"
-
-      - name: Docker meta
-        id: meta-arm64
-        uses: docker/metadata-action@v5
-        with:
-          images: quay.io/invidious/invidious
-          flavor: |
-            suffix=-arm64
-          tags: |
-            type=sha,format=short,prefix={{date 'YYYY.MM.DD'}}-,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
-            type=raw,value=master,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
-          labels: |
-            quay.expires-after=12w
-
-      - name: Build and push Docker ARM64 image for Push Event
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: docker/Dockerfile.arm64
-          platforms: linux/arm64/v8
-          labels: ${{ steps.meta-arm64.outputs.labels }}
-          push: true
-          tags: ${{ steps.meta-arm64.outputs.tags }}
           build-args: |
             "release=1"
