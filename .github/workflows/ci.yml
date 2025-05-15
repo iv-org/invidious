@@ -83,33 +83,25 @@ jobs:
         run: crystal build --warnings all --error-on-warnings --error-trace src/invidious.cr
 
   build-docker:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            docker_compose_file: "docker-compose.yml"
+            # GitHub doesn't have a ubuntu-latest-arm runner
+          - os: ubuntu-24.04-arm
+            docker_compose_file: "docker-compose-arm64.yml"
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v4
 
       - name: Build Docker
-        run: docker compose build
+        run: docker compose -f ${{ matrix.docker_compose_file }} build
 
       - name: Run Docker
         run: docker compose up -d
-
-      - name: Test Docker
-        run: while curl -Isf http://localhost:3000; do sleep 1; done
-
-  build-docker-arm64:
-
-    runs-on: ubuntu-24.04-arm
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Build Docker
-        run: docker compose -f docker-compose-arm64.yml build
-
-      - name: Run Docker
-        run: docker compose -f docker-compose-arm64.yml up -d
 
       - name: Test Docker
         run: while curl -Isf http://localhost:3000; do sleep 1; done
