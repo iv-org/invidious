@@ -157,8 +157,13 @@ class Config
   property host_binding : String = "0.0.0.0"
   # Path and permissions to make Invidious listen on a UNIX socket instead of a TCP port
   property socket_binding : SocketBindingConfig? = nil
-  # Pool size for HTTP requests to youtube.com and ytimg.com (each domain has a separate pool of `pool_size`)
+
+  # Max pool size for HTTP requests to youtube.com and ytimg.com (each domain has a separate pool)
   property pool_size : Int32 = 100
+
+  # Amount of seconds to wait for a client to be free from the pool before rasing an error
+  property pool_checkout_timeout : Float64 = 5
+
   # HTTP Proxy configuration
   property http_proxy : HTTPProxyConfig? = nil
 

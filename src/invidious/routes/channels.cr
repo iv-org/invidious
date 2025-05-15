@@ -392,7 +392,7 @@ module Invidious::Routes::Channels
     value = env.request.resource.split("/")[2]
     body = ""
     {"channel", "user", "c"}.each do |type|
-      response = YT_POOL.client &.get("/#{type}/#{value}/live?disable_polymer=1")
+      response = YT_POOL.get("/#{type}/#{value}/live?disable_polymer=1")
       if response.status_code == 200
         body = response.body
       end
