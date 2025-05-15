@@ -194,6 +194,12 @@
                     </select>
                 <% end %>
             </div>
+
+            <div class="pure-control-group">
+                <label for="exclude_members_only_videos"><%= translate(locale, "preferences_exclude_members_only_videos_label") %></label>
+                <input name="exclude_members_only_videos" id="exclude_members_only_videos" type="checkbox" <% if preferences.exclude_members_only_videos %>checked<% end %>>
+            </div>
+
             <% if env.get? "user" %>
                 <div class="pure-control-group">
                     <label for="show_nick"><%= translate(locale, "preferences_show_nick_label") %></label>

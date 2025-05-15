@@ -200,6 +200,19 @@
                 </div>
                 <% end %>
             </div>
+            <% if item.responds_to?(:badges) && !item.badges.none? %>
+                <div class="video-card-row flexible video-badges">
+                    <%
+                        # TODO Other types of badges
+                    %>
+                    <% if item.badges.members_only? %>
+                        <span><i class="icon ion ion-md-lock"></i><%=translate(locale, "video_badges_members_only")%></span>
+                    <% end %>
+                    <% if item.badges.members_first? %>
+                        <span><i class="icon ion ion-md-lock"></i><%=translate(locale, "video_badges_members_first")%></span>
+                    <% end %>
+                </div>
+            <%end%>
         <% end %>
     </div>
 </div>

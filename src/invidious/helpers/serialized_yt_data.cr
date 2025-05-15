@@ -9,6 +9,8 @@ enum VideoBadges
   VR180
   VR360
   ClosedCaptions
+  MembersOnly
+  MembersFirst
 end
 
 struct SearchVideo
@@ -133,6 +135,7 @@ struct SearchVideo
       json.field "isVr360", self.badges.vr360?
       json.field "is3d", self.badges.three_d?
       json.field "hasCaptions", self.badges.closed_captions?
+      json.field "isMembersOnly", self.badges.members_only?
     end
   end
 
@@ -149,6 +152,13 @@ struct SearchVideo
 
   def upcoming?
     premiere_timestamp ? true : false
+  end
+
+  # Shorthand to check whether the video is restricted to only channel members
+  #
+  # Whether as an early access video ("members first") or only for members ("members only")
+  def restricted_to_members?
+    return badges.members_only? || badges.members_first?
   end
 end
 
