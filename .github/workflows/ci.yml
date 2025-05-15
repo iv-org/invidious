@@ -105,11 +105,21 @@ jobs:
       - name: Build Docker
         run: docker compose build
 
+      - name: Change hmac_key on docker-compose.yml
+        run: sed -i '/hmac_key/s/CHANGE_ME!!/docker-build-hmac-key/' docker-compose.yml
+
       - name: Run Docker
         run: docker compose up -d
 
       - name: Test Docker
-        run: while curl -Isf http://localhost:3000; do sleep 1; done
+        id: test
+        run: curl -If http://localhost:3000 --retry 5 --retry-delay 1 --retry-all-errors
+
+      - name: Print Invidious container logs
+        # Tells Github Actions to always run this step regardless of whether the previous step has failed
+        # Without this expression this step would simply be skipped when the previous step fails.
+        if: success() || steps.test.conclusion == 'failure'
+        run: docker compose logs
 
   lint:
 
