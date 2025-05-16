@@ -44,13 +44,25 @@ end
 
 def fetch_subscription_related_videoids(env, region, locale)
   user = env.get("user").as(Invidious::User)
-  channel_videos, notifications = get_subscription_feed(user, 10, 1)
+
+  # Filter valid channel videos
+  channel_videos, _ = get_subscription_feed(user, 10, 1)
+  valid_channel_videoids = channel_videos.select do |v|
+    !v.live_now && v.premiere_timestamp.nil? && (v.length_seconds || 0) > 0 && (v.views || 0) > 0
+  end.map(&.id)
+
+  # Sample more from watched, fewer from channels
+  watched_video_ids = user.watched.sample(10)
+
+  video_ids = watched_video_ids + valid_channel_videoids
+  video_ids = video_ids.uniq
+  video_ids = video_ids.reject(&.nil?)
+  video_ids = video_ids.reject(&.empty?)
+  video_ids = video_ids.sample(10) if video_ids.size > 10
 
   videos = [] of SearchVideo
-  channel_videos.sample((channel_videos.size / 3).to_i).each do |channel_video|
-    next if channel_video.live_now || channel_video.premiere_timestamp || channel_video.length_seconds == 0 || channel_video.views == 0
-    
-    video = get_video(channel_video.id)
+  video_ids.each do |video_id|
+    video = get_video(video_id)
     next unless video.video_type == VideoType::Video
 
     related = video.related_videos.sample(10) # pick random related videos
