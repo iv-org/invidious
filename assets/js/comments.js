@@ -10,6 +10,14 @@ String.prototype.supplant = function (o) {
     });
 };
 
+function updateReplyLinks() {
+    document.querySelectorAll("a[href^='/comment_viewer']").forEach(function (replyLink) {
+        replyLink.setAttribute("href", "javascript:void(0)");
+        replyLink.removeAttribute("target");
+    });
+}
+updateReplyLinks();
+
 function toggle_comments(event) {
     var target = event.target;
     var body = target.parentNode.parentNode.parentNode.children[1];
@@ -104,6 +112,7 @@ function get_youtube_comments() {
                 })
             });
             comments.innerHTML = commentInnerHtml;
+            updateReplyLinks();
             comments.children[0].children[0].children[0].onclick = toggle_comments;
             if (video_data.support_reddit) {
                 comments.children[0].children[1].children[0].onclick = swap_comments;
@@ -143,6 +152,7 @@ function get_youtube_replies(target, load_more, load_replies) {
                 body = body.parentNode.parentNode;
                 body.removeChild(body.lastElementChild);
                 body.insertAdjacentHTML('beforeend', response.contentHtml);
+                updateReplyLinks();
             } else {
                 body.removeChild(body.lastElementChild);
 
@@ -161,6 +171,7 @@ function get_youtube_replies(target, load_more, load_replies) {
 
                 body.appendChild(p);
                 body.appendChild(div);
+                updateReplyLinks();
             }
         },
         onNon200: function (xhr) {
