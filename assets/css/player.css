@@ -71,8 +71,10 @@
   padding-top: 2em
 }
 
-.video-js.player-style-youtube .vjs-progress-control .vjs-progress-holder, .video-js.player-style-youtube .vjs-progress-control {height: 5px;
-margin-bottom: 10px;}
+.video-js.player-style-youtube .vjs-progress-control .vjs-progress-holder, .video-js.player-style-youtube .vjs-progress-control {
+  height: 5px;
+  margin-bottom: 10px;
+}
 
 ul.vjs-menu-content::-webkit-scrollbar {
   display: none;
@@ -86,6 +88,7 @@ ul.vjs-menu-content::-webkit-scrollbar {
   background-color: rgba(0, 0, 0, 0.75) !important;
   border-radius: 9px !important;
   padding: 5px !important;
+  line-height: 1.5 !important;
 }
 
 .vjs-play-control,
