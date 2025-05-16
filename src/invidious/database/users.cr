@@ -184,6 +184,43 @@ module Invidious::Database::Users
     PG_DB.exec(request, pass, user.email)
   end
 
+  def update_username(user : User, new_username : String)
+    request = <<-SQL
+      UPDATE users
+      SET email = $1
+      WHERE email = $2
+    SQL
+
+    PG_DB.exec(request, new_username, user.email)
+  end
+
+  def update_user_session_id(user : User, username : String)
+    request = <<-SQL
+      UPDATE session_ids
+      SET email = $1
+      WHERE email = $2
+    SQL
+
+    PG_DB.exec(request, username, user.email)
+  end
+
+  def update_user_playlists_author(user : User, username : String)
+    request = <<-SQL
+      UPDATE playlists
+      SET author = $1
+      WHERE author = $2
+    SQL
+
+    PG_DB.exec(request, username, user.email)
+  end
+
+  def update_user_materialized_view(user : User, username : String)
+    view_name = "public.subscriptions_#{sha256(user.email)}"
+    new_view_name = "subscriptions_#{sha256(username)}"
+
+    PG_DB.exec("ALTER MATERIALIZED VIEW #{view_name} RENAME TO #{new_view_name}")
+  end
+
   # -------------------
   #  Select
   # -------------------

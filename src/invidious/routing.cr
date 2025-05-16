@@ -68,6 +68,8 @@ module Invidious::Routing
     # User account management
     get "/change_password", Routes::Account, :get_change_password
     post "/change_password", Routes::Account, :post_change_password
+    get "/change_username", Routes::Account, :get_change_username
+    post "/change_username", Routes::Account, :post_change_username
     get "/delete_account", Routes::Account, :get_delete
     post "/delete_account", Routes::Account, :post_delete
     get "/clear_watch_history", Routes::Account, :get_clear_history
