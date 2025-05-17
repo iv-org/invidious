@@ -403,7 +403,7 @@
     "comments_view_x_replies": "Виж {{count}} отговор",
     "comments_view_x_replies_plural": "Виж {{count}} отговора",
     "footer_original_source_code": "Оригинален изходен код",
-    "Import YouTube subscriptions": "Импортиране на YouTube/OPML абонаменти",
+    "Import YouTube subscriptions": "Импортиране на YouTube-CSV/OPML абонаменти",
     "Lithuanian": "Литовски",
     "Nyanja": "Нянджа",
     "Updated `x` ago": "Актуализирано преди `x`",
@@ -493,5 +493,8 @@
     "Add to playlist: ": "Добави към плейлист: ",
     "Answer": "Отговор",
     "Search for videos": "Търсене на видеа",
-    "The Popular feed has been disabled by the administrator.": "Популярната страница е деактивирана от администратора."
+    "The Popular feed has been disabled by the administrator.": "Популярната страница е деактивирана от администратора.",
+    "Filipino (auto-generated)": "Филипински (автоматично генериран)",
+    "preferences_preload_label": "Предварително заредете видео данни: ",
+    "First page": "Първа страница"
 }
