@@ -432,7 +432,7 @@ def get_playlist_videos(playlist : InvidiousPlaylist | Playlist, offset : Int32,
       offset = initial_data.dig?("contents", "twoColumnWatchNextResults", "playlist", "playlist", "currentIndex").try &.as_i || offset
     end
 
-    videos = [] of PlaylistVideo
+    videos = [] of PlaylistVideo | ProblematicTimelineItem
 
     until videos.size >= 200 || videos.size == playlist.video_count || offset >= playlist.video_count
       # 100 videos per request
@@ -448,7 +448,7 @@ def get_playlist_videos(playlist : InvidiousPlaylist | Playlist, offset : Int32,
 end
 
 def extract_playlist_videos(initial_data : Hash(String, JSON::Any))
-  videos = [] of PlaylistVideo
+  videos = [] of PlaylistVideo | ProblematicTimelineItem
 
   if initial_data["contents"]?
     tabs = initial_data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"]
@@ -500,6 +500,8 @@ def extract_playlist_videos(initial_data : Hash(String, JSON::Any))
         index:          index,
       })
     end
+  rescue ex
+    videos << ProblematicTimelineItem.new(parse_exception: ex)
   end
 
   return videos
