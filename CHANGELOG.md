@@ -10,7 +10,7 @@ Inverse fallback for the YouTube client from TVHTML then MWEB. Fixes https://git
 
 Small release with quick workaround fix for issue #4251 (Nil assertion failed).
 
-PR: https://github.com/iv-org/invidious/issues/5263
+PR: https://github.com/iv-org/invidious/issues/5262
 
 ## v2.20250314.0
 
