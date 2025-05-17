@@ -154,6 +154,7 @@ module Invidious::Routes::Channels
     items.each(&.author = "")
 
     selected_tab = Frontend::ChannelPage::TabsAvailable::Playlists
+
     templated "channel"
   end
 
