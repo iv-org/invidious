@@ -115,7 +115,7 @@ private module Parsers
       badges = VideoBadges::None
       item_contents["badges"]?.try &.as_a.each do |badge|
         b = badge["metadataBadgeRenderer"]
-        case b["label"].as_s
+        case b["label"]?.try &.as_s
         when "LIVE"
           badges |= VideoBadges::LiveNow
         when "New"
