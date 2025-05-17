@@ -21,9 +21,6 @@ module Invidious::Routes::Login
     account_type = env.params.query["type"]?
     account_type ||= "invidious"
 
-    captcha_type = env.params.query["captcha"]?
-    captcha_type ||= "image"
-
     templated "user/login"
   end
 
@@ -88,34 +85,14 @@ module Invidious::Routes::Login
         password = password.byte_slice(0, 55)
 
         if CONFIG.captcha_enabled
-          captcha_type = env.params.body["captcha_type"]?
           answer = env.params.body["answer"]?
-          change_type = env.params.body["change_type"]?
 
-          if !captcha_type || change_type
-            if change_type
-              captcha_type = change_type
-            end
-            captcha_type ||= "image"
-
-            account_type = "invidious"
-
-            if captcha_type == "image"
-              captcha = Invidious::User::Captcha.generate_image(HMAC_KEY)
-            else
-              captcha = Invidious::User::Captcha.generate_text(HMAC_KEY)
-            end
-
-            return templated "user/login"
-          end
+          account_type = "invidious"
+          captcha = Invidious::User::Captcha.generate_image(HMAC_KEY)
 
           tokens = env.params.body.select { |k, _| k.match(/^token\[\d+\]$/) }.map { |_, v| v }
 
-          answer ||= ""
-          captcha_type ||= "image"
-
-          case captcha_type
-          when "image"
+          if answer
             answer = answer.lstrip('0')
             answer = OpenSSL::HMAC.hexdigest(:sha256, HMAC_KEY, answer)
 
@@ -124,27 +101,8 @@ module Invidious::Routes::Login
             rescue ex
               return error_template(400, ex)
             end
-          else # "text"
-            answer = Digest::MD5.hexdigest(answer.downcase.strip)
-
-            if tokens.empty?
-              return error_template(500, "Erroneous CAPTCHA")
-            end
-
-            found_valid_captcha = false
-            error_exception = Exception.new
-            tokens.each do |tok|
-              begin
-                validate_request(tok, answer, env.request, HMAC_KEY, locale)
-                found_valid_captcha = true
-              rescue ex
-                error_exception = ex
-              end
-            end
-
-            if !found_valid_captcha
-              return error_template(500, error_exception)
-            end
+          else
+            return templated "user/login"
           end
         end
 
