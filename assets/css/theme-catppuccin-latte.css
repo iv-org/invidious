@@ -1,0 +1,16 @@
+:root {
+  --fg-color-dark: #f8f8f2;
+  --bg-color-dark: #eff1f5;
+  --accent-color-dark: #fff;
+  --accent-bg-color-dark: #181926;
+  --secondary-color-dark: #e3e3e3;
+  --secondary-bg-color-dark: #494d64;
+
+  /* light theme colors */
+  --fg-color-light: #4c4f69;
+  --bg-color-light: #eff1f5;
+  --accent-color-light: #bcc0cc;
+  --accent-bg-color-light: #7287fd;
+  --secondary-color-light: #5c5f77;
+  --secondary-bg-color-light: #e6e9ef;
+}

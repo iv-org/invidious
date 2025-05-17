@@ -6,15 +6,11 @@
 <link rel="stylesheet" href="/css/empty.css?v=<%= ASSET_COMMIT %>">
 <% end %>
 
-<%= rendered "components/feed_menu" %>
+<div class="search-homepage">
+	<%= rendered "components/feed_menu" %>
 
-<div class="pure-g h-box" id="search-widget">
-    <div class="pure-u-1" id="logo">
-        <h1 href="/" class="pure-menu-heading">Invidious</h1>
-    </div>
-    <div class="pure-u-1-4"></div>
-    <div class="pure-u-1 pure-u-md-12-24 searchbar">
-        <% autofocus = true %><%= rendered "components/search_box" %>
-    </div>
-    <div class="pure-u-1-4"></div>
+	<div id="search-widget">
+		<h1>Invidious</h1>
+		<% autofocus = true %><%= rendered "components/search_box" %>
+	</div>
 </div>
