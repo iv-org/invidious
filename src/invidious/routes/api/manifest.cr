@@ -167,6 +167,8 @@ module Invidious::Routes::API::Manifest
 
   # /api/manifest/hls_playlist/*
   def self.get_hls_playlist(env)
+    host = env.request.headers["Host"]
+
     response = YT_POOL.client &.get(env.request.path)
 
     if response.status_code != 200
@@ -214,7 +216,7 @@ module Invidious::Routes::API::Manifest
 
         raw_params["host"] = uri.host.not_nil!
 
-        "#{env.request.headers["Host"]}/videoplayback?#{raw_params}"
+        "#{host}/videoplayback?#{raw_params}"
       end
     end
 
@@ -223,6 +225,8 @@ module Invidious::Routes::API::Manifest
 
   # /api/manifest/hls_variant/*
   def self.get_hls_variant(env)
+    host = env.request.headers["Host"]
+
     response = YT_POOL.client &.get(env.request.path)
 
     if response.status_code != 200
@@ -237,7 +241,7 @@ module Invidious::Routes::API::Manifest
     manifest = response.body
 
     if local
-      manifest = manifest.gsub("https://www.youtube.com", env.request.headers["Host"])
+      manifest = manifest.gsub("https://www.youtube.com", host)
       manifest = manifest.gsub("index.m3u8", "index.m3u8?local=true")
     end
 

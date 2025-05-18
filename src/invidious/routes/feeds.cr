@@ -143,6 +143,8 @@ module Invidious::Routes::Feeds
   # RSS feeds
 
   def self.rss_channel(env)
+    host = env.request.headers["Host"]
+
     env.response.headers["Content-Type"] = "application/atom+xml"
     env.response.content_type = "application/atom+xml"
 
@@ -199,21 +201,21 @@ module Invidious::Routes::Feeds
       xml.element("feed", "xmlns:yt": "http://www.youtube.com/xml/schemas/2015",
         "xmlns:media": "http://search.yahoo.com/mrss/", xmlns: "http://www.w3.org/2005/Atom",
         "xml:lang": "en-US") do
-        xml.element("link", rel: "self", href: "#{env.request.headers["Host"]}#{env.request.resource}")
+        xml.element("link", rel: "self", href: "#{host}#{env.request.resource}")
         xml.element("id") { xml.text "yt:channel:#{ucid}" }
         xml.element("yt:channelId") { xml.text ucid }
         xml.element("title") { author }
-        xml.element("link", rel: "alternate", href: "#{env.request.headers["Host"]}/channel/#{ucid}")
+        xml.element("link", rel: "alternate", href: "#{host}/channel/#{ucid}")
 
         xml.element("author") do
           xml.element("name") { xml.text author }
-          xml.element("uri") { xml.text "#{env.request.headers["Host"]}/channel/#{ucid}" }
+          xml.element("uri") { xml.text "#{host}/channel/#{ucid}" }
         end
 
         xml.element("image") do
           xml.element("url") { xml.text "" }
           xml.element("title") { xml.text author }
-          xml.element("link", rel: "self", href: "#{env.request.headers["Host"]}#{env.request.resource}")
+          xml.element("link", rel: "self", href: "#{host}#{env.request.resource}")
         end
 
         videos.each do |video|
@@ -225,6 +227,7 @@ module Invidious::Routes::Feeds
 
   def self.rss_private(env)
     locale = env.get("preferences").as(Preferences).locale
+    host = env.request.headers["Host"]
 
     env.response.headers["Content-Type"] = "application/atom+xml"
     env.response.content_type = "application/atom+xml"
@@ -255,9 +258,9 @@ module Invidious::Routes::Feeds
       xml.element("feed", "xmlns:yt": "http://www.youtube.com/xml/schemas/2015",
         "xmlns:media": "http://search.yahoo.com/mrss/", xmlns: "http://www.w3.org/2005/Atom",
         "xml:lang": "en-US") do
-        xml.element("link", "type": "text/html", rel: "alternate", href: "#{env.request.headers["Host"]}/feed/subscriptions")
+        xml.element("link", "type": "text/html", rel: "alternate", href: "#{host}/feed/subscriptions")
         xml.element("link", "type": "application/atom+xml", rel: "self",
-          href: "#{env.request.headers["Host"]}#{env.request.resource}")
+          href: "#{host}#{env.request.resource}")
         xml.element("title") { xml.text translate(locale, "Invidious Private Feed for `x`", user.email) }
 
         (notifications + videos).each do |video|
@@ -269,6 +272,7 @@ module Invidious::Routes::Feeds
 
   def self.rss_playlist(env)
     locale = env.get("preferences").as(Preferences).locale
+    host = env.request.headers["Host"]
 
     env.response.headers["Content-Type"] = "application/atom+xml"
     env.response.content_type = "application/atom+xml"
@@ -286,11 +290,11 @@ module Invidious::Routes::Feeds
           xml.element("feed", "xmlns:yt": "http://www.youtube.com/xml/schemas/2015",
             "xmlns:media": "http://search.yahoo.com/mrss/", xmlns: "http://www.w3.org/2005/Atom",
             "xml:lang": "en-US") do
-            xml.element("link", rel: "self", href: "#{env.request.headers["Host"]}#{env.request.resource}")
+            xml.element("link", rel: "self", href: "#{host}#{env.request.resource}")
             xml.element("id") { xml.text "iv:playlist:#{plid}" }
             xml.element("iv:playlistId") { xml.text plid }
             xml.element("title") { xml.text playlist.title }
-            xml.element("link", rel: "alternate", href: "#{env.request.headers["Host"]}/playlist?list=#{plid}")
+            xml.element("link", rel: "alternate", href: "#{host}/playlist?list=#{plid}")
 
             xml.element("author") do
               xml.element("name") { xml.text playlist.author }
@@ -320,7 +324,7 @@ module Invidious::Routes::Feeds
         when "url", "href"
           request_target = URI.parse(node[attribute.name]).request_target
           query_string_opt = request_target.starts_with?("/watch?v=") ? "&#{params}" : ""
-          node[attribute.name] = "#{env.request.headers["Host"]}#{request_target}#{query_string_opt}"
+          node[attribute.name] = "#{host}#{request_target}#{query_string_opt}"
         else nil # Skip
         end
       end
@@ -329,7 +333,7 @@ module Invidious::Routes::Feeds
     document = document.to_xml(options: XML::SaveOptions::NO_DECL)
 
     document.scan(/<uri>(?<url>[^<]+)<\/uri>/).each do |match|
-      content = "#{env.request.headers["Host"]}#{URI.parse(match["url"]).request_target}"
+      content = "#{host}#{URI.parse(match["url"]).request_target}"
       document = document.gsub(match[0], "<uri>#{content}</uri>")
     end
     document
