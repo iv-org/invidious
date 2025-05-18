@@ -1,6 +1,8 @@
 module Invidious::Routes::API::Manifest
   # /api/manifest/dash/id/:id
   def self.get_dash_video_id(env)
+    host = env.request.headers["Host"]
+
     env.response.headers.add("Access-Control-Allow-Origin", "*")
     env.response.content_type = "application/dash+xml"
 
@@ -36,7 +38,7 @@ module Invidious::Routes::API::Manifest
       # Other API clients can get the original URLs by omiting `local=true`.
       manifest = response.body.gsub(/<BaseURL>[^<]+<\/BaseURL>/) do |baseurl|
         url = baseurl.lchop("<BaseURL>").rchop("</BaseURL>")
-        url = HttpServer::Utils.proxy_video_url(url, absolute: true) if local
+        url = HttpServer::Utils.proxy_video_url(url, absolute: true, host: host) if local
         "<BaseURL>#{url}</BaseURL>"
       end
 
@@ -46,7 +48,7 @@ module Invidious::Routes::API::Manifest
     # Ditto, only proxify URLs if `local=true` is used
     if local
       video.adaptive_fmts.each do |fmt|
-        fmt["url"] = JSON::Any.new(HttpServer::Utils.proxy_video_url(fmt["url"].as_s, absolute: true))
+        fmt["url"] = JSON::Any.new(HttpServer::Utils.proxy_video_url(fmt["url"].as_s, absolute: true, host: host))
       end
     end
 

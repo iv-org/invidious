@@ -34,6 +34,7 @@ module Invidious::Routes::Embed
 
   def self.show(env)
     locale = env.get("preferences").as(Preferences).locale
+    host = env.request.headers["Host"]
     id = env.params.url["id"]
 
     plid = env.params.query["list"]?.try &.gsub(/[^a-zA-Z0-9_-]/, "")
@@ -161,11 +162,11 @@ module Invidious::Routes::Embed
     adaptive_fmts = video.adaptive_fmts
 
     if params.local
-      fmt_stream.each { |fmt| fmt["url"] = JSON::Any.new(HttpServer::Utils.proxy_video_url(fmt["url"].as_s)) }
+      fmt_stream.each { |fmt| fmt["url"] = JSON::Any.new(HttpServer::Utils.proxy_video_url(fmt["url"].as_s, host: host)) }
     end
 
     # Always proxy DASH streams, otherwise youtube CORS headers will prevent playback
-    adaptive_fmts.each { |fmt| fmt["url"] = JSON::Any.new(HttpServer::Utils.proxy_video_url(fmt["url"].as_s)) }
+    adaptive_fmts.each { |fmt| fmt["url"] = JSON::Any.new(HttpServer::Utils.proxy_video_url(fmt["url"].as_s, host: host)) }
 
     video_streams = video.video_streams
     audio_streams = video.audio_streams

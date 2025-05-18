@@ -2,6 +2,7 @@ module Invidious::Routes::VideoPlayback
   # /videoplayback
   def self.get_video_playback(env)
     locale = env.get("preferences").as(Preferences).locale
+    host_ = env.request.headers["Host"]
     query_params = env.params.query
 
     fvip = query_params["fvip"]? || "3"
@@ -107,7 +108,7 @@ module Invidious::Routes::VideoPlayback
           env.response.headers["Access-Control-Allow-Origin"] = "*"
 
           if location = resp.headers["Location"]?
-            url = Invidious::HttpServer::Utils.proxy_video_url(location, region: region)
+            url = Invidious::HttpServer::Utils.proxy_video_url(location, region: region, host: host_)
             return env.redirect url
           end
 
@@ -165,7 +166,7 @@ module Invidious::Routes::VideoPlayback
               env.response.headers["Access-Control-Allow-Origin"] = "*"
 
               if location = resp.headers["Location"]?
-                url = Invidious::HttpServer::Utils.proxy_video_url(location, region: region)
+                url = Invidious::HttpServer::Utils.proxy_video_url(location, region: region, host: host_)
 
                 if title = query_params["title"]?
                   url = "#{url}&title=#{URI.encode_www_form(title)}"
