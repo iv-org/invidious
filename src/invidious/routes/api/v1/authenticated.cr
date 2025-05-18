@@ -208,6 +208,8 @@ module Invidious::Routes::API::V1::Authenticated
   end
 
   def self.create_playlist(env)
+    host = env.request.headers["Host"]
+
     env.response.content_type = "application/json"
     user = env.get("user").as(User)
 
@@ -226,7 +228,7 @@ module Invidious::Routes::API::V1::Authenticated
     end
 
     playlist = create_playlist(title, privacy, user)
-    env.response.headers["Location"] = "#{HOST_URL}/api/v1/auth/playlists/#{playlist.id}"
+    env.response.headers["Location"] = "#{host}/api/v1/auth/playlists/#{playlist.id}"
     env.response.status_code = 201
     {
       "title"      => title,
@@ -290,6 +292,8 @@ module Invidious::Routes::API::V1::Authenticated
   end
 
   def self.insert_video_into_playlist(env)
+    host = env.request.headers["Host"]
+
     env.response.content_type = "application/json"
     user = env.get("user").as(User)
 
@@ -336,7 +340,7 @@ module Invidious::Routes::API::V1::Authenticated
     Invidious::Database::PlaylistVideos.insert(playlist_video)
     Invidious::Database::Playlists.update_video_added(plid, playlist_video.index)
 
-    env.response.headers["Location"] = "#{HOST_URL}/api/v1/auth/playlists/#{plid}/videos/#{playlist_video.index.to_u64.to_s(16).upcase}"
+    env.response.headers["Location"] = "#{host}/api/v1/auth/playlists/#{plid}/videos/#{playlist_video.index.to_u64.to_s(16).upcase}"
     env.response.status_code = 201
 
     JSON.build do |json|

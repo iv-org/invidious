@@ -4,6 +4,7 @@ module Invidious::Routes::Watch
   def self.handle(env)
     locale = env.get("preferences").as(Preferences).locale
     region = env.params.query["region"]?
+    host = env.request.headers["Host"]
 
     if env.params.query.to_s.includes?("%20") || env.params.query.to_s.includes?("+")
       url = "/watch?" + env.params.query.to_s.gsub("%20", "").delete("+")
@@ -121,11 +122,11 @@ module Invidious::Routes::Watch
     adaptive_fmts = video.adaptive_fmts
 
     if params.local
-      fmt_stream.each { |fmt| fmt["url"] = JSON::Any.new(HttpServer::Utils.proxy_video_url(fmt["url"].as_s)) }
+      fmt_stream.each { |fmt| fmt["url"] = JSON::Any.new(HttpServer::Utils.proxy_video_url(fmt["url"].as_s, host: host)) }
     end
 
     # Always proxy DASH streams, otherwise youtube CORS headers will prevent playback
-    adaptive_fmts.each { |fmt| fmt["url"] = JSON::Any.new(HttpServer::Utils.proxy_video_url(fmt["url"].as_s)) }
+    adaptive_fmts.each { |fmt| fmt["url"] = JSON::Any.new(HttpServer::Utils.proxy_video_url(fmt["url"].as_s, host: host)) }
 
     video_streams = video.video_streams
     audio_streams = video.audio_streams

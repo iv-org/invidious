@@ -14,6 +14,7 @@ module Invidious::Routes::PreferencesRoute
   def self.update(env)
     locale = env.get("preferences").as(Preferences).locale
     referer = get_referer(env)
+    host = env.request.headers["Host"]
 
     video_loop = env.params.body["video_loop"]?.try &.as(String)
     video_loop ||= "off"
@@ -223,8 +224,8 @@ module Invidious::Routes::PreferencesRoute
 
         File.write("config/config.yml", CONFIG.to_yaml)
       end
-    else
-      env.response.cookies["PREFS"] = Invidious::User::Cookies.prefs(CONFIG.domain, preferences)
+
+      env.response.cookies["PREFS"] = Invidious::User::Cookies.prefs(host, preferences)
     end
 
     env.redirect referer
@@ -233,6 +234,7 @@ module Invidious::Routes::PreferencesRoute
   def self.toggle_theme(env)
     locale = env.get("preferences").as(Preferences).locale
     referer = get_referer(env, unroll: false)
+    host = env.request.headers["Host"]
 
     redirect = env.params.query["redirect"]?
     redirect ||= "true"
@@ -259,7 +261,7 @@ module Invidious::Routes::PreferencesRoute
         preferences.dark_mode = "dark"
       end
 
-      env.response.cookies["PREFS"] = Invidious::User::Cookies.prefs(CONFIG.domain, preferences)
+      env.response.cookies["PREFS"] = Invidious::User::Cookies.prefs(host, preferences)
     end
 
     if redirect

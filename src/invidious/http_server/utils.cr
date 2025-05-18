@@ -4,7 +4,7 @@ module Invidious::HttpServer
   module Utils
     extend self
 
-    def proxy_video_url(raw_url : String, *, region : String? = nil, absolute : Bool = false)
+    def proxy_video_url(raw_url : String, *, region : String? = nil, absolute : Bool = false, host : String? = "")
       url = URI.parse(raw_url)
 
       # Add some URL parameters
@@ -14,7 +14,7 @@ module Invidious::HttpServer
       url.query_params = params
 
       if absolute
-        return "#{HOST_URL}#{url.request_target}"
+        return "#{host}#{url.request_target}"
       else
         return url.request_target
       end
