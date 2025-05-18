@@ -115,8 +115,6 @@ class Config
   property hmac_key : String = ""
   # Domain to be used for links to resources on the site where an absolute URL is required
   property domain : String?
-  # Alternative domains. You can add other domains, like TOR and I2P addresses
-  property alternative_domains : Array(String) = [] of String
   # Subscribe to channels using PubSubHubbub (requires domain, hmac_key)
   property use_pubsub_feeds : Bool | Int32 = false
   property popular_enabled : Bool = true
