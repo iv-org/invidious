@@ -64,8 +64,6 @@
     "User ID": "User ID",
     "Password": "Password",
     "Time (h:mm:ss):": "Time (h:mm:ss):",
-    "Text CAPTCHA": "Text CAPTCHA",
-    "Image CAPTCHA": "Image CAPTCHA",
     "Sign In": "Sign In",
     "Register": "Register",
     "E-mail": "E-mail",
@@ -501,5 +499,8 @@
     "toggle_theme": "Toggle Theme",
     "carousel_slide": "Slide {{current}} of {{total}}",
     "carousel_skip": "Skip the Carousel",
-    "carousel_go_to": "Go to slide `x`"
+    "carousel_go_to": "Go to slide `x`",
+    "timeline_parse_error_placeholder_heading": "Unable to parse item",
+    "timeline_parse_error_placeholder_message": "Invidious encountered an error while trying to parse this item. For more information see below:",
+    "timeline_parse_error_show_technical_details": "Show technical details"
 }

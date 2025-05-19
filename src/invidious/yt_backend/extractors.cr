@@ -35,6 +35,20 @@ record AuthorFallback, name : String, id : String
 # data is passed to the private `#parse()` method which returns a datastruct of the given
 # type. Otherwise, nil is returned.
 private module Parsers
+  module BaseParser
+    def parse(*args)
+      begin
+        return parse_internal(*args)
+      rescue ex
+        LOGGER.debug("#{{{@type.name}}}: Failed to render item.")
+        LOGGER.debug("#{{{@type.name}}}: Got exception: #{ex.message}")
+        ProblematicTimelineItem.new(
+          parse_exception: ex
+        )
+      end
+    end
+  end
+
   # Parses a InnerTube videoRenderer into a SearchVideo. Returns nil when the given object isn't a videoRenderer
   #
   # A videoRenderer renders a video to click on within the YouTube and Invidious UI. It is **not**
@@ -45,13 +59,16 @@ private module Parsers
   # `videoRenderer`s can be found almost everywhere on YouTube. In categories, search results, channels, etc.
   #
   module VideoRendererParser
-    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+    extend self
+    include BaseParser
+
+    def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = (item["videoRenderer"]? || item["gridVideoRenderer"]?)
         return self.parse(item_contents, author_fallback)
       end
     end
 
-    private def self.parse(item_contents, author_fallback)
+    private def parse_internal(item_contents, author_fallback)
       video_id = item_contents["videoId"].as_s
       title = extract_text(item_contents["title"]?) || ""
 
@@ -115,7 +132,7 @@ private module Parsers
       badges = VideoBadges::None
       item_contents["badges"]?.try &.as_a.each do |badge|
         b = badge["metadataBadgeRenderer"]
-        case b["label"].as_s
+        case b["label"]?.try &.as_s
         when "LIVE"
           badges |= VideoBadges::LiveNow
         when "New"
@@ -170,13 +187,16 @@ private module Parsers
   # `channelRenderer`s can be found almost everywhere on YouTube. In categories, search results, channels, etc.
   #
   module ChannelRendererParser
-    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+    extend self
+    include BaseParser
+
+    def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = (item["channelRenderer"]? || item["gridChannelRenderer"]?)
         return self.parse(item_contents, author_fallback)
       end
     end
 
-    private def self.parse(item_contents, author_fallback)
+    private def parse_internal(item_contents, author_fallback)
       author = extract_text(item_contents["title"]) || author_fallback.name
       author_id = item_contents["channelId"]?.try &.as_s || author_fallback.id
       author_verified = has_verified_badge?(item_contents["ownerBadges"]?)
@@ -230,13 +250,16 @@ private module Parsers
   # A `hashtagTileRenderer` is a kind of search result.
   # It can be found when searching for any hashtag (e.g "#hi" or "#shorts")
   module HashtagRendererParser
-    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+    extend self
+    include BaseParser
+
+    def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["hashtagTileRenderer"]?
         return self.parse(item_contents)
       end
     end
 
-    private def self.parse(item_contents)
+    private def parse_internal(item_contents)
       title = extract_text(item_contents["hashtag"]).not_nil! # E.g "#hi"
 
       # E.g "/hashtag/hi"
@@ -263,10 +286,6 @@ private module Parsers
         video_count:   short_text_to_number(video_count_txt || ""),
         channel_count: short_text_to_number(channel_count_txt || ""),
       })
-    rescue ex
-      LOGGER.debug("HashtagRendererParser: Failed to extract renderer.")
-      LOGGER.debug("HashtagRendererParser: Got exception: #{ex.message}")
-      return nil
     end
 
     def self.parser_name
@@ -284,13 +303,16 @@ private module Parsers
   # `gridPlaylistRenderer`s can be found on the playlist-tabs of channels and expanded categories.
   #
   module GridPlaylistRendererParser
-    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+    extend self
+    include BaseParser
+
+    def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["gridPlaylistRenderer"]?
         return self.parse(item_contents, author_fallback)
       end
     end
 
-    private def self.parse(item_contents, author_fallback)
+    private def parse_internal(item_contents, author_fallback)
       title = extract_text(item_contents["title"]) || ""
       plid = item_contents["playlistId"]?.try &.as_s || ""
 
@@ -325,13 +347,16 @@ private module Parsers
   # `playlistRenderer`s can be found almost everywhere on YouTube. In categories, search results, recommended, etc.
   #
   module PlaylistRendererParser
-    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+    extend self
+    include BaseParser
+
+    def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["playlistRenderer"]?
         return self.parse(item_contents, author_fallback)
       end
     end
 
-    private def self.parse(item_contents, author_fallback)
+    private def parse_internal(item_contents, author_fallback)
       title = extract_text(item_contents["title"]) || ""
       plid = item_contents["playlistId"]?.try &.as_s || ""
 
@@ -385,13 +410,16 @@ private module Parsers
   # `shelfRenderer`s can be found almost everywhere on YouTube. In categories, search results, channels, etc.
   #
   module CategoryRendererParser
-    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+    extend self
+    include BaseParser
+
+    def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["shelfRenderer"]?
         return self.parse(item_contents, author_fallback)
       end
     end
 
-    private def self.parse(item_contents, author_fallback)
+    private def parse_internal(item_contents, author_fallback)
       title = extract_text(item_contents["title"]?) || ""
       url = item_contents.dig?("endpoint", "commandMetadata", "webCommandMetadata", "url")
         .try &.as_s
@@ -450,13 +478,16 @@ private module Parsers
   # container.It is very similar to RichItemRendererParser
   #
   module ItemSectionRendererParser
-    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+    extend self
+    include BaseParser
+
+    def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item.dig?("itemSectionRenderer", "contents", 0)
         return self.parse(item_contents, author_fallback)
       end
     end
 
-    private def self.parse(item_contents, author_fallback)
+    private def parse_internal(item_contents, author_fallback)
       child = VideoRendererParser.process(item_contents, author_fallback)
       child ||= PlaylistRendererParser.process(item_contents, author_fallback)
 
@@ -476,13 +507,16 @@ private module Parsers
   # itself inside a richGridRenderer container.
   #
   module RichItemRendererParser
-    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+    extend self
+    include BaseParser
+
+    def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item.dig?("richItemRenderer", "content")
         return self.parse(item_contents, author_fallback)
       end
     end
 
-    private def self.parse(item_contents, author_fallback)
+    private def parse_internal(item_contents, author_fallback)
       child = VideoRendererParser.process(item_contents, author_fallback)
       child ||= ReelItemRendererParser.process(item_contents, author_fallback)
       child ||= PlaylistRendererParser.process(item_contents, author_fallback)
@@ -506,13 +540,16 @@ private module Parsers
   # TODO: Confirm that hypothesis
   #
   module ReelItemRendererParser
-    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+    extend self
+    include BaseParser
+
+    def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["reelItemRenderer"]?
         return self.parse(item_contents, author_fallback)
       end
     end
 
-    private def self.parse(item_contents, author_fallback)
+    private def parse_internal(item_contents, author_fallback)
       video_id = item_contents["videoId"].as_s
 
       reel_player_overlay = item_contents.dig(
@@ -600,13 +637,16 @@ private module Parsers
   # a richItemRenderer or a richGridRenderer.
   #
   module LockupViewModelParser
-    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+    extend self
+    include BaseParser
+
+    def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["lockupViewModel"]?
         return self.parse(item_contents, author_fallback)
       end
     end
 
-    private def self.parse(item_contents, author_fallback)
+    private def parse_internal(item_contents, author_fallback)
       playlist_id = item_contents["contentId"].as_s
 
       thumbnail_view_model = item_contents.dig(
@@ -675,13 +715,16 @@ private module Parsers
   # usually (always?) encapsulated in a richItemRenderer.
   #
   module ShortsLockupViewModelParser
-    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+    extend self
+    include BaseParser
+
+    def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["shortsLockupViewModel"]?
         return self.parse(item_contents, author_fallback)
       end
     end
 
-    private def self.parse(item_contents, author_fallback)
+    private def parse_internal(item_contents, author_fallback)
       # TODO: Maybe add support for "oardefault.jpg" thumbnails?
       # thumbnail = item_contents.dig("thumbnail", "sources", 0, "url").as_s
       # Gives: https://i.ytimg.com/vi/{video_id}/oardefault.jpg?...

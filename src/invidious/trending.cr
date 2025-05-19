@@ -32,14 +32,14 @@ def fetch_trending(trending_type, region, locale, env)
       # See: https://github.com/iv-org/invidious/issues/2989
       next if (itm.contents.size < 24 && deduplicate)
 
-      extracted.concat extract_category(itm)
+      extracted.concat itm.contents.select(SearchItem)
     else
       extracted << itm
     end
   end
 
   # Deduplicate items before returning results
-  return extracted.select(SearchVideo).uniq!(&.id), plid
+  return extracted.select(SearchVideo | ProblematicTimelineItem).uniq!(&.id), plid
 end
 
 def fetch_subscription_related_videoids(env, region, locale)
