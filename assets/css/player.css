@@ -71,10 +71,8 @@
   padding-top: 2em
 }
 
-.video-js.player-style-youtube .vjs-progress-control .vjs-progress-holder, .video-js.player-style-youtube .vjs-progress-control {
-  height: 5px;
-  margin-bottom: 10px;
-}
+.video-js.player-style-youtube .vjs-progress-control .vjs-progress-holder, .video-js.player-style-youtube .vjs-progress-control {height: 5px;
+margin-bottom: 10px;}
 
 ul.vjs-menu-content::-webkit-scrollbar {
   display: none;
