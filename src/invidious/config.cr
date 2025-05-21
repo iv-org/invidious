@@ -111,13 +111,29 @@ class Config
 
   # Used to tell Invidious it is behind a proxy, so links to resources should be https://
   property https_only : Bool?
+
   # HMAC signing key for CSRF tokens and verifying pubsub subscriptions
   property hmac_key : String = ""
   # Domain to be used for links to resources on the site where an absolute URL is required
   property domain : String?
   # Subscribe to channels using PubSubHubbub (requires domain, hmac_key)
   property use_pubsub_feeds : Bool | Int32 = false
-  property pages_enabled : Hash(String, Bool) = {"trending" => true, "popular" => true, "search" => true}
+
+  # —————————————————————————————————————————————————————————————————————————————————————
+  # DEPRECATED: use `pages_enabled["popular"]` instead.
+  @[Deprecated("`popular_enabled` will be removed in a future release; use pages_enabled[\"popular\"] instead")]
+  property popular_enabled : Bool = true
+
+  # Global per-page feature toggles.
+  # Valid keys: "trending", "popular", "search"
+  # If someone sets both `popular_enabled` and `pages_enabled["popular"]`, the latter takes precedence.
+  property pages_enabled : Hash(String, Bool) = {
+    "trending" => true,
+    "popular"  => true,
+    "search"   => true,
+  }
+  # —————————————————————————————————————————————————————————————————————————————————————
+
   property captcha_enabled : Bool = true
   property login_enabled : Bool = true
   property registration_enabled : Bool = true
@@ -188,18 +204,21 @@ class Config
     when Bool
       return disabled
     when Array
-      if disabled.includes? option
-        return true
-      else
-        return false
-      end
+      disabled.includes?(option)
     else
-      return false
+      false
     end
   end
 
+  # Centralized page toggle with legacy fallback for `popular_enabled`
   def page_enabled?(page : String) : Bool
-    @pages_enabled[page]? || false
+    if pages_enabled.has_key?(page)
+      pages_enabled[page]
+    elsif page == "popular"
+      popular_enabled
+    else
+      true
+    end
   end
 
   def self.load

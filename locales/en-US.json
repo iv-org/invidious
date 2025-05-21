@@ -504,5 +504,7 @@
     "preferences_search_enabled_label": "Search enabled: ",
     "timeline_parse_error_placeholder_heading": "Unable to parse item",
     "timeline_parse_error_placeholder_message": "Invidious encountered an error while trying to parse this item. For more information see below:",
-    "timeline_parse_error_show_technical_details": "Show technical details"
+    "timeline_parse_error_show_technical_details": "Show technical details",
+    "Search has been disabled by the administrator.": "Search has been disabled by the administrator.",
+    "This helps protect our community. Learn more": "This helps protect our community. Learn more"
 }
