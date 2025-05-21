@@ -1,13 +1,13 @@
 <% if user %>
     <% if subscriptions.includes? ucid %>
-            <form action="/subscription_ajax?action_remove_subscriptions=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>" method="post">
+            <form action="/subscription_ajax?action=remove_subscriptions&c=<%= ucid %>&referer=<%= env.get("current_page") %>" method="post">
                 <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
                 <button data-type="unsubscribe" id="subscribe" class="pure-button pure-button-primary">
                     <b><input style="all:unset" type="submit" value="<%= translate(locale, "Unsubscribe") %> | <%= sub_count_text %>"></b>
                 </button>
             </form>
     <% else %>
-            <form action="/subscription_ajax?action_create_subscription_to_channel=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>" method="post">
+            <form action="/subscription_ajax?action=create_subscription_to_channel&c=<%= ucid %>&referer=<%= env.get("current_page") %>" method="post">
                 <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
                 <button data-type="subscribe" id="subscribe" class="pure-button pure-button-primary">
                     <b><input style="all:unset" type="submit" value="<%= translate(locale, "Subscribe") %> | <%= sub_count_text %>"></b>

@@ -21,7 +21,7 @@ module Invidious::Routes::VideoPlayback
     end
 
     # Sanity check, to avoid being used as an open proxy
-    if !host.matches?(/[\w-]+.googlevideo.com/)
+    if !host.matches?(/[\w-]+\.(?:googlevideo|c\.youtube)\.com/)
       return error_template(400, "Invalid \"host\" parameter.")
     end
 
@@ -37,7 +37,8 @@ module Invidious::Routes::VideoPlayback
 
     # See: https://github.com/iv-org/invidious/issues/3302
     range_header = env.request.headers["Range"]?
-    if range_header.nil?
+    sq = query_params["sq"]?
+    if range_header.nil? && sq.nil?
       range_for_head = query_params["range"]? || "0-640"
       headers["Range"] = "bytes=#{range_for_head}"
     end
@@ -164,10 +165,13 @@ module Invidious::Routes::VideoPlayback
               env.response.headers["Access-Control-Allow-Origin"] = "*"
 
               if location = resp.headers["Location"]?
-                location = URI.parse(location)
-                location = "#{location.request_target}&host=#{location.host}#{region ? "&region=#{region}" : ""}"
+                url = Invidious::HttpServer::Utils.proxy_video_url(location, region: region)
 
-                env.redirect location
+                if title = query_params["title"]?
+                  url = "#{url}&title=#{URI.encode_www_form(title)}"
+                end
+
+                env.redirect url
                 break
               end
 
@@ -253,6 +257,11 @@ module Invidious::Routes::VideoPlayback
   # YouTube /videoplayback links expire after 6 hours,
   # so we have a mechanism here to redirect to the latest version
   def self.latest_version(env)
+    if CONFIG.invidious_companion.present?
+      invidious_companion = CONFIG.invidious_companion.sample
+      return env.redirect "#{invidious_companion.public_url}/latest_version?#{env.params.query}"
+    end
+
     id = env.params.query["id"]?
     itag = env.params.query["itag"]?.try &.to_i?
 

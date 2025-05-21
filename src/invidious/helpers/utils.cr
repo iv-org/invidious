@@ -262,7 +262,7 @@ def get_referer(env, fallback = "/", unroll = true)
   end
 
   referer = referer.request_target
-  referer = "/" + referer.gsub(/[^\/?@&%=\-_.:,*0-9a-zA-Z]/, "").lstrip("/\\")
+  referer = "/" + referer.gsub(/[^\/?@&%=\-_.:,*0-9a-zA-Z+]/, "").lstrip("/\\")
 
   if referer == env.request.path
     referer = fallback
@@ -382,4 +382,23 @@ def parse_link_endpoint(endpoint : JSON::Any, text : String, video_id : String)
     end
   end
   return text
+end
+
+def encrypt_ecb_without_salt(data, key)
+  cipher = OpenSSL::Cipher.new("aes-128-ecb")
+  cipher.encrypt
+  cipher.key = key
+
+  io = IO::Memory.new
+  io.write(cipher.update(data))
+  io.write(cipher.final)
+  io.rewind
+
+  return io
+end
+
+def invidious_companion_encrypt(data)
+  timestamp = Time.utc.to_unix
+  encrypted_data = encrypt_ecb_without_salt("#{timestamp}|#{data}", CONFIG.invidious_companion_key)
+  return Base64.urlsafe_encode(encrypted_data)
 end

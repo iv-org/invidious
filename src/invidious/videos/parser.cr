@@ -36,6 +36,13 @@ def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
 
   LOGGER.trace("parse_related_video: Found \"watchNextEndScreenRenderer\" container")
 
+  if published_time_text = related["publishedTimeText"]?
+    decoded_time = decode_date(published_time_text["simpleText"].to_s)
+    published = decoded_time.to_rfc3339.to_s
+  else
+    published = nil
+  end
+
   # TODO: when refactoring video types, make a struct for related videos
   # or reuse an existing type, if that fits.
   return {
@@ -47,6 +54,7 @@ def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
     "view_count"       => JSON::Any.new(view_count || "0"),
     "short_view_count" => JSON::Any.new(short_view_count || "0"),
     "author_verified"  => JSON::Any.new(author_verified),
+    "published"        => JSON::Any.new(published || ""),
   }
 end
 
@@ -100,27 +108,22 @@ def extract_video_info(video_id : String)
   params = parse_video_info(video_id, player_response)
   params["reason"] = JSON::Any.new(reason) if reason
 
-  new_player_response = nil
-
-  # Don't use Android test suite client if po_token is passed because po_token doesn't
-  # work for Android test suite client.
-  if reason.nil? && CONFIG.po_token.nil?
-    # Fetch the video streams using an Android client in order to get the
-    # decrypted URLs and maybe fix throttling issues (#2194). See the
-    # following issue for an explanation about decrypted URLs:
-    # https://github.com/TeamNewPipe/NewPipeExtractor/issues/562
-    client_config.client_type = YoutubeAPI::ClientType::AndroidTestSuite
-    new_player_response = try_fetch_streaming_data(video_id, client_config)
-  end
-
-  # Replace player response and reset reason
-  if !new_player_response.nil?
-    # Preserve captions & storyboard data before replacement
-    new_player_response["storyboards"] = player_response["storyboards"] if player_response["storyboards"]?
-    new_player_response["captions"] = player_response["captions"] if player_response["captions"]?
-
-    player_response = new_player_response
-    params.delete("reason")
+  if !CONFIG.invidious_companion.present?
+    if player_response["streamingData"]? && player_response.dig?("streamingData", "adaptiveFormats", 0, "url").nil?
+      LOGGER.warn("Missing URLs for adaptive formats, falling back to other YT clients.")
+      players_fallback = [YoutubeAPI::ClientType::TvHtml5, YoutubeAPI::ClientType::WebMobile]
+      players_fallback.each do |player_fallback|
+        client_config.client_type = player_fallback
+        player_fallback_response = try_fetch_streaming_data(video_id, client_config)
+        if player_fallback_response && player_fallback_response["streamingData"]? &&
+           player_fallback_response.dig?("streamingData", "adaptiveFormats", 0, "url")
+          streaming_data = player_response["streamingData"].as_h
+          streaming_data["adaptiveFormats"] = player_fallback_response["streamingData"]["adaptiveFormats"]
+          player_response["streamingData"] = JSON::Any.new(streaming_data)
+          break
+        end
+      end
+    end
   end
 
   {"captions", "playabilityStatus", "playerConfig", "storyboards"}.each do |f|

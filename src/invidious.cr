@@ -17,10 +17,8 @@
 require "digest/md5"
 require "file_utils"
 
-# Require kemal, kilt, then our own overrides
+# Require kemal, then our own overrides
 require "kemal"
-require "kilt"
-require "./ext/kemal_content_for.cr"
 require "./ext/kemal_static_file_handler.cr"
 
 require "http_proxy"
@@ -49,7 +47,8 @@ require "./invidious/channels/*"
 require "./invidious/user/*"
 require "./invidious/search/*"
 require "./invidious/routes/**"
-require "./invidious/jobs/**"
+require "./invidious/jobs/base_job"
+require "./invidious/jobs/*"
 
 # Declare the base namespace for invidious
 module Invidious
@@ -96,6 +95,10 @@ YT_POOL = YoutubeConnectionPool.new(YT_URL, capacity: CONFIG.pool_size)
 # Image request pool
 
 GGPHT_POOL = YoutubeConnectionPool.new(URI.parse("https://yt3.ggpht.com"), capacity: CONFIG.pool_size)
+
+COMPANION_POOL = CompanionConnectionPool.new(
+  capacity: CONFIG.pool_size
+)
 
 # CLI
 Kemal.config.extra_options do |parser|
@@ -192,8 +195,9 @@ if CONFIG.page_enabled?("popular")
   Invidious::Jobs.register Invidious::Jobs::PullPopularVideosJob.new(PG_DB)
 end
 
-CONNECTION_CHANNEL = ::Channel({Bool, ::Channel(PQ::Notification)}).new(32)
-Invidious::Jobs.register Invidious::Jobs::NotificationJob.new(CONNECTION_CHANNEL, CONFIG.database_url)
+NOTIFICATION_CHANNEL = ::Channel(VideoNotification).new(32)
+CONNECTION_CHANNEL   = ::Channel({Bool, ::Channel(PQ::Notification)}).new(32)
+Invidious::Jobs.register Invidious::Jobs::NotificationJob.new(NOTIFICATION_CHANNEL, CONNECTION_CHANNEL, CONFIG.database_url)
 
 Invidious::Jobs.register Invidious::Jobs::ClearExpiredItemsJob.new
 
@@ -221,8 +225,8 @@ error 500 do |env, ex|
   error_template(500, ex)
 end
 
-static_headers do |response|
-  response.headers.add("Cache-Control", "max-age=2629800")
+static_headers do |env|
+  env.response.headers.add("Cache-Control", "max-age=2629800")
 end
 
 # Init Kemal
@@ -239,8 +243,6 @@ add_context_storage_type(Preferences)
 add_context_storage_type(Invidious::User)
 
 Kemal.config.logger = LOGGER
-Kemal.config.host_binding = Kemal.config.host_binding != "0.0.0.0" ? Kemal.config.host_binding : CONFIG.host_binding
-Kemal.config.port = Kemal.config.port != 3000 ? Kemal.config.port : CONFIG.port
 Kemal.config.app_name = "Invidious"
 
 # Use in kemal's production mode.
@@ -249,4 +251,16 @@ Kemal.config.app_name = "Invidious"
   Kemal.config.env = "production" if !ENV.has_key?("KEMAL_ENV")
 {% end %}
 
-Kemal.run
+Kemal.run do |config|
+  if socket_binding = CONFIG.socket_binding
+    File.delete?(socket_binding.path)
+    # Create a socket and set its desired permissions
+    server = UNIXServer.new(socket_binding.path)
+    perms = socket_binding.permissions.to_i(base: 8)
+    File.chmod(socket_binding.path, perms)
+    config.server.not_nil!.bind server
+  else
+    Kemal.config.host_binding = Kemal.config.host_binding != "0.0.0.0" ? Kemal.config.host_binding : CONFIG.host_binding
+    Kemal.config.port = Kemal.config.port != 3000 ? Kemal.config.port : CONFIG.port
+  end
+end

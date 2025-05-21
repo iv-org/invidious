@@ -8,6 +8,13 @@ struct DBConfig
   property dbname : String
 end
 
+struct SocketBindingConfig
+  include YAML::Serializable
+
+  property path : String
+  property permissions : String
+end
+
 struct ConfigPreferences
   include YAML::Serializable
 
@@ -28,7 +35,7 @@ struct ConfigPreferences
   property max_results : Int32 = 40
   property notifications_only : Bool = false
   property player_style : String = "invidious"
-  property quality : String = "hd720"
+  property quality : String = "dash"
   property quality_dash : String = "auto"
   property default_home : String? = "Popular"
   property feed_menu : Array(String) = ["Popular", "Trending", "Subscriptions", "Playlists"]
@@ -66,6 +73,16 @@ end
 
 class Config
   include YAML::Serializable
+
+  class CompanionConfig
+    include YAML::Serializable
+
+    @[YAML::Field(converter: Preferences::URIConverter)]
+    property private_url : URI = URI.parse("")
+
+    @[YAML::Field(converter: Preferences::URIConverter)]
+    property public_url : URI = URI.parse("")
+  end
 
   # Number of threads to use for crawling videos from channels (for updating subscriptions)
   property channel_threads : Int32 = 1
@@ -138,6 +155,8 @@ class Config
   property port : Int32 = 3000
   # Host to bind (overridden by command line argument)
   property host_binding : String = "0.0.0.0"
+  # Path and permissions to make Invidious listen on a UNIX socket instead of a TCP port
+  property socket_binding : SocketBindingConfig? = nil
   # Pool size for HTTP requests to youtube.com and ytimg.com (each domain has a separate pool of `pool_size`)
   property pool_size : Int32 = 100
   # HTTP Proxy configuration
@@ -150,6 +169,12 @@ class Config
   property visitor_data : String? = nil
   # poToken for passing bot attestation
   property po_token : String? = nil
+
+  # Invidious companion
+  property invidious_companion : Array(CompanionConfig) = [] of CompanionConfig
+
+  # Invidious companion API key
+  property invidious_companion_key : String = ""
 
   # Saved cookies in "name1=value1; name2=value2..." format
   @[YAML::Field(converter: Preferences::StringToCookies)]
@@ -188,6 +213,9 @@ class Config
     config = Config.from_yaml(config_yaml)
 
     # Update config from env vars (upcased and prefixed with "INVIDIOUS_")
+    #
+    # Also checks if any top-level config options are set to "CHANGE_ME!!"
+    # TODO: Support non-top-level config options such as the ones in DBConfig
     {% for ivar in Config.instance_vars %}
         {% env_id = "INVIDIOUS_#{ivar.id.upcase}" %}
 
@@ -224,15 +252,39 @@ class Config
                 exit(1)
             end
         end
+
+        # Warn when any config attribute is set to "CHANGE_ME!!"
+        if config.{{ivar.id}} == "CHANGE_ME!!"
+          puts "Config: The value of '#{ {{ivar.stringify}} }' needs to be changed!!"
+          exit(1)
+        end
     {% end %}
+
+    if config.invidious_companion.present?
+      # invidious_companion and signature_server can't work together
+      if config.signature_server
+        puts "Config: You can not run inv_sig_helper and invidious_companion at the same time."
+        exit(1)
+      elsif config.invidious_companion_key.empty?
+        puts "Config: Please configure a key if you are using invidious companion."
+        exit(1)
+      elsif config.invidious_companion_key == "CHANGE_ME!!"
+        puts "Config: The value of 'invidious_companion_key' needs to be changed!!"
+        exit(1)
+      elsif config.invidious_companion_key.size != 16
+        puts "Config: The value of 'invidious_companion_key' needs to be a size of 16 characters."
+        exit(1)
+      end
+    elsif config.signature_server
+      puts("WARNING: inv-sig-helper is deprecated. Please switch to Invidious companion: https://docs.invidious.io/companion-installation/")
+    else
+      puts("WARNING: Invidious companion is required to view and playback videos. For more information see https://docs.invidious.io/companion-installation/")
+    end
 
     # HMAC_key is mandatory
     # See: https://github.com/iv-org/invidious/issues/3854
     if config.hmac_key.empty?
       puts "Config: 'hmac_key' is required/can't be empty"
-      exit(1)
-    elsif config.hmac_key == "CHANGE_ME!!"
-      puts "Config: The value of 'hmac_key' needs to be changed!!"
       exit(1)
     end
 
@@ -249,6 +301,24 @@ class Config
         )
       else
         puts "Config: Either database_url or db.* is required"
+        exit(1)
+      end
+    end
+
+    # Check if the socket configuration is valid
+    if sb = config.socket_binding
+      if sb.path.ends_with?("/") || File.directory?(sb.path)
+        puts "Config: The socket path " + sb.path + " must not be a directory!"
+        exit(1)
+      end
+      d = File.dirname(sb.path)
+      if !File.directory?(d)
+        puts "Config: Socket directory " + sb.path + " does not exist or is not a directory!"
+        exit(1)
+      end
+      p = sb.permissions.to_i?(base: 8)
+      if !p || p < 0 || p > 0o777
+        puts "Config: Socket permissions must be an octal between 0 and 777!"
         exit(1)
       end
     end

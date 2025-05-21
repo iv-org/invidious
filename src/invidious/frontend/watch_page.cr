@@ -13,7 +13,7 @@ module Invidious::Frontend::WatchPage
       @full_videos,
       @video_streams,
       @audio_streams,
-      @captions
+      @captions,
     )
     end
   end
@@ -23,10 +23,16 @@ module Invidious::Frontend::WatchPage
       return "<p id=\"download\">#{translate(locale, "Download is disabled")}</p>"
     end
 
+    url = "/download"
+    if (CONFIG.invidious_companion.present?)
+      invidious_companion = CONFIG.invidious_companion.sample
+      url = "#{invidious_companion.public_url}/download?check=#{invidious_companion_encrypt(video.id)}"
+    end
+
     return String.build(4000) do |str|
       str << "<form"
       str << " class=\"pure-form pure-form-stacked\""
-      str << " action='/download'"
+      str << " action='#{url}'"
       str << " method='post'"
       str << " rel='noopener'"
       str << " target='_blank'>"

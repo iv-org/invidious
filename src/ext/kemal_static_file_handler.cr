@@ -71,7 +71,7 @@ def send_file(env : HTTP::Server::Context, file_path : String, data : Slice(UInt
   filesize = data.bytesize
   attachment(env, filename, disposition)
 
-  Kemal.config.static_headers.try(&.call(env.response, file_path, filestat))
+  Kemal.config.static_headers.try(&.call(env, file_path, filestat))
 
   file = IO::Memory.new(data)
   if env.request.method == "GET" && env.request.headers.has_key?("Range")

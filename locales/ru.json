@@ -11,6 +11,7 @@
     "last": "последние",
     "Next page": "Следующая страница",
     "Previous page": "Предыдущая страница",
+    "First page": "Первая страница",
     "Clear watch history?": "Очистить историю просмотров?",
     "New password": "Новый пароль",
     "New passwords must match": "Новые пароли не совпадают",
@@ -48,8 +49,8 @@
     "preferences_category_player": "Настройки проигрывателя",
     "preferences_video_loop_label": "Всегда повторять: ",
     "preferences_autoplay_label": "Автовоспроизведение: ",
-    "preferences_continue_label": "Переходить к следующему видео? ",
-    "preferences_continue_autoplay_label": "Автопроигрывание следующего видео: ",
+    "preferences_continue_label": "Воспроизводить следующее видео: ",
+    "preferences_continue_autoplay_label": "Автовоспроизведение следующего видео: ",
     "preferences_listen_label": "Режим «только аудио» по умолчанию: ",
     "preferences_local_label": "Проигрывать видео через прокси? ",
     "preferences_speed_label": "Скорость видео по умолчанию: ",
@@ -474,7 +475,7 @@
     "search_filters_date_option_none": "Любая дата",
     "search_filters_date_label": "Дата загрузки",
     "search_message_no_results": "Ничего не найдено.",
-    "search_message_use_another_instance": " Дополнительно вы можете <a href=\"`x`\">поискать на других зеркалах</a>.",
+    "search_message_use_another_instance": "Дополнительно вы можете <a href=\"`x`\">поискать на других зеркалах</a>.",
     "search_filters_features_option_vr180": "VR180",
     "search_message_change_filters_or_query": "Попробуйте расширить поисковый запрос и/или изменить фильтры.",
     "search_filters_duration_option_medium": "Средние (4 - 20 минут)",
@@ -513,5 +514,8 @@
     "toggle_theme": "Переключатель тем",
     "carousel_slide": "Пролистано {{current}} из {{total}}",
     "carousel_skip": "Пропустить всё",
-    "carousel_go_to": "Перейти к странице `x`"
+    "carousel_go_to": "Перейти к странице `x`",
+    "preferences_preload_label": "Предзагрузка видеоданных: ",
+    "channel_tab_courses_label": "Курсы",
+    "channel_tab_posts_label": "Записи"
 }

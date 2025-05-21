@@ -121,9 +121,11 @@ module Invidious::Routes::Watch
     adaptive_fmts = video.adaptive_fmts
 
     if params.local
-      fmt_stream.each { |fmt| fmt["url"] = JSON::Any.new(URI.parse(fmt["url"].as_s).request_target) }
-      adaptive_fmts.each { |fmt| fmt["url"] = JSON::Any.new(URI.parse(fmt["url"].as_s).request_target) }
+      fmt_stream.each { |fmt| fmt["url"] = JSON::Any.new(HttpServer::Utils.proxy_video_url(fmt["url"].as_s)) }
     end
+
+    # Always proxy DASH streams, otherwise youtube CORS headers will prevent playback
+    adaptive_fmts.each { |fmt| fmt["url"] = JSON::Any.new(HttpServer::Utils.proxy_video_url(fmt["url"].as_s)) }
 
     video_streams = video.video_streams
     audio_streams = video.audio_streams
@@ -190,6 +192,14 @@ module Invidious::Routes::Watch
       captions: video.captions
     )
 
+    if CONFIG.invidious_companion.present?
+      invidious_companion = CONFIG.invidious_companion.sample
+      env.response.headers["Content-Security-Policy"] =
+        env.response.headers["Content-Security-Policy"]
+          .gsub("media-src", "media-src #{invidious_companion.public_url}")
+          .gsub("connect-src", "connect-src #{invidious_companion.public_url}")
+    end
+
     templated "watch"
   end
 
@@ -241,18 +251,10 @@ module Invidious::Routes::Watch
       end
     end
 
-    if env.params.query["action_mark_watched"]?
-      action = "action_mark_watched"
-    elsif env.params.query["action_mark_unwatched"]?
-      action = "action_mark_unwatched"
-    else
-      return env.redirect referer
-    end
-
-    case action
-    when "action_mark_watched"
+    case action = env.params.query["action"]?
+    when "mark_watched"
       Invidious::Database::Users.mark_watched(user, id)
-    when "action_mark_unwatched"
+    when "mark_unwatched"
       Invidious::Database::Users.mark_unwatched(user, id)
     else
       return error_json(400, "Unsupported action #{action}")
@@ -291,6 +293,9 @@ module Invidious::Routes::Watch
     if CONFIG.disabled?("downloads")
       return error_template(403, "Administrator has disabled this endpoint.")
     end
+    if CONFIG.invidious_companion.present?
+      return error_template(403, "Downloads should be routed through Companion when present")
+    end
 
     title = env.params.body["title"]? || ""
     video_id = env.params.body["id"]? || ""
@@ -320,10 +325,9 @@ module Invidious::Routes::Watch
       env.params.query["label"] = URI.decode_www_form(label.as_s)
 
       return Invidious::Routes::API::V1::Videos.captions(env)
-    elsif itag = download_widget["itag"]?.try &.as_i
+    elsif itag = download_widget["itag"]?.try &.as_i.to_s
       # URL params specific to /latest_version
       env.params.query["id"] = video_id
-      env.params.query["itag"] = itag.to_s
       env.params.query["title"] = filename
       env.params.query["local"] = "true"
 

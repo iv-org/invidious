@@ -45,10 +45,42 @@ module Invidious::Routes::Search
 
       query = Invidious::Search::Query.new(env.params.query, :regular, region)
 
-      if query.empty?
-        # Display the full page search box implemented in #1977
-        env.set "search", ""
-        templated "search_homepage", navbar_search: false
+    if query.empty?
+      # Display the full page search box implemented in #1977
+      env.set "search", ""
+      templated "search_homepage", navbar_search: false
+    else
+      user = env.get? "user"
+
+      # An URL was copy/pasted in the search box.
+      # Redirect the user to the appropriate page.
+      if query.url?
+        return env.redirect UrlSanitizer.process(query.text).to_s
+      end
+
+      begin
+        if user
+          items = query.process(user.as(User))
+        else
+          items = query.process
+        end
+      rescue ex : ChannelSearchException
+        return error_template(404, "Unable to find channel with id of '#{HTML.escape(ex.channel)}'. Are you sure that's an actual channel id? It should look like 'UC4QobU6STFB0P71PMvOGN5A'.")
+      rescue ex
+        return error_template(500, ex)
+      end
+
+      redirect_url = Invidious::Frontend::Misc.redirect_url(env)
+
+      # Pagination
+      page_nav_html = Frontend::Pagination.nav_numeric(locale,
+        base_url: "/search?#{query.to_http_params}",
+        current_page: query.page,
+        show_next: (items.size >= 20)
+      )
+
+      if query.type == Invidious::Search::Query::Type::Channel
+        env.set "search", "channel:#{query.channel} #{query.text}"
       else
         user = env.get? "user"
 

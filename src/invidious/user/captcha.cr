@@ -4,8 +4,6 @@ struct Invidious::User
   module Captcha
     extend self
 
-    private TEXTCAPTCHA_URL = URI.parse("https://textcaptcha.com")
-
     def generate_image(key)
       second = Random::Secure.rand(12)
       second_angle = second * 30
@@ -58,20 +56,6 @@ struct Invidious::User
       return {
         question: image,
         tokens:   {generate_response(answer, {":login"}, key, use_nonce: true)},
-      }
-    end
-
-    def generate_text(key)
-      response = make_client(TEXTCAPTCHA_URL, &.get("/github.com/iv.org/invidious.json").body)
-      response = JSON.parse(response)
-
-      tokens = response["a"].as_a.map do |answer|
-        generate_response(answer.as_s, {":login"}, key, use_nonce: true)
-      end
-
-      return {
-        question: response["q"].as_s,
-        tokens:   tokens,
       }
     end
   end

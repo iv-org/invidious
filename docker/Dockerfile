@@ -1,4 +1,4 @@
-FROM crystallang/crystal:1.12.2-alpine AS builder
+FROM crystallang/crystal:1.16.3-alpine AS builder
 
 RUN apk add --no-cache sqlite-static yaml-static
 
@@ -21,7 +21,7 @@ COPY ./videojs-dependencies.yml ./videojs-dependencies.yml
 
 RUN crystal spec --warnings all \
     --link-flags "-lxml2 -llzma"    
-RUN if [[ "${release}" == 1 ]] ; then \
+RUN --mount=type=cache,target=/root/.cache/crystal if [[ "${release}" == 1 ]] ; then \
         crystal build ./src/invidious.cr \
         --release \
         --static --warnings all \
@@ -32,7 +32,7 @@ RUN if [[ "${release}" == 1 ]] ; then \
         --link-flags "-lxml2 -llzma"; \
     fi
 
-FROM alpine:3.20
+FROM alpine:3.21
 RUN apk add --no-cache rsvg-convert ttf-opensans tini tzdata
 WORKDIR /invidious
 RUN addgroup -g 1000 -S invidious && \
