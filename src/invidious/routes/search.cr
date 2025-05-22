@@ -70,6 +70,8 @@ module Invidious::Routes::Search
       return error_template 500, ex
     end
 
+    redirect_url = Invidious::Frontend::Misc.redirect_url(env)
+
     # Pagination
     page_nav_html = Frontend::Pagination.nav_numeric(locale,
       base_url: "/search?#{query.to_http_params}",

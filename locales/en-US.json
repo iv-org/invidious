@@ -4,6 +4,7 @@
     "Answer": "Answer",
     "Search for videos": "Search for videos",
     "The Popular feed has been disabled by the administrator.": "The Popular feed has been disabled by the administrator.",
+    "The Trending feed has been disabled by the administrator": "The Trending feed has been disabled by the administrator",
     "generic_channels_count": "{{count}} channel",
     "generic_channels_count_plural": "{{count}} channels",
     "generic_views_count": "{{count}} view",
