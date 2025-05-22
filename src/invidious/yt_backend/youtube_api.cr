@@ -18,8 +18,8 @@ module YoutubeAPI
   # For iOS versions, see https://en.wikipedia.org/wiki/IOS_version_history#Releases,
   # then go to the dedicated article of the major version you want.
   private IOS_APP_VERSION = "20.11.6"
-  private IOS_USER_AGENT  = "com.google.ios.youtube/#{IOS_APP_VERSION} (iPhone14,5; U; CPU iOS 17_6 like Mac OS X;)"
-  private IOS_VERSION     = "17.6.1.21G93" # Major.Minor.Patch.Build
+  private IOS_USER_AGENT  = "com.google.ios.youtube/#{IOS_APP_VERSION} (iPhone14,5; U; CPU iOS 18_5 like Mac OS X;)"
+  private IOS_VERSION     = "18.5.0.22F76" # Major.Minor.Patch.Build
 
   private WINDOWS_VERSION = "10.0"
 
