@@ -6,10 +6,10 @@ module YoutubeAPI
   extend self
 
   # For Android versions, see https://en.wikipedia.org/wiki/Android_version_history
-  private ANDROID_APP_VERSION = "19.32.34"
-  private ANDROID_VERSION     = "12"
+  private ANDROID_APP_VERSION = "19.35.36"
+  private ANDROID_VERSION     = "13"
   private ANDROID_USER_AGENT  = "com.google.android.youtube/#{ANDROID_APP_VERSION} (Linux; U; Android #{ANDROID_VERSION}; US) gzip"
-  private ANDROID_SDK_VERSION = 31_i64
+  private ANDROID_SDK_VERSION = 33_i64
 
   private ANDROID_TS_APP_VERSION = "1.9"
   private ANDROID_TS_USER_AGENT  = "com.google.android.youtube/1.9 (Linux; U; Android 12; US) gzip"
@@ -49,7 +49,7 @@ module YoutubeAPI
     ClientType::Web => {
       name:       "WEB",
       name_proto: "1",
-      version:    "2.20240814.00.00",
+      version:    "2.20250222.10.00",
       screen:     "WATCH_FULL_SCREEN",
       os_name:    "Windows",
       os_version: WINDOWS_VERSION,
@@ -58,7 +58,7 @@ module YoutubeAPI
     ClientType::WebEmbeddedPlayer => {
       name:       "WEB_EMBEDDED_PLAYER",
       name_proto: "56",
-      version:    "1.20240812.01.00",
+      version:    "1.20250219.01.00",
       screen:     "EMBED",
       os_name:    "Windows",
       os_version: WINDOWS_VERSION,
@@ -67,7 +67,7 @@ module YoutubeAPI
     ClientType::WebMobile => {
       name:       "MWEB",
       name_proto: "2",
-      version:    "2.20240813.02.00",
+      version:    "2.20250224.01.00",
       os_name:    "Android",
       os_version: ANDROID_VERSION,
       platform:   "MOBILE",
@@ -75,7 +75,7 @@ module YoutubeAPI
     ClientType::WebScreenEmbed => {
       name:       "WEB",
       name_proto: "1",
-      version:    "2.20240814.00.00",
+      version:    "2.20250222.10.00",
       screen:     "EMBED",
       os_name:    "Windows",
       os_version: WINDOWS_VERSION,
@@ -84,7 +84,7 @@ module YoutubeAPI
     ClientType::WebCreator => {
       name:       "WEB_CREATOR",
       name_proto: "62",
-      version:    "1.20240918.03.00",
+      version:    "1.20241203.01.00",
       os_name:    "Windows",
       os_version: WINDOWS_VERSION,
       platform:   "DESKTOP",
@@ -170,7 +170,7 @@ module YoutubeAPI
     ClientType::TvHtml5 => {
       name:       "TVHTML5",
       name_proto: "7",
-      version:    "7.20240813.07.00",
+      version:    "7.20250219.14.00",
     },
     ClientType::TvHtml5ScreenEmbed => {
       name:       "TVHTML5_SIMPLY_EMBEDDED_PLAYER",
