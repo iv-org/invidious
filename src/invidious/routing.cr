@@ -21,6 +21,7 @@ module Invidious::Routing
       get "/privacy", Routes::Misc, :privacy
       get "/licenses", Routes::Misc, :licenses
       get "/redirect", Routes::Misc, :cross_instance_redirect
+      get "/css/theme.css", Routes::Misc, :theme_css
 
       self.register_channel_routes
       self.register_watch_routes

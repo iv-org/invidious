@@ -1,0 +1,81 @@
+/* Contains the CSS for the Invidious dark theme
+
+--------
+This file should not get loaded by the user as the css here will be used
+to generate theme.css as to support user-agent dark/light theme
+in addition to the class-based swap method without duplicating any styles.
+------
+
+*/
+
+.dark-theme a:hover,
+.dark-theme a:active,
+.dark-theme summary:hover,
+.dark-theme a:focus,
+.dark-theme summary:focus {
+  color: rgb(0, 182, 240);
+}
+
+.dark-theme .pure-button-primary:hover,
+.dark-theme .pure-button-primary:focus,
+.dark-theme .pure-button-secondary:hover,
+.dark-theme .pure-button-secondary:focus {
+  color: #fff !important;
+  border-color: rgb(0, 182, 240) !important;
+  background-color: rgba(0, 182, 240, 1) !important;
+}
+
+.dark-theme .pure-button-secondary {
+  background-color: #0002;
+  color: #ddd;
+}
+
+.dark-theme a {
+  color: #adadad;
+  text-decoration: none;
+}
+
+body.dark-theme {
+  background-color: rgba(35, 35, 35, 1);
+  color: #f0f0f0;
+}
+
+.dark-theme .pure-form legend,
+.dark-theme .pure-menu-heading  {
+  color: #f0f0f0;
+}
+
+.dark-theme input,
+.dark-theme select,
+.dark-theme textarea {
+  color: rgba(35, 35, 35, 1);
+}
+
+.dark-theme .pure-form input[type="file"] {
+  color: #f0f0f0;
+}
+
+.dark-theme .searchbar input {
+  background-color: inherit;
+  color: inherit;
+}
+
+.dark-theme .error-card {
+  border: 1px solid #5e5e5e;
+}
+
+.dark-theme footer {
+  color: #adadad;
+}
+
+.dark-theme footer a {
+  color: #adadad !important;
+}
+
+.dark-theme #filters-box {
+	background: #373737;
+}
+
+.dark-theme .slider-nav  {
+  background-color: #0005;
+}
