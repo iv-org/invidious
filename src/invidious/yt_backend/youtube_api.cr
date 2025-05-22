@@ -8,7 +8,7 @@ module YoutubeAPI
   # For Android versions, see https://en.wikipedia.org/wiki/Android_version_history
   private ANDROID_APP_VERSION = "19.35.36"
   private ANDROID_VERSION     = "13"
-  private ANDROID_USER_AGENT  = "com.google.android.youtube/#{ANDROID_APP_VERSION} (Linux; U; Android #{ANDROID_VERSION}; US) gzip"
+  private ANDROID_USER_AGENT  = "com.google.android.youtube/#{ANDROID_APP_VERSION} (Linux; U; Android #{ANDROID_VERSION}; en_US; SM-S908E Build/TP1A.220624.014) gzip"
   private ANDROID_SDK_VERSION = 33_i64
 
   private ANDROID_TS_APP_VERSION = "1.9"
