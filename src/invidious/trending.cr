@@ -6,14 +6,17 @@ def fetch_trending(trending_type, region, locale, env)
 
   case trending_type.try &.downcase
   when "music"
-    # params = "4gINGgt5dG1hX2NoYXJ0cw%3D%3D"
-    return fetch_subscription_related_videoids(env, region, locale)
+    params = "4gINGgt5dG1hX2NoYXJ0cw%3D%3D"
   when "gaming"
     params = "4gIcGhpnYW1pbmdfY29ycHVzX21vc3RfcG9wdWxhcg%3D%3D"
   when "movies"
     params = "4gIKGgh0cmFpbGVycw%3D%3D"
   else # Default
     params = ""
+    suggested_videos = fetch_suggested_video_ids(env, region, locale)
+    if suggested_videos.size > 0
+      return suggested_videos
+    end
   end
 
   client_config = YoutubeAPI::ClientConfig.new(region: region)
@@ -42,30 +45,39 @@ def fetch_trending(trending_type, region, locale, env)
   return extracted.select(SearchVideo | ProblematicTimelineItem).uniq!(&.id), plid
 end
 
-def fetch_subscription_related_videoids(env, region, locale)
+def fetch_suggested_video_ids(env, region, locale)
   user = env.get("user").as(Invidious::User)
 
-  # Filter valid channel videos
+  if user.nil?
+    return [] of SearchVideo, nil
+  end
+
+  # Get some new videos from the subscription feed
   channel_videos, _ = get_subscription_feed(user, 10, 1)
   valid_channel_videoids = channel_videos.select do |v|
+    # Make sure the video is not live, not a premiere, has a length and has views
     !v.live_now && v.premiere_timestamp.nil? && (v.length_seconds || 0) > 0 && (v.views || 0) > 0
   end.map(&.id)
 
-  # Sample more from watched, fewer from channels
-  watched_video_ids = user.watched.sample(10)
+  # Get the last 10 watched videos
+  watched_video_ids = user.watched.last(10)
 
-  video_ids = watched_video_ids + valid_channel_videoids
+  video_ids = watched_video_ids + valid_channel_videoids.sample(4)
   video_ids = video_ids.uniq
   video_ids = video_ids.reject(&.nil?)
   video_ids = video_ids.reject(&.empty?)
-  video_ids = video_ids.sample(10) if video_ids.size > 10
 
+  if video_ids.empty?
+    return [] of SearchVideo, nil
+  end
+
+  # Fetch related videos for each video and return 10 random ones
   videos = [] of SearchVideo
   video_ids.each do |video_id|
     video = get_video(video_id)
     next unless video.video_type == VideoType::Video
 
-    related = video.related_videos.sample(10) # pick random related videos
+    related = video.related_videos.sample(10)
     related.each do |related_video|
       next unless id = related_video["id"]?
       next unless related_video["view_count"]? && related_video["view_count"]? != 0
