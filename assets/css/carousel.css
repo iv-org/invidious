@@ -97,23 +97,3 @@ DEALINGS IN THE SOFTWARE.
     width: 50%;
     z-index: 1;
 }
-
-.light-theme .slider-nav {
-    background-color: #ddd;
-}
-
-.dark-theme .slider-nav  {
-    background-color: #0005;
-}
-
-@media (prefers-color-scheme: light) {
-    .no-theme .slider-nav {
-        background-color: #ddd;
-    }
-}
-
-@media (prefers-color-scheme: dark) {
-    .no-theme .slider-nav {
-        background-color: #0005;
-    }
-}

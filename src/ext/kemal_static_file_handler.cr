@@ -159,7 +159,9 @@ module Kemal
           redirect_to context, expanded_path + '/'
         end
 
-        return call_next(context) if file_info.nil?
+        return call_next(context) if file_info.nil? ||
+                                     file_path.ends_with?("dark.css") ||
+                                     file_path.ends_with?("light.css")
 
         if is_dir
           if config.is_a?(Hash) && config["dir_listing"] == true
