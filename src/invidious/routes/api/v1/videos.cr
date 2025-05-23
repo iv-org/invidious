@@ -12,6 +12,10 @@ module Invidious::Routes::API::V1::Videos
 
     begin
       video = get_video(id, region: region)
+      user = env.get("user").as(User)
+      if user.preferences.watch_history
+        Invidious::Database::Users.mark_watched(user, id)
+      end
     rescue ex : NotFoundException
       return error_json(404, ex)
     rescue ex
