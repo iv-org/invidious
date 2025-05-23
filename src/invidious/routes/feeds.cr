@@ -202,7 +202,7 @@ module Invidious::Routes::Feeds
         xml.element("link", rel: "self", href: "#{HOST_URL}#{env.request.resource}")
         xml.element("id") { xml.text "yt:channel:#{ucid}" }
         xml.element("yt:channelId") { xml.text ucid }
-        xml.element("title") { author }
+        xml.element("title") { xml.text author }
         xml.element("link", rel: "alternate", href: "#{HOST_URL}/channel/#{ucid}")
 
         xml.element("author") do
