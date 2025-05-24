@@ -37,7 +37,7 @@ module Invidious::Routes::Feeds
     if CONFIG.page_enabled?("popular")
       templated "feeds/popular"
     else
-      message = translate(locale, "The Popular feed has been disabled by the administrator.")
+      message = translate(locale, "popular_page_disabled")
       templated "message"
     end
   end
@@ -60,7 +60,7 @@ module Invidious::Routes::Feeds
 
       templated "feeds/trending"
     else
-      message = translate(locale, "The Trending feed has been disabled by the administrator.")
+      message = translate(locale, "trending_page_disabled")
       templated "message"
     end
   end

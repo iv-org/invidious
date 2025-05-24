@@ -42,7 +42,7 @@ module Invidious::Routes::Search
 
     # if search is disabled, show the “disabled” message immediately
     unless CONFIG.page_enabled?("search")
-      message = translate(locale, "Search has been disabled by the administrator.")
+      message = translate(locale, "search_page_disabled")
       return templated "message"
     end
 
