@@ -26,7 +26,7 @@ module Invidious::Routes::API::Manifest
     end
 
     if dashmpd = video.dash_manifest_url
-      response = YT_POOL.client &.get(URI.parse(dashmpd).request_target)
+      response = YT_POOL.get(URI.parse(dashmpd).request_target)
 
       if response.status_code != 200
         haltf env, status_code: response.status_code
@@ -167,7 +167,7 @@ module Invidious::Routes::API::Manifest
 
   # /api/manifest/hls_playlist/*
   def self.get_hls_playlist(env)
-    response = YT_POOL.client &.get(env.request.path)
+    response = YT_POOL.get(env.request.path)
 
     if response.status_code != 200
       haltf env, status_code: response.status_code
@@ -223,7 +223,7 @@ module Invidious::Routes::API::Manifest
 
   # /api/manifest/hls_variant/*
   def self.get_hls_variant(env)
-    response = YT_POOL.client &.get(env.request.path)
+    response = YT_POOL.get(env.request.path)
 
     if response.status_code != 200
       haltf env, status_code: response.status_code
