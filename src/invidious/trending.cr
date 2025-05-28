@@ -77,12 +77,32 @@ def fetch_suggested_video_ids(env, region, locale)
     video = get_video(video_id)
     next unless video.video_type == VideoType::Video
 
+    if !user.preferences.unseen_only || !user.watched.includes?(video.id)
+      videos << SearchVideo.new({
+        title:              video.title,
+        id:                 video.id,
+        author:             video.author,
+        ucid:               video.ucid || "",
+        published:          video.published || Time.utc,
+        views:              video.views || 0_i64,
+        description_html:   "", # not available
+        length_seconds:     video.length_seconds || 0,
+        premiere_timestamp: video.premiere_timestamp,
+        author_verified:    video.author_verified,
+        author_thumbnail:   video.author_thumbnail,
+        badges:             VideoBadges::None,
+      })
+    end
+
+    next unless video.related_videos
+
     related = video.related_videos.sample(10)
     related.each do |related_video|
       next unless id = related_video["id"]?
       next unless related_video["view_count"]? && related_video["view_count"]? != 0
       next unless related_video["published"]?
       next unless related_video["length_seconds"]? && related_video["length_seconds"]? != 0
+      next if user.preferences.unseen_only && user.watched.includes?(related_video["id"]?)
       
       videos << SearchVideo.new({
         title:              related_video["title"],
@@ -101,5 +121,5 @@ def fetch_suggested_video_ids(env, region, locale)
     end
   end
 
-  return videos.uniq!(&.id), nil
+  return videos.shuffle.uniq(&.id), nil
 end
