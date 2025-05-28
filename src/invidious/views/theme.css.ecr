@@ -1,0 +1,10 @@
+/*
+This files contains an automatically generated CSS file that contains the styles
+for the dark and light themes of Invidious. Automatically generating this file allows
+supporting both the user-agent color scheme preference and class-based theme preference
+without duplicating the defined styles twice for each theme.
+*/
+<%=CSS_THEME_LIGHT-%>
+@media (prefers-color-scheme: light) {<%= CSS_THEME_UA_LIGHT %>}
+<%=CSS_THEME_DARK%>
+@media (prefers-color-scheme: dark) {<%=CSS_THEME_UA_DARK%>}

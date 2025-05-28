@@ -95,27 +95,3 @@ fieldset, legend {
 		padding: 15px;
 	}
 }
-
-/* Light theme */
-
-.light-theme #filters-box {
-	background: #dfdfdf;
-}
-
-@media (prefers-color-scheme: light) {
-	.no-theme #filters-box {
-		background: #dfdfdf;
-	}
-}
-
-/* Dark theme */
-
-.dark-theme #filters-box {
-	background: #373737;
-}
-
-@media (prefers-color-scheme: dark) {
-	.no-theme #filters-box {
-		background: #373737;
-	}
-}
