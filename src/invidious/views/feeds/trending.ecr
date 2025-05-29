@@ -11,39 +11,31 @@
 
 <%= rendered "components/feed_menu" %>
 
-<div class="pure-g h-box">
-    <div style="align-self:flex-end" class="pure-u-2-3">
+<nav class="menu filters">
+    <ul>
         <% if plid %>
+					<li>
             <a href="/playlist?list=<%= plid %>">
                 <%= translate(locale, "View as playlist") %>
             </a>
+					</li>
         <% end %>
-    </div>
-    <div class="pure-u-1-3">
-        <div class="pure-g" style="text-align:right">
-            <% {"Default", "Music", "Gaming", "Movies"}.each do |option| %>
-                <div class="pure-u-1 pure-md-1-3">
-                    <% if trending_type == option %>
-                        <b><%= translate(locale, option) %></b>
-                    <% else %>
-                        <a href="/feed/trending?type=<%= option %>&region=<%= region %>">
-                            <%= translate(locale, option) %>
-                        </a>
-                    <% end %>
-                </div>
-            <% end %>
-        </div>
-    </div>
-</div>
+    </ul>
+    <ul>
+			<% {"Default", "Music", "Gaming", "Movies"}.each do |option| %>
+			<li <% if trending_type == option %>class="selected"<% end %>>
+				<a href="/feed/trending?type=<%= option %>&region=<%= region %>">
+					<%= translate(locale, option) %></b>
+				</a>
+			</li>
+			<% end %>
+    </ul>
+</nav>
 
-<div class="h-box">
-    <hr>
-</div>
-
-<div class="pure-g">
+<main class="videos">
 <% trending.each do |item| %>
     <%= rendered "components/item" %>
 <% end %>
-</div>
+</main>
 
 <script src="/js/watched_indicator.js"></script>

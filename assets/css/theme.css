@@ -1,0 +1,59 @@
+:root {
+  --fg-color-dark: #f0f0f0;
+  --bg-color-dark: #131313;
+  --accent-color-dark: #27a6ff;
+  --accent-bg-color-dark: #004a7e;
+  --secondary-color-dark: #e3e3e3;
+  --secondary-bg-color-dark: #313131;
+  --watched-overlay-color-dark: rgb(0 0 0 / 40%);
+
+  /* light theme colors */
+  --fg-color-light: black;
+  --bg-color-light: #eee;
+  --accent-color-light: #044c99;
+  --accent-bg-color-light: #3eaefd;
+  --secondary-color-light: #404040;
+  --secondary-bg-color-light: #dbdbdb;
+  --watched-overlay-color-light: rgb(255 255 255 / 40%);
+
+  /** apply default colors to dark */
+  --fg-color: var(--fg-color-dark);
+  --bg-color: var(--bg-color-dark);
+  --accent-color: var(--accent-color-dark);
+  --accent-bg-color: var(--accent-bg-color-dark);
+  --secondary-color: var(--secondary-color-dark);
+  --secondary-bg-color: var(--secondary-bg-color-dark);
+  --watched-overlay-color: var(--watched-overlay-color-dark);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --fg-color: var(--fg-color-light);
+    --bg-color: var(--bg-color-light);
+    --accent-color: var(--accent-color-light);
+    --accent-bg-color: var(--accent-bg-color-light);
+    --secondary-color: var(--secondary-color-light);
+    --secondary-bg-color: var(--secondary-bg-color-light);
+    --watched-overlay-color: var(--watched-overlay-color-dark);
+  }
+}
+
+.light-theme {
+  --fg-color: var(--fg-color-light);
+  --bg-color: var(--bg-color-light);
+  --accent-color: var(--accent-color-light);
+  --accent-bg-color: var(--accent-bg-color-light);
+  --secondary-color: var(--secondary-color-light);
+  --secondary-bg-color: var(--secondary-bg-color-light);
+  --watched-overlay-color: var(--watched-overlay-color-light);
+}
+
+.dark-theme {
+  --fg-color: var(--fg-color-dark);
+  --bg-color: var(--bg-color-dark);
+  --accent-color: var(--accent-color-dark);
+  --accent-bg-color: var(--accent-bg-color-dark);
+  --secondary-color: var(--secondary-color-dark);
+  --secondary-bg-color: var(--secondary-bg-color-dark);
+  --watched-overlay-color: var(--watched-overlay-color-dark);
+}

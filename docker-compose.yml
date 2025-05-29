@@ -4,6 +4,8 @@
 # If you want to use Invidious in production, see the docker-compose.yml file provided
 # in the installation documentation: https://docs.invidious.io/installation/
 
+---
+
 version: "3"
 services:
 
@@ -11,9 +13,10 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
+    image: rockerboo/invidious
     restart: unless-stopped
     ports:
-      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:9999:3000"
     environment:
       # Please read the following file for a comprehensive list of all available
       # configuration options and their associated syntax:

@@ -1,11 +1,15 @@
-<div class="feed-menu">
+<nav class="feed-menu">
+	<ul>
     <% feed_menu = env.get("preferences").as(Preferences).feed_menu.dup %>
     <% if !env.get?("user") %>
         <% feed_menu.reject! {|item| {"Subscriptions", "Playlists"}.includes? item} %>
     <% end %>
     <% feed_menu.each do |feed| %>
-        <a href="/feed/<%= feed.downcase %>" class="feed-menu-item pure-menu-heading">
+			<li>
+        <a href="/feed/<%= feed.downcase %>">
             <%= translate(locale, feed) %>
         </a>
+			</li>
     <% end %>
-</div>
+	</ul>
+</nav>

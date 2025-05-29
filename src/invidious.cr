@@ -136,6 +136,9 @@ Kemal.config.extra_options do |parser|
     Invidious::Database::Migrator.new(PG_DB).migrate
     exit
   end
+  parser.on("--disable-static-cache", "Disable static file handler cache") do
+    CONFIG.disable_static_cache = true
+  end
 end
 
 Kemal::CLI.new ARGV
