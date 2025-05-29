@@ -18,16 +18,7 @@ def github_details(summary : String, content : String)
   return HTML.escape(details)
 end
 
-def error_template_helper(env : HTTP::Server::Context, status_code : Int32, exception : Exception)
-  if exception.is_a?(InfoException)
-    return error_template_helper(env, status_code, exception.message || "")
-  end
-
-  locale = env.get("preferences").as(Preferences).locale
-
-  env.response.content_type = "text/html"
-  env.response.status_code = status_code
-
+def get_issue_template(env : HTTP::Server::Context, exception : Exception) : Tuple(String, String)
   issue_title = "#{exception.message} (#{exception.class})"
 
   issue_template = <<-TEXT
@@ -39,6 +30,24 @@ def error_template_helper(env : HTTP::Server::Context, status_code : Int32, exce
   TEXT
 
   issue_template += github_details("Backtrace", exception.inspect_with_backtrace)
+
+  return issue_title, issue_template
+end
+
+def error_template_helper(env : HTTP::Server::Context, status_code : Int32, exception : Exception)
+  if exception.is_a?(InfoException)
+    return error_template_helper(env, status_code, exception.message || "")
+  end
+
+  locale = env.get("preferences").as(Preferences).locale
+
+  env.response.content_type = "text/html"
+  env.response.status_code = status_code
+
+  # Unpacking into issue_title, issue_template directly causes a compiler error
+  # I have no idea why.
+  issue_template_components = get_issue_template(env, exception)
+  issue_title, issue_template = issue_template_components
 
   # URLs for the error message below
   url_faq = "https://github.com/iv-org/documentation/blob/master/docs/faq.md"
@@ -69,7 +78,7 @@ def error_template_helper(env : HTTP::Server::Context, status_code : Int32, exce
       <p>#{translate(locale, "crash_page_report_issue", url_new_issue)}</p>
 
       <!-- TODO: Add a "copy to clipboard" button -->
-      <pre style="padding: 20px; background: rgba(0, 0, 0, 0.12345);">#{issue_template}</pre>
+      <pre class="error-issue-template">#{issue_template}</pre>
     </div>
   END_HTML
 

@@ -1,5 +1,5 @@
 name: invidious
-version: 2.20250314.0-dev
+version: 2.20250517.0-dev
 
 authors:
   - Invidious team <contact@invidious.io>
@@ -17,10 +17,7 @@ dependencies:
     version: ~> 0.21.0
   kemal:
     github: kemalcr/kemal
-    version: ~> 1.1.2
-  kilt:
-    github: jeromegn/kilt
-    version: ~> 0.6.1
+    version: ~> 1.6.0
   protodec:
     github: iv-org/protodec
     version: ~> 0.1.5

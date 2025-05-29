@@ -32,48 +32,17 @@
                     </fieldset>
 
                         <% if captcha %>
-                            <% case captcha_type when %>
-                            <% when "image" %>
-                                <% captcha = captcha.not_nil! %>
-                                <img class="captcha" src='<%= captcha[:question] %>'/>
-                                <% captcha[:tokens].each_with_index do |token, i| %>
-                                    <input type="hidden" name="token[<%= i %>]" value="<%= HTML.escape(token) %>">
-                                <% end %>
-                                <input type="hidden" name="captcha_type" value="image">
-																<div class="control-group">
-                                <label for="answer"><%= translate(locale, "Time (h:mm:ss):") %></label>
-                                <input type="text" name="answer" type="text" placeholder="h:mm:ss">
-																</div>
-                            <% else # "text" %>
-                                <% captcha = captcha.not_nil! %>
-                                <% captcha[:tokens].each_with_index do |token, i| %>
-                                    <input type="hidden" name="token[<%= i %>]" value="<%= HTML.escape(token) %>">
-                                <% end %>
-                                <input type="hidden" name="captcha_type" value="text">
-																<div class="control-group">
-                                <label for="answer"><%= captcha[:question] %></label>
-                                <input type="text" name="answer" type="text" placeholder="<%= translate(locale, "Answer") %>">
-																</div>
+                            <% captcha = captcha.not_nil! %>
+                            <img style="width:50%" src='<%= captcha[:question] %>'/>
+                            <% captcha[:tokens].each_with_index do |token, i| %>
+                                <input type="hidden" name="token[<%= i %>]" value="<%= HTML.escape(token) %>">
                             <% end %>
+                            <label for="answer"><%= translate(locale, "Time (h:mm:ss):") %></label>
+                            <input type="text" name="answer" type="text" placeholder="h:mm:ss">
 
                             <button type="submit" name="action" value="signin" class="primary">
                                 <%= translate(locale, "Register") %>
                             </button>
-
-                            <% case captcha_type when %>
-                            <% when "image" %>
-                                <label>
-                                    <button type="submit" name="change_type" class="primary" value="text">
-                                        <%= translate(locale, "Text CAPTCHA") %>
-                                    </button>
-                                </label>
-                            <% else # "text" %>
-                                <label>
-                                    <button type="submit" name="change_type" class="primary" value="image">
-                                        <%= translate(locale, "Image CAPTCHA") %>
-                                    </button>
-                                </label>
-                            <% end %>
                         <% else %>
 													<div class="action-controls">
                             <button type="submit" name="action" value="signin" class="pure-button pure-button-primary">

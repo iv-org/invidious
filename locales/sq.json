@@ -494,5 +494,9 @@
     "carousel_slide": "Diapozitiv {{current}} nga {{total}}",
     "carousel_go_to": "Kalo te diapozitivi `x`",
     "Filipino (auto-generated)": "Filipineze (të prodhuara automatikisht)",
-    "preferences_preload_label": "Parangarko të dhëna videoje: "
+    "preferences_preload_label": "Parangarko të dhëna videoje: ",
+    "toggle_theme": "Ndërroni Temë",
+    "channel_tab_courses_label": "Kurse",
+    "channel_tab_posts_label": "Postime",
+    "First page": "Faqja e parë"
 }

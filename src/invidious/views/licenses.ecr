@@ -11,90 +11,6 @@
     <table id="jslicense-labels1">
         <tr>
             <td>
-                <a href="/js/_helpers.js?v=<%= ASSET_COMMIT %>">_helpers.js</a>
-            </td>
-
-            <td>
-                <a href="https://www.gnu.org/licenses/agpl-3.0.html">AGPL-3.0</a>
-            </td>
-
-            <td>
-                <a href="/js/_helpers.js?v=<%= ASSET_COMMIT %>"><%= translate(locale, "source") %></a>
-            </td>
-        </tr>
-
-        <tr>
-            <td>
-                <a href="/js/handlers.js?v=<%= ASSET_COMMIT %>">handlers.js</a>
-            </td>
-
-            <td>
-                <a href="https://www.gnu.org/licenses/agpl-3.0.html">AGPL-3.0</a>
-            </td>
-
-            <td>
-                <a href="/js/handlers.js?v=<%= ASSET_COMMIT %>"><%= translate(locale, "source") %></a>
-            </td>
-        </tr>
-
-        <tr>
-            <td>
-                <a href="/js/community.js?v=<%= ASSET_COMMIT %>">community.js</a>
-            </td>
-
-            <td>
-                <a href="https://www.gnu.org/licenses/agpl-3.0.html">AGPL-3.0</a>
-            </td>
-
-            <td>
-                <a href="/js/community.js?v=<%= ASSET_COMMIT %>"><%= translate(locale, "source") %></a>
-            </td>
-        </tr>
-
-        <tr>
-            <td>
-                <a href="/js/embed.js?v=<%= ASSET_COMMIT %>">embed.js</a>
-            </td>
-
-            <td>
-                <a href="https://www.gnu.org/licenses/agpl-3.0.html">AGPL-3.0</a>
-            </td>
-
-            <td>
-                <a href="/js/embed.js?v=<%= ASSET_COMMIT %>"><%= translate(locale, "source") %></a>
-            </td>
-        </tr>
-
-        <tr>
-            <td>
-                <a href="/js/notifications.js?v=<%= ASSET_COMMIT %>">notifications.js</a>
-            </td>
-
-            <td>
-                <a href="https://www.gnu.org/licenses/agpl-3.0.html">AGPL-3.0</a>
-            </td>
-
-            <td>
-                <a href="/js/notifications.js?v=<%= ASSET_COMMIT %>"><%= translate(locale, "source") %></a>
-            </td>
-        </tr>
-
-        <tr>
-            <td>
-                <a href="/js/player.js?v=<%= ASSET_COMMIT %>">player.js</a>
-            </td>
-
-            <td>
-                <a href="https://www.gnu.org/licenses/agpl-3.0.html">AGPL-3.0</a>
-            </td>
-
-            <td>
-                <a href="/js/player.js?v=<%= ASSET_COMMIT %>"><%= translate(locale, "source") %></a>
-            </td>
-        </tr>
-
-        <tr>
-            <td>
                 <a href="/js/silvermine-videojs-quality-selector.min.js?v=<%= ASSET_COMMIT %>">silvermine-videojs-quality-selector.min.js</a>
             </td>
 
@@ -118,34 +34,6 @@
 
             <td>
                 <a href="https://github.com/mpetazzoni/sse.js"><%= translate(locale, "source") %></a>
-            </td>
-        </tr>
-
-        <tr>
-            <td>
-                <a href="/js/subscribe_widget.js?v=<%= ASSET_COMMIT %>">subscribe_widget.js</a>
-            </td>
-
-            <td>
-                <a href="https://www.gnu.org/licenses/agpl-3.0.html">AGPL-3.0</a>
-            </td>
-
-            <td>
-                <a href="/js/subscribe_widget.js?v=<%= ASSET_COMMIT %>"><%= translate(locale, "source") %></a>
-            </td>
-        </tr>
-
-        <tr>
-            <td>
-                <a href="/js/themes.js?v=<%= ASSET_COMMIT %>">themes.js</a>
-            </td>
-
-            <td>
-                <a href="https://www.gnu.org/licenses/agpl-3.0.html">AGPL-3.0</a>
-            </td>
-
-            <td>
-                <a href="/js/themes.js?v=<%= ASSET_COMMIT %>"><%= translate(locale, "source") %></a>
             </td>
         </tr>
 
@@ -289,19 +177,9 @@
             </td>
         </tr>
 
-        <tr>
-            <td>
-                <a href="/js/watch.js?v=<%= ASSET_COMMIT %>">watch.js</a>
-            </td>
-
-            <td>
-                <a href="https://www.gnu.org/licenses/agpl-3.0.html">AGPL-3.0</a>
-            </td>
-
-            <td>
-                <a href="/js/watch.js?v=<%= ASSET_COMMIT %>"><%= translate(locale, "source") %></a>
-            </td>
-        </tr>
+        <%- {% for row in run("../../../scripts/generate_js_licenses.cr").stringify.split('\n') %} %>
+            <%-= {{row.id}} -%>
+        <% {% end %} -%>
     </table>
 </body>
 </html>

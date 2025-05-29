@@ -2,11 +2,15 @@
 
 ## vX.Y.0 (future)
 
+## v2.20250517.0
+
+Inverse fallback for the YouTube client from TVHTML then MWEB. Fixes https://github.com/iv-org/invidious/issues/5273
+
 ## v2.20250504.0
 
 Small release with quick workaround fix for issue #4251 (Nil assertion failed).
 
-PR: https://github.com/iv-org/invidious/issues/5263
+PR: https://github.com/iv-org/invidious/issues/5262
 
 ## v2.20250314.0
 
