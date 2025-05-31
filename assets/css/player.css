@@ -86,6 +86,7 @@ ul.vjs-menu-content::-webkit-scrollbar {
   background-color: rgba(0, 0, 0, 0.75) !important;
   border-radius: 9px !important;
   padding: 5px !important;
+  pointer-events: auto;
 }
 
 .vjs-play-control,
