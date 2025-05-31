@@ -119,11 +119,11 @@ def create_notification_stream(env, topics, connection_channel)
     end
   end
 
-  spawn do
-    begin
-      loop do
-        event = connection.receive
-
+  begin
+    heartbeat_timer = 0.seconds
+    loop do
+      select
+      when event = connection.receive
         notification = JSON.parse(event.payload)
         topic = notification["topic"].as_s
         video_id = notification["videoId"].as_s
@@ -139,24 +139,16 @@ def create_notification_stream(env, topics, connection_channel)
 
         env.response.puts "id: #{id}"
         env.response.puts "data: #{response.to_json}"
-        env.response.puts
-        env.response.flush
 
         id += 1
+      when timeout heartbeat_timer
+        # Send heartbeat on every timeout
+        env.response.puts ":keepalive #{Time.utc.to_unix}"
       end
-    rescue ex
-    ensure
-      connection_channel.send({false, connection})
-    end
-  end
 
-  begin
-    # Send heartbeat
-    loop do
-      env.response.puts ":keepalive #{Time.utc.to_unix}"
+      heartbeat_timer = ((20 + rand(11)).seconds)
       env.response.puts
       env.response.flush
-      sleep (20 + rand(11)).seconds
     end
   rescue ex
   ensure
