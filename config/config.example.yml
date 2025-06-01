@@ -25,6 +25,9 @@ db:
   ## When this number is reached and no connections are free, Invidious will
   ## wait for up to `checkout_timeout` before raising an exception.
   ##
+  ## Note: Setting to 0 will disable this limit and allow the the pool to
+  ## grow indefinitely.
+  ##
   ## Accepted values: a positive integer
   ## Default: 100
   ##
@@ -90,7 +93,7 @@ db:
   #retry_attempts: 5.0
 
   ##
-  ## How long to wait (in-seconds) between each retry attempt
+  ## How long to wait (in seconds) between each retry attempt
   ##
   ## Note: See description for `retry_attempts` for more information
   ##
