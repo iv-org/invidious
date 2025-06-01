@@ -152,6 +152,7 @@ def create_notification_stream(env, topics, connection_channel)
     end
   rescue ex
   ensure
+    connection.close
     connection_channel.send({false, connection})
   end
 end

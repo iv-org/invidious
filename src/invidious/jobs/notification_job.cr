@@ -32,7 +32,13 @@ class Invidious::Jobs::NotificationJob < Invidious::Jobs::BaseJob
   def begin
     connections = [] of ::Channel(PQ::Notification)
 
-    PG.connect_listen(pg_url, "notifications") { |event| connections.each(&.send(event)) }
+    PG.connect_listen(pg_url, "notifications") do |event|
+      connections.each do |channel|
+        channel.send(event)
+      rescue Channel::ClosedError
+        # Notification stream was closed.
+      end
+    end
 
     # hash of channels to their videos (id+published) that need notifying
     to_notify = Hash(String, Set(VideoNotification)).new(
