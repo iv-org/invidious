@@ -35,7 +35,7 @@ class Invidious::Jobs::NotificationJob < Invidious::Jobs::BaseJob
     PG.connect_listen(pg_url, "notifications") do |event|
       connections.each do |channel|
         channel.send(event)
-      rescue Channel::ClosedError
+      rescue ::Channel::ClosedError
         # Notification stream was closed.
       end
     end
