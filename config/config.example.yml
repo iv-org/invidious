@@ -28,7 +28,7 @@ db:
   ## Accepted values: a positive integer
   ## Default: 100
   ##
-  #max_size: 100
+  #max_pool_size: 100
 
   ##
   ## How many idle connections should be allowed to exist within the connection pool.
