@@ -88,9 +88,9 @@ db:
   ## pool.
   ##
   ## Accepted values: a positive integer
-  ## Default: 5.0
+  ## Default: 5
   ##
-  #retry_attempts: 5.0
+  #retry_attempts: 5
 
   ##
   ## How long to wait (in seconds) between each retry attempt
