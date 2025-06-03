@@ -1,0 +1,138 @@
+{% skip_file if compare_versions(Crystal::VERSION, "1.17.0") < 0 %}
+
+module Invidious::HttpServer
+  class StaticAssetsHandler < HTTP::StaticFileHandler
+    # In addition to storing the actual data of a file, it also implements the required
+    # getters needed for the object to imitate a `File::Stat` within `StaticFileHandler`.
+    #
+    # Since the `File::Stat` is created once in `#call` and then passed around to the
+    # rest of the class's methods, imitating the object allows us to only lookup
+    # the cache hash once for every request.
+    #
+    private record CachedFile, data : Bytes, size : Int64, modification_time : Time
+
+    CACHE_LIMIT = 5_000_000 # 5MB
+    @@cached_files = {} of Path => CachedFile
+
+    # A simplified version of `#call` for Invidious to improve performance.
+    #
+    # This is basically the same as what we inherited but just with the directory listing
+    # features stripped out. This removes some conditional checks and calls which improves
+    # performance slightly but otherwise is entirely unneeded.
+    #
+    # Really, all the cache feature actually needs is to override the much simplifier `file_info`
+    # method to return a `CachedFile` or `File::Stat` depending on whether the file is cached.
+    def call(context) : Nil
+      check_request_method!(context) || return
+
+      request_path = request_path(context)
+
+      check_request_path!(context, request_path) || return
+
+      request_path = Path.posix(request_path)
+      expanded_path = request_path.expand("/")
+
+      # The path normalization can be simplified to just this since
+      # we don't need to care about normalizing directory urls.
+      if request_path != expanded_path
+        redirect_to context, expanded_path
+      end
+
+      file_path = @public_dir.join(expanded_path.to_kind(Path::Kind.native))
+
+      if cached_info = @@cached_files[file_path]?
+        return serve_file_with_cache(context, cached_info, file_path)
+      end
+
+      file_info = File.info?(file_path)
+
+      return call_next(context) unless file_info
+
+      if file_info.file?
+        # Actually means to serve file *with cache headers*
+        # The actual logic for serving the file is done in `#serve_file`
+        serve_file_with_cache(context, file_info, file_path)
+      else # Not a normal file (FIFO/device/socket)
+        call_next(context)
+      end
+    end
+
+    # Add "Cache-Control" header to the response
+    private def add_cache_headers(response_headers : HTTP::Headers, last_modified : Time) : Nil
+      super; response_headers["Cache-Control"] = "max-age=2629800"
+    end
+
+    # Serves and caches the file at the given path.
+    #
+    # This is an override of `serve_file` to allow serving a file from memory, and to cache it
+    # it as needed.
+    private def serve_file(context : HTTP::Server::Context, file_info, file_path : Path, original_file_path : Path, last_modified : Time)
+      context.response.content_type = MIME.from_filename(original_file_path.to_s, "application/octet-stream")
+
+      range_header = context.request.headers["Range"]?
+
+      if !file_info.is_a? CachedFile
+        retrieve_bytes_from = IO::Memory.new
+
+        File.open(file_path) do |file|
+          # We cannot cache partial data so we'll rewind and read from the start
+          if range_header
+            dispatch_serve(context, file, file_info, range_header)
+            IO.copy(file.rewind, retrieve_bytes_from)
+          else
+            context.response.output = IO::MultiWriter.new(context.response.output, retrieve_bytes_from, sync_close: true)
+            dispatch_serve(context, file, file_info, range_header)
+          end
+        end
+
+        return flush_io_to_cache(retrieve_bytes_from, file_path, file_info)
+      else
+        return dispatch_serve(context, file_info.data, file_info, range_header)
+      end
+    end
+
+    # Writes file data to the cache
+    private def flush_io_to_cache(io, file_path, file_info)
+      if @@cached_files.sum(&.[1].size) + (size = file_info.size) < CACHE_LIMIT
+        data_slice = io.to_slice
+        @@cached_files[file_path] = CachedFile.new(data_slice, file_info.size, file_info.modification_time)
+      end
+    end
+
+    # Either send the file in full, or just fragments of it depending on the request
+    private def dispatch_serve(context, file, file_info, range_header)
+      if range_header
+        # an IO is needed for `serve_file_range`
+        file = file.is_a?(Bytes) ? IO::Memory.new(file, writeable: false) : file
+        serve_file_range(context, file, range_header, file_info)
+      else
+        context.response.headers["Accept-Ranges"] = "bytes"
+        serve_file_full(context, file, file_info)
+      end
+    end
+
+    # Skips the stdlib logic for serving pre-gzipped files
+    private def serve_file_compressed(context : HTTP::Server::Context, file_info, file_path : Path, last_modified : Time)
+      serve_file(context, file_info, file_path, file_path, last_modified)
+    end
+
+    # If we're serving the full file right away then there's no need for an IO at all.
+    private def serve_file_full(context : HTTP::Server::Context, file : Bytes, file_info)
+      context.response.status = :ok
+      context.response.content_length = file_info.size
+      context.response.write file
+    end
+
+    # Serves segments of a file based on the `Range header`
+    #
+    # An override of `serve_file_range` to allow using a generic IO rather than a `File`.
+    # Literally the same code as what we inherited but just with the `file` argument's type
+    # being set to `IO` rather than `File`
+    #
+    # Can be removed once https://github.com/crystal-lang/crystal/issues/15817 is fixed.
+    private def serve_file_range(context : HTTP::Server::Context, file : IO, range_header : String, file_info)
+      # Paste in the body of inherited serve_file_range
+      {{@type.superclass.methods.select(&.name.==("serve_file_range"))[0].body}}
+    end
+  end
+end

@@ -1,3 +1,24 @@
+{% if compare_versions(Crystal::VERSION, "1.17.0") >= 0 %}
+  # Strip StaticFileHandler from the binary
+  #
+  # This allows us to compile on 1.17.0 as the compiler won't try to
+  # semantically check the outdated upstream code.
+  class Kemal::Config
+    private def setup_static_file_handler
+    end
+  end
+
+  # Nullify `Kemal::StaticFileHandler`
+  #
+  # Needed until the next release of Kemal after 1.7
+  class Kemal::StaticFileHandler < HTTP::StaticFileHandler
+    def call(context : HTTP::Server::Context)
+    end
+  end
+
+  {% skip_file %}
+{% end %}
+
 # Since systems have a limit on number of open files (`ulimit -a`),
 # we serve them from memory to avoid 'Too many open files' without needing
 # to modify ulimit.
