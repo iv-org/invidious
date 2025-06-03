@@ -1,4 +1,13 @@
-{% skip_file if compare_versions(Crystal::VERSION, "1.17.0-dev") < 0 %}
+# Due to the way that specs are handled this file cannot be run together with
+# everything else without causing a compile time error that'll be incredibly
+# annoying to resolve.
+#
+# TODO: Create different spec categories that can then be ran through make.
+#       An implementation of this can be seen with the tests for the Crystal compiler itself.
+#
+# For now run this with `crystal spec spec/http_server/handlers/static_assets_handler_spec.cr -Drunning_by_self`
+
+{% skip_file if compare_versions(Crystal::VERSION, "1.17.0-dev") < 0 || !flag?(:running_by_self) %}
 
 require "http"
 require "spectator"
