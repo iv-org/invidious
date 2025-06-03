@@ -107,5 +107,12 @@ module Invidious::HttpServer
       # Paste in the body of inherited serve_file_range
       {{@type.superclass.methods.select(&.name.==("serve_file_range"))[0].body}}
     end
+
+    # Clear cached files.
+    #
+    # This is only used in the specs to clear the cache before each handler test
+    def self.clear_cache
+      return @@cached_files.clear
+    end
   end
 end
