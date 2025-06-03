@@ -1,4 +1,4 @@
-{% if compare_versions(Crystal::VERSION, "1.17.0") >= 0 %}
+{% if compare_versions(Crystal::VERSION, "1.17.0-dev") >= 0 %}
   # Strip StaticFileHandler from the binary
   #
   # This allows us to compile on 1.17.0 as the compiler won't try to

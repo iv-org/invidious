@@ -1,4 +1,4 @@
-{% skip_file if compare_versions(Crystal::VERSION, "1.17.0") < 0 %}
+{% skip_file if compare_versions(Crystal::VERSION, "1.17.0-dev") < 0 %}
 
 module Invidious::HttpServer
   class StaticAssetsHandler < HTTP::StaticFileHandler
