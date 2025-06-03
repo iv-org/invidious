@@ -9,52 +9,30 @@ module Invidious::HttpServer
     # rest of the class's methods, imitating the object allows us to only lookup
     # the cache hash once for every request.
     #
-    private record CachedFile, data : Bytes, size : Int64, modification_time : Time
+    private record CachedFile, data : Bytes, size : Int64, modification_time : Time do
+      def directory?
+        false
+      end
+
+      def file?
+        true
+      end
+    end
 
     CACHE_LIMIT = 5_000_000 # 5MB
     @@cached_files = {} of Path => CachedFile
 
-    # A simplified version of `#call` for Invidious to improve performance.
+    # Returns metadata for the requested file
     #
-    # This is basically the same as what we inherited but just with the directory listing
-    # features stripped out. This removes some conditional checks and calls which improves
-    # performance slightly but otherwise is entirely unneeded.
+    # If the requested file is cached, a `CachedFile` is returned instead of a `File::Stat`.
+    # This represents the metadata info of a cached file and implements all the methods of `File::Stat` that
+    # is used by the `StaticAssetsHandler`.
     #
-    # Really, all the cache feature actually needs is to override the much simplifier `file_info`
-    # method to return a `CachedFile` or `File::Stat` depending on whether the file is cached.
-    def call(context) : Nil
-      check_request_method!(context) || return
-
-      request_path = request_path(context)
-
-      check_request_path!(context, request_path) || return
-
-      request_path = Path.posix(request_path)
-      expanded_path = request_path.expand("/")
-
-      # The path normalization can be simplified to just this since
-      # we don't need to care about normalizing directory urls.
-      if request_path != expanded_path
-        redirect_to context, expanded_path
-      end
-
+    # The `CachedFile` also stores the raw bytes of the cached file, and this method serves as the place where
+    # the cached file is retrieved if it exists. Though the data will only be read in `#serve_file`
+    private def file_info(expanded_path : Path)
       file_path = @public_dir.join(expanded_path.to_kind(Path::Kind.native))
-
-      if cached_info = @@cached_files[file_path]?
-        return serve_file_with_cache(context, cached_info, file_path)
-      end
-
-      file_info = File.info?(file_path)
-
-      return call_next(context) unless file_info
-
-      if file_info.file?
-        # Actually means to serve file *with cache headers*
-        # The actual logic for serving the file is done in `#serve_file`
-        serve_file_with_cache(context, file_info, file_path)
-      else # Not a normal file (FIFO/device/socket)
-        call_next(context)
-      end
+      {@@cached_files[file_path]? || File.info?(file_path), file_path}
     end
 
     # Add "Cache-Control" header to the response
@@ -109,11 +87,6 @@ module Invidious::HttpServer
         context.response.headers["Accept-Ranges"] = "bytes"
         serve_file_full(context, file, file_info)
       end
-    end
-
-    # Skips the stdlib logic for serving pre-gzipped files
-    private def serve_file_compressed(context : HTTP::Server::Context, file_info, file_path : Path, last_modified : Time)
-      serve_file(context, file_info, file_path, file_path, last_modified)
     end
 
     # If we're serving the full file right away then there's no need for an IO at all.
