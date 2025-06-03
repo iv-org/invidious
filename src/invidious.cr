@@ -239,7 +239,7 @@ add_handler APIHandler.new
 add_handler AuthHandler.new
 add_handler DenyFrame.new
 
-{% if compare_versions(Crystal::VERSION, "1.17.0") >= 0 %}
+{% if compare_versions(Crystal::VERSION, "1.17.0-dev") >= 0 %}
   Kemal.config.serve_static = false
   add_handler Invidious::HttpServer::StaticAssetsHandler.new("assets", directory_listing: false)
 {% else %}
