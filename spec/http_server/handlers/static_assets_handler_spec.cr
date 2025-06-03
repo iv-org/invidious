@@ -106,8 +106,7 @@ Spectator.describe StaticAssetsHandler do
         file_link = "/#{File.basename(temporary_file.path)}"
 
         # Make request
-        headers = HTTP::Headers{"Range" => "bytes=0-2"}
-        response = handle HTTP::Request.new("GET", file_link, headers)
+        handle HTTP::Request.new("GET", file_link, HTTP::Headers{"Range" => "bytes=0-2"})
 
         # Mutate file on disk
         temporary_file << "Something else"
