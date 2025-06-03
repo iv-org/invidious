@@ -71,7 +71,7 @@ module Invidious::HttpServer
 
     # Writes file data to the cache
     private def flush_io_to_cache(io, file_path, file_info)
-      if @@cached_files.sum(&.[1].size) + (size = file_info.size) < CACHE_LIMIT
+      if @@cached_files.sum(&.[1].size) + file_info.size < CACHE_LIMIT
         data_slice = io.to_slice
         @@cached_files[file_path] = CachedFile.new(data_slice, file_info.size, file_info.modification_time)
       end
