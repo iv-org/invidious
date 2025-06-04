@@ -20,6 +20,7 @@ module Invidious::HttpServer
     end
 
     CACHE_LIMIT = 5_000_000 # 5MB
+    @@current_cache_size = 0
     @@cached_files = {} of Path => CachedFile
 
     # Returns metadata for the requested file
@@ -71,9 +72,8 @@ module Invidious::HttpServer
 
     # Writes file data to the cache
     private def flush_io_to_cache(io, file_path, file_info)
-      if @@cached_files.sum(&.[1].size) + file_info.size < CACHE_LIMIT
-        data_slice = io.to_slice
-        @@cached_files[file_path] = CachedFile.new(data_slice, file_info.size, file_info.modification_time)
+      if (@@current_cache_size += file_info.size) <= CACHE_LIMIT
+        @@cached_files[file_path] = CachedFile.new(io.to_slice, file_info.size, file_info.modification_time)
       end
     end
 
@@ -112,6 +112,7 @@ module Invidious::HttpServer
     #
     # This is only used in the specs to clear the cache before each handler test
     def self.clear_cache
+      @@current_cache_size = 0
       return @@cached_files.clear
     end
   end

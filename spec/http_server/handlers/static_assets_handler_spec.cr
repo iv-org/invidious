@@ -198,5 +198,36 @@ Spectator.describe StaticAssetsHandler do
     end
   end
 
+  it "Will not cache additional files if the cache limit is reached" do
+    5.times do |times|
+      data = "a" * 1_000_000
+
+      make_temporary_file("test cache size limit #{times}") do |temporary_file, file_link|
+        cycle_temporary_file_contents(temporary_file, data) do
+          response = handle HTTP::Request.new("GET", file_link)
+          expect(response.status_code).to eq(200)
+          expect(response.body).to eq(data)
+        end
+
+        response = handle HTTP::Request.new("GET", file_link)
+        expect(response.status_code).to eq(200)
+        expect(response.body).to eq(data)
+      end
+    end
+
+    # Cache should be 5 mb so no more files will be cached.
+    make_temporary_file("test cache size limit uncached") do |temporary_file, file_link|
+      cycle_temporary_file_contents(temporary_file, "a") do
+        response = handle HTTP::Request.new("GET", file_link)
+        expect(response.status_code).to eq(200)
+        expect(response.body).to eq("a")
+      end
+
+      response = handle HTTP::Request.new("GET", file_link)
+      expect(response.status_code).to eq(200)
+      expect(response.body).to_not eq("a")
+    end
+  end
+
   after_each { Invidious::HttpServer::StaticAssetsHandler.clear_cache }
 end
