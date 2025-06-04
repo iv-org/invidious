@@ -42,9 +42,19 @@ end
 # Makes and yields a temporary file with the given prefix
 private def make_temporary_file(prefix, contents = nil, &)
   tempfile = File.tempfile(prefix, "static_assets_handler_spec", dir: "spec/http_server/handlers/static_assets_handler")
-  yield tempfile
+  file_link = "/#{File.basename(tempfile.path)}"
+  yield tempfile, file_link
 ensure
   tempfile.try &.delete
+end
+
+# Changes the contents of the temporary file after yield
+private def cycle_temporary_file_contents(temporary_file, initial, &)
+  temporary_file.rewind << initial
+  temporary_file.rewind.flush
+  yield
+  temporary_file.rewind << "something else"
+  temporary_file.rewind.flush
 end
 
 # Get relative file path to a file within the static_assets_handler folder
@@ -60,24 +70,19 @@ Spectator.describe StaticAssetsHandler do
   end
 
   it "Can serve cached file" do
-    make_temporary_file("cache_test") do |temporary_file|
-      temporary_file.rewind << "foo"
-      temporary_file.flush
-      expect(temporary_file.rewind.gets_to_end).to eq("foo")
+    make_temporary_file("cache_test") do |temporary_file, file_link|
+      cycle_temporary_file_contents(temporary_file, "foo") do
+        expect(temporary_file.rewind.gets_to_end).to eq("foo")
 
-      file_link = "/#{File.basename(temporary_file.path)}"
+        # Should get cached by the first run
+        response = handle HTTP::Request.new("GET", file_link)
+        expect(response.status_code).to eq(200)
+        expect(response.body).to eq("foo")
+      end
 
-      # Should get cached by the first run
-      response = handle HTTP::Request.new("GET", file_link)
-      expect(response.status_code).to eq(200)
-      expect(response.body).to eq("foo")
-
-      # Update temporary file to "bar"
-      temporary_file.rewind << "bar"
-      temporary_file.flush
-      expect(temporary_file.rewind.gets_to_end).to eq("bar")
-
-      # Second request should still return "foo"
+      # Temporary file is updated after `cycle_temporary_file_contents` is called
+      # but if the file is successfully cached then we'll only get the original
+      # contents.
       response = handle HTTP::Request.new("GET", file_link)
       expect(response.status_code).to eq(200)
       expect(response.body).to eq("foo")
@@ -100,17 +105,10 @@ Spectator.describe StaticAssetsHandler do
     end
 
     it "Will cache entire file even if doing partial requests" do
-      make_temporary_file("range_cache") do |temporary_file|
-        temporary_file << "Hello world"
-        temporary_file.flush.rewind
-        file_link = "/#{File.basename(temporary_file.path)}"
-
-        # Make request
-        handle HTTP::Request.new("GET", file_link, HTTP::Headers{"Range" => "bytes=0-2"})
-
-        # Mutate file on disk
-        temporary_file << "Something else"
-        temporary_file.flush.rewind
+      make_temporary_file("range_cache") do |temporary_file, file_link|
+        cycle_temporary_file_contents(temporary_file, "Hello world") do
+          handle HTTP::Request.new("GET", file_link, HTTP::Headers{"Range" => "bytes=0-2"})
+        end
 
         # Second request shouldn't have changed
         headers = HTTP::Headers{"Range" => "bytes=3-8"}
@@ -134,19 +132,12 @@ Spectator.describe StaticAssetsHandler do
       handler = HTTP::CompressHandler.new
       handler.next = get_static_assets_handler()
 
-      make_temporary_file("check decompression handler") do |temporary_file|
-        temporary_file << "Hello world"
-        temporary_file.flush.rewind
-        file_link = "/#{File.basename(temporary_file.path)}"
-
-        # Can send from disk?
-        response = handle HTTP::Request.new("GET", file_link, headers: HTTP::Headers{"Accept-Encoding" => "gzip"}), handler: handler
-        expect(response.headers["Content-Encoding"]).to eq("gzip")
-        decompressed(response.body).to eq("Hello world")
-
-        temporary_file << "Hello world"
-        temporary_file.flush.rewind
-        file_link = "/#{File.basename(temporary_file.path)}"
+      make_temporary_file("check decompression handler") do |temporary_file, file_link|
+        cycle_temporary_file_contents(temporary_file, "Hello world") do
+          response = handle HTTP::Request.new("GET", file_link, headers: HTTP::Headers{"Accept-Encoding" => "gzip"}), handler: handler
+          expect(response.headers["Content-Encoding"]).to eq("gzip")
+          decompressed(response.body).to eq("Hello world")
+        end
 
         # Are cached requests working?
         response = handle HTTP::Request.new("GET", file_link, headers: HTTP::Headers{"Accept-Encoding" => "gzip"}), handler: handler
@@ -165,39 +156,37 @@ Spectator.describe StaticAssetsHandler do
       handler = HTTP::CompressHandler.new
       handler.next = get_static_assets_handler()
 
-      make_temporary_file("check_decompression_handler_on_partial_requests") do |temporary_file|
-        temporary_file << "Hello world this is a very long string"
-        temporary_file.flush.rewind
-        file_link = "/#{File.basename(temporary_file.path)}"
+      make_temporary_file("check_decompression_handler_on_partial_requests") do |temporary_file, file_link|
+        cycle_temporary_file_contents(temporary_file, "Hello world this is a very long string") do
+          range_response_results = {
+            "10-20/38" => "d this is a",
+            "0-0/38"   => "H",
+            "5-9/38"   => " worl",
+          }
 
-        range_response_results = {
-          "10-20/38" => "d this is a",
-          "0-0/38"   => "H",
-          "5-9/38"   => " worl",
-        }
+          range_request_header_value = {"10-20", "5-9", "0-0"}.join(',')
+          range_response_header_value = range_response_results.keys
 
-        range_request_header_value = {"10-20", "5-9", "0-0"}.join(',')
-        range_response_header_value = range_response_results.keys
+          response = handle HTTP::Request.new("GET", file_link, headers: HTTP::Headers{"Range" => "bytes=#{range_request_header_value}", "Accept-Encoding" => "gzip"}), handler: handler
+          expect(response.headers["Content-Encoding"]).to eq("gzip")
 
-        response = handle HTTP::Request.new("GET", file_link, headers: HTTP::Headers{"Range" => "bytes=#{range_request_header_value}", "Accept-Encoding" => "gzip"}), handler: handler
-        expect(response.headers["Content-Encoding"]).to eq("gzip")
+          # Decompress response
+          response = HTTP::Client::Response.new(
+            status: response.status,
+            headers: response.headers,
+            body_io: Compress::Gzip::Reader.new(IO::Memory.new(response.body)),
+          )
 
-        # Decompress response
-        response = HTTP::Client::Response.new(
-          status: response.status,
-          headers: response.headers,
-          body_io: Compress::Gzip::Reader.new(IO::Memory.new(response.body)),
-        )
+          count = 0
+          MIME::Multipart.parse(response) do |headers, part|
+            part_range = headers["Content-Range"][6..]
+            expect(part_range).to be_within(range_response_header_value)
+            expect(part.gets_to_end).to eq(range_response_results[part_range])
+            count += 1
+          end
 
-        count = 0
-        MIME::Multipart.parse(response) do |headers, part|
-          part_range = headers["Content-Range"][6..]
-          expect(part_range).to be_within(range_response_header_value)
-          expect(part.gets_to_end).to eq(range_response_results[part_range])
-          count += 1
+          expect(count).to eq(3)
         end
-
-        expect(count).to eq(3)
 
         # Is the file cached?
         temporary_file << "Something else"
