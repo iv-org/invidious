@@ -40,8 +40,6 @@
     "User ID": "Benutzer-ID",
     "Password": "Passwort",
     "Time (h:mm:ss):": "Zeit (h:mm:ss):",
-    "Text CAPTCHA": "Text CAPTCHA",
-    "Image CAPTCHA": "Bild CAPTCHA",
     "Sign In": "Anmelden",
     "Register": "Registrieren",
     "E-mail": "E-Mail",
@@ -501,5 +499,6 @@
     "carousel_skip": "Galerie überspringen",
     "Filipino (auto-generated)": "Philippinisch (automatisch generiert)",
     "channel_tab_courses_label": "Kurse",
-    "channel_tab_posts_label": "Beiträge"
+    "channel_tab_posts_label": "Beiträge",
+    "timeline_parse_error_show_technical_details": "Technische Details anzeigen"
 }
