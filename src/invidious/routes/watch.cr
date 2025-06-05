@@ -194,10 +194,14 @@ module Invidious::Routes::Watch
 
     if CONFIG.invidious_companion.present?
       invidious_companion = CONFIG.invidious_companion.sample
+      invidious_companion_urls = CONFIG.invidious_companion.map do |companion|
+        uri =
+          "#{companion.public_url.scheme}://#{companion.public_url.host}#{companion.public_url.port ? ":#{companion.public_url.port}" : ""}"
+      end.join(" ")
       env.response.headers["Content-Security-Policy"] =
         env.response.headers["Content-Security-Policy"]
-          .gsub("media-src", "media-src #{invidious_companion.public_url}")
-          .gsub("connect-src", "connect-src #{invidious_companion.public_url}")
+          .gsub("media-src", "media-src #{invidious_companion_urls}")
+          .gsub("connect-src", "connect-src #{invidious_companion_urls}")
     end
 
     templated "watch"
