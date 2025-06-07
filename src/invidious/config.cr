@@ -71,6 +71,37 @@ struct HTTPProxyConfig
   property port : Int32
 end
 
+# Structure used for global per-page feature toggles
+struct PagesEnabled
+  include YAML::Serializable
+
+  property trending : Bool = true
+  property popular : Bool = true
+  property search : Bool = true
+
+  def has_key?(key : String) : Bool
+    %w(trending popular search).includes?(key)
+  end
+
+  def [](key : String) : Bool
+    case key
+    when "trending" then @trending
+    when "popular"  then @popular
+    when "search"   then @search
+    else                 raise KeyError.new("Unknown page '#{key}'")
+    end
+  end
+
+  def []=(key : String, value : Bool)
+    case key
+    when "trending" then @trending = value
+    when "popular"  then @popular = value
+    when "search"   then @search = value
+    else                 raise KeyError.new("Unknown page '#{key}'")
+    end
+  end
+end
+
 class Config
   include YAML::Serializable
 
@@ -111,13 +142,25 @@ class Config
 
   # Used to tell Invidious it is behind a proxy, so links to resources should be https://
   property https_only : Bool?
+
   # HMAC signing key for CSRF tokens and verifying pubsub subscriptions
   property hmac_key : String = ""
   # Domain to be used for links to resources on the site where an absolute URL is required
   property domain : String?
   # Subscribe to channels using PubSubHubbub (requires domain, hmac_key)
   property use_pubsub_feeds : Bool | Int32 = false
+
+  # —————————————————————————————————————————————————————————————————————————————————————
+  # DEPRECATED: use `pages_enabled["popular"]` instead.
+  @[Deprecated("`popular_enabled` will be removed in a future release; use pages_enabled[\"popular\"] instead")]
   property popular_enabled : Bool = true
+
+  # Global per-page feature toggles.
+  # Valid keys: "trending", "popular", "search"
+  # If someone sets both `popular_enabled` and `pages_enabled["popular"]`, the latter takes precedence.
+  property pages_enabled : PagesEnabled = PagesEnabled.new
+  # —————————————————————————————————————————————————————————————————————————————————————
+
   property captcha_enabled : Bool = true
   property login_enabled : Bool = true
   property registration_enabled : Bool = true
@@ -188,13 +231,20 @@ class Config
     when Bool
       return disabled
     when Array
-      if disabled.includes? option
-        return true
-      else
-        return false
-      end
+      disabled.includes?(option)
     else
-      return false
+      false
+    end
+  end
+
+  # Centralized page toggle with legacy fallback for `popular_enabled`
+  def page_enabled?(page : String) : Bool
+    if @pages_enabled.has_key?(page)
+      @pages_enabled[page]
+    elsif page == "popular"
+      @popular_enabled
+    else
+      true
     end
   end
 
