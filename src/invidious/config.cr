@@ -71,6 +71,37 @@ struct HTTPProxyConfig
   property port : Int32
 end
 
+# Structure used for global per-page feature toggles
+struct PagesEnabled
+  include YAML::Serializable
+
+  property trending : Bool = true
+  property popular : Bool = true
+  property search : Bool = true
+
+  def has_key?(key : String) : Bool
+    %w(trending popular search).includes?(key)
+  end
+
+  def [](key : String) : Bool
+    case key
+    when "trending" then @trending
+    when "popular"  then @popular
+    when "search"   then @search
+    else                 raise KeyError.new("Unknown page '#{key}'")
+    end
+  end
+
+  def []=(key : String, value : Bool)
+    case key
+    when "trending" then @trending = value
+    when "popular"  then @popular = value
+    when "search"   then @search = value
+    else                 raise KeyError.new("Unknown page '#{key}'")
+    end
+  end
+end
+
 class Config
   include YAML::Serializable
 
@@ -127,11 +158,7 @@ class Config
   # Global per-page feature toggles.
   # Valid keys: "trending", "popular", "search"
   # If someone sets both `popular_enabled` and `pages_enabled["popular"]`, the latter takes precedence.
-  property pages_enabled : Hash(String, Bool) = {
-    "trending" => true,
-    "popular"  => true,
-    "search"   => true,
-  }
+  property pages_enabled : PagesEnabled = PagesEnabled.new
   # —————————————————————————————————————————————————————————————————————————————————————
 
   property captcha_enabled : Bool = true
@@ -212,10 +239,10 @@ class Config
 
   # Centralized page toggle with legacy fallback for `popular_enabled`
   def page_enabled?(page : String) : Bool
-    if pages_enabled.has_key?(page)
-      pages_enabled[page]
+    if @pages_enabled.has_key?(page)
+      @pages_enabled[page]
     elsif page == "popular"
-      popular_enabled
+      @popular_enabled
     else
       true
     end

@@ -40,12 +40,6 @@ module Invidious::Routes::Search
     prefs = env.get("preferences").as(Preferences)
     locale = prefs.locale
 
-    # if search is disabled, show the “disabled” message immediately
-    unless CONFIG.page_enabled?("search")
-      message = translate(locale, "search_page_disabled")
-      return templated "message"
-    end
-
     # otherwise, do a normal search
     region = env.params.query["region"]? || prefs.region
     query = Invidious::Search::Query.new(env.params.query, :regular, region)

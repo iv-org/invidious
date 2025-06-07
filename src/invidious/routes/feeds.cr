@@ -33,36 +33,24 @@ module Invidious::Routes::Feeds
 
   def self.popular(env)
     locale = env.get("preferences").as(Preferences).locale
-
-    if CONFIG.page_enabled?("popular")
-      templated "feeds/popular"
-    else
-      message = translate(locale, "popular_page_disabled")
-      templated "message"
-    end
+    templated "feeds/popular"
   end
 
   def self.trending(env)
     locale = env.get("preferences").as(Preferences).locale
+    trending_type = env.params.query["type"]?
+    trending_type ||= "Default"
 
-    if CONFIG.page_enabled?("trending")
-      trending_type = env.params.query["type"]?
-      trending_type ||= "Default"
+    region = env.params.query["region"]?
+    region ||= env.get("preferences").as(Preferences).region
 
-      region = env.params.query["region"]?
-      region ||= env.get("preferences").as(Preferences).region
-
-      begin
-        trending, plid = fetch_trending(trending_type, region, locale)
-      rescue ex
-        return error_template(500, ex)
-      end
-
-      templated "feeds/trending"
-    else
-      message = translate(locale, "trending_page_disabled")
-      templated "message"
+    begin
+      trending, plid = fetch_trending(trending_type, region, locale)
+    rescue ex
+      return error_template(500, ex)
     end
+
+    templated "feeds/trending"
   end
 
   def self.subscriptions(env)
