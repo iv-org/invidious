@@ -15,14 +15,14 @@ def text_to_parsed_content(text : String) : JSON::Any
     line.scan(/https?:\/\/[^ ]*/).each do |url_match|
       # Retrieve last node and update node without match
       last_node = current_nodes[-1].as_h
-      splitted_last_node = last_node["text"].as_s.split(url_match[0])
-      last_node["text"] = JSON.parse(splitted_last_node[0].to_json)
+      split_last_node = last_node["text"].as_s.split(url_match[0])
+      last_node["text"] = JSON.parse(split_last_node[0].to_json)
       current_nodes[-1] = JSON.parse(last_node.to_json)
       # Create new node with match and navigation infos
       current_node = {"text" => url_match[0], "navigationEndpoint" => {"urlEndpoint" => {"url" => url_match[0]}}}
       current_nodes << (JSON.parse(current_node.to_json))
       # If text remain after match create new simple node with text after match
-      after_node = {"text" => splitted_last_node.size > 1 ? splitted_last_node[1] : ""}
+      after_node = {"text" => split_last_node.size > 1 ? split_last_node[1] : ""}
       current_nodes << (JSON.parse(after_node.to_json))
     end
 

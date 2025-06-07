@@ -1,7 +1,7 @@
 module Invidious::Frontend::SearchFilters
   extend self
 
-  # Generate the search filters collapsable widget.
+  # Generate the search filters collapsible widget.
   def generate(filters : Search::Filters, query : String, page : Int, locale : String) : String
     return String.build(8000) do |str|
       str << "<div id='filters'>\n"

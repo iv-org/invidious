@@ -259,7 +259,7 @@ https_only: false
 # use_innertube_for_captions: false
 
 ##
-## Send Google session informations. This is useful when Invidious is blocked
+## Send Google session information. This is useful when Invidious is blocked
 ## by the message "This helps protect our community."
 ## See https://github.com/iv-org/invidious/issues/4734.
 ##
@@ -319,7 +319,7 @@ https_only: false
 #popular_enabled: true
 
 ##
-## Enable/Disable statstics (available at /api/v1/stats).
+## Enable/Disable statistics (available at /api/v1/stats).
 ## The following data is available:
 ##   - Software name ("invidious") and version+branch (same data as
 ##     displayed in the footer, e.g: "2021.05.13-75e5b49" / "master")
@@ -865,7 +865,7 @@ default_user_preferences:
   ##
   ## Default dash video quality.
   ##
-  ## Note: this setting only takes effet if the
+  ## Note: this setting only takes effect if the
   ## 'quality' parameter is set to "dash".
   ##
   ## Accepted values:

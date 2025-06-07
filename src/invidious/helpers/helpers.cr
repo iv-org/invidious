@@ -101,7 +101,7 @@ def create_notification_stream(env, topics, connection_channel)
         topics.try &.each do |topic|
           case topic
           when .match(/UC[A-Za-z0-9_-]{22}/)
-            Invidious::Database::ChannelVideos.select_notfications(topic, since_unix).each do |video|
+            Invidious::Database::ChannelVideos.select_notifications(topic, since_unix).each do |video|
               response = JSON.parse(video.to_json(locale))
 
               env.response.puts "id: #{id}"

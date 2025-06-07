@@ -15,7 +15,7 @@ Spectator.describe Invidious::Search::Query do
     #  Query parsing
     # -------------------
 
-    it "parses query with URL prameters (q)" do
+    it "parses query with URL parameters (q)" do
       query = described_class.new(
         HTTP::Params.parse("q=What+is+Love+10+hour&type=video&duration=long"),
         Invidious::Search::Query::Type::Regular, nil
@@ -33,7 +33,7 @@ Spectator.describe Invidious::Search::Query do
       )
     end
 
-    it "parses query with URL prameters (search_query)" do
+    it "parses query with URL parameters (search_query)" do
       query = described_class.new(
         HTTP::Params.parse("search_query=What+is+Love+10+hour&type=video&duration=long"),
         Invidious::Search::Query::Type::Regular, nil

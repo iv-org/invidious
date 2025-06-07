@@ -149,7 +149,7 @@ An HTTP proxy can be configured directly in Invidious, if needed. \
 * The instance list is downloaded in the background to improve redirection speed
 * New `colorize_logs` option makes each log level a different color
 
-#### For developpers
+#### For developers
 
 * `/api/v1/channels/{id}/shorts` now supports the `sort-by` parameter with the following values:
   `newest`, `oldest` and `popular`
@@ -301,7 +301,7 @@ Allow manual trigger of release-container build ([#4877], thanks @syeopite)
 
 [inv_sig_helper]: https://github.com/iv-org/inv_sig_helper
 
-#### For developpers
+#### For developers
 
 * The versions of Crystal that we test in CI/CD are now: `1.9.2`, `1.10.1`, `1.11.2`, `1.12.1`.
   Please note that due to a bug in the `libxml` bindings (See [#4256]), versions prior to `1.10.0`
@@ -328,7 +328,7 @@ Allow manual trigger of release-container build ([#4877], thanks @syeopite)
 * Watch page: the items in the "add to playlist" drop down are now sorted alphabetically
 * Videos: the "genre" URL is now always pointing to a valid webpage
 * Playlists: Fixed `Could not parse N episodes` error on podcast playlists
-* All external links should now have the [`rel`] attibute set to `noreferrer noopener` for
+* All external links should now have the [`rel`] attribute set to `noreferrer noopener` for
   increased privacy.
 * Preferences: Fixed the admin-only "modified source code" input being ignored
 * Watch/channel pages: use the full image URL in `og:image` and `twitter:image` meta tags
@@ -338,7 +338,7 @@ Allow manual trigger of release-container build ([#4877], thanks @syeopite)
 #### API
 
 * fixed the `local` parameter not applying to `formatStreams` on `/api/v1/videos/{id}`
-* fixed an `Index out of bounds` error hapenning when a playlist had no videos
+* fixed an `Index out of bounds` error happening when a playlist had no videos
 * fixed duplicated query parameters in proxied video URLs
 * Return actual video height/width/fps rather than hard coded values
 * Fixed the `/api/v1/popular` endpoint not returning a proper error code/message when the
@@ -357,7 +357,7 @@ Allow manual trigger of release-container build ([#4877], thanks @syeopite)
 * Channel: Render age restricted channels ([#4295], thanks @ChunkyProgrammer)
 * Ameba: Miscellaneous fixes ([#4807], thanks @syeopite)
 * API: Proxy formatStreams URLs too ([#4859], thanks @colinleroy)
-* UI: Add search button to search bar ([#4706], thanks @thansk)
+* UI: Add search button to search bar ([#4706], thanks @thanks)
 * Add ability to set po_token and visitordata ID ([#4789], thanks @unixfox)
 * Add support for an external signature server ([#4772], by @SamantazFox)
 * Ameba: Fix Naming/VariableNames ([#4790], thanks @syeopite)
