@@ -405,7 +405,7 @@
     "next_steps_error_message_go_to_youtube": "Andare su YouTube",
     "footer_documentation": "Documentazione",
     "footer_original_source_code": "Codice sorgente originale",
-    "footer_modfied_source_code": "Codice sorgente modificato",
+    "footer_modified_source_code": "Codice sorgente modificato",
     "none": "nessuno",
     "videoinfo_started_streaming_x_ago": "Ha iniziato a trasmettere `x` fa",
     "download_subtitles": "Sottotitoli - `x` (.vtt)",
