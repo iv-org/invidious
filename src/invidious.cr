@@ -60,7 +60,13 @@ alias IV = Invidious
 CONFIG   = Config.load
 HMAC_KEY = CONFIG.hmac_key
 
-PG_DB       = DB.open CONFIG.database_url
+PG_DB = begin
+  DB.open CONFIG.database_url
+rescue ex
+  puts "Failed to connect to PostgreSQL database: #{ex.cause.try &.message}"
+  puts "Check your 'config.yml' database settings or PostgreSQL settings."
+  exit(1)
+end
 ARCHIVE_URL = URI.parse("https://archive.org")
 PUBSUB_URL  = URI.parse("https://pubsubhubbub.appspot.com")
 REDDIT_URL  = URI.parse("https://www.reddit.com")
