@@ -42,6 +42,7 @@ module YoutubeAPI
 
     TvHtml5
     TvHtml5ScreenEmbed
+    TvSimply
   end
 
   # List of hard-coded values used by the different clients
@@ -177,6 +178,11 @@ module YoutubeAPI
       name_proto: "85",
       version:    "2.0",
       screen:     "EMBED",
+    },
+    ClientType::TvSimply => {
+      name:       "TVHTML5_SIMPLY",
+      name_proto: "74",
+      version:    "1.0",
     },
   }
 
