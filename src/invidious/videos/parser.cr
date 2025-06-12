@@ -118,7 +118,7 @@ def extract_video_info(video_id : String)
 
         next if !(player_fallback_response = try_fetch_streaming_data(video_id, client_config))
 
-        if player_fallback_response.dig?("streamingData", "adaptiveFormats", 0, "url")
+        if player_fallback_response.dig?("streamingData", "adaptiveFormats", 0, "url") || player_fallback_response.dig?("streamingData", "adaptiveFormats", 0, "signatureCipher")
           streaming_data = player_response["streamingData"].as_h
           streaming_data["adaptiveFormats"] = player_fallback_response["streamingData"]["adaptiveFormats"]
           player_response["streamingData"] = JSON::Any.new(streaming_data)
