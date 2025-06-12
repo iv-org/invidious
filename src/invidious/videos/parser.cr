@@ -111,7 +111,7 @@ def extract_video_info(video_id : String)
   if !CONFIG.invidious_companion.present?
     if player_response.dig?("streamingData", "adaptiveFormats", 0, "url").nil?
       LOGGER.warn("Missing URLs for adaptive formats, falling back to other YT clients.")
-      players_fallback = {YoutubeAPI::ClientType::TvHtml5, YoutubeAPI::ClientType::WebMobile}
+      players_fallback = {YoutubeAPI::ClientType::TvHtml5, YoutubeAPI::ClientType::TvSimply, YoutubeAPI::ClientType::WebMobile}
 
       players_fallback.each do |player_fallback|
         client_config.client_type = player_fallback
