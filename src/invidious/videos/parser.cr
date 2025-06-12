@@ -146,10 +146,11 @@ def extract_video_info(video_id : String)
   if streaming_data = player_response["streamingData"]?
     %w[formats adaptiveFormats].each do |key|
       streaming_data.as_h[key]?.try &.as_a.each do |format|
-        if format.as_h["url"].nil?
-          format.as_h["url"] = format.as_h["signatureCipher"]
+        format = format.as_h
+        if format["url"]?.nil?
+          format["url"] = format["signatureCipher"]
         end
-        format.as_h["url"] = JSON::Any.new(convert_url(format))
+        format["url"] = JSON::Any.new(convert_url(format))
       end
     end
 
