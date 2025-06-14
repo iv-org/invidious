@@ -46,6 +46,7 @@ module Invidious::Routing
     self.register_api_v1_routes
     self.register_api_manifest_routes
     self.register_video_playback_routes
+    self.register_companion_routes
   end
 
   # -------------------
