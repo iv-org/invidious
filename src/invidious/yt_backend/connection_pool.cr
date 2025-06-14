@@ -46,13 +46,18 @@ struct YoutubeConnectionPool
   end
 end
 
-class CompanionWrapper
+# Packages a `HTTP::Client` to an Invidious companion instance alongside the configuration for that instance.
+#  
+# This is used as the resource for the `CompanionPool` as to allow the ability to
+# proxy the requests to Invidious companion from Invidious directly.
+# Instead of setting up routes in a reverse proxy.
+struct CompanionWrapper
   property client : HTTP::Client
   property companion : Config::CompanionConfig
 
   def initialize(companion : Config::CompanionConfig)
     @companion = companion
-    @client = HTTP::Client.new(companion.private_url)
+    @client = make_client(companion.private_url, use_http_proxy: false)
   end
 
   def close
@@ -73,7 +78,7 @@ struct CompanionConnectionPool
 
     @pool = DB::Pool(CompanionWrapper).new(options) do
       companion = CONFIG.invidious_companion.sample
-      client = make_client(companion.private_url, use_http_proxy: false)
+      make_client(companion.private_url, use_http_proxy: false)
       CompanionWrapper.new(companion: companion)
     end
   end
@@ -84,10 +89,10 @@ struct CompanionConnectionPool
     begin
       response = yield wrapper
     rescue ex
-      wrapper.client.close
+      wrapper.close
 
       companion = CONFIG.invidious_companion.sample
-      client = make_client(companion.private_url, use_http_proxy: false)
+      make_client(companion.private_url, use_http_proxy: false)
       wrapper = CompanionWrapper.new(companion: companion)
 
       response = yield wrapper

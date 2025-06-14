@@ -28,10 +28,6 @@ module Invidious::Routes::Companion
       env.response.headers[key] = value
     end
 
-    if response.status_code >= 300
-      return env.response.headers.delete("Transfer-Encoding")
-    end
-
-    return proxy_file(response, env)
+    return IO.copy response.body_io, env.response
   end
 end
