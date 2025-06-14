@@ -706,7 +706,7 @@ module YoutubeAPI
       COMPANION_POOL.client do |wrapper|
         companion_base_url = wrapper.companion.private_url.path
 
-        wrapper.client.post("#{companion_base_url}#{endpoint}", headers: headers, body: data.to_json) do | response |
+        wrapper.client.post("#{companion_base_url}#{endpoint}", headers: headers, body: data.to_json) do |response|
           response_body = JSON.parse(response.body_io).as_h
         end
       end

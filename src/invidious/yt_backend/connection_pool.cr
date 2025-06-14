@@ -47,7 +47,7 @@ struct YoutubeConnectionPool
 end
 
 # Packages a `HTTP::Client` to an Invidious companion instance alongside the configuration for that instance.
-#  
+#
 # This is used as the resource for the `CompanionPool` as to allow the ability to
 # proxy the requests to Invidious companion from Invidious directly.
 # Instead of setting up routes in a reverse proxy.

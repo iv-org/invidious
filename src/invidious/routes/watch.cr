@@ -198,7 +198,7 @@ module Invidious::Routes::Watch
         uri =
           "#{companion.public_url.scheme}://#{companion.public_url.host}#{companion.public_url.port ? ":#{companion.public_url.port}" : ""}"
       end.join(" ")
-      
+
       if !invidious_companion_urls.empty?
         env.response.headers["Content-Security-Policy"] =
           env.response.headers["Content-Security-Policy"]
