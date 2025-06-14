@@ -701,25 +701,17 @@ module YoutubeAPI
     # Send the POST request
 
     begin
-      response_body = ""
+      response_body = Hash(String, JSON::Any).new
 
       COMPANION_POOL.client do |wrapper|
         companion_base_url = wrapper.companion.private_url.path
-        puts "Using companion: #{wrapper.companion.private_url}"
 
-        response = wrapper.client.post(companion_base_url + endpoint, headers: headers, body: data.to_json)
-        response_body = response.body
-
-        if response.status_code != 200
-          raise Exception.new(
-            "Error while communicating with Invidious companion: " \
-            "status code: #{response.status_code} and body: #{response_body.dump}"
-          )
+        wrapper.client.post("#{companion_base_url}#{endpoint}", headers: headers, body: data.to_json) do | response |
+          response_body = JSON.parse(response.body_io).as_h
         end
       end
 
-      # Convert result to Hash
-      return JSON.parse(response_body).as_h
+      return response_body
     rescue ex
       raise InfoException.new("Error while communicating with Invidious companion: " + (ex.message || "no extra info found"))
     end
