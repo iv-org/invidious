@@ -319,6 +319,18 @@ class Config
       end
     end
 
+    # Check if the domain configuration is valid
+    if (domain = config.domain).nil? || domain.empty?
+      puts "Config: 'domain' is required/can't be empty"
+      exit(1)
+    elsif parsed_domain = URI.parse(domain)
+      if !parsed_domain.scheme.nil?
+        puts "Config: 'domain' cannot contain a scheme (#{parsed_domain.scheme})"
+        puts "Config: (Hint) Set 'domain' to '#{parsed_domain.host}'"
+        exit(1)
+      end
+    end
+
     return config
   end
 end
