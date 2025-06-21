@@ -62,8 +62,8 @@ HMAC_KEY = CONFIG.hmac_key
 
 PG_DB = begin
   DB.open CONFIG.database_url
-rescue ex
-  puts "Failed to connect to PostgreSQL database: #{ex.cause.try &.message}"
+rescue exc
+  puts "Failed to connect to PostgreSQL database: #{exc.cause.try &.message}"
   puts "Check your 'config.yml' database settings or PostgreSQL settings."
   exit(1)
 end
