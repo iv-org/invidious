@@ -17,11 +17,20 @@ module Invidious::Comments
   end
 
   def fetch_community_post_comments(ucid, post_id, sort_by = "top")
+    case sort_by
+    when "top"
+      sort_by_val = 0_i64
+    when "new", "newest"
+      sort_by_val = 1_i64
+    else # top
+      sort_by_val = 0_i64
+    end
+
     object = {
       "2:string"    => "posts",
       "53:embedded" => {
         "4:embedded" => {
-          "6:varint"  => 0_i64,
+          "6:varint"  => sort_by_val,
           "15:varint" => 2_i64,
           "25:varint" => 0_i64,
           "29:string" => post_id,
@@ -31,15 +40,6 @@ module Invidious::Comments
         "8:string" => "comments-section",
       },
     }
-
-    case sort_by
-    when "top"
-      object["53:embedded"].as(Hash)["4:embedded"].as(Hash)["6:varint"] = 0_i64
-    when "new", "newest"
-      object["53:embedded"].as(Hash)["4:embedded"].as(Hash)["6:varint"] = 1_i64
-    else # top
-      object["53:embedded"].as(Hash)["4:embedded"].as(Hash)["6:varint"] = 0_i64
-    end
 
     object_parsed = object.try { |i| Protodec::Any.cast_json(i) }
       .try { |i| Protodec::Any.from_json(i) }
@@ -324,6 +324,15 @@ module Invidious::Comments
   end
 
   def produce_continuation(video_id, cursor = "", sort_by = "top")
+    case sort_by
+    when "top"
+      sort_by_val = 0_i64
+    when "new", "newest"
+      sort_by_val = 1_i64
+    else # top
+      sort_by_val = 0_i64
+    end
+
     object = {
       "2:embedded" => {
         "2:string"    => video_id,
@@ -344,20 +353,11 @@ module Invidious::Comments
         "1:string"   => cursor,
         "4:embedded" => {
           "4:string" => video_id,
-          "6:varint" => 0_i64,
+          "6:varint" => sort_by_val,
         },
         "5:varint" => 20_i64,
       },
     }
-
-    case sort_by
-    when "top"
-      object["6:embedded"].as(Hash)["4:embedded"].as(Hash)["6:varint"] = 0_i64
-    when "new", "newest"
-      object["6:embedded"].as(Hash)["4:embedded"].as(Hash)["6:varint"] = 1_i64
-    else # top
-      object["6:embedded"].as(Hash)["4:embedded"].as(Hash)["6:varint"] = 0_i64
-    end
 
     continuation = object.try { |i| Protodec::Any.cast_json(i) }
       .try { |i| Protodec::Any.from_json(i) }
