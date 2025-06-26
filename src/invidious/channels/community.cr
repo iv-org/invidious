@@ -3,8 +3,8 @@ private IMAGE_QUALITIES = {320, 560, 640, 1280, 2000}
 # TODO: Add "sort_by"
 def fetch_channel_community(ucid, cursor, locale, format, thin_mode)
   if cursor.nil?
-    # Egljb21tdW5pdHk%3D is the protobuf object to load "community"
-    initial_data = YoutubeAPI.browse(ucid, params: "Egljb21tdW5pdHk%3D")
+    # EgVwb3N0c_IGBAoCSgA%3D is the protobuf object to load "community"
+    initial_data = YoutubeAPI.browse(ucid, params: "EgVwb3N0c_IGBAoCSgA%3D")
 
     items = [] of JSON::Any
     extract_items(initial_data) do |item|
