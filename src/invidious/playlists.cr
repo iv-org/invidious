@@ -438,7 +438,7 @@ def get_playlist_videos(playlist : InvidiousPlaylist | Playlist, offset : Int32,
       # 100 videos per request
       ctoken = produce_playlist_continuation(playlist.id, offset)
       initial_data = YoutubeAPI.browse(ctoken)
-      videos += extract_playlist_videos(initial_data)
+      videos += extract_playlist_videos(playlist.id, initial_data)
 
       offset += 100
     end
@@ -447,7 +447,7 @@ def get_playlist_videos(playlist : InvidiousPlaylist | Playlist, offset : Int32,
   end
 end
 
-def extract_playlist_videos(initial_data : Hash(String, JSON::Any))
+def extract_playlist_videos(playlist_id : String, initial_data : Hash(String, JSON::Any))
   videos = [] of PlaylistVideo | ProblematicTimelineItem
 
   if initial_data["contents"]?
@@ -475,7 +475,7 @@ def extract_playlist_videos(initial_data : Hash(String, JSON::Any))
     if i = item["playlistVideoRenderer"]?
       video_id = i.dig?("navigationEndpoint", "watchEndpoint", "videoId").try &.as_s || i.dig("videoId").as_s
       plid = i.dig?("navigationEndpoint", "watchEndpoint", "playlistId").try &.as_s || playlist_id
-      index = i.dig?("navigationEndpoint", "watchEndpoint", "index").try &.as_i64 || i.dig("index", "simpleText").as_i64
+      index = i.dig?("navigationEndpoint", "watchEndpoint", "index").try &.as_i64 || i.dig("index", "simpleText").as_s.to_i64
 
       title = i["title"].try { |t| t["simpleText"]? || t["runs"]?.try &.[0]["text"]? }.try &.as_s || ""
       author = i["shortBylineText"]?.try &.["runs"][0]["text"].as_s || ""
