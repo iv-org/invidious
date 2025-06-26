@@ -16,26 +16,30 @@ module Invidious::Comments
     return parse_youtube(id, response, format, locale, thin_mode, sort_by)
   end
 
-  def fetch_community_post_comments(ucid, post_id)
+  def fetch_community_post_comments(ucid, post_id, sort_by = "top")
     object = {
-      "2:string"    => "community",
-      "25:embedded" => {
-        "22:string" => post_id,
-      },
-      "45:embedded" => {
-        "2:varint" => 1_i64,
-        "3:varint" => 1_i64,
-      },
+      "2:string"    => "posts",
       "53:embedded" => {
         "4:embedded" => {
           "6:varint"  => 0_i64,
-          "27:varint" => 1_i64,
+          "15:varint" => 2_i64,
+          "25:varint" => 0_i64,
           "29:string" => post_id,
           "30:string" => ucid,
         },
+        "7:varint" => 0_i64,
         "8:string" => "comments-section",
       },
     }
+
+    case sort_by
+    when "top"
+      object["53:embedded"].as(Hash)["4:embedded"].as(Hash)["6:varint"] = 0_i64
+    when "new", "newest"
+      object["53:embedded"].as(Hash)["4:embedded"].as(Hash)["6:varint"] = 1_i64
+    else # top
+      object["53:embedded"].as(Hash)["4:embedded"].as(Hash)["6:varint"] = 0_i64
+    end
 
     object_parsed = object.try { |i| Protodec::Any.cast_json(i) }
       .try { |i| Protodec::Any.from_json(i) }
@@ -43,7 +47,7 @@ module Invidious::Comments
 
     object2 = {
       "80226972:embedded" => {
-        "2:string" => ucid,
+        "2:string" => "FEcomment_post_detail_page_web_top_level",
         "3:string" => object_parsed,
       },
     }
