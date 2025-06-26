@@ -34,7 +34,7 @@ module Invidious::Frontend::WatchPage
       str << " class=\"pure-form pure-form-stacked\""
       str << " action='#{url}'"
       str << " method='post'"
-      str << " rel='noopener'"
+      str << " rel='noopener noreferrer'"
       str << " target='_blank'>"
       str << '\n'
 
