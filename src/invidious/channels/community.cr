@@ -26,9 +26,9 @@ end
 
 def decode_ucid_from_post_protobuf(params)
   decoded_protobuf = params.try { |i| URI.decode_www_form(i) }
-  .try { |i| Base64.decode(i) }
-  .try { |i| IO::Memory.new(i) }
-  .try { |i| Protodec::Any.parse(i) }
+    .try { |i| Base64.decode(i) }
+    .try { |i| IO::Memory.new(i) }
+    .try { |i| Protodec::Any.parse(i) }
 
   return decoded_protobuf.try(&.["56:0:embedded"]["2:0:string"].as_s)
 end
@@ -36,10 +36,10 @@ end
 def fetch_channel_community_post(ucid, post_id, locale, format, thin_mode)
   object = {
     "56:embedded" => {
-      "2:string" => ucid,
-      "3:string" => post_id.to_s,
+      "2:string"  => ucid,
+      "3:string"  => post_id.to_s,
       "11:string" => ucid,
-    }
+    },
   }
   params = object.try { |i| Protodec::Any.cast_json(i) }
     .try { |i| Protodec::Any.from_json(i) }

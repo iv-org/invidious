@@ -197,8 +197,8 @@ module Invidious::Routes::API::V1::Misc
           .try { |i| IO::Memory.new(i) }
           .try { |i| Protodec::Any.parse(i) }
 
-          ucid = decoded_protobuf.try(&.["56:0:embedded"]["2:0:string"].as_s)
-          post_id = decoded_protobuf.try(&.["56:0:embedded"]["3:1:string"].as_s)
+        ucid = decoded_protobuf.try(&.["56:0:embedded"]["2:0:string"].as_s)
+        post_id = decoded_protobuf.try(&.["56:0:embedded"]["3:1:string"].as_s)
       else
         ucid = sub_endpoint["browseId"]? if sub_endpoint["browseId"]? && sub_endpoint["browseId"]?.try &.as_s.starts_with? "UC"
         post_id = nil
