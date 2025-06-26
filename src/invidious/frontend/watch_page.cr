@@ -32,7 +32,7 @@ module Invidious::Frontend::WatchPage
     return String.build(4000) do |str|
       str << "<form"
       str << " class=\"pure-form pure-form-stacked\""
-      str << " action='#{url}'"
+      str << " action='" << HTML.escape(url) << "'"
       str << " method='post'"
       str << " rel='noopener'"
       str << " target='_blank'>"
