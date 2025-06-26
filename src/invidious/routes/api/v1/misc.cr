@@ -190,15 +190,30 @@ module Invidious::Routes::API::V1::Misc
 
       sub_endpoint = endpoint["watchEndpoint"]? || endpoint["browseEndpoint"]? || endpoint
       params = sub_endpoint.try &.dig?("params")
+
+      if sub_endpoint["browseId"]?.try &.as_s == "FEpost_detail"
+        decoded_protobuf = params.try &.as_s.try { |i| URI.decode_www_form(i) }
+          .try { |i| Base64.decode(i) }
+          .try { |i| IO::Memory.new(i) }
+          .try { |i| Protodec::Any.parse(i) }
+
+          ucid = decoded_protobuf.try(&.["56:0:embedded"]["2:0:string"].as_s)
+          post_id = decoded_protobuf.try(&.["56:0:embedded"]["3:1:string"].as_s)
+      else
+        ucid = sub_endpoint["browseId"]? if sub_endpoint["browseId"]? && sub_endpoint["browseId"]?.try &.as_s.starts_with? "UC"
+        post_id = nil
+      end
     rescue ex
       return error_json(500, ex)
     end
     JSON.build do |json|
       json.object do
-        json.field "ucid", sub_endpoint["browseId"].as_s if sub_endpoint["browseId"]?
+        json.field "browseId", sub_endpoint["browseId"].as_s if sub_endpoint["browseId"]?
+        json.field "ucid", ucid if ucid != nil
         json.field "videoId", sub_endpoint["videoId"].as_s if sub_endpoint["videoId"]?
         json.field "playlistId", sub_endpoint["playlistId"].as_s if sub_endpoint["playlistId"]?
         json.field "startTimeSeconds", sub_endpoint["startTimeSeconds"].as_i if sub_endpoint["startTimeSeconds"]?
+        json.field "postId", post_id if post_id != nil
         json.field "params", params.try &.as_s
         json.field "pageType", page_type
       end
