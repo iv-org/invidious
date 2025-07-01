@@ -450,7 +450,7 @@ if (!video_data.params.listen && video_data.params.annotations) {
             if (target === 'current') {
                 location.href = path;
             } else if (target === 'new') {
-                open(path, '_blank', 'noopener,noreferrer')
+                open(path, '_blank', 'noopener,noreferrer');
             }
         });
 
