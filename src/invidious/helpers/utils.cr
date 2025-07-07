@@ -1,5 +1,3 @@
-require "uri/params/serializable"
-
 # See http://www.evanmiller.org/how-not-to-sort-by-average-rating.html
 def ci_lower_bound(pos, n)
   if n == 0
@@ -411,15 +409,20 @@ def invidious_companion_encrypt(data)
 end
 
 struct PrivateParams
-  include URI::Params::Serializable
   include JSON::Serializable
 
   property ip : String = ""
-  property pot : String = ""
+  property pot : String? = nil
+
+  def initialize(@ip, @pot)
+  end
 end
 
 def encrypt_query_params(query_params : URI::Params) : String
-  private_params = PrivateParams.from_www_form(query_params.to_s).to_json
+  private_params = PrivateParams.new(
+    query_params["ip"],
+    query_params["pot"]?,
+  ).to_json
   encrypted_data = ecb_without_salt(private_params, CONFIG.hmac_key, :encrypt)
   return Base64.urlsafe_encode(encrypted_data)
 end

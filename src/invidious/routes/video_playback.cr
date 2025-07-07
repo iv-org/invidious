@@ -6,8 +6,10 @@ module Invidious::Routes::VideoPlayback
 
     if query_params["enc"]? == "true"
       decrypted_data = decrypt_query_params(query_params["data"])
-      query_params["ip"] = decrypted_data.ip
-      query_params["pot"] = decrypted_data.pot
+      query_params.add("ip", decrypted_data.ip)
+      if pot = decrypted_data.pot
+        query_params.add("pot", pot)
+      end
       query_params.delete("enc")
       query_params.delete("data")
     end

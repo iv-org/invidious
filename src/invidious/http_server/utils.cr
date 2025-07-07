@@ -14,7 +14,7 @@ module Invidious::HttpServer
         params["enc"] = "true"
         params["data"] = encrypted_data
         params.delete("ip")
-        params.delete("pot")
+        params.delete("pot") if params.has_key?("pot")
       end
       params["host"] = url.host.not_nil! # Should never be nil, in theory
       params["region"] = region if !region.nil?
