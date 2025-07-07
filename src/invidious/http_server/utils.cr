@@ -9,6 +9,13 @@ module Invidious::HttpServer
 
       # Add some URL parameters
       params = url.query_params
+      if CONFIG.encrypt_query_params
+        encrypted_data = encrypt_query_params(params)
+        params["enc"] = "true"
+        params["data"] = encrypted_data
+        params.delete("ip")
+        params.delete("pot")
+      end
       params["host"] = url.host.not_nil! # Should never be nil, in theory
       params["region"] = region if !region.nil?
       url.query_params = params

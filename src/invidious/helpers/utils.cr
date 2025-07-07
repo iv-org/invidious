@@ -1,3 +1,5 @@
+require "uri/params/serializable"
+
 # See http://www.evanmiller.org/how-not-to-sort-by-average-rating.html
 def ci_lower_bound(pos, n)
   if n == 0
@@ -384,12 +386,17 @@ def parse_link_endpoint(endpoint : JSON::Any, text : String, video_id : String)
   return text
 end
 
-def encrypt_ecb_without_salt(data, key)
+def ecb_without_salt(data : String, key : String, mode : Symbol)
   cipher = OpenSSL::Cipher.new("aes-128-ecb")
-  cipher.encrypt
+  case mode
+  when :encrypt
+    cipher.encrypt
+  when :decrypt
+    cipher.decrypt
+  end
   cipher.key = key
 
-  io = IO::Memory.new
+  io = IO::Memory.new(data.bytesize + 16)
   io.write(cipher.update(data))
   io.write(cipher.final)
   io.rewind
@@ -399,6 +406,27 @@ end
 
 def invidious_companion_encrypt(data)
   timestamp = Time.utc.to_unix
-  encrypted_data = encrypt_ecb_without_salt("#{timestamp}|#{data}", CONFIG.invidious_companion_key)
+  encrypted_data = ecb_without_salt("#{timestamp}|#{data}", CONFIG.invidious_companion_key, :encrypt)
   return Base64.urlsafe_encode(encrypted_data)
+end
+
+struct PrivateParams
+  include URI::Params::Serializable
+  include JSON::Serializable
+
+  property ip : String = ""
+  property pot : String = ""
+end
+
+def encrypt_query_params(query_params : URI::Params) : String
+  private_params = PrivateParams.from_www_form(query_params.to_s).to_json
+  encrypted_data = ecb_without_salt(private_params, CONFIG.hmac_key, :encrypt)
+  return Base64.urlsafe_encode(encrypted_data)
+end
+
+def decrypt_query_params(query_param_data : String) : PrivateParams
+  query_param_data = Base64.decode_string(query_param_data)
+  decrypted_data = ecb_without_salt(query_param_data, CONFIG.hmac_key, :decrypt)
+  private_params = PrivateParams.from_json(decrypted_data)
+  return private_params
 end

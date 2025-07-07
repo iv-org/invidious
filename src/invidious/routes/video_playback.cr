@@ -4,6 +4,14 @@ module Invidious::Routes::VideoPlayback
     locale = env.get("preferences").as(Preferences).locale
     query_params = env.params.query
 
+    if query_params["enc"]? == "true"
+      decrypted_data = decrypt_query_params(query_params["data"])
+      query_params["ip"] = decrypted_data.ip
+      query_params["pot"] = decrypted_data.pot
+      query_params.delete("enc")
+      query_params.delete("data")
+    end
+
     fvip = query_params["fvip"]? || "3"
     mns = query_params["mn"]?.try &.split(",")
     mns ||= [] of String

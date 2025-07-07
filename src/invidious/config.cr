@@ -183,6 +183,8 @@ class Config
   # Playlist length limit
   property playlist_length_limit : Int32 = 500
 
+  property encrypt_query_params : Bool = false
+
   def disabled?(option)
     case disabled = CONFIG.disable_proxy
     when Bool

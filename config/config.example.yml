@@ -568,6 +568,21 @@ hmac_key: "CHANGE_ME!!"
 ##
 #playlist_length_limit: 500
 
+##
+## Encrypts query params 'ip' and 'pot'
+## This is useful if you don't want to leak the IP address
+## and PoToken used when fetching a Youtube video.
+##
+## Note: This will only work if the 'Proxy videos' preference is enabled
+## on the Player preferences. Users that do not have 'Proxy videos' enabled
+## will be able to see the IP address and PoToken used on videoplayback
+## requests.
+##
+## Accepted values: true, false
+## Default: false
+##
+#encrypt_query_params: false
+
 #########################################
 #
 #  Default user preferences
