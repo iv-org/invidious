@@ -18,6 +18,8 @@ services:
       # Please read the following file for a comprehensive list of all available
       # configuration options and their associated syntax:
       # https://github.com/iv-org/invidious/blob/master/config/config.example.yml
+      # Uncomment to increase max request line size (if you get 414 errors):
+      # INVIDIOUS_MAX_REQUEST_LINE_SIZE: 16384
       INVIDIOUS_CONFIG: |
         db:
           dbname: invidious
