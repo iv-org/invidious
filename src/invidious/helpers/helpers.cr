@@ -186,15 +186,24 @@ end
 #
 # Creates a new tracker when unavailable.
 def get_playback_statistic
-  if (tracker = Invidious::Jobs::StatisticsRefreshJob::STATISTICS["playback"]) && tracker.as(Hash).empty?
-    tracker = {
+  {% unless flag?(:api_only) %}
+    if (tracker = Invidious::Jobs::StatisticsRefreshJob::STATISTICS["playback"]) && tracker.as(Hash).empty?
+      tracker = {
+        "totalRequests"      => 0_i64,
+        "successfulRequests" => 0_i64,
+        "ratio"              => 0_f64,
+      }
+
+      Invidious::Jobs::StatisticsRefreshJob::STATISTICS["playback"] = tracker
+    end
+
+    return tracker.as(Hash(String, Int64 | Float64))
+  {% else %}
+    # Return empty statistics in API-only mode
+    return {
       "totalRequests"      => 0_i64,
       "successfulRequests" => 0_i64,
       "ratio"              => 0_f64,
     }
-
-    Invidious::Jobs::StatisticsRefreshJob::STATISTICS["playback"] = tracker
-  end
-
-  return tracker.as(Hash(String, Int64 | Float64))
+  {% end %}
 end

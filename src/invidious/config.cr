@@ -107,7 +107,9 @@ class Config
   property full_refresh : Bool = false
 
   # Jobs config structure. See jobs.cr and jobs/base_job.cr
-  property jobs = Invidious::Jobs::JobsConfig.new
+  {% unless flag?(:api_only) %}
+    property jobs = Invidious::Jobs::JobsConfig.new
+  {% end %}
 
   # Used to tell Invidious it is behind a proxy, so links to resources should be https://
   property https_only : Bool?
@@ -285,21 +287,28 @@ class Config
     end
 
     # Build database_url from db.* if it's not set directly
-    if config.database_url.to_s.empty?
-      if db = config.db
-        config.database_url = URI.new(
-          scheme: "postgres",
-          user: db.user,
-          password: db.password,
-          host: db.host,
-          port: db.port,
-          path: db.dbname,
-        )
-      else
-        puts "Config: Either database_url or db.* is required"
-        exit(1)
+    {% unless flag?(:api_only) %}
+      if config.database_url.to_s.empty?
+        if db = config.db
+          config.database_url = URI.new(
+            scheme: "postgres",
+            user: db.user,
+            password: db.password,
+            host: db.host,
+            port: db.port,
+            path: db.dbname,
+          )
+        else
+          puts "Config: Either database_url or db.* is required"
+          exit(1)
+        end
       end
-    end
+    {% else %}
+      # In API-only mode, database is optional
+      if config.database_url.to_s.empty?
+        config.database_url = URI.parse("postgres://dummy:dummy@localhost/dummy")
+      end
+    {% end %}
 
     # Check if the socket configuration is valid
     if sb = config.socket_binding
