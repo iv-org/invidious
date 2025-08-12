@@ -31,24 +31,33 @@ require "yaml"
 require "compress/zip"
 require "protodec/utils"
 
-require "./invidious/database/*"
-require "./invidious/database/migrations/*"
+# Database requires
+{% unless flag?(:api_only) %}
+  require "./invidious/database/*"
+  require "./invidious/database/migrations/*"
+{% else %}
+  require "./invidious/database/api_only_stubs"
+{% end %}
+
+# Core requires
 require "./invidious/http_server/*"
 require "./invidious/helpers/*"
 require "./invidious/yt_backend/*"
 require "./invidious/frontend/*"
 require "./invidious/videos/*"
-
 require "./invidious/jsonify/**"
-
-require "./invidious/*"
+require "./invidious/requires"
 require "./invidious/comments/*"
 require "./invidious/channels/*"
 require "./invidious/user/*"
 require "./invidious/search/*"
 require "./invidious/routes/**"
-require "./invidious/jobs/base_job"
-require "./invidious/jobs/*"
+
+# Jobs (not needed in API-only mode)
+{% unless flag?(:api_only) %}
+  require "./invidious/jobs/base_job"
+  require "./invidious/jobs/*"
+{% end %}
 
 # Declare the base namespace for invidious
 module Invidious
@@ -60,7 +69,13 @@ alias IV = Invidious
 CONFIG   = Config.load
 HMAC_KEY = CONFIG.hmac_key
 
-PG_DB       = DB.open CONFIG.database_url
+# Database connection
+{% unless flag?(:api_only) %}
+  PG_DB = DB.open CONFIG.database_url
+{% else %}
+  require "./invidious/api_only_types"
+  PG_DB = DummyDB.new
+{% end %}
 ARCHIVE_URL = URI.parse("https://archive.org")
 PUBSUB_URL  = URI.parse("https://pubsubhubbub.appspot.com")
 REDDIT_URL  = URI.parse("https://www.reddit.com")
@@ -133,7 +148,11 @@ Kemal.config.extra_options do |parser|
     exit
   end
   parser.on("--migrate", "Run any migrations (beta, use at your own risk!!") do
-    Invidious::Database::Migrator.new(PG_DB).migrate
+    {% unless flag?(:api_only) %}
+      Invidious::Database::Migrator.new(PG_DB).migrate
+    {% else %}
+      puts "Database migrations are not available in API-only mode"
+    {% end %}
     exit
   end
 end
@@ -147,9 +166,11 @@ OUTPUT = CONFIG.output.upcase == "STDOUT" ? STDOUT : File.open(CONFIG.output, mo
 LOGGER = Invidious::LogHandler.new(OUTPUT, CONFIG.log_level, CONFIG.colorize_logs)
 
 # Check table integrity
-Invidious::Database.check_integrity(CONFIG)
+{% unless flag?(:api_only) %}
+  Invidious::Database.check_integrity(CONFIG)
+{% end %}
 
-{% if !flag?(:skip_videojs_download) %}
+{% if !flag?(:skip_videojs_download) && !flag?(:api_only) %}
   # Resolve player dependencies. This is done at compile time.
   #
   # Running the script by itself would show some colorful feedback while this doesn't.
@@ -175,38 +196,48 @@ DECRYPT_FUNCTION =
 
 # Start jobs
 
-if CONFIG.channel_threads > 0
-  Invidious::Jobs.register Invidious::Jobs::RefreshChannelsJob.new(PG_DB)
-end
+{% unless flag?(:api_only) %}
+  if CONFIG.channel_threads > 0
+    Invidious::Jobs.register Invidious::Jobs::RefreshChannelsJob.new(PG_DB)
+  end
 
-if CONFIG.feed_threads > 0
-  Invidious::Jobs.register Invidious::Jobs::RefreshFeedsJob.new(PG_DB)
-end
+  if CONFIG.feed_threads > 0
+    Invidious::Jobs.register Invidious::Jobs::RefreshFeedsJob.new(PG_DB)
+  end
 
-if CONFIG.statistics_enabled
-  Invidious::Jobs.register Invidious::Jobs::StatisticsRefreshJob.new(PG_DB, SOFTWARE)
-end
+  if CONFIG.statistics_enabled
+    Invidious::Jobs.register Invidious::Jobs::StatisticsRefreshJob.new(PG_DB, SOFTWARE)
+  end
 
-if (CONFIG.use_pubsub_feeds.is_a?(Bool) && CONFIG.use_pubsub_feeds.as(Bool)) || (CONFIG.use_pubsub_feeds.is_a?(Int32) && CONFIG.use_pubsub_feeds.as(Int32) > 0)
-  Invidious::Jobs.register Invidious::Jobs::SubscribeToFeedsJob.new(PG_DB, HMAC_KEY)
-end
+  if (CONFIG.use_pubsub_feeds.is_a?(Bool) && CONFIG.use_pubsub_feeds.as(Bool)) || (CONFIG.use_pubsub_feeds.is_a?(Int32) && CONFIG.use_pubsub_feeds.as(Int32) > 0)
+    Invidious::Jobs.register Invidious::Jobs::SubscribeToFeedsJob.new(PG_DB, HMAC_KEY)
+  end
 
-if CONFIG.popular_enabled
-  Invidious::Jobs.register Invidious::Jobs::PullPopularVideosJob.new(PG_DB)
-end
+  if CONFIG.popular_enabled
+    Invidious::Jobs.register Invidious::Jobs::PullPopularVideosJob.new(PG_DB)
+  end
 
-NOTIFICATION_CHANNEL = ::Channel(VideoNotification).new(32)
-CONNECTION_CHANNEL   = ::Channel({Bool, ::Channel(PQ::Notification)}).new(32)
-Invidious::Jobs.register Invidious::Jobs::NotificationJob.new(NOTIFICATION_CHANNEL, CONNECTION_CHANNEL, CONFIG.database_url)
+  NOTIFICATION_CHANNEL = ::Channel(VideoNotification).new(32)
+  CONNECTION_CHANNEL   = ::Channel({Bool, ::Channel(PQ::Notification)}).new(32)
+  Invidious::Jobs.register Invidious::Jobs::NotificationJob.new(NOTIFICATION_CHANNEL, CONNECTION_CHANNEL, CONFIG.database_url)
 
-Invidious::Jobs.register Invidious::Jobs::ClearExpiredItemsJob.new
-
-Invidious::Jobs.register Invidious::Jobs::InstanceListRefreshJob.new
-
-Invidious::Jobs.start_all
+  Invidious::Jobs.register Invidious::Jobs::ClearExpiredItemsJob.new
+  
+  Invidious::Jobs.register Invidious::Jobs::InstanceListRefreshJob.new
+  
+  Invidious::Jobs.start_all
+{% else %}
+  # Define channels for API-only mode (even though they won't be used)
+  NOTIFICATION_CHANNEL = ::Channel(VideoNotification).new(1)
+  CONNECTION_CHANNEL   = ::Channel({Bool, ::Channel(PQ::Notification)}).new(1)
+{% end %}
 
 def popular_videos
-  Invidious::Jobs::PullPopularVideosJob::POPULAR_VIDEOS.get
+  {% if flag?(:api_only) %}
+    [] of ChannelVideo
+  {% else %}
+    Invidious::Jobs::PullPopularVideosJob::POPULAR_VIDEOS.get
+  {% end %}
 end
 
 # Routing

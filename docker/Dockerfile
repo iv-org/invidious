@@ -3,6 +3,7 @@ FROM crystallang/crystal:1.16.3-alpine AS builder
 RUN apk add --no-cache sqlite-static yaml-static
 
 ARG release
+ARG api_only
 
 WORKDIR /invidious
 COPY ./shard.yml ./shard.yml
@@ -21,16 +22,13 @@ COPY ./videojs-dependencies.yml ./videojs-dependencies.yml
 
 RUN crystal spec --warnings all \
     --link-flags "-lxml2 -llzma"    
-RUN --mount=type=cache,target=/root/.cache/crystal if [[ "${release}" == 1 ]] ; then \
-        crystal build ./src/invidious.cr \
-        --release \
-        --static --warnings all \
-        --link-flags "-lxml2 -llzma"; \
-    else \
-        crystal build ./src/invidious.cr \
-        --static --warnings all \
-        --link-flags "-lxml2 -llzma"; \
-    fi
+    
+RUN --mount=type=cache,target=/root/.cache/crystal \
+    crystal build ./src/invidious.cr \
+    ${release:+--release} \
+    --static --warnings all \
+    --link-flags "-lxml2 -llzma" \
+    ${api_only:+-Dapi_only -Dskip_videojs_download}
 
 FROM alpine:3.21
 RUN apk add --no-cache rsvg-convert ttf-opensans tini tzdata

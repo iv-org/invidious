@@ -72,24 +72,26 @@ module Invidious::Routes::BeforeAll
         raise "Cannot use token as SID"
       end
 
-      if email = Database::SessionIDs.select_email(sid)
-        user = Database::Users.select!(email: email)
-        csrf_token = generate_response(sid, {
-          ":authorize_token",
-          ":playlist_ajax",
-          ":signout",
-          ":subscription_ajax",
-          ":token_ajax",
-          ":watch_ajax",
-        }, HMAC_KEY, 1.week)
+      {% unless flag?(:api_only) %}
+        if email = Database::SessionIDs.select_email(sid)
+          user = Database::Users.select!(email: email)
+          csrf_token = generate_response(sid, {
+            ":authorize_token",
+            ":playlist_ajax",
+            ":signout",
+            ":subscription_ajax",
+            ":token_ajax",
+            ":watch_ajax",
+          }, HMAC_KEY, 1.week)
 
-        preferences = user.preferences
-        env.set "preferences", preferences
+          preferences = user.preferences
+          env.set "preferences", preferences
 
-        env.set "sid", sid
-        env.set "csrf_token", csrf_token
-        env.set "user", user
-      end
+          env.set "sid", sid
+          env.set "csrf_token", csrf_token
+          env.set "user", user
+        end
+      {% end %}
     end
 
     dark_mode = convert_theme(env.params.query["dark_mode"]?) || preferences.dark_mode.to_s

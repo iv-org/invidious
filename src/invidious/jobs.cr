@@ -1,3 +1,4 @@
+{% unless flag?(:api_only) %}
 module Invidious::Jobs
   JOBS = [] of BaseJob
 
@@ -38,3 +39,4 @@ module Invidious::Jobs
     end
   end
 end
+{% end %}
