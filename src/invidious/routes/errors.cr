@@ -9,10 +9,10 @@ module Invidious::Routes::ErrorRoutes
       item = md["id"]
 
       # Check if item is branding URL e.g. https://youtube.com/gaming
-      response = YT_POOL.client &.get("/#{item}")
+      response = YT_POOL.get("/#{item}")
 
       if response.status_code == 301
-        response = YT_POOL.client &.get(URI.parse(response.headers["Location"]).request_target)
+        response = YT_POOL.get(URI.parse(response.headers["Location"]).request_target)
       end
 
       if response.body.empty?
@@ -40,7 +40,7 @@ module Invidious::Routes::ErrorRoutes
       end
 
       # Check if item is video ID
-      if item.match(/^[a-zA-Z0-9_-]{11}$/) && YT_POOL.client &.head("/watch?v=#{item}").status_code != 404
+      if item.match(/^[a-zA-Z0-9_-]{11}$/) && YT_POOL.head("/watch?v=#{item}").status_code != 404
         env.response.headers["Location"] = url
         haltf env, status_code: 302
       end
