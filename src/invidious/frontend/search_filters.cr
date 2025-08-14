@@ -5,15 +5,15 @@ module Invidious::Frontend::SearchFilters
   def generate(filters : Search::Filters, query : String, page : Int, locale : String) : String
     return String.build(8000) do |str|
       str << "<div id='filters'>\n"
-      str << "\t<details id='filters-collapse'>"
+      str << "\t<details id='filters'>"
       str << "\t\t<summary>" << translate(locale, "search_filters_title") << "</summary>\n"
 
-      str << "\t\t<div id='filters-box'><form action='/search' method='get'>\n"
+      str << "\t\t<form action='/search' method='get'>\n"
 
       str << "\t\t\t<input type='hidden' name='q' value='" << HTML.escape(query) << "'>\n"
       str << "\t\t\t<input type='hidden' name='page' value='" << page << "'>\n"
 
-      str << "\t\t\t<div id='filters-flex'>"
+      str << "\t\t\t<div class='filters'>"
 
       filter_wrapper(date)
       filter_wrapper(type)
@@ -23,32 +23,32 @@ module Invidious::Frontend::SearchFilters
 
       str << "\t\t\t</div>\n"
 
-      str << "\t\t\t<div id='filters-apply'>"
-      str << "<button type='submit' class=\"pure-button pure-button-primary\">"
+      str << "\t\t\t<div class='action-controls'>"
+      str << "<button type='submit' class=\"primary\">"
       str << translate(locale, "search_filters_apply_button")
       str << "</button></div>\n"
 
       str << "\t\t</form></div>\n"
 
       str << "\t</details>\n"
-      str << "</div>\n"
+      # str << "</div>\n"
     end
   end
 
   # Generate wrapper HTML (`<div>`, filter name, etc...) around the
   # `<input>` elements of a search filter
   macro filter_wrapper(name)
-    str << "\t\t\t\t<div class=\"filter-column\"><fieldset>\n"
+    str << "\t\t\t\t<fieldset class='form'>\n"
 
-    str << "\t\t\t\t\t<legend><div class=\"filter-name underlined\">"
+    str << "\t\t\t\t\t<legend>"
     str << translate(locale, "search_filters_{{name}}_label")
-    str << "</div></legend>\n"
+    str << "</legend>\n"
 
-    str << "\t\t\t\t\t<div class=\"filter-options\">\n"
+    str << "\t\t\t\t\t\n"
     make_{{name}}_filter_options(str, filters.{{name}}, locale)
-    str << "\t\t\t\t\t</div>"
+    str << "\t\t\t\t\t"
 
-    str << "\t\t\t\t</fieldset></div>\n"
+    str << "\t\t\t\t</fieldset>\n"
   end
 
   # Generates the HTML for the list of radio buttons of the "date" search filter

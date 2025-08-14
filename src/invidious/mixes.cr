@@ -98,11 +98,11 @@ def template_mix(mix, listen)
         <a href="/watch?v=#{video["videoId"]}&list=#{mix["mixId"]}#{listen ? "&listen=1" : ""}">
           <div class="thumbnail">
               <img loading="lazy" class="thumbnail" src="/vi/#{video["videoId"]}/mqdefault.jpg" alt="" />
-              <p class="length">#{recode_length_seconds(video["lengthSeconds"].as_i)}</p>
+              <div class="length">#{recode_length_seconds(video["lengthSeconds"].as_i)}</div>
           </div>
-          <p style="width:100%">#{video["title"]}</p>
+          <p>#{video["title"]}</p>
           <p>
-              <b style="width:100%">#{video["author"]}</b>
+              #{video["author"]}
           </p>
         </a>
       </li>

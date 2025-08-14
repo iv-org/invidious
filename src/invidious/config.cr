@@ -183,6 +183,9 @@ class Config
   # Playlist length limit
   property playlist_length_limit : Int32 = 500
 
+  # Disable static file handle cache. Prefer only for development. --disable_static_cache also available on build.
+  property disable_static_cache : Bool = false
+
   def disabled?(option)
     case disabled = CONFIG.disable_proxy
     when Bool

@@ -17,18 +17,12 @@
 
 <%= rendered "components/channel_info" %>
 
-<div class="h-box">
-    <hr>
-</div>
-
 <% if error_message %>
-    <div class="h-box">
-        <p><%= error_message %></p>
-    </div>
+  <p><%= error_message %></p>
 <% else %>
-    <div class="h-box pure-g comments" id="comments">
-        <%= IV::Frontend::Comments.template_youtube(items.not_nil!, locale, thin_mode) %>
-    </div>
+	<div class="comments community" id="comments">
+			<%= IV::Frontend::Comments.template_youtube(items.not_nil!, locale, thin_mode) %>
+	</div>
 <% end %>
 
 <script id="community_data" type="application/json">

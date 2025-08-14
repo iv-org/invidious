@@ -1,0 +1,73 @@
+/** fixes for pure to support our colors */
+.pure-form input[type="color"],
+.pure-form input[type="date"],
+.pure-form input[type="datetime-local"],
+.pure-form input[type="datetime"],
+.pure-form input[type="email"],
+.pure-form input[type="month"],
+.pure-form input[type="number"],
+.pure-form input[type="password"],
+.pure-form input[type="search"],
+.pure-form input[type="tel"],
+.pure-form input[type="text"],
+.pure-form input[type="time"],
+.pure-form input[type="url"],
+.pure-form input[type="week"],
+.pure-form select,
+.pure-form textarea {
+  font-size: inherit;
+  padding: var(--secondary-gap);
+  color: var(--fg-color);
+  background-color: var(--secondary-bg-color);
+  border: 1px solid var(--secondary-bg-color);
+  box-shadow: unset;
+  border-radius: var(--radius);
+}
+
+.pure-menu-heading,
+.pure-g,
+.pure-g [class*="pure-u"] {
+  font-family: inherit;
+  letter-spacing: initial;
+}
+
+.pure-form legend {
+  color: var(--fg-color);
+  border-bottom: 1px solid var(--accent-color);
+}
+
+legend {
+  border: initial;
+  padding: initial;
+}
+
+.pure-button {
+  font-family: inherit;
+  font-size: inherit;
+  padding: 0;
+  color: currentcolor;
+  border: none;
+  border: none transparent;
+  background-color: transparent;
+  text-decoration: none;
+  border-radius: inherit;
+}
+
+.pure-button-hover,
+.pure-button:focus,
+.pure-button:hover {
+  background-image: none;
+}
+
+/* Wider settings name to less word wrap */
+.pure-form-aligned .pure-control-group label {
+  width: 19em;
+}
+
+.pure-menu-heading {
+  color: var(--accent-color);
+}
+
+a:active, a:hover {
+  outline: inherit;
+}

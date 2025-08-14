@@ -53,7 +53,6 @@ get-libs:
 invidious: get-libs
 	crystal build src/invidious.cr $(FLAGS) --progress --stats --error-trace
 
-
 run: invidious
 	./invidious
 
@@ -73,6 +72,12 @@ verify:
 	crystal build src/invidious.cr -Dskip_videojs_download \
 	  --no-codegen --progress --stats --error-trace
 
+dev:
+	crystal build src/invidious.cr -Dskip_videojs_download \
+	  --no-codegen --progress --stats --error-trace -- --disable-static-cache
+
+dev-reload:
+	tree -fiA --prune --noreport src | entr -rd make dev
 
 # -----------------------
 #  (Un)Install
@@ -125,4 +130,4 @@ help:
 
 # No targets generates an output named after themselves
 .PHONY: all get-libs build amd64 run
-.PHONY: format test verify clean distclean help
+.PHONY: format test verify dev dev-reload clean distclean help

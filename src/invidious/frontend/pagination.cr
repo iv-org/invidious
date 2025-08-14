@@ -23,7 +23,7 @@ module Invidious::Frontend::Pagination
 
   private def previous_page(str : String::Builder, locale : String?, url : String)
     # Link
-    str << %(<a href=") << url << %(" class="pure-button pure-button-secondary">)
+    str << %(<a href=") << url << %(" class="secondary" role="button">)
 
     if locale_is_rtl?(locale)
       # Inverted arrow ("previous" points to the right)
@@ -42,12 +42,12 @@ module Invidious::Frontend::Pagination
 
   private def next_page(str : String::Builder, locale : String?, url : String)
     # Link
-    str << %(<a href=") << url << %(" class="pure-button pure-button-secondary">)
+    str << %(<a href=") << url << %(" class="secondary" role="button">)
 
     if locale_is_rtl?(locale)
       # Inverted arrow ("next" points to the left)
       str << %(<i class="icon ion-ios-arrow-back"></i>)
-      str << "&nbsp;&nbsp;"
+      str << "&nbsp;"
       str << translate(locale, "Next page")
     else
       # Regular arrow ("next" points to the right)
@@ -61,61 +61,50 @@ module Invidious::Frontend::Pagination
 
   def nav_numeric(locale : String?, *, base_url : String | URI, current_page : Int, show_next : Bool = true)
     return String.build do |str|
-      str << %(<div class="h-box">\n)
-      str << %(<div class="page-nav-container flexible">\n)
-
-      str << %(<div class="page-prev-container flex-left">)
+      str << %(<nav class="pagination">\n<ul>\n)
 
       if current_page > 1
+        str << %(<li>)
+
         params_prev = URI::Params{"page" => (current_page - 1).to_s}
         url_prev = HttpServer::Utils.add_params_to_url(base_url, params_prev)
 
         self.previous_page(str, locale, url_prev.to_s)
+
+        str << %(</li>\n)
       end
 
-      str << %(</div>\n)
-      str << %(<div class="page-next-container flex-right">)
-
       if show_next
+        str << %(<li>)
         params_next = URI::Params{"page" => (current_page + 1).to_s}
         url_next = HttpServer::Utils.add_params_to_url(base_url, params_next)
 
         self.next_page(str, locale, url_next.to_s)
+        str << %(</li>\n)
       end
 
-      str << %(</div>\n)
-
-      str << %(</div>\n)
-      str << %(</div>\n\n)
+      str << %(</ul>\n</nav>\n)
     end
   end
 
   def nav_ctoken(locale : String?, *, base_url : String | URI, ctoken : String?, first_page : Bool, params : URI::Params)
     return String.build do |str|
-      str << %(<div class="h-box">\n)
-      str << %(<div class="page-nav-container flexible">\n)
-
-      str << %(<div class="page-prev-container flex-left">)
-
+      str << %(<nav class="pagination">\n<ul>\n)
+      str << %(<li>)
       if !first_page
         self.first_page(str, locale, base_url.to_s)
       end
 
-      str << %(</div>\n)
-
-      str << %(<div class="page-next-container flex-right">)
-
       if !ctoken.nil?
         params["continuation"] = ctoken
         url_next = HttpServer::Utils.add_params_to_url(base_url, params)
-
-        self.next_page(str, locale, url_next.to_s)
       end
 
-      str << %(</div>\n)
+      self.next_page(str, locale, url_next.to_s)
 
-      str << %(</div>\n)
-      str << %(</div>\n\n)
+      str << %(</li>\n)
+
+      str << %(</ul>\n</nav>\n)
     end
   end
 end

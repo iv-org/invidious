@@ -450,6 +450,8 @@ end
 def extract_playlist_videos(initial_data : Hash(String, JSON::Any))
   videos = [] of PlaylistVideo | ProblematicTimelineItem
 
+  puts initial_data.inspect
+
   if initial_data["contents"]?
     tabs = initial_data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"]
     tabs_renderer = tabs.as_a.select(&.["tabRenderer"]["selected"]?.try &.as_bool)[0]["tabRenderer"]
@@ -480,6 +482,9 @@ def extract_playlist_videos(initial_data : Hash(String, JSON::Any))
       title = i["title"].try { |t| t["simpleText"]? || t["runs"]?.try &.[0]["text"]? }.try &.as_s || ""
       author = i["shortBylineText"]?.try &.["runs"][0]["text"].as_s || ""
       ucid = i["shortBylineText"]?.try &.["runs"][0]["navigationEndpoint"]["browseEndpoint"]["browseId"].as_s || ""
+
+      # TODO: Possibly add author_thumbnail support
+      # author_thumbnail = i["playlistSidebarSecondaryInfoRenderer"]?.try &.["videoOwner"]["videoOwnerRenderer"]["thumbnail"]["thumbnails"][0]["url"].as_s || ""
       length_seconds = i["lengthSeconds"]?.try &.as_s.to_i
       live = false
 
@@ -514,23 +519,29 @@ def template_playlist(playlist, listen)
       #{playlist["title"]}
     </a>
   </h3>
-  <div class="pure-menu pure-menu-scrollable playlist-restricted">
-    <ol class="pure-menu-list">
+  <div class="playlist-restricted">
+    <ol>
   END_HTML
 
   playlist["videos"].as_a.each do |video|
     html += <<-END_HTML
-      <li class="pure-menu-item" id="#{video["videoId"]}">
-        <a href="/watch?v=#{video["videoId"]}&list=#{playlist["playlistId"]}&index=#{video["index"]}#{listen ? "&listen=1" : ""}">
+      <li id="#{video["videoId"]}">
           <div class="thumbnail">
+            <a href="/watch?v=#{video["videoId"]}&list=#{playlist["playlistId"]}&index=#{video["index"]}#{listen ? "&listen=1" : ""}">
               <img loading="lazy" class="thumbnail" src="/vi/#{video["videoId"]}/mqdefault.jpg" alt="" />
-              <p class="length">#{recode_length_seconds(video["lengthSeconds"].as_i)}</p>
+              <div class="length">#{recode_length_seconds(video["lengthSeconds"].as_i)}</div>
+            </a>
           </div>
-          <p style="width:100%">#{video["title"]}</p>
-          <p>
-            <b style="width:100%">#{video["author"]}</b>
-          </p>
-        </a>
+          <h3>
+            <a href="/watch?v=#{video["videoId"]}&list=#{playlist["playlistId"]}&index=#{video["index"]}">
+              #{video["title"]}
+            </a>
+          </h3>
+          <h4>
+            <a href="/channel/#{video["ucid"]}">
+              #{video["author"]}
+            </a>
+          </h4>
       </li>
     END_HTML
   end
@@ -538,7 +549,6 @@ def template_playlist(playlist, listen)
   html += <<-END_HTML
     </ol>
   </div>
-  <hr>
   END_HTML
 
   html

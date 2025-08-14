@@ -2,27 +2,34 @@
 <title><%= translate(locale, "Log in") %> - Invidious</title>
 <% end %>
 
-<div class="pure-g">
-    <div class="pure-u-1 pure-u-lg-1-5"></div>
-    <div class="pure-u-1 pure-u-lg-3-5">
-        <div class="h-box">
             <% case account_type when %>
             <% else # "invidious" %>
-                <form class="pure-form pure-form-stacked" action="/login?referer=<%= URI.encode_www_form(referer) %>&type=invidious" method="post">
-                    <fieldset>
+                <form action="/login?referer=<%= URI.encode_www_form(referer) %>&type=invidious" method="post">
+                    <fieldset class="form">
+												<legend>Log in</legend>
                         <% if email %>
+													<div class="control-group">
                             <input name="email" type="hidden" value="<%= HTML.escape(email) %>">
+													</div>
                         <% else %>
-                            <label for="email"><%= translate(locale, "User ID") %> :</label>
-                            <input required class="pure-input-1" name="email" type="text" placeholder="<%= translate(locale, "User ID") %>">
+														<div class="control-group">
+															<label for="email"><%= translate(locale, "User ID") %> :</label>
+															<input required class="pure-input-1" name="email" type="text" placeholder="<%= translate(locale, "User ID") %>">
+														</div>
                         <% end %>
 
                         <% if password %>
-                            <input name="password" type="hidden" value="<%= HTML.escape(password) %>">
+														<div class="control-group">
+															<input name="password" type="hidden" value="<%= HTML.escape(password) %>">
+														</div>
                         <% else %>
-                            <label for="password"><%= translate(locale, "Password") %> :</label>
-                            <input required class="pure-input-1" name="password" type="password" placeholder="<%= translate(locale, "Password") %>">
+														<div class="control-group">
+															<label for="password"><%= translate(locale, "Password") %> :</label>
+															<input required class="pure-input-1" name="password" type="password" placeholder="<%= translate(locale, "Password") %>">
+														</div>
                         <% end %>
+
+                    </fieldset>
 
                         <% if captcha %>
                             <% captcha = captcha.not_nil! %>
@@ -33,18 +40,15 @@
                             <label for="answer"><%= translate(locale, "Time (h:mm:ss):") %></label>
                             <input type="text" name="answer" type="text" placeholder="h:mm:ss">
 
-                            <button type="submit" name="action" value="signin" class="pure-button pure-button-primary">
+                            <button type="submit" name="action" value="signin" class="primary">
                                 <%= translate(locale, "Register") %>
                             </button>
                         <% else %>
+													<div class="action-controls">
                             <button type="submit" name="action" value="signin" class="pure-button pure-button-primary">
                                 <%= translate(locale, "Sign In") %>/<%= translate(locale, "Register") %>
                             </button>
+													</div>
                         <% end %>
-                    </fieldset>
                 </form>
             <% end %>
-        </div>
-    </div>
-    <div class="pure-u-1 pure-u-lg-1-5"></div>
-</div>
