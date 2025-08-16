@@ -291,6 +291,55 @@ struct SearchHashtag
   end
 end
 
+# A `ProblematicTimelineItem` is a `SearchItem` created by Invidious that
+# represents an item that caused an exception during parsing.
+#
+# This is not a parsed object from YouTube but rather an Invidious-only type
+# created to gracefully communicate parse errors without throwing away
+# the rest of the (hopefully) successfully parsed item on a page.
+struct ProblematicTimelineItem
+  property parse_exception : Exception
+  property id : String
+
+  def initialize(@parse_exception)
+    @id = Random.new.hex(8)
+  end
+
+  def to_json(locale : String?, json : JSON::Builder)
+    json.object do
+      json.field "type", "parse-error"
+      json.field "errorMessage", @parse_exception.message
+      json.field "errorBacktrace", @parse_exception.inspect_with_backtrace
+    end
+  end
+
+  # Provides compatibility with PlaylistVideo
+  def to_json(json : JSON::Builder, *args, **kwargs)
+    return to_json("", json)
+  end
+
+  def to_xml(env, locale, xml : XML::Builder)
+    xml.element("entry") do
+      xml.element("id") { xml.text "iv-err-#{@id}" }
+      xml.element("title") { xml.text "Parse Error: This item has failed to parse" }
+      xml.element("updated") { xml.text Time.utc.to_rfc3339 }
+
+      xml.element("content", type: "xhtml") do
+        xml.element("div", xmlns: "http://www.w3.org/1999/xhtml") do
+          xml.element("div") do
+            xml.element("h4") { translate(locale, "timeline_parse_error_placeholder_heading") }
+            xml.element("p") { translate(locale, "timeline_parse_error_placeholder_message") }
+          end
+
+          xml.element("pre") do
+            get_issue_template(env, @parse_exception)
+          end
+        end
+      end
+    end
+  end
+end
+
 class Category
   include DB::Serializable
 
@@ -333,4 +382,4 @@ struct Continuation
   end
 end
 
-alias SearchItem = SearchVideo | SearchChannel | SearchPlaylist | SearchHashtag | Category
+alias SearchItem = SearchVideo | SearchChannel | SearchPlaylist | SearchHashtag | Category | ProblematicTimelineItem

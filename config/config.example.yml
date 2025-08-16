@@ -90,14 +90,14 @@ db:
 ##
 ## API key for Invidious companion, used for securing the communication
 ## between Invidious and Invidious companion.
-## The size of the key needs to be more or equal to 16.
+## The key needs to be exactly 16 characters long.
 ##
 ## Note: This parameter is mandatory when Invidious companion is enabled
 ## and should be a random string.
 ## Such random string can be generated on linux with the following
 ## command: `pwgen 16 1`
 ##
-## Accepted values: a string
+## Accepted values: a string (of length 16)
 ## Default: <none>
 ##
 #invidious_companion_key: "CHANGE_ME!!"

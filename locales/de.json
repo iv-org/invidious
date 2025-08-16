@@ -499,5 +499,7 @@
     "carousel_go_to": "Zu Element `x` springen",
     "carousel_slide": "Seite {{current}} von {{total}}",
     "carousel_skip": "Galerie überspringen",
-    "Filipino (auto-generated)": "Philippinisch (automatisch generiert)"
+    "Filipino (auto-generated)": "Philippinisch (automatisch generiert)",
+    "channel_tab_courses_label": "Kurse",
+    "channel_tab_posts_label": "Beiträge"
 }

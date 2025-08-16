@@ -475,7 +475,7 @@
     "search_filters_date_option_none": "Любая дата",
     "search_filters_date_label": "Дата загрузки",
     "search_message_no_results": "Ничего не найдено.",
-    "search_message_use_another_instance": " Дополнительно вы можете <a href=\"`x`\">поискать на других зеркалах</a>.",
+    "search_message_use_another_instance": "Дополнительно вы можете <a href=\"`x`\">поискать на других зеркалах</a>.",
     "search_filters_features_option_vr180": "VR180",
     "search_message_change_filters_or_query": "Попробуйте расширить поисковый запрос и/или изменить фильтры.",
     "search_filters_duration_option_medium": "Средние (4 - 20 минут)",
@@ -515,5 +515,7 @@
     "carousel_slide": "Пролистано {{current}} из {{total}}",
     "carousel_skip": "Пропустить всё",
     "carousel_go_to": "Перейти к странице `x`",
-    "preferences_preload_label": "Предзагрузка видеоданных: "
+    "preferences_preload_label": "Предзагрузка видеоданных: ",
+    "channel_tab_courses_label": "Курсы",
+    "channel_tab_posts_label": "Записи"
 }

@@ -490,7 +490,7 @@
     "Search for videos": "Αναζήτηση βίντεο",
     "The Popular feed has been disabled by the administrator.": "Η δημοφιλής ροή έχει απενεργοποιηθεί από τον διαχειριστή.",
     "Answer": "Απάντηση",
-    "Add to playlist": "Προσθήκη στην λίιστα αναπαραγωγής",
+    "Add to playlist": "Προσθήκη στην λίστα αναπαραγωγής",
     "Add to playlist: ": "Προσθήκη στην λίστα αναπαραγωγής : ",
     "carousel_slide": "Εικόνα {{current}}απο {{total}}",
     "carousel_go_to": "Πήγαινε στην εικόνα`x`",
@@ -498,5 +498,8 @@
     "Import YouTube watch history (.json)": "Εισαγωγή ιστορικού προβολής YouTube (.json)",
     "Filipino (auto-generated)": "Φιλιππινέζικα (αυτόματη παραγωγή)",
     "preferences_preload_label": "Προφόρτιση δεδομένων βίντεο: ",
-    "carousel_skip": "Αποφυγή εμφάνισης εικόνων"
+    "carousel_skip": "Αποφυγή εμφάνισης εικόνων",
+    "First page": "Πρώτη σελίδα",
+    "channel_tab_courses_label": "Μαθήματα",
+    "channel_tab_posts_label": "Δημοσιεύσεις"
 }
