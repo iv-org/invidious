@@ -4,32 +4,15 @@ module Invidious::Routes::ErrorRoutes
     if HOST_URL.empty? && env.request.path.starts_with?("/v1/storyboards/sb")
       return env.redirect "#{env.request.path[15..]}?#{env.params.query}"
     end
-
     if md = env.request.path.match(/^\/(?<id>([a-zA-Z0-9_-]{11})|(\w+))$/)
       item = md["id"]
-
       # Check if item is branding URL e.g. https://youtube.com/gaming
-      response = YT_POOL.client &.get("/#{item}")
-
+      headers = HTTP::Headers{
+        "Cookie" => "SOCS=CAE" # Cookies to prevent redirects to Cookie Consent Page CAE~Reject all, CAA~showing the cookie banner, CAI~Accept all
+      }
+      response = YT_POOL.client &.get("/#{item}", headers: headers)
       if response.status_code == 301
-        response = YT_POOL.client &.get(URI.parse(response.headers["Location"]).request_target)
-      end
-
-      params = [] of String
-      env.params.query.each do |k, v|
-        params << "#{k}=#{v}"
-      end
-      params = params.join("&")
-
-      url = "/watch?v=#{item}"
-      if !params.empty?
-        url += "&#{params}"
-      end
-
-      # Check if item is video ID
-      if item.match(/^[a-zA-Z0-9_-]{11}$/) && YT_POOL.client &.head("/watch?v=#{item}").status_code != 404
-        env.response.headers["Location"] = url
-        haltf env, status_code: 302
+        response = YT_POOL.client &.get(URI.parse(response.headers["Location"]).request_target, headers: headers)
       end
 
       if response.body.empty?
@@ -42,6 +25,21 @@ module Invidious::Routes::ErrorRoutes
 
       if ucid
         env.response.headers["Location"] = "/channel/#{ucid}"
+        haltf env, status_code: 302
+      end
+
+      params = [] of String
+      env.params.query.each do |k, v|
+        params << "#{k}=#{v}"
+      end
+      params = params.join("&")
+      url = "/watch?v=#{item}"
+      if !params.empty?
+        url += "&#{params}"
+      end
+      # Check if item is video ID
+      if item.match(/^[a-zA-Z0-9_-]{11}$/) && YT_POOL.client &.head("/watch?v=#{item}").status_code != 404
+        env.response.headers["Location"] = url
         haltf env, status_code: 302
       end
     end
