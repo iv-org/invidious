@@ -4,8 +4,10 @@ module Invidious::Routes::ErrorRoutes
     if HOST_URL.empty? && env.request.path.starts_with?("/v1/storyboards/sb")
       return env.redirect "#{env.request.path[15..]}?#{env.params.query}"
     end
+    
     if md = env.request.path.match(/^\/(?<id>([a-zA-Z0-9_-]{11})|(\w+))$/)
       item = md["id"]
+
       # Check if item is branding URL e.g. https://youtube.com/gaming
       headers = HTTP::Headers{
         "Cookie" => "SOCS=CAE" # Cookies to prevent redirects to Cookie Consent Page CAE~Reject all, CAA~showing the cookie banner, CAI~Accept all
@@ -33,10 +35,12 @@ module Invidious::Routes::ErrorRoutes
         params << "#{k}=#{v}"
       end
       params = params.join("&")
+
       url = "/watch?v=#{item}"
       if !params.empty?
         url += "&#{params}"
       end
+
       # Check if item is video ID
       if item.match(/^[a-zA-Z0-9_-]{11}$/) && YT_POOL.client &.head("/watch?v=#{item}").status_code != 404
         env.response.headers["Location"] = url
