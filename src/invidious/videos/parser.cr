@@ -58,6 +58,59 @@ def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
   }
 end
 
+# Small helper utilities extracted for testability and clarity (per LLVM policy)
+module Invidious::Videos::ParserHelpers
+  extend self
+
+  # True if any entry has a usable URL or signatureCipher/cipher that can be converted to a URL
+  def has_usable_stream?(container : JSON::Any?) : Bool
+    return false unless container
+    arr = container.as_a?
+    return false unless arr && arr.size > 0
+    arr.each do |entry|
+      obj = entry.as_h?
+      next unless obj
+      # Accept direct URL
+      if (u = obj["url"]?.try &.as_s?) && !u.empty?
+        return true
+      end
+      # Accept ciphered URL that convert_url can handle
+      if (sc = obj["signatureCipher"]?.try &.as_s?) && !sc.empty?
+        return true
+      end
+      if (c = obj["cipher"]?.try &.as_s?) && !c.empty?
+        return true
+      end
+    end
+    false
+  end
+
+  # Mutates streaming_data by patching only the sections missing a usable URL
+  # Returns flags indicating what was patched.
+  def patch_streaming_data_if_missing!(streaming_data : Hash(String, JSON::Any), fallback_sd : Hash(String, JSON::Any)) : NamedTuple(patched_formats: Bool, patched_adaptive: Bool)
+    patched_formats = false
+    patched_adaptive = false
+
+    # Adaptive formats
+    unless has_usable_stream?(streaming_data["adaptiveFormats"]?)
+      if has_usable_stream?(fallback_sd["adaptiveFormats"]?)
+        streaming_data["adaptiveFormats"] = fallback_sd["adaptiveFormats"]
+        patched_adaptive = true
+      end
+    end
+
+    # Progressive formats
+    unless has_usable_stream?(streaming_data["formats"]?)
+      if has_usable_stream?(fallback_sd["formats"]?)
+        streaming_data["formats"] = fallback_sd["formats"]
+        patched_formats = true
+      end
+    end
+
+    {patched_formats: patched_formats, patched_adaptive: patched_adaptive}
+  end
+end
+
 def extract_video_info(video_id : String)
   # Init client config for the API
   client_config = YoutubeAPI::ClientConfig.new
@@ -109,8 +162,14 @@ def extract_video_info(video_id : String)
   params["reason"] = JSON::Any.new(reason) if reason
 
   if !CONFIG.invidious_companion.present?
-    if player_response.dig?("streamingData", "adaptiveFormats", 0, "url").nil?
-      LOGGER.warn("Missing URLs for adaptive formats, falling back to other YT clients.")
+    # Fix for issue #5420: /api/v1/videos/<video_id> endpoint has formatStreams blank
+    # Determine if we are missing URLs for either adaptive or progressive formats
+    need_adaptive = player_response.dig?("streamingData", "adaptiveFormats", 0, "url").nil?
+    need_formats = player_response.dig?("streamingData", "formats", 0, "url").nil?
+
+    if need_adaptive || need_formats
+      missing = [need_adaptive ? "adaptiveFormats" : nil, need_formats ? "formats" : nil].compact.join(", ")
+      LOGGER.warn("Missing URLs for #{missing}, falling back to other YT clients.")
       players_fallback = {YoutubeAPI::ClientType::TvHtml5, YoutubeAPI::ClientType::WebMobile}
 
       players_fallback.each do |player_fallback|
@@ -118,9 +177,13 @@ def extract_video_info(video_id : String)
 
         next if !(player_fallback_response = try_fetch_streaming_data(video_id, client_config))
 
-        if player_fallback_response.dig?("streamingData", "adaptiveFormats", 0, "url")
-          streaming_data = player_response["streamingData"].as_h
-          streaming_data["adaptiveFormats"] = player_fallback_response["streamingData"]["adaptiveFormats"]
+        # Only patch what is actually missing to avoid downgrading good data
+        streaming_data = player_response["streamingData"].as_h
+        fallback_sd = player_fallback_response["streamingData"].as_h
+        patched = Invidious::Videos::ParserHelpers.patch_streaming_data_if_missing!(streaming_data, fallback_sd)
+
+        if patched[:patched_adaptive] || patched[:patched_formats]
+          LOGGER.debug("fallback_patched: client=#{player_fallback} video=#{video_id} patched_adaptive=#{patched[:patched_adaptive]} patched_formats=#{patched[:patched_formats]}")
           player_response["streamingData"] = JSON::Any.new(streaming_data)
           break
         end
