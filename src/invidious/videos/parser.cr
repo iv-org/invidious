@@ -542,14 +542,25 @@ private def convert_url(fmt)
 
     LOGGER.debug("convert_url: Decoding '#{cfr}'")
 
-    unsig = DECRYPT_FUNCTION.try &.decrypt_signature(cfr["s"])
+    # When using Invidious Companion, streaming URLs should already be usable.
+    # Skip inv-sig-helper based signature decryption in that case.
+    unsig = if CONFIG.invidious_companion.present?
+              nil
+            else
+              DECRYPT_FUNCTION.try &.decrypt_signature(cfr["s"])
+            end
     params[sp] = unsig if unsig
   else
     url = URI.parse(fmt["url"].as_s)
     params = url.query_params
   end
 
-  n = DECRYPT_FUNCTION.try &.decrypt_nsig(params["n"])
+  # Skip nsig decryption when using Invidious Companion
+  n = if CONFIG.invidious_companion.present?
+        nil
+      else
+        DECRYPT_FUNCTION.try &.decrypt_nsig(params["n"])
+      end
   params["n"] = n if n
 
   if token = CONFIG.po_token

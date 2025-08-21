@@ -473,8 +473,12 @@ module YoutubeAPI
     } of String => String | Int64
 
     if {"WEB", "TVHTML5"}.any? { |s| client_config.name.starts_with? s }
-      if sts = DECRYPT_FUNCTION.try &.get_sts
-        playback_ctx["signatureTimestamp"] = sts.to_i64
+      # When using Invidious Companion, player requests are proxied there,
+      # so we skip fetching signatureTimestamp via inv-sig-helper.
+      if !CONFIG.invidious_companion.present?
+        if sts = DECRYPT_FUNCTION.try &.get_sts
+          playback_ctx["signatureTimestamp"] = sts.to_i64
+        end
       end
     end
 
