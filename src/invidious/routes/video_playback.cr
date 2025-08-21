@@ -299,6 +299,8 @@ module Invidious::Routes::VideoPlayback
     url = fmt.try &.["url"]?.try &.as_s
 
     if !url
+      # Extra context for debugging playback errors
+      LOGGER.warn("playback_404: no URL for id=#{id} itag=#{itag.inspect} fmt=#{video.fmt_stream.size} adaptive=#{video.adaptive_fmts.size}")
       haltf env, status_code: 404
     end
 
