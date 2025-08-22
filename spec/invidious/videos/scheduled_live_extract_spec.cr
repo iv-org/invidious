@@ -7,7 +7,7 @@ Spectator.describe "parse_video_info" do
     _next = load_mock("video/scheduled_live_PBD-Podcast.next")
 
     raw_data = _player.merge!(_next)
-    info = parse_video_info("N-yVic7BbY0", raw_data)
+    info = Parser.parse_video_info("N-yVic7BbY0", raw_data)
 
     # Some basic verifications
     expect(typeof(info)).to eq(Hash(String, JSON::Any))

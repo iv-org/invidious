@@ -40,8 +40,8 @@ private module Parsers
       begin
         return parse_internal(*args)
       rescue ex
-        LOGGER.debug("#{{{@type.name}}}: Failed to render item.")
-        LOGGER.debug("#{{{@type.name}}}: Got exception: #{ex.message}")
+        Log.debug { "#{{{@type.name}}}: Failed to render item." }
+        Log.debug { "#{{{@type.name}}}: Got exception: #{ex.message}" }
         ProblematicTimelineItem.new(
           parse_exception: ex
         )
@@ -452,7 +452,7 @@ private module Parsers
       end
 
       content_container["items"]?.try &.as_a.each do |item|
-        result = parse_item(item, author_fallback.name, author_fallback.id)
+        result = YoutubeJSONParser.parse_item(item, author_fallback.name, author_fallback.id)
         contents << result if result.is_a?(SearchItem)
       end
 
@@ -1017,74 +1017,79 @@ module HelperExtractors
   end
 end
 
-# Parses an item from Youtube's JSON response into a more usable structure.
-# The end result can either be a SearchVideo, SearchPlaylist or SearchChannel.
-def parse_item(item : JSON::Any, author_fallback : String? = "", author_id_fallback : String? = "")
-  # We "allow" nil values but secretly use empty strings instead. This is to save us the
-  # hassle of modifying every author_fallback and author_id_fallback arg usage
-  # which is more often than not nil.
-  author_fallback = AuthorFallback.new(author_fallback || "", author_id_fallback || "")
+module YoutubeJSONParser
+  extend self
+  Log = ::Log.for(self)
 
-  # Cycles through all of the item parsers and attempt to parse the raw YT JSON data.
-  # Each parser automatically validates the data given to see if the data is
-  # applicable to itself. If not nil is returned and the next parser is attempted.
-  ITEM_PARSERS.each do |parser|
-    LOGGER.trace("parse_item: Attempting to parse item using \"#{parser.parser_name}\" (cycling...)")
+  # Parses an item from Youtube's JSON response into a more usable structure.
+  # The end result can either be a SearchVideo, SearchPlaylist or SearchChannel.
+  def parse_item(item : JSON::Any, author_fallback : String? = "", author_id_fallback : String? = "")
+    # We "allow" nil values but secretly use empty strings instead. This is to save us the
+    # hassle of modifying every author_fallback and author_id_fallback arg usage
+    # which is more often than not nil.
+    author_fallback = AuthorFallback.new(author_fallback || "", author_id_fallback || "")
 
-    if result = parser.process(item, author_fallback)
-      LOGGER.debug("parse_item: Successfully parsed via #{parser.parser_name}")
-      return result
+    # Cycles through all of the item parsers and attempt to parse the raw YT JSON data.
+    # Each parser automatically validates the data given to see if the data is
+    # applicable to itself. If not nil is returned and the next parser is attempted.
+    ITEM_PARSERS.each do |parser|
+      Log.trace { "Attempting to parse item using \"#{parser.parser_name}\" (cycling...)" }
+
+      if result = parser.process(item, author_fallback)
+        Log.debug { "Successfully parsed via #{parser.parser_name}" }
+        return result
+      else
+        Log.trace { "Parser \"#{parser.parser_name}\" does not apply. Cycling to the next one..." }
+      end
+    end
+  end
+
+  # Parses multiple items from YouTube's initial JSON response into a more usable structure.
+  # The end result is an array of SearchItem.
+  #
+  # This function yields the container so that items can be parsed separately.
+  #
+  def extract_items(initial_data : InitialData, &)
+    if unpackaged_data = initial_data["contents"]?.try &.as_h
+    elsif unpackaged_data = initial_data["response"]?.try &.as_h
+    elsif unpackaged_data = initial_data.dig?("onResponseReceivedActions", 1).try &.as_h
+    elsif unpackaged_data = initial_data.dig?("onResponseReceivedActions", 0).try &.as_h
     else
-      LOGGER.trace("parse_item: Parser \"#{parser.parser_name}\" does not apply. Cycling to the next one...")
+      unpackaged_data = initial_data
     end
-  end
-end
 
-# Parses multiple items from YouTube's initial JSON response into a more usable structure.
-# The end result is an array of SearchItem.
-#
-# This function yields the container so that items can be parsed separately.
-#
-def extract_items(initial_data : InitialData, &)
-  if unpackaged_data = initial_data["contents"]?.try &.as_h
-  elsif unpackaged_data = initial_data["response"]?.try &.as_h
-  elsif unpackaged_data = initial_data.dig?("onResponseReceivedActions", 1).try &.as_h
-  elsif unpackaged_data = initial_data.dig?("onResponseReceivedActions", 0).try &.as_h
-  else
-    unpackaged_data = initial_data
-  end
+    # This is identical to the parser cycling of parse_item().
+    ITEM_CONTAINER_EXTRACTOR.each do |extractor|
+      Log.trace { "Attempting to extract item container using \"#{extractor.extractor_name}\" (cycling...)" }
 
-  # This is identical to the parser cycling of parse_item().
-  ITEM_CONTAINER_EXTRACTOR.each do |extractor|
-    LOGGER.trace("extract_items: Attempting to extract item container using \"#{extractor.extractor_name}\" (cycling...)")
-
-    if container = extractor.process(unpackaged_data)
-      LOGGER.debug("extract_items: Successfully unpacked container with \"#{extractor.extractor_name}\"")
-      # Extract items in container
-      container.each { |item| yield item }
-    else
-      LOGGER.trace("extract_items: Extractor \"#{extractor.extractor_name}\" does not apply. Cycling to the next one...")
-    end
-  end
-end
-
-# Wrapper using the block function above
-def extract_items(
-  initial_data : InitialData,
-  author_fallback : String? = nil,
-  author_id_fallback : String? = nil,
-) : {Array(SearchItem), String?}
-  items = [] of SearchItem
-  continuation = nil
-
-  extract_items(initial_data) do |item|
-    parsed = parse_item(item, author_fallback, author_id_fallback)
-
-    case parsed
-    when .is_a?(Continuation) then continuation = parsed.token
-    when .is_a?(SearchItem)   then items << parsed
+      if container = extractor.process(unpackaged_data)
+        Log.debug { "Successfully unpacked container with \"#{extractor.extractor_name}\"" }
+        # Extract items in container
+        container.each { |item| yield item }
+      else
+        Log.trace { "Extractor \"#{extractor.extractor_name}\" does not apply. Cycling to the next one..." }
+      end
     end
   end
 
-  return items, continuation
+  # Wrapper using the block function above
+  def extract_items(
+    initial_data : InitialData,
+    author_fallback : String? = nil,
+    author_id_fallback : String? = nil,
+  ) : {Array(SearchItem), String?}
+    items = [] of SearchItem
+    continuation = nil
+
+    extract_items(initial_data) do |item|
+      parsed = parse_item(item, author_fallback, author_id_fallback)
+
+      case parsed
+      when .is_a?(Continuation) then continuation = parsed.token
+      when .is_a?(SearchItem)   then items << parsed
+      end
+    end
+
+    return items, continuation
+  end
 end

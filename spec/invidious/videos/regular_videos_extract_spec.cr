@@ -7,7 +7,7 @@ Spectator.describe "parse_video_info" do
     _next = load_mock("video/regular_mrbeast.next")
 
     raw_data = _player.merge!(_next)
-    info = parse_video_info("2isYuQZMbdU", raw_data)
+    info = Parser.parse_video_info("2isYuQZMbdU", raw_data)
 
     # Some basic verifications
     expect(typeof(info)).to eq(Hash(String, JSON::Any))
@@ -89,7 +89,7 @@ Spectator.describe "parse_video_info" do
     _next = load_mock("video/regular_no-description.next")
 
     raw_data = _player.merge!(_next)
-    info = parse_video_info("iuevw6218F0", raw_data)
+    info = Parser.parse_video_info("iuevw6218F0", raw_data)
 
     # Some basic verifications
     expect(typeof(info)).to eq(Hash(String, JSON::Any))

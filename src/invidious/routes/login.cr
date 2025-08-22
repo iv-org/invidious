@@ -110,7 +110,7 @@ module Invidious::Routes::Login
         user, sid = create_user(sid, email, password)
 
         if language_header = env.request.headers["Accept-Language"]?
-          if language = ANG.language_negotiator.best(language_header, LOCALES.keys)
+          if language = ANG.language_negotiator.best(language_header, I18n::LOCALES.keys)
             user.preferences.locale = language.header
           end
         end

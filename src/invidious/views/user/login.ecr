@@ -1,5 +1,5 @@
 <% content_for "header" do %>
-<title><%= translate(locale, "Log in") %> - Invidious</title>
+<title><%= I18n.translate(locale, "Log in") %> - Invidious</title>
 <% end %>
 
 <div class="pure-g">
@@ -13,15 +13,15 @@
                         <% if email %>
                             <input name="email" type="hidden" value="<%= HTML.escape(email) %>">
                         <% else %>
-                            <label for="email"><%= translate(locale, "User ID") %> :</label>
-                            <input required class="pure-input-1" name="email" type="text" placeholder="<%= translate(locale, "User ID") %>">
+                            <label for="email"><%= I18n.translate(locale, "User ID") %> :</label>
+                            <input required class="pure-input-1" name="email" type="text" placeholder="<%= I18n.translate(locale, "User ID") %>">
                         <% end %>
 
                         <% if password %>
                             <input name="password" type="hidden" value="<%= HTML.escape(password) %>">
                         <% else %>
-                            <label for="password"><%= translate(locale, "Password") %> :</label>
-                            <input required class="pure-input-1" name="password" type="password" placeholder="<%= translate(locale, "Password") %>">
+                            <label for="password"><%= I18n.translate(locale, "Password") %> :</label>
+                            <input required class="pure-input-1" name="password" type="password" placeholder="<%= I18n.translate(locale, "Password") %>">
                         <% end %>
 
                         <% if captcha %>
@@ -30,15 +30,15 @@
                             <% captcha[:tokens].each_with_index do |token, i| %>
                                 <input type="hidden" name="token[<%= i %>]" value="<%= HTML.escape(token) %>">
                             <% end %>
-                            <label for="answer"><%= translate(locale, "Time (h:mm:ss):") %></label>
+                            <label for="answer"><%= I18n.translate(locale, "Time (h:mm:ss):") %></label>
                             <input type="text" name="answer" type="text" placeholder="h:mm:ss">
 
                             <button type="submit" name="action" value="signin" class="pure-button pure-button-primary">
-                                <%= translate(locale, "Register") %>
+                                <%= I18n.translate(locale, "Register") %>
                             </button>
                         <% else %>
                             <button type="submit" name="action" value="signin" class="pure-button pure-button-primary">
-                                <%= translate(locale, "Sign In") %>/<%= translate(locale, "Register") %>
+                                <%= I18n.translate(locale, "Sign In") %>/<%= I18n.translate(locale, "Register") %>
                             </button>
                         <% end %>
                     </fieldset>

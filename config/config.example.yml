@@ -289,7 +289,7 @@ https_only: false
 ## Logging Verbosity. This is overridden if "-l LEVEL" or
 ## "--log-level=LEVEL" are passed on the command line.
 ##
-## Accepted values: All, Trace, Debug, Info, Warn, Error, Fatal, Off
+## Accepted values: Trace, Debug, Info, Notice, Warn, Error, Fatal, None
 ## Default: Info
 ##
 #log_level: Info

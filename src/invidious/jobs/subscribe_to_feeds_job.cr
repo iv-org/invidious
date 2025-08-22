@@ -1,4 +1,6 @@
 class Invidious::Jobs::SubscribeToFeedsJob < Invidious::Jobs::BaseJob
+  Log = ::Log.for(self)
+
   private getter db : DB::Database
   private getter hmac_key : String
 
@@ -32,10 +34,10 @@ class Invidious::Jobs::SubscribeToFeedsJob < Invidious::Jobs::BaseJob
               response = subscribe_pubsub(ucid, hmac_key)
 
               if response.status_code >= 400
-                LOGGER.error("SubscribeToFeedsJob: #{ucid} : #{response.body}")
+                Log.error { "#{ucid} : #{response.body}" }
               end
             rescue ex
-              LOGGER.error("SubscribeToFeedsJob: #{ucid} : #{ex.message}")
+              Log.error { "#{ucid} : #{ex.message}" }
             end
 
             active_channel.send(true)

@@ -1,4 +1,6 @@
 class Invidious::Jobs::InstanceListRefreshJob < Invidious::Jobs::BaseJob
+  Log = ::Log.for(self)
+
   # We update the internals of a constant as so it can be accessed from anywhere
   # within the codebase
   #
@@ -12,7 +14,7 @@ class Invidious::Jobs::InstanceListRefreshJob < Invidious::Jobs::BaseJob
   def begin
     loop do
       refresh_instances
-      LOGGER.info("InstanceListRefreshJob: Done, sleeping for 30 minutes")
+      Log.info { "Done, sleeping for 30 minutes" }
       sleep 30.minute
       Fiber.yield
     end
@@ -43,9 +45,9 @@ class Invidious::Jobs::InstanceListRefreshJob < Invidious::Jobs::BaseJob
         filtered_instance_list << {info["region"].as_s, domain.as_s}
       rescue ex
         if domain
-          LOGGER.info("InstanceListRefreshJob: failed to parse information from '#{domain}' because \"#{ex}\"\n\"#{ex.backtrace.join('\n')}\"  ")
+          Log.info { "failed to parse information from '#{domain}' because \"#{ex}\"\n\"#{ex.backtrace.join('\n')}\"  " }
         else
-          LOGGER.info("InstanceListRefreshJob: failed to parse information from an instance because \"#{ex}\"\n\"#{ex.backtrace.join('\n')}\"  ")
+          Log.info { "failed to parse information from an instance because \"#{ex}\"\n\"#{ex.backtrace.join('\n')}\"  " }
         end
       end
     end

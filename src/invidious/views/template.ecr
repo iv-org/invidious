@@ -42,7 +42,7 @@
                 <div class="pure-u-1 pure-u-md-8-24 user-field">
                     <% if env.get? "user" %>
                         <div class="pure-u-1-4">
-                            <a id="toggle_theme" href="/toggle_theme?referer=<%= env.get?("current_page") %>" class="pure-menu-heading" title="<%= translate(locale, "toggle_theme") %>">
+                            <a id="toggle_theme" href="/toggle_theme?referer=<%= env.get?("current_page") %>" class="pure-menu-heading" title="<%= I18n.translate(locale, "toggle_theme") %>">
                                 <% if dark_mode == "dark" %>
                                     <i class="icon ion-ios-sunny"></i>
                                 <% else %>
@@ -51,7 +51,7 @@
                             </a>
                         </div>
                         <div class="pure-u-1-4">
-                            <a id="notification_ticker" title="<%= translate(locale, "Subscriptions") %>" href="/feed/subscriptions" class="pure-menu-heading">
+                            <a id="notification_ticker" title="<%= I18n.translate(locale, "Subscriptions") %>" href="/feed/subscriptions" class="pure-menu-heading">
                                 <% notification_count = env.get("user").as(Invidious::User).notifications.size %>
                                 <% if CONFIG.enable_user_notifications && notification_count > 0 %>
                                     <span id="notification_count"><%= notification_count %></span> <i class="icon ion-ios-notifications"></i>
@@ -61,7 +61,7 @@
                             </a>
                         </div>
                         <div class="pure-u-1-4">
-                            <a title="<%= translate(locale, "Preferences") %>" href="/preferences?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
+                            <a title="<%= I18n.translate(locale, "Preferences") %>" href="/preferences?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
                                 <i class="icon ion-ios-cog"></i>
                             </a>
                         </div>
@@ -74,13 +74,13 @@
                             <form action="/signout?referer=<%= env.get?("current_page") %>" method="post">
                                 <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
                                 <a class="pure-menu-heading" href="#">
-                                    <input style="all:unset" type="submit" value="<%= translate(locale, "Log out") %>">
+                                    <input style="all:unset" type="submit" value="<%= I18n.translate(locale, "Log out") %>">
                                 </a>
                             </form>
                         </div>
                     <% else %>
                         <div class="pure-u-1-3">
-                            <a id="toggle_theme" href="/toggle_theme?referer=<%= env.get?("current_page") %>" class="pure-menu-heading" title="<%= translate(locale, "toggle_theme") %>">
+                            <a id="toggle_theme" href="/toggle_theme?referer=<%= env.get?("current_page") %>" class="pure-menu-heading" title="<%= I18n.translate(locale, "toggle_theme") %>">
                                 <% if dark_mode == "dark" %>
                                     <i class="icon ion-ios-sunny"></i>
                                 <% else %>
@@ -89,14 +89,14 @@
                             </a>
                         </div>
                         <div class="pure-u-1-3">
-                            <a title="<%= translate(locale, "Preferences") %>" href="/preferences?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
+                            <a title="<%= I18n.translate(locale, "Preferences") %>" href="/preferences?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
                                 <i class="icon ion-ios-cog"></i>
                             </a>
                         </div>
                         <% if CONFIG.login_enabled %>
                             <div class="pure-u-1-3">
                                 <a href="/login?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
-                                    <%= translate(locale, "Log in") %>
+                                    <%= I18n.translate(locale, "Log in") %>
                                 </a>
                             </div>
                         <% end %>
@@ -118,38 +118,38 @@
                         <span>
                             <i class="icon ion-logo-github"></i>
                         <% if CONFIG.modified_source_code_url %>
-                            <a href="https://github.com/iv-org/invidious"><%= translate(locale, "footer_original_source_code") %></a>&nbsp;/
-                            <a href="<%= CONFIG.modified_source_code_url %>"><%= translate(locale, "footer_modfied_source_code") %></a>
+                            <a href="https://github.com/iv-org/invidious"><%= I18n.translate(locale, "footer_original_source_code") %></a>&nbsp;/
+                            <a href="<%= CONFIG.modified_source_code_url %>"><%= I18n.translate(locale, "footer_modfied_source_code") %></a>
                         <% else %>
-                            <a href="https://github.com/iv-org/invidious"><%= translate(locale, "footer_source_code") %></a>
+                            <a href="https://github.com/iv-org/invidious"><%= I18n.translate(locale, "footer_source_code") %></a>
                         <% end %>
                         </span>
                         <span>
                             <i class="icon ion-ios-paper"></i>
-                            <a href="https://github.com/iv-org/documentation"><%= translate(locale, "footer_documentation") %></a>
+                            <a href="https://github.com/iv-org/documentation"><%= I18n.translate(locale, "footer_documentation") %></a>
                         </span>
                     </div>
 
                     <div class="pure-u-1 pure-u-md-1-3">
                         <span>
-                            <a href="https://github.com/iv-org/invidious/blob/master/LICENSE"><%= translate(locale, "Released under the AGPLv3 on Github.") %></a>
+                            <a href="https://github.com/iv-org/invidious/blob/master/LICENSE"><%= I18n.translate(locale, "Released under the AGPLv3 on Github.") %></a>
                         </span>
                         <span>
                             <i class="icon ion-logo-javascript"></i>
-                            <a rel="jslicense" href="/licenses"><%= translate(locale, "View JavaScript license information.") %></a>
+                            <a rel="jslicense" href="/licenses"><%= I18n.translate(locale, "View JavaScript license information.") %></a>
                         </span>
                         <span>
                             <i class="icon ion-ios-paper"></i>
-                            <a href="/privacy"><%= translate(locale, "View privacy policy.") %></a>
+                            <a href="/privacy"><%= I18n.translate(locale, "View privacy policy.") %></a>
                         </span>
                     </div>
 
                     <div class="pure-u-1 pure-u-md-1-3">
                         <span>
                             <i class="icon ion-ios-wallet"></i>
-                            <a href="https://invidious.io/donate/"><%= translate(locale, "footer_donate_page") %></a>
+                            <a href="https://invidious.io/donate/"><%= I18n.translate(locale, "footer_donate_page") %></a>
                         </span>
-                        <span><%= translate(locale, "Current version: ") %> <%= CURRENT_VERSION %>-<%= CURRENT_COMMIT %> @ <%= CURRENT_BRANCH %></span>
+                        <span><%= I18n.translate(locale, "Current version: ") %> <%= CURRENT_VERSION %>-<%= CURRENT_COMMIT %> @ <%= CURRENT_BRANCH %></span>
                     </div>
                 </div>
             </footer>
@@ -163,8 +163,8 @@
         <script id="notification_data" type="application/json">
         <%=
         {
-            "upload_text" => HTML.escape(translate(locale, "`x` uploaded a video")),
-            "live_upload_text" => HTML.escape(translate(locale, "`x` is live"))
+            "upload_text" => HTML.escape(I18n.translate(locale, "`x` uploaded a video")),
+            "live_upload_text" => HTML.escape(I18n.translate(locale, "`x` is live"))
         }.to_pretty_json
         %>
         </script>

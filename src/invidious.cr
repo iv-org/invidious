@@ -15,7 +15,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require "digest/md5"
-require "file_utils"
 
 # Require kemal, then our own overrides
 require "kemal"
@@ -30,6 +29,7 @@ require "xml"
 require "yaml"
 require "compress/zip"
 require "protodec/utils"
+require "log"
 
 require "./invidious/database/*"
 require "./invidious/database/migrations/*"
@@ -128,8 +128,8 @@ Kemal.config.extra_options do |parser|
   parser.on("-o OUTPUT", "--output=OUTPUT", "Redirect output (default: #{CONFIG.output})") do |output|
     CONFIG.output = output
   end
-  parser.on("-l LEVEL", "--log-level=LEVEL", "Log level, one of #{LogLevel.values} (default: #{CONFIG.log_level})") do |log_level|
-    CONFIG.log_level = LogLevel.parse(log_level)
+  parser.on("-l LEVEL", "--log-level=LEVEL", "Log level, one of #{Log::Severity.values} (default: #{CONFIG.log_level})") do |log_level|
+    CONFIG.log_level = Log::Severity.parse(log_level)
   end
   parser.on("-k", "--colorize", "Colorize logs") do
     CONFIG.colorize_logs = true
@@ -146,11 +146,23 @@ end
 
 Kemal::CLI.new ARGV
 
-if CONFIG.output.upcase != "STDOUT"
-  FileUtils.mkdir_p(File.dirname(CONFIG.output))
+Log.setup do |c|
+  colorize = CONFIG.colorize_logs
+  output = CONFIG.output
+
+  backend = Log::IOBackend.new(formatter: Invidious::Logger.formatter(colorize))
+  if output.upcase != "STDOUT"
+    Dir.mkdir_p(File.dirname(output))
+    io = File.open(output, "wb")
+    colorize = false
+    backend = Log::IOBackend.new(io, formatter: Invidious::Logger.formatter(colorize))
+    puts("File output enabled in config, logs will being saved in '#{output}'")
+  end
+
+  c.bind "*", CONFIG.log_level, backend
+  c.bind "db.*", :none, backend
+  c.bind "http.*", :none, backend
 end
-OUTPUT = CONFIG.output.upcase == "STDOUT" ? STDOUT : File.open(CONFIG.output, mode: "a")
-LOGGER = Invidious::LogHandler.new(OUTPUT, CONFIG.log_level, CONFIG.colorize_logs)
 
 # Check table integrity
 Invidious::Database.check_integrity(CONFIG)
@@ -248,7 +260,6 @@ add_context_storage_type(Array(String))
 add_context_storage_type(Preferences)
 add_context_storage_type(Invidious::User)
 
-Kemal.config.logger = LOGGER
 Kemal.config.app_name = "Invidious"
 
 # Use in kemal's production mode.

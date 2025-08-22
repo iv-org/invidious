@@ -24,7 +24,7 @@ def fetch_channel_playlists(ucid, author, continuation, sort_by)
     initial_data = YoutubeAPI.browse(ucid, params: params || "")
   end
 
-  return extract_items(initial_data, author, ucid)
+  return YoutubeJSONParser.extract_items(initial_data, author, ucid)
 end
 
 def fetch_channel_podcasts(ucid, author, continuation)
@@ -33,7 +33,7 @@ def fetch_channel_podcasts(ucid, author, continuation)
   else
     initial_data = YoutubeAPI.browse(ucid, params: "Eghwb2RjYXN0c_IGBQoDugEA")
   end
-  return extract_items(initial_data, author, ucid)
+  return YoutubeJSONParser.extract_items(initial_data, author, ucid)
 end
 
 def fetch_channel_releases(ucid, author, continuation)
@@ -42,7 +42,7 @@ def fetch_channel_releases(ucid, author, continuation)
   else
     initial_data = YoutubeAPI.browse(ucid, params: "EghyZWxlYXNlc_IGBQoDsgEA")
   end
-  return extract_items(initial_data, author, ucid)
+  return YoutubeJSONParser.extract_items(initial_data, author, ucid)
 end
 
 def fetch_channel_courses(ucid, author, continuation)
@@ -51,5 +51,5 @@ def fetch_channel_courses(ucid, author, continuation)
   else
     initial_data = YoutubeAPI.browse(ucid, params: "Egdjb3Vyc2Vz8gYFCgPCAQA%3D")
   end
-  return extract_items(initial_data, author, ucid)
+  return YoutubeJSONParser.extract_items(initial_data, author, ucid)
 end

@@ -29,7 +29,7 @@ module Invidious::Channel::Tabs
     continuation ||= make_initial_videos_ctoken(ucid, sort_by)
     initial_data = YoutubeAPI.browse(continuation: continuation)
 
-    return extract_items(initial_data, author, ucid)
+    return YoutubeJSONParser.extract_items(initial_data, author, ucid)
   end
 
   def get_60_videos(channel : AboutChannel, *, continuation : String? = nil, sort_by = "newest")
@@ -59,7 +59,7 @@ module Invidious::Channel::Tabs
     continuation ||= make_initial_shorts_ctoken(channel.ucid, sort_by)
     initial_data = YoutubeAPI.browse(continuation: continuation)
 
-    return extract_items(initial_data, channel.author, channel.ucid)
+    return YoutubeJSONParser.extract_items(initial_data, channel.author, channel.ucid)
   end
 
   # -------------------
@@ -70,7 +70,7 @@ module Invidious::Channel::Tabs
     continuation ||= make_initial_livestreams_ctoken(channel.ucid, sort_by)
     initial_data = YoutubeAPI.browse(continuation: continuation)
 
-    return extract_items(initial_data, channel.author, channel.ucid)
+    return YoutubeJSONParser.extract_items(initial_data, channel.author, channel.ucid)
   end
 
   def get_60_livestreams(channel : AboutChannel, *, continuation : String? = nil, sort_by = "newest")

@@ -8,7 +8,7 @@ module Invidious::Hashtag
     client_config = YoutubeAPI::ClientConfig.new(region: region)
     response = YoutubeAPI.browse(continuation: ctoken, client_config: client_config)
 
-    items, _ = extract_items(response)
+    items, _ = YoutubeJSONParser.extract_items(response)
     return items
   end
 

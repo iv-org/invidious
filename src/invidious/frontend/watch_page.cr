@@ -20,7 +20,7 @@ module Invidious::Frontend::WatchPage
 
   def download_widget(locale : String, video : Video, video_assets : VideoAssets) : String
     if CONFIG.disabled?("downloads")
-      return "<p id=\"download\">#{translate(locale, "Download is disabled")}</p>"
+      return "<p id=\"download\">#{I18n.translate(locale, "Download is disabled")}</p>"
     end
 
     url = "/download"
@@ -45,7 +45,7 @@ module Invidious::Frontend::WatchPage
       str << "\t<div class=\"pure-control-group\">\n"
 
       str << "\t\t<label for='download_widget'>"
-      str << translate(locale, "Download as: ")
+      str << I18n.translate(locale, "Download as: ")
       str << "</label>\n"
 
       str << "\t\t<select name='download_widget' id='download_widget'>\n"
@@ -94,7 +94,7 @@ module Invidious::Frontend::WatchPage
         value = {"label": caption.name, "ext": "#{caption.language_code}.vtt"}.to_json
 
         str << "\t\t\t<option value='" << value << "'>"
-        str << translate(locale, "download_subtitles", translate(locale, caption.name))
+        str << I18n.translate(locale, "download_subtitles", I18n.translate(locale, caption.name))
         str << "</option>\n"
       end
 
@@ -104,7 +104,7 @@ module Invidious::Frontend::WatchPage
       str << "\t</div>\n"
 
       str << "\t<button type=\"submit\" class=\"pure-button pure-button-primary\">\n"
-      str << "\t\t<b>" << translate(locale, "Download") << "</b>\n"
+      str << "\t\t<b>" << I18n.translate(locale, "Download") << "</b>\n"
       str << "\t</button>\n"
 
       str << "</form>\n"

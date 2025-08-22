@@ -7,7 +7,7 @@ def fetch_channel_community(ucid, cursor, locale, format, thin_mode)
     initial_data = YoutubeAPI.browse(ucid, params: "EgVwb3N0c_IGBAoCSgA%3D")
 
     items = [] of JSON::Any
-    extract_items(initial_data) do |item|
+    YoutubeJSONParser.extract_items(initial_data) do |item|
       items << item
     end
   else
@@ -49,7 +49,7 @@ def fetch_channel_community_post(ucid, post_id, locale, format, thin_mode)
   initial_data = YoutubeAPI.browse("FEpost_detail", params: params)
 
   items = [] of JSON::Any
-  extract_items(initial_data) do |item|
+  YoutubeJSONParser.extract_items(initial_data) do |item|
     items << item
   end
 
@@ -131,7 +131,7 @@ def extract_channel_community(items, *, ucid, locale, format, thin_mode, is_sing
               json.field "contentHtml", content_html
 
               json.field "published", published.to_unix
-              json.field "publishedText", translate(locale, "`x` ago", recode_date(published, locale))
+              json.field "publishedText", I18n.translate(locale, "`x` ago", recode_date(published, locale))
 
               json.field "likeCount", like_count
               json.field "replyCount", reply_count
@@ -142,7 +142,7 @@ def extract_channel_community(items, *, ucid, locale, format, thin_mode, is_sing
                 json.field "attachment" do
                   case attachment.as_h
                   when .has_key?("videoRenderer")
-                    parse_item(attachment)
+                    YoutubeJSONParser.parse_item(attachment)
                       .as(SearchVideo)
                       .to_json(locale, json)
                   when .has_key?("backstageImageRenderer")
@@ -230,7 +230,7 @@ def extract_channel_community(items, *, ucid, locale, format, thin_mode, is_sing
                       end
                     end
                   when .has_key?("playlistRenderer")
-                    parse_item(attachment)
+                    YoutubeJSONParser.parse_item(attachment)
                       .as(SearchPlaylist)
                       .to_json(locale, json)
                   when .has_key?("quizRenderer")

@@ -10,17 +10,17 @@
         <div class="flex-right button-container">
             <div class="pure-u">
                 <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/playlist?list=<%= plid %>">
-                    <i class="icon ion-md-close"></i>&nbsp;<%= translate(locale, "generic_button_cancel") %>
+                    <i class="icon ion-md-close"></i>&nbsp;<%= I18n.translate(locale, "generic_button_cancel") %>
                 </a>
             </div>
             <div class="pure-u">
                 <button class="pure-button pure-button-secondary low-profile" dir="auto" type="submit">
-                    <i class="icon ion-md-save"></i>&nbsp;<%= translate(locale, "generic_button_save") %>
+                    <i class="icon ion-md-save"></i>&nbsp;<%= I18n.translate(locale, "generic_button_save") %>
                 </button>
             </div>
             <div class="pure-u">
                 <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/delete_playlist?list=<%= plid %>">
-                    <i class="icon ion-md-trash"></i>&nbsp;<%= translate(locale, "generic_button_delete") %>
+                    <i class="icon ion-md-trash"></i>&nbsp;<%= I18n.translate(locale, "generic_button_delete") %>
                 </a>
             </div>
         </div>
@@ -36,11 +36,11 @@
         <div class="pure-u-1-1">
             <b>
                 <%= HTML.escape(playlist.author) %> |
-                <%= translate_count(locale, "generic_videos_count", playlist.video_count) %> |
+                <%= I18n.translate_count(locale, "generic_videos_count", playlist.video_count) %> |
             </b>
             <select name="privacy">
             <%- {"Public", "Unlisted", "Private"}.each do |option| -%>
-                <option value="<%= option %>" <% if option == playlist.privacy.to_s %>selected<% end %>><%= translate(locale, option) %></option>
+                <option value="<%= option %>" <% if option == playlist.privacy.to_s %>selected<% end %>><%= I18n.translate(locale, option) %></option>
             <%- end -%>
             </select>
         </div>
