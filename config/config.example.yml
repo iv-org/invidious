@@ -865,7 +865,7 @@ default_user_preferences:
   ##
   ## Default dash video quality.
   ##
-  ## Note: this setting only takes effet if the
+  ## Note: this setting only takes effect if the
   ## 'quality' parameter is set to "dash".
   ##
   ## Accepted values:
