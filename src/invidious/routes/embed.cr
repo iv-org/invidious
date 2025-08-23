@@ -20,7 +20,7 @@ module Invidious::Routes::Embed
         return error_template(500, ex)
       end
 
-      url = "/embed/#{first_playlist_video}?#{env.params.query}"
+      url = "/embed/#{first_playlist_video.id}?#{env.params.query}"
 
       if env.params.query.size > 0
         url += "?#{env.params.query}"
