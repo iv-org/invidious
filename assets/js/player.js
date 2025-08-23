@@ -8,6 +8,7 @@ var options = {
     fontPercent: [0.5, 0.75, 1.25, 1.5, 1.75, 2, 3, 4],
     windowOpacity: ['0', '0.5', '1'],
     textOpacity: ['0.5', '1'],
+    persistTextTrackSettings: true,
     controlBar: {
         children: [
             'playToggle',
