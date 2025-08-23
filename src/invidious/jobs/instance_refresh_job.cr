@@ -1,6 +1,4 @@
 class Invidious::Jobs::InstanceListRefreshJob < Invidious::Jobs::BaseJob
-  Log = ::Log.for(self)
-
   # We update the internals of a constant as so it can be accessed from anywhere
   # within the codebase
   #

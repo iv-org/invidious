@@ -1,6 +1,4 @@
 class Invidious::Jobs::SubscribeToFeedsJob < Invidious::Jobs::BaseJob
-  Log = ::Log.for(self)
-
   private getter db : DB::Database
   private getter hmac_key : String
 

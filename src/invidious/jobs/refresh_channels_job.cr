@@ -1,6 +1,4 @@
 class Invidious::Jobs::RefreshChannelsJob < Invidious::Jobs::BaseJob
-  Log = ::Log.for(self)
-
   private getter db : DB::Database
 
   def initialize(@db)

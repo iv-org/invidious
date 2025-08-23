@@ -1,6 +1,4 @@
 class Invidious::Jobs::ClearExpiredItemsJob < Invidious::Jobs::BaseJob
-  Log = ::Log.for(self)
-
   # Remove items (videos, nonces, etc..) whose cache is outdated every hour.
   # Removes the need for a cron job.
   def begin

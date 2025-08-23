@@ -22,8 +22,6 @@ struct VideoNotification
 end
 
 class Invidious::Jobs::NotificationJob < Invidious::Jobs::BaseJob
-  Log = ::Log.for(self)
-
   private getter notification_channel : ::Channel(VideoNotification)
   private getter connection_channel : ::Channel({Bool, ::Channel(PQ::Notification)})
   private getter pg_url : URI
