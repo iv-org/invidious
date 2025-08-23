@@ -39,8 +39,6 @@
     "User ID": "Utilizador",
     "Password": "Palavra-passe",
     "Time (h:mm:ss):": "Tempo (h:mm:ss):",
-    "Text CAPTCHA": "Texto CAPTCHA",
-    "Image CAPTCHA": "Imagem CAPTCHA",
     "Sign In": "Entrar",
     "Register": "Registar",
     "E-mail": "E-mail",
@@ -518,5 +516,8 @@
     "Filipino (auto-generated)": "Filipino (gerado automaticamente)",
     "channel_tab_courses_label": "Cursos",
     "channel_tab_posts_label": "Publicações",
-    "toggle_theme": "Trocar tema"
+    "toggle_theme": "Trocar tema",
+    "timeline_parse_error_placeholder_heading": "Incapaz de processar o elemento",
+    "timeline_parse_error_placeholder_message": "O Invidious encontrou um problema ao processar este elemento. Para mais informações, veja abaixo:",
+    "timeline_parse_error_show_technical_details": "Mostrar detalhes técnicos"
 }

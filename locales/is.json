@@ -39,8 +39,6 @@
     "User ID": "Auðkenni notanda",
     "Password": "Lykilorð",
     "Time (h:mm:ss):": "Tími (h:mm: ss):",
-    "Text CAPTCHA": "CAPTCHA-texti",
-    "Image CAPTCHA": "CAPTCHA-mynd",
     "Sign In": "Skrá inn",
     "Register": "Nýskrá",
     "E-mail": "Tölvupóstur",
@@ -501,5 +499,8 @@
     "Filipino (auto-generated)": "Filippínska (sjálfvirkt útbúin)",
     "channel_tab_posts_label": "Færslur",
     "First page": "Fyrsta síða",
-    "channel_tab_courses_label": "Kennsluefni"
+    "channel_tab_courses_label": "Kennsluefni",
+    "timeline_parse_error_placeholder_heading": "Tekst ekki að meðhöndla þetta atriði",
+    "timeline_parse_error_placeholder_message": "Invidious rakst á villu við að reyna að meðhöndla þetta atriði. Skoðaðu nánari upplýsingar hér fyrir neðan:",
+    "timeline_parse_error_show_technical_details": "Sýna nánari tæknilegar upplýsingar"
 }

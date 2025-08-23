@@ -48,8 +48,6 @@
     "User ID": "ID utente",
     "Password": "Password",
     "Time (h:mm:ss):": "Orario (h:mm:ss):",
-    "Text CAPTCHA": "Testo del CAPTCHA",
-    "Image CAPTCHA": "Immagine CAPTCHA",
     "Sign In": "Accedi",
     "Register": "Registrati",
     "E-mail": "E-mail",
@@ -129,7 +127,7 @@
     "subscriptions_unseen_notifs_count_0": "{{count}} notifica non visualizzata",
     "subscriptions_unseen_notifs_count_1": "{{count}} notifiche non visualizzate",
     "subscriptions_unseen_notifs_count_2": "{{count}} notifiche non visualizzate",
-    "search": "Cerca",
+    "search": "cerca",
     "Log out": "Esci",
     "Source available here.": "Codice sorgente.",
     "View JavaScript license information.": "Guarda le informazioni di licenza del codice JavaScript.",
@@ -518,5 +516,8 @@
     "Filipino (auto-generated)": "Filippino (generati automaticamente)",
     "First page": "Prima pagina",
     "channel_tab_courses_label": "Corsi",
-    "channel_tab_posts_label": "Post"
+    "channel_tab_posts_label": "Post",
+    "timeline_parse_error_show_technical_details": "Mostra i dettagli tecnici",
+    "timeline_parse_error_placeholder_message": "Invidious ha riscontrato un errore tentando di leggere questo elemento. Per altre informazioni vedi di seguito:",
+    "timeline_parse_error_placeholder_heading": "Lettura elemento non riuscita"
 }

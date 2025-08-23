@@ -39,8 +39,6 @@
     "User ID": "Korisnički ID",
     "Password": "Lozinka",
     "Time (h:mm:ss):": "Vrijeme (h:mm:ss):",
-    "Text CAPTCHA": "Tekstualni CAPTCHA",
-    "Image CAPTCHA": "Slikovni CAPTCHA",
     "Sign In": "Prijavi se",
     "Register": "Registriraj se",
     "E-mail": "E-mail adresa",
@@ -515,5 +513,11 @@
     "carousel_go_to": "Idi na kadar `x`",
     "carousel_skip": "Preskoči vrtuljak",
     "Filipino (auto-generated)": "Filipinski (automatski generirano)",
-    "preferences_preload_label": "Unaprijed učitaj podatke videa: "
+    "preferences_preload_label": "Unaprijed učitaj podatke videa: ",
+    "channel_tab_posts_label": "Objave",
+    "timeline_parse_error_placeholder_heading": "Nije moguće obraditi stavku",
+    "timeline_parse_error_placeholder_message": "Invidious je naišao na grešku prilikom obrade ove stavke. Za više informacija pogledajte niže dolje:",
+    "timeline_parse_error_show_technical_details": "Prikaži tehničke detalje",
+    "First page": "Prva stranica",
+    "channel_tab_courses_label": "Tečajevi"
 }

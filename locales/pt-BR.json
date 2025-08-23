@@ -18,7 +18,7 @@
     "Authorize token for `x`?": "Autorizar token para `x`?",
     "Yes": "Sim",
     "No": "Não",
-    "Import and Export Data": "Importar/exportar dados",
+    "Import and Export Data": "Importar e exportar dados",
     "Import": "Importar",
     "Import Invidious data": "Importar dados JSON do Invidious",
     "Import YouTube subscriptions": "Importar inscrições no formato CSV ou OPML do YouTube",
@@ -39,8 +39,6 @@
     "User ID": "Usuário",
     "Password": "Senha",
     "Time (h:mm:ss):": "Hora (h:mm:ss):",
-    "Text CAPTCHA": "Mudar para um desafio de texto",
-    "Image CAPTCHA": "Mudar para um desafio visual",
     "Sign In": "Fazer login",
     "Register": "Criar conta",
     "E-mail": "E-mail",
@@ -484,7 +482,7 @@
     "channel_tab_channels_label": "Canais",
     "channel_tab_playlists_label": "Playlists",
     "channel_tab_shorts_label": "Shorts",
-    "channel_tab_streams_label": "Transmissão ao vivo",
+    "channel_tab_streams_label": "Transmissões ao vivo",
     "Music in this video": "Música neste vídeo",
     "Artist: ": "Artista: ",
     "Album: ": "Álbum: ",
@@ -518,5 +516,8 @@
     "Filipino (auto-generated)": "Filipino (gerado automaticamente)",
     "channel_tab_posts_label": "Postagens",
     "First page": "Primeira página",
-    "channel_tab_courses_label": "Cursos"
+    "channel_tab_courses_label": "Cursos",
+    "timeline_parse_error_show_technical_details": "Mostrar detalhes técnicos",
+    "timeline_parse_error_placeholder_message": "O Invidious encontrou um problema ao processar este item. Para mais informações, veja abaixo:",
+    "timeline_parse_error_placeholder_heading": "Incapaz de processar item"
 }
