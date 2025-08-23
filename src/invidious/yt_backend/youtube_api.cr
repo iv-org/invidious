@@ -690,16 +690,14 @@ module YoutubeAPI
     endpoint : String,
     data : Hash,
   ) : Hash(String, JSON::Any)
-    log_name = "invidious-companion"
-
     headers = HTTP::Headers{
       "Content-Type"  => "application/json; charset=UTF-8",
       "Authorization" => "Bearer #{CONFIG.invidious_companion_key}",
     }
 
     # Logging
-    Log.debug { "Using endpoint: \"#{endpoint}\"" }
-    Log.trace { "POST data: #{data}" }
+    ::Log.forf.debug { "Using endpoint: \"#{endpoint}\"" }
+    ::Log.forf.trace { "POST data: #{data}" }
 
     # Send the POST request
 
