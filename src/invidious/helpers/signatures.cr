@@ -2,7 +2,7 @@ require "http/params"
 require "./sig_helper"
 
 class Invidious::DecryptFunction
-  Log = ::Log.for(self).for("Signature")
+  Log = ::Log.for(self).for("SignatureDecryption")
 
   @last_update : Time = Time.utc - 42.days
 
