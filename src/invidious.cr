@@ -62,8 +62,8 @@ HMAC_KEY = CONFIG.hmac_key
 
 PG_DB = begin
   DB.open CONFIG.database_url
-rescue exc
-  puts "Failed to connect to PostgreSQL database: #{exc.cause.try &.message}"
+rescue ex
+  puts "Failed to connect to PostgreSQL database: #{ex.cause.try &.message}"
   puts "Check your 'config.yml' database settings or PostgreSQL settings."
   exit(1)
 end
@@ -227,8 +227,8 @@ error 404 do |env|
   Invidious::Routes::ErrorRoutes.error_404(env)
 end
 
-error 500 do |env, ex|
-  error_template(500, ex)
+error 500 do |env, exception|
+  error_template(500, exception)
 end
 
 static_headers do |env|
