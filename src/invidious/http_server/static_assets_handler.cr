@@ -50,24 +50,25 @@ module Invidious::HttpServer
 
       range_header = context.request.headers["Range"]?
 
-      if !file_info.is_a? CachedFile
-        retrieve_bytes_from = IO::Memory.new
-
-        File.open(file_path) do |file|
-          # We cannot cache partial data so we'll rewind and read from the start
-          if range_header
-            dispatch_serve(context, file, file_info, range_header)
-            IO.copy(file.rewind, retrieve_bytes_from)
-          else
-            context.response.output = IO::MultiWriter.new(context.response.output, retrieve_bytes_from, sync_close: true)
-            dispatch_serve(context, file, file_info, range_header)
-          end
-        end
-
-        return flush_io_to_cache(retrieve_bytes_from, file_path, file_info)
-      else
+      # If the file is cached we can just directly serve it
+      if file_info.is_a? CachedFile
         return dispatch_serve(context, file_info.data, file_info, range_header)
       end
+
+      # Otherwise we'll need to read from disk and cache it
+      retrieve_bytes_from = IO::Memory.new
+      File.open(file_path) do |file|
+        # We cannot cache partial data so we'll rewind and read from the start
+        if range_header
+          dispatch_serve(context, file, file_info, range_header)
+          IO.copy(file.rewind, retrieve_bytes_from)
+        else
+          context.response.output = IO::MultiWriter.new(context.response.output, retrieve_bytes_from, sync_close: true)
+          dispatch_serve(context, file, file_info, range_header)
+        end
+      end
+
+      return flush_io_to_cache(retrieve_bytes_from, file_path, file_info)
     end
 
     # Writes file data to the cache
