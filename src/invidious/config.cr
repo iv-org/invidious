@@ -158,7 +158,7 @@ class Config
   # Global per-page feature toggles.
   # Valid keys: "trending", "popular", "search"
   # If someone sets both `popular_enabled` and `pages_enabled["popular"]`, the latter takes precedence.
-  property pages_enabled : PagesEnabled = PagesEnabled.new
+  property pages_enabled : PagesEnabled = PagesEnabled.from_yaml("")
   # —————————————————————————————————————————————————————————————————————————————————————
 
   property captcha_enabled : Bool = true
