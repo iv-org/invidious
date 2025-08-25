@@ -79,6 +79,8 @@ struct PagesEnabled
   property popular : Bool = true
   property search : Bool = true
 
+  def initialize(@trending, @popular, @search); end
+
   def has_key?(key : String) : Bool
     %w(trending popular search).includes?(key)
   end
