@@ -72,34 +72,26 @@ struct HTTPProxyConfig
 end
 
 # Structure used for global per-page feature toggles
-struct PagesEnabled
+record PagesEnabled,
+  trending : Bool = true,
+  popular : Bool = true,
+  search : Bool = true do
   include YAML::Serializable
 
-  property trending : Bool = true
-  property popular : Bool = true
-  property search : Bool = true
-
-  def initialize(@trending, @popular, @search); end
-
-  def has_key?(key : String) : Bool
-    %w(trending popular search).includes?(key)
+  def [](key : String) : Bool
+    fetch(key) { raise KeyError.new("Unknown page '#{key}'") }
   end
 
-  def [](key : String) : Bool
+  def []?(key : String) : Bool
+    fetch(key) { nil }
+  end
+
+  private def fetch(key : String, &)
     case key
     when "trending" then @trending
     when "popular"  then @popular
     when "search"   then @search
-    else                 raise KeyError.new("Unknown page '#{key}'")
-    end
-  end
-
-  def []=(key : String, value : Bool)
-    case key
-    when "trending" then @trending = value
-    when "popular"  then @popular = value
-    when "search"   then @search = value
-    else                 raise KeyError.new("Unknown page '#{key}'")
+    else                 yield
     end
   end
 end
@@ -153,14 +145,26 @@ class Config
   property use_pubsub_feeds : Bool | Int32 = false
 
   # —————————————————————————————————————————————————————————————————————————————————————
+
+  # A @{{key}}_present variable is required for both fields in order to handle the precedence for
+  # the deprecated `popular_enabled` in relations to `pages_enabled`
+
   # DEPRECATED: use `pages_enabled["popular"]` instead.
   @[Deprecated("`popular_enabled` will be removed in a future release; use pages_enabled[\"popular\"] instead")]
+  @[YAML::Field(presence: true)]
   property popular_enabled : Bool = true
+
+  @[YAML::Field(ignore: true)]
+  property popular_enabled_present : Bool
 
   # Global per-page feature toggles.
   # Valid keys: "trending", "popular", "search"
   # If someone sets both `popular_enabled` and `pages_enabled["popular"]`, the latter takes precedence.
+  @[YAML::Field(presence: true)]
   property pages_enabled : PagesEnabled = PagesEnabled.from_yaml("")
+
+  @[YAML::Field(ignore: true)]
+  property pages_enabled_present : Bool
   # —————————————————————————————————————————————————————————————————————————————————————
 
   property captcha_enabled : Bool = true
@@ -241,13 +245,7 @@ class Config
 
   # Centralized page toggle with legacy fallback for `popular_enabled`
   def page_enabled?(page : String) : Bool
-    if @pages_enabled.has_key?(page)
-      @pages_enabled[page]
-    elsif page == "popular"
-      @popular_enabled
-    else
-      true
-    end
+    return @pages_enabled[page]
   end
 
   def self.load
@@ -336,6 +334,8 @@ class Config
       exit(1)
     end
 
+    config.process_deprecation
+
     # Build database_url from db.* if it's not set directly
     if config.database_url.to_s.empty?
       if db = config.db
@@ -372,5 +372,25 @@ class Config
     end
 
     return config
+  end
+
+  # Processes deprecated values
+  #
+  # Warns when they are set and handles any precedence issue that may arise when present alongside a successor attribute
+  #
+  # This method is public as to allow specs to test the behavior without going through #load
+  #
+  # :nodoc:
+  def process_deprecation(log_io : IO = STDOUT)
+    # Handle deprecated popular_enabled config and warn if it is set
+    if self.popular_enabled_present
+      log_io.puts "Warning: `popular_enabled` has been deprecated and replaced by the `pages_enabled` config"
+      log_io.puts "If both are set `pages_enabled` will take precedence over `popular_enabled`"
+
+      # Only use popular_enabled value when pages_enabled is unset
+      if !self.pages_enabled_present
+        self.pages_enabled = self.pages_enabled.copy_with(popular: self.popular_enabled)
+      end
+    end
   end
 end
