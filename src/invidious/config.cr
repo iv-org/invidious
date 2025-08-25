@@ -285,6 +285,12 @@ class Config
                         begin
                             config.{{ivar.id}} = ivar_type.from_yaml(env_value)
                             success = true
+
+                            # Update associated _present key if any
+                            {% other_ivar = @type.instance_vars.find { |other_ivar| other_ivar.name == ivar.name + "_present" } %}
+                            {% if other_ivar && (ann = other_ivar.annotation(YAML::Field)) && ann[:ignore] == true %}
+                              config.{{other_ivar.name.id}} = true
+                            {% end %}
                         rescue
                             # nop
                         end
