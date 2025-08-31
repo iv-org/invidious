@@ -256,6 +256,9 @@ add_handler FilteredCompressHandler.new
 add_handler APIHandler.new
 add_handler AuthHandler.new
 add_handler DenyFrame.new
+# Turn off default Kemal logging since we are using our own one based on Kemal::RequestLogHandler
+Kemal.config.logging = false
+add_handler Invidious::RequestLogHandler.new
 add_context_storage_type(Array(String))
 add_context_storage_type(Preferences)
 add_context_storage_type(Invidious::User)

@@ -44,3 +44,32 @@ module Invidious::Logger
     end
   end
 end
+
+class Invidious::RequestLogHandler < Kemal::RequestLogHandler
+  Log = ::Log.for(Kemal)
+
+  def call(context : HTTP::Server::Context)
+    elapsed_time = Time.measure { call_next(context) }
+    elapsed_text = elapsed_text(elapsed_time)
+    requested_url = context.request.resource
+
+    # Try not to log search queries passed as GET parameters during normal use
+    # (They will still be logged if log level is 'Debug' or 'Trace')
+    if CONFIG.log_level > ::Log::Severity::Debug && (
+         requested_url.downcase.includes?("search") || requested_url.downcase.includes?("q=")
+       )
+      # Log only the path
+      requested_url = context.request.path
+    end
+
+    Log.info { "#{context.response.status_code} #{context.request.method} #{requested_url} #{elapsed_text}" }
+    context
+  end
+
+  private def elapsed_text(elapsed)
+    millis = elapsed.total_milliseconds
+    return "#{millis.round(2)}ms" if millis >= 1
+
+    "#{(millis * 1000).round(2)}µs"
+  end
+end
