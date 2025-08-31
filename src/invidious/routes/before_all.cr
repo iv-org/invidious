@@ -7,7 +7,7 @@ module Invidious::Routes::BeforeAll
         preferences = Preferences.from_json(URI.decode_www_form(prefs_cookie.value))
       else
         if language_header = env.request.headers["Accept-Language"]?
-          if language = ANG.language_negotiator.best(language_header, I18n::LOCALES.keys)
+          if language = ANG.language_negotiator.best(language_header, LOCALES.keys)
             preferences.locale = language.header
           end
         end

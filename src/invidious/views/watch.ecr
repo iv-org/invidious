@@ -35,11 +35,11 @@ we're going to need to do it here in order to allow for translations.
  -->
 <style>
 #descexpansionbutton ~ label > a::after {
-    content: "<%= I18n.translate(locale, "Show more") %>"
+    content: "<%= translate(locale, "Show more") %>"
 }
 
 #descexpansionbutton:checked ~ label > a::after {
-    content: "<%= I18n.translate(locale, "Show less") %>"
+    content: "<%= translate(locale, "Show less") %>"
 }
 </style>
 <% end %>
@@ -53,12 +53,12 @@ we're going to need to do it here in order to allow for translations.
     "length_seconds" => video.length_seconds.to_f,
     "play_next" => !video.related_videos.empty? && !plid && params.continue,
     "next_video" => video.related_videos.select { |rv| rv["id"]? }[0]?.try &.["id"],
-    "youtube_comments_text" => HTML.escape(I18n.translate(locale, "View YouTube comments")),
-    "reddit_comments_text" => HTML.escape(I18n.translate(locale, "View Reddit comments")),
-    "reddit_permalink_text" => HTML.escape(I18n.translate(locale, "View more comments on Reddit")),
-    "comments_text" => HTML.escape(I18n.translate(locale, "View `x` comments", "{commentCount}")),
-    "hide_replies_text" => HTML.escape(I18n.translate(locale, "Hide replies")),
-    "show_replies_text" => HTML.escape(I18n.translate(locale, "Show replies")),
+    "youtube_comments_text" => HTML.escape(translate(locale, "View YouTube comments")),
+    "reddit_comments_text" => HTML.escape(translate(locale, "View Reddit comments")),
+    "reddit_permalink_text" => HTML.escape(translate(locale, "View more comments on Reddit")),
+    "comments_text" => HTML.escape(translate(locale, "View `x` comments", "{commentCount}")),
+    "hide_replies_text" => HTML.escape(translate(locale, "Hide replies")),
+    "show_replies_text" => HTML.escape(translate(locale, "Show replies")),
     "params" => params,
     "preferences" => preferences,
     "premiere_timestamp" => video.premiere_timestamp.try &.to_unix,
@@ -78,11 +78,11 @@ we're going to need to do it here in order to allow for translations.
     <h1>
         <%= title %>
         <% if params.listen %>
-            <a title="<%=I18n.translate(locale, "Video mode")%>" href="/watch?<%= env.params.query %>&listen=0">
+            <a title="<%=translate(locale, "Video mode")%>" href="/watch?<%= env.params.query %>&listen=0">
                 <i class="icon ion-ios-videocam"></i>
             </a>
         <% else %>
-            <a title="<%=I18n.translate(locale, "Audio mode")%>" href="/watch?<%= env.params.query %>&listen=1">
+            <a title="<%=translate(locale, "Audio mode")%>" href="/watch?<%= env.params.query %>&listen=1">
                 <i class="icon ion-md-headset"></i>
             </a>
         <% end %>
@@ -90,7 +90,7 @@ we're going to need to do it here in order to allow for translations.
 
     <% if !video.is_listed %>
         <h3>
-            <i class="icon ion-ios-unlock"></i> <%= I18n.translate(locale, "Unlisted") %>
+            <i class="icon ion-ios-unlock"></i> <%= translate(locale, "Unlisted") %>
         </h3>
     <% end %>
 
@@ -100,11 +100,11 @@ we're going to need to do it here in order to allow for translations.
         </h3>
     <% elsif video.premiere_timestamp.try &.> Time.utc %>
         <h3>
-            <%= video.premiere_timestamp.try { |t| I18n.translate(locale, "Premieres in `x`", recode_date((t - Time.utc).ago, locale)) } %>
+            <%= video.premiere_timestamp.try { |t| translate(locale, "Premieres in `x`", recode_date((t - Time.utc).ago, locale)) } %>
         </h3>
     <% elsif video.live_now %>
         <h3>
-            <%= video.premiere_timestamp.try { |t| I18n.translate(locale, "videoinfo_started_streaming_x_ago", recode_date((Time.utc - t).ago, locale)) } %>
+            <%= video.premiere_timestamp.try { |t| translate(locale, "videoinfo_started_streaming_x_ago", recode_date((Time.utc - t).ago, locale)) } %>
         </h3>
     <% end %>
 </div>
@@ -123,13 +123,13 @@ we're going to need to do it here in order to allow for translations.
                         link_yt_embed = IV::HttpServer::Utils.add_params_to_url(link_yt_embed, link_yt_param)
                     end
                 -%>
-                <a id="link-yt-watch" rel="noreferrer noopener" data-base-url="<%= link_yt_watch %>" href="<%= link_yt_watch %>"><%= I18n.translate(locale, "videoinfo_watch_on_youTube") %></a>
-                (<a id="link-yt-embed" rel="noreferrer noopener" data-base-url="<%= link_yt_embed %>" href="<%= link_yt_embed %>"><%= I18n.translate(locale, "videoinfo_youTube_embed_link") %></a>)
+                <a id="link-yt-watch" rel="noreferrer noopener" data-base-url="<%= link_yt_watch %>" href="<%= link_yt_watch %>"><%= translate(locale, "videoinfo_watch_on_youTube") %></a>
+                (<a id="link-yt-embed" rel="noreferrer noopener" data-base-url="<%= link_yt_embed %>" href="<%= link_yt_embed %>"><%= translate(locale, "videoinfo_youTube_embed_link") %></a>)
             </span>
 
             <p id="watch-on-another-invidious-instance">
                 <%- link_iv_other = IV::Frontend::Misc.redirect_url(env) -%>
-                <a id="link-iv-other" data-base-url="<%= link_iv_other %>" href="<%= link_iv_other %>"><%= I18n.translate(locale, "Switch Invidious Instance") %></a>
+                <a id="link-iv-other" data-base-url="<%= link_iv_other %>" href="<%= link_iv_other %>"><%= translate(locale, "Switch Invidious Instance") %></a>
             </p>
 
             <p id="embed-link">
@@ -140,17 +140,17 @@ we're going to need to do it here in order to allow for translations.
                     link_iv_embed = URI.new(path: "/embed/#{id}")
                     link_iv_embed = IV::HttpServer::Utils.add_params_to_url(link_iv_embed, params_iv_embed)
                 -%>
-                <a id="link-iv-embed" data-base-url="<%= link_iv_embed %>" href="<%= link_iv_embed %>"><%= I18n.translate(locale, "videoinfo_invidious_embed_link") %></a>
+                <a id="link-iv-embed" data-base-url="<%= link_iv_embed %>" href="<%= link_iv_embed %>"><%= translate(locale, "videoinfo_invidious_embed_link") %></a>
             </p>
 
             <p id="annotations">
                 <% if params.annotations %>
                     <a href="/watch?<%= env.params.query %>&iv_load_policy=3">
-                        <%= I18n.translate(locale, "Hide annotations") %>
+                        <%= translate(locale, "Hide annotations") %>
                     </a>
                 <% else %>
                     <a href="/watch?<%= env.params.query %>&iv_load_policy=1">
-                        <%=I18n.translate(locale, "Show annotations")%>
+                        <%=translate(locale, "Show annotations")%>
                     </a>
                 <% end %>
             </p>
@@ -160,7 +160,7 @@ we're going to need to do it here in order to allow for translations.
                 <% if !playlists.empty? %>
                     <form data-onsubmit="return_false" class="pure-form pure-form-stacked" action="/playlist_ajax?action=add_video" method="post" target="_blank">
                         <div class="pure-control-group">
-                            <label for="playlist_id"><%= I18n.translate(locale, "Add to playlist: ") %></label>
+                            <label for="playlist_id"><%= translate(locale, "Add to playlist: ") %></label>
                             <select style="width:100%" name="playlist_id" id="playlist_id">
                                 <% playlists.each do |plid, playlist_title| %>
                                     <option data-plid="<%= plid %>" value="<%= plid %>"><%= HTML.escape(playlist_title) %></option>
@@ -171,7 +171,7 @@ we're going to need to do it here in order to allow for translations.
                         <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>">
                         <input type="hidden" name="video_id" value="<%= video.id %>">
                         <button data-onclick="add_playlist_video" data-id="<%= video.id %>" type="submit" class="pure-button pure-button-primary">
-                            <b><%= I18n.translate(locale, "Add to playlist") %></b>
+                            <b><%= translate(locale, "Add to playlist") %></b>
                         </button>
                     </form>
                     <script id="playlist_data" type="application/json">
@@ -190,7 +190,7 @@ we're going to need to do it here in order to allow for translations.
             <p id="views"><i class="icon ion-ios-eye"></i> <%= number_with_separator(video.views) %></p>
             <p id="likes"><i class="icon ion-ios-thumbs-up"></i> <%= number_with_separator(video.likes) %></p>
             <p id="dislikes" style="display: none; visibility: hidden;"></p>
-            <p id="genre"><%= I18n.translate(locale, "Genre: ") %>
+            <p id="genre"><%= translate(locale, "Genre: ") %>
                 <% if !video.genre_url %>
                     <%= video.genre %>
                 <% else %>
@@ -199,21 +199,21 @@ we're going to need to do it here in order to allow for translations.
             </p>
             <% if video.license %>
                 <% if video.license.empty? %>
-                    <p id="license"><%= I18n.translate(locale, "License: ") %><%= I18n.translate(locale, "Standard YouTube license") %></p>
+                    <p id="license"><%= translate(locale, "License: ") %><%= translate(locale, "Standard YouTube license") %></p>
                 <% else %>
-                    <p id="license"><%= I18n.translate(locale, "License: ") %><%= video.license %></p>
+                    <p id="license"><%= translate(locale, "License: ") %><%= video.license %></p>
                 <% end %>
             <% end %>
-            <p id="family_friendly"><%= I18n.translate(locale, "Family friendly? ") %><%= I18n.translate_bool(locale, video.is_family_friendly) %></p>
+            <p id="family_friendly"><%= translate(locale, "Family friendly? ") %><%= translate_bool(locale, video.is_family_friendly) %></p>
             <p id="wilson" style="display: none; visibility: hidden;"></p>
             <p id="rating" style="display: none; visibility: hidden;"></p>
             <p id="engagement" style="display: none; visibility: hidden;"></p>
             <% if video.allowed_regions.size != REGIONS.size %>
                 <p id="allowed_regions">
                     <% if video.allowed_regions.size < REGIONS.size // 2 %>
-                        <%= I18n.translate(locale, "Whitelisted regions: ") %><%= video.allowed_regions.join(", ") %>
+                        <%= translate(locale, "Whitelisted regions: ") %><%= video.allowed_regions.join(", ") %>
                     <% else %>
-                        <%= I18n.translate(locale, "Blacklisted regions: ") %><%= (REGIONS.to_a - video.allowed_regions).join(", ") %>
+                        <%= translate(locale, "Blacklisted regions: ") %><%= (REGIONS.to_a - video.allowed_regions).join(", ") %>
                     <% end %>
                 </p>
             <% end %>
@@ -245,9 +245,9 @@ we're going to need to do it here in order to allow for translations.
         <div class="h-box">
             <p id="published-date">
                 <% if video.premiere_timestamp.try &.> Time.utc %>
-                    <b><%= video.premiere_timestamp.try { |t| I18n.translate(locale, "Premieres `x`", t.to_s("%B %-d, %R UTC")) } %></b>
+                    <b><%= video.premiere_timestamp.try { |t| translate(locale, "Premieres `x`", t.to_s("%B %-d, %R UTC")) } %></b>
                 <% else %>
-                    <b><%= I18n.translate(locale, "Shared `x`", video.published.to_s("%B %-d, %Y")) %></b>
+                    <b><%= translate(locale, "Shared `x`", video.published.to_s("%B %-d, %Y")) %></b>
                 <% end %>
             </p>
 
@@ -269,7 +269,7 @@ we're going to need to do it here in order to allow for translations.
                 <input id="music-desc-expansion" type="checkbox"/>
                 <label for="music-desc-expansion">
                     <h3 id="music-description-title">
-                        <%= I18n.translate(locale, "Music in this video") %>
+                        <%= translate(locale, "Music in this video") %>
                         <span class="icon ion-ios-arrow-up"></span>
                         <span class="icon ion-ios-arrow-down"></span>
                     </h3>
@@ -278,9 +278,9 @@ we're going to need to do it here in order to allow for translations.
                 <div id="music-description-box">
                     <% video.music.each do |music| %>
                         <div class="music-item">
-                            <p class="music-song"><%= I18n.translate(locale, "Song: ") %><%= music.song %></p>
-                            <p class="music-artist"><%= I18n.translate(locale, "Artist: ") %><%= music.artist %></p>
-                            <p class="music-album"><%= I18n.translate(locale, "Album: ") %><%= music.album %></p>
+                            <p class="music-song"><%= translate(locale, "Song: ") %><%= music.song %></p>
+                            <p class="music-artist"><%= translate(locale, "Artist: ") %><%= music.artist %></p>
+                            <p class="music-album"><%= translate(locale, "Album: ") %><%= music.album %></p>
                         </div>
                     <% end %>
                 </div>
@@ -293,7 +293,7 @@ we're going to need to do it here in order to allow for translations.
                 <% else %>
                     <noscript>
                         <a href="/watch?<%= env.params.query %>&nojs=1">
-                            <%= I18n.translate(locale, "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.") %>
+                            <%= translate(locale, "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.") %>
                         </a>
                     </noscript>
                 <% end %>
@@ -312,7 +312,7 @@ we're going to need to do it here in order to allow for translations.
                     <% if !video.related_videos.empty? %>
                         <div <% if plid %>style="display:none"<% end %>>
                             <div class="pure-control-group">
-                                <label for="continue"><%= I18n.translate(locale, "preferences_continue_label") %></label>
+                                <label for="continue"><%= translate(locale, "preferences_continue_label") %></label>
                                 <input name="continue" id="continue" type="checkbox" <% if params.continue %>checked<% end %>>
                             </div>
                             <hr>
@@ -356,7 +356,7 @@ we're going to need to do it here in order to allow for translations.
                                     <b class="width:100%"><%=
                                         views = rv["view_count"]?.try &.to_i?
                                         views ||= rv["view_count_short"]?.try { |x| short_text_to_number(x) }
-                                        I18n.translate_count(locale, "generic_views_count", views || 0, I18n::NumberFormatting::Short)
+                                        translate_count(locale, "generic_views_count", views || 0, NumberFormatting::Short)
                                     %></b>
                                 </div>
                             </h5>

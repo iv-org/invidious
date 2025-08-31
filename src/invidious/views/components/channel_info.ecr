@@ -24,7 +24,7 @@
 
         <div class="pure-u">
             <a class="pure-button pure-button-secondary" dir="auto" href="/feed/channel/<%= ucid %>">
-                <i class="icon ion-logo-rss"></i>&nbsp;<%= I18n.translate(locale, "generic_button_rss") %>
+                <i class="icon ion-logo-rss"></i>&nbsp;<%= translate(locale, "generic_button_rss") %>
             </a>
         </div>
     </div>
@@ -37,10 +37,10 @@
 <div class="pure-g h-box">
     <div class="pure-u-1-2">
         <div class="pure-u-1 pure-md-1-3">
-            <a href="<%= youtube_url %>"><%= I18n.translate(locale, "View channel on YouTube") %></a>
+            <a href="<%= youtube_url %>"><%= translate(locale, "View channel on YouTube") %></a>
         </div>
         <div class="pure-u-1 pure-md-1-3">
-            <a href="<%= redirect_url %>"><%= I18n.translate(locale, "Switch Invidious Instance") %></a>
+            <a href="<%= redirect_url %>"><%= translate(locale, "Switch Invidious Instance") %></a>
         </div>
 
         <%= Invidious::Frontend::ChannelPage.generate_tabs_links(locale, channel, selected_tab) %>
@@ -50,9 +50,9 @@
             <% sort_options.each do |sort| %>
                 <div class="pure-u-1 pure-md-1-3">
                     <% if sort_by == sort %>
-                        <b><%= I18n.translate(locale, sort) %></b>
+                        <b><%= translate(locale, sort) %></b>
                     <% else %>
-                        <a href="<%= relative_url %>?sort_by=<%= sort %>"><%= I18n.translate(locale, sort) %></a>
+                        <a href="<%= relative_url %>?sort_by=<%= sort %>"><%= translate(locale, sort) %></a>
                     <% end %>
                 </div>
             <% end %>

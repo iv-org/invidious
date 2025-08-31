@@ -1,19 +1,19 @@
 <% content_for "header" do %>
-<title><%= I18n.translate(locale, "History") %> - Invidious</title>
+<title><%= translate(locale, "History") %> - Invidious</title>
 <% end %>
 
 <div class="pure-g h-box">
     <div class="pure-u-1-3">
-        <h3><%= I18n.translate_count(locale, "generic_videos_count", user.watched.size, I18n::NumberFormatting::HtmlSpan) %></h3>
+        <h3><%= translate_count(locale, "generic_videos_count", user.watched.size, NumberFormatting::HtmlSpan) %></h3>
     </div>
     <div class="pure-u-1-3">
         <h3 style="text-align:center">
-            <a href="/feed/subscriptions"><%= I18n.translate_count(locale, "generic_subscriptions_count", user.subscriptions.size, I18n::NumberFormatting::HtmlSpan) %></a>
+            <a href="/feed/subscriptions"><%= translate_count(locale, "generic_subscriptions_count", user.subscriptions.size, NumberFormatting::HtmlSpan) %></a>
         </h3>
     </div>
     <div class="pure-u-1-3">
         <h3 style="text-align:right">
-            <a href="/clear_watch_history"><%= I18n.translate(locale, "Clear watch history") %></a>
+            <a href="/clear_watch_history"><%= translate(locale, "Clear watch history") %></a>
         </h3>
     </div>
 </div>

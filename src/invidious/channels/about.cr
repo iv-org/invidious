@@ -200,7 +200,7 @@ def fetch_related_channels(about_channel : AboutChannel, continuation : String? 
     initial_data = YoutubeAPI.browse(continuation)
   end
 
-  items, continuation = YoutubeJSONParser.extract_items(initial_data)
+  items, continuation = extract_items(initial_data)
 
   return items.select(SearchChannel), continuation
 end

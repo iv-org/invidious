@@ -11,9 +11,9 @@
 <%- if items.empty? -%>
 <div class="h-box no-results-error">
     <div>
-        <%= I18n.translate(locale, "search_message_no_results") %><br/><br/>
-        <%= I18n.translate(locale, "search_message_change_filters_or_query") %><br/><br/>
-        <%= I18n.translate(locale, "search_message_use_another_instance", redirect_url) %>
+        <%= translate(locale, "search_message_no_results") %><br/><br/>
+        <%= translate(locale, "search_message_change_filters_or_query") %><br/><br/>
+        <%= translate(locale, "search_message_use_another_instance", redirect_url) %>
     </div>
 </div>
 <%- else -%>

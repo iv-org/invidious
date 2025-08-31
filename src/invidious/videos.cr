@@ -324,7 +324,7 @@ rescue DB::Error
 end
 
 def fetch_video(id, region)
-  info = Parser.extract_video_info(video_id: id)
+  info = extract_video_info(video_id: id)
 
   if reason = info["reason"]?
     if reason == "Video unavailable"

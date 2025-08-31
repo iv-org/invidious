@@ -696,8 +696,8 @@ module YoutubeAPI
     }
 
     # Logging
-    ::Log.forf.debug { "Using endpoint: \"#{endpoint}\"" }
-    ::Log.forf.trace { "POST data: #{data}" }
+    Log.debug { "Invidious companion: Using endpoint: \"#{endpoint}\"" }
+    Log.trace { "Invidious companion: POST data: #{data}" }
 
     # Send the POST request
 

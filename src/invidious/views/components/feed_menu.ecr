@@ -5,7 +5,7 @@
     <% end %>
     <% feed_menu.each do |feed| %>
         <a href="/feed/<%= feed.downcase %>" class="feed-menu-item pure-menu-heading">
-            <%= I18n.translate(locale, feed) %>
+            <%= translate(locale, feed) %>
         </a>
     <% end %>
 </div>

@@ -1,5 +1,5 @@
 <% content_for "header" do %>
-<title><%= I18n.translate(locale, "Subscriptions") %> - Invidious</title>
+<title><%= translate(locale, "Subscriptions") %> - Invidious</title>
 <link rel="alternate" type="application/rss+xml" title="RSS" href="/feed/private?token=<%= token %>" />
 <% end %>
 
@@ -8,12 +8,12 @@
 <div class="pure-g h-box">
     <div class="pure-u-1-3">
         <h3>
-            <a href="/subscription_manager"><%= I18n.translate(locale, "Manage subscriptions") %></a>
+            <a href="/subscription_manager"><%= translate(locale, "Manage subscriptions") %></a>
         </h3>
     </div>
     <div class="pure-u-1-3">
         <h3 style="text-align:center">
-            <a href="/feed/history"><%= I18n.translate(locale, "Watch history") %></a>
+            <a href="/feed/history"><%= translate(locale, "Watch history") %></a>
         </h3>
     </div>
     <div class="pure-u-1-3">
@@ -26,7 +26,7 @@
 <% if CONFIG.enable_user_notifications %>
 
 <center>
-    <%= I18n.translate_count(locale, "subscriptions_unseen_notifs_count", notifications.size) %>
+    <%= translate_count(locale, "subscriptions_unseen_notifs_count", notifications.size) %>
 </center>
 
 <% if !notifications.empty? %>

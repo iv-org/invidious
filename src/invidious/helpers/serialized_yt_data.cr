@@ -115,9 +115,9 @@ struct SearchVideo
       json.field "descriptionHtml", self.description_html
 
       json.field "viewCount", self.views
-      json.field "viewCountText", I18n.translate_count(locale, "generic_views_count", self.views, I18n::NumberFormatting::Short)
+      json.field "viewCountText", translate_count(locale, "generic_views_count", self.views, NumberFormatting::Short)
       json.field "published", self.published.to_unix
-      json.field "publishedText", I18n.translate(locale, "`x` ago", recode_date(self.published, locale))
+      json.field "publishedText", translate(locale, "`x` ago", recode_date(self.published, locale))
       json.field "lengthSeconds", self.length_seconds
       json.field "liveNow", self.badges.live_now?
       json.field "premium", self.badges.premium?
@@ -327,8 +327,8 @@ struct ProblematicTimelineItem
       xml.element("content", type: "xhtml") do
         xml.element("div", xmlns: "http://www.w3.org/1999/xhtml") do
           xml.element("div") do
-            xml.element("h4") { I18n.translate(locale, "timeline_parse_error_placeholder_heading") }
-            xml.element("p") { I18n.translate(locale, "timeline_parse_error_placeholder_message") }
+            xml.element("h4") { translate(locale, "timeline_parse_error_placeholder_heading") }
+            xml.element("p") { translate(locale, "timeline_parse_error_placeholder_message") }
           end
 
           xml.element("pre") do

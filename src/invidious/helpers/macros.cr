@@ -70,9 +70,3 @@ macro haltf(env, status_code = 200, response = "")
   {{env}}.response.close
   return
 end
-
-class Log
-  macro forf
-    Log.for({{@def.name.stringify}})
-  end
-end

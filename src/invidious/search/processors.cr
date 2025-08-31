@@ -9,7 +9,7 @@ module Invidious::Search
       client_config = YoutubeAPI::ClientConfig.new(region: query.region)
       initial_data = YoutubeAPI.search(query.text, search_params, client_config: client_config)
 
-      items, _ = YoutubeJSONParser.extract_items(initial_data)
+      items, _ = extract_items(initial_data)
       return items.reject!(Category)
     end
 
@@ -31,7 +31,7 @@ module Invidious::Search
       continuation = produce_channel_search_continuation(ucid, query.text, query.page)
       response_json = YoutubeAPI.browse(continuation)
 
-      items, _ = YoutubeJSONParser.extract_items(response_json, "", ucid)
+      items, _ = extract_items(response_json, "", ucid)
       return items.reject!(Category)
     end
 

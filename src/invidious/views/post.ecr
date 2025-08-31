@@ -18,7 +18,7 @@
         <% else %>
             <noscript>
                 <a href="/post/<%= id %>?ucid=<%= ucid %>&nojs=1">
-                    <%= I18n.translate(locale, "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.") %>
+                    <%= translate(locale, "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.") %>
                 </a>
             </noscript>
         <% end %>
@@ -29,12 +29,12 @@
 <%=
 {
     "id" => id,
-    "youtube_comments_text" => HTML.escape(I18n.translate(locale, "View YouTube comments")),
+    "youtube_comments_text" => HTML.escape(translate(locale, "View YouTube comments")),
     "reddit_comments_text" => "",
     "reddit_permalink_text" => "",
-    "comments_text" => HTML.escape(I18n.translate(locale, "View `x` comments", "{commentCount}")),
-    "hide_replies_text" => HTML.escape(I18n.translate(locale, "Hide replies")),
-    "show_replies_text" => HTML.escape(I18n.translate(locale, "Show replies")),
+    "comments_text" => HTML.escape(translate(locale, "View `x` comments", "{commentCount}")),
+    "hide_replies_text" => HTML.escape(translate(locale, "Hide replies")),
+    "show_replies_text" => HTML.escape(translate(locale, "Show replies")),
     "params" => {
         "comments": ["youtube"]
     },

@@ -2,11 +2,11 @@
 	<fieldset>
 		<input type="search" id="searchbox" autocorrect="off"
 		autocapitalize="none" spellcheck="false" <% if autofocus %>autofocus<% end %>
-		name="q" placeholder="<%= I18n.translate(locale, "search") %>"
-		title="<%= I18n.translate(locale, "search") %>"
+		name="q" placeholder="<%= translate(locale, "search") %>"
+		title="<%= translate(locale, "search") %>"
 		value="<%= env.get?("search").try {|x| HTML.escape(x.as(String)) } %>">
 	</fieldset>
-	<button type="submit" id="searchbutton" aria-label="<%= I18n.translate(locale, "search") %>">
+	<button type="submit" id="searchbutton" aria-label="<%= translate(locale, "search") %>">
 		<i class="icon ion-ios-search"></i>
 	</button>
 </form>

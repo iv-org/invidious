@@ -144,19 +144,19 @@ def recode_date(time : Time, locale)
   span = Time.utc - time
 
   if span.total_days > 365.0
-    return I18n.translate_count(locale, "generic_count_years", span.total_days.to_i // 365)
+    return translate_count(locale, "generic_count_years", span.total_days.to_i // 365)
   elsif span.total_days > 30.0
-    return I18n.translate_count(locale, "generic_count_months", span.total_days.to_i // 30)
+    return translate_count(locale, "generic_count_months", span.total_days.to_i // 30)
   elsif span.total_days > 7.0
-    return I18n.translate_count(locale, "generic_count_weeks", span.total_days.to_i // 7)
+    return translate_count(locale, "generic_count_weeks", span.total_days.to_i // 7)
   elsif span.total_hours > 24.0
-    return I18n.translate_count(locale, "generic_count_days", span.total_days.to_i)
+    return translate_count(locale, "generic_count_days", span.total_days.to_i)
   elsif span.total_minutes > 60.0
-    return I18n.translate_count(locale, "generic_count_hours", span.total_hours.to_i)
+    return translate_count(locale, "generic_count_hours", span.total_hours.to_i)
   elsif span.total_seconds > 60.0
-    return I18n.translate_count(locale, "generic_count_minutes", span.total_minutes.to_i)
+    return translate_count(locale, "generic_count_minutes", span.total_minutes.to_i)
   else
-    return I18n.translate_count(locale, "generic_count_seconds", span.total_seconds.to_i)
+    return translate_count(locale, "generic_count_seconds", span.total_seconds.to_i)
   end
 end
 

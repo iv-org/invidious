@@ -24,7 +24,7 @@ def create_licence_tr(path, file_name, licence_name, licence_link, source_locati
     "<tr>
     <td><a href=\\"/#{path}\\">#{file_name}</a></td>
     <td><a href=\\"#{licence_link}\\">#{licence_name}</a></td>
-    <td><a href=\\"#{source_location}\\">\#{I18n.translate(locale, "source")}</a></td>
+    <td><a href=\\"#{source_location}\\">\#{translate(locale, "source")}</a></td>
     </tr>"
     HTML
 

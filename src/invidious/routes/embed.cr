@@ -10,7 +10,7 @@ module Invidious::Routes::Embed
         videos = get_playlist_videos(playlist, offset: offset)
         if videos.empty?
           url = "/playlist?list=#{plid}"
-          raise NotFoundException.new(I18n.translate(locale, "error_video_not_in_playlist", url))
+          raise NotFoundException.new(translate(locale, "error_video_not_in_playlist", url))
         end
 
         first_playlist_video = videos[0].as(PlaylistVideo)
@@ -72,7 +72,7 @@ module Invidious::Routes::Embed
           videos = get_playlist_videos(playlist, offset: offset)
           if videos.empty?
             url = "/playlist?list=#{plid}"
-            raise NotFoundException.new(I18n.translate(locale, "error_video_not_in_playlist", url))
+            raise NotFoundException.new(translate(locale, "error_video_not_in_playlist", url))
           end
 
           first_playlist_video = videos[0].as(PlaylistVideo)

@@ -3,14 +3,14 @@
             <form action="/subscription_ajax?action=remove_subscriptions&c=<%= ucid %>&referer=<%= env.get("current_page") %>" method="post">
                 <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
                 <button data-type="unsubscribe" id="subscribe" class="pure-button pure-button-primary">
-                    <b><input style="all:unset" type="submit" value="<%= I18n.translate(locale, "Unsubscribe") %> | <%= sub_count_text %>"></b>
+                    <b><input style="all:unset" type="submit" value="<%= translate(locale, "Unsubscribe") %> | <%= sub_count_text %>"></b>
                 </button>
             </form>
     <% else %>
             <form action="/subscription_ajax?action=create_subscription_to_channel&c=<%= ucid %>&referer=<%= env.get("current_page") %>" method="post">
                 <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
                 <button data-type="subscribe" id="subscribe" class="pure-button pure-button-primary">
-                    <b><input style="all:unset" type="submit" value="<%= I18n.translate(locale, "Subscribe") %> | <%= sub_count_text %>"></b>
+                    <b><input style="all:unset" type="submit" value="<%= translate(locale, "Subscribe") %> | <%= sub_count_text %>"></b>
                 </button>
             </form>
     <% end %>
@@ -22,8 +22,8 @@
         "author" => HTML.escape(author),
         "sub_count_text" => HTML.escape(sub_count_text),
         "csrf_token" => URI.encode_www_form(env.get?("csrf_token").try &.as(String) || ""),
-        "subscribe_text" => HTML.escape(I18n.translate(locale, "Subscribe")),
-        "unsubscribe_text" => HTML.escape(I18n.translate(locale, "Unsubscribe"))
+        "subscribe_text" => HTML.escape(translate(locale, "Subscribe")),
+        "unsubscribe_text" => HTML.escape(translate(locale, "Unsubscribe"))
     }.to_pretty_json
     %>
     </script>
@@ -31,6 +31,6 @@
 <% else %>
         <a id="subscribe" class="pure-button pure-button-primary"
             href="/login?referer=<%= env.get("current_page") %>">
-            <b><%= I18n.translate(locale, "Subscribe") %> | <%= sub_count_text %></b>
+            <b><%= translate(locale, "Subscribe") %> | <%= sub_count_text %></b>
         </a>
 <% end %>

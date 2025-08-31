@@ -18,7 +18,7 @@ def fetch_trending(trending_type, region, locale)
   client_config = YoutubeAPI::ClientConfig.new(region: region)
   initial_data = YoutubeAPI.browse("FEtrending", params: params, client_config: client_config)
 
-  items, _ = YoutubeJSONParser.extract_items(initial_data)
+  items, _ = extract_items(initial_data)
 
   extracted = [] of SearchItem
 

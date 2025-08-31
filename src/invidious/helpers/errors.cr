@@ -63,19 +63,19 @@ def error_template_helper(env : HTTP::Server::Context, status_code : Int32, exce
 
   error_message = <<-END_HTML
     <div class="error_message">
-      <h2>#{I18n.translate(locale, "crash_page_you_found_a_bug")}</h2>
+      <h2>#{translate(locale, "crash_page_you_found_a_bug")}</h2>
       <br/><br/>
 
-      <p><b>#{I18n.translate(locale, "crash_page_before_reporting")}</b></p>
+      <p><b>#{translate(locale, "crash_page_before_reporting")}</b></p>
       <ul>
-        <li>#{I18n.translate(locale, "crash_page_refresh", env.request.resource)}</li>
-        <li>#{I18n.translate(locale, "crash_page_switch_instance", url_switch)}</li>
-        <li>#{I18n.translate(locale, "crash_page_read_the_faq", url_faq)}</li>
-        <li>#{I18n.translate(locale, "crash_page_search_issue", url_search_issues)}</li>
+        <li>#{translate(locale, "crash_page_refresh", env.request.resource)}</li>
+        <li>#{translate(locale, "crash_page_switch_instance", url_switch)}</li>
+        <li>#{translate(locale, "crash_page_read_the_faq", url_faq)}</li>
+        <li>#{translate(locale, "crash_page_search_issue", url_search_issues)}</li>
       </ul>
 
       <br/>
-      <p>#{I18n.translate(locale, "crash_page_report_issue", url_new_issue)}</p>
+      <p>#{translate(locale, "crash_page_report_issue", url_new_issue)}</p>
 
       <!-- TODO: Add a "copy to clipboard" button -->
       <pre class="error-issue-template">#{issue_template}</pre>
@@ -95,7 +95,7 @@ def error_template_helper(env : HTTP::Server::Context, status_code : Int32, mess
 
   locale = env.get("preferences").as(Preferences).locale
 
-  error_message = I18n.translate(locale, message)
+  error_message = translate(locale, message)
   next_steps = error_redirect_helper(env)
 
   return templated "error"
@@ -186,10 +186,10 @@ def error_redirect_helper(env : HTTP::Server::Context)
 
   if request_path.starts_with?("/search") || request_path.starts_with?("/watch") ||
      request_path.starts_with?("/channel") || request_path.starts_with?("/playlist?list=PL")
-    next_steps_text = I18n.translate(locale, "next_steps_error_message")
-    refresh = I18n.translate(locale, "next_steps_error_message_refresh")
-    go_to_youtube = I18n.translate(locale, "next_steps_error_message_go_to_youtube")
-    switch_instance = I18n.translate(locale, "Switch Invidious Instance")
+    next_steps_text = translate(locale, "next_steps_error_message")
+    refresh = translate(locale, "next_steps_error_message_refresh")
+    go_to_youtube = translate(locale, "next_steps_error_message_go_to_youtube")
+    switch_instance = translate(locale, "Switch Invidious Instance")
 
     return <<-END_HTML
       <p style="margin-bottom: 4px;">#{next_steps_text}</p>

@@ -1,5 +1,5 @@
 <% content_for "header" do %>
-<title><%= I18n.translate(locale, "Create playlist") %> - Invidious</title>
+<title><%= translate(locale, "Create playlist") %> - Invidious</title>
 <% end %>
 
 <div class="pure-g">
@@ -8,25 +8,25 @@
         <div class="h-box">
             <form class="pure-form pure-form-aligned" action="/create_playlist?referer=<%= URI.encode_www_form(referer) %>" method="post">
                 <fieldset>
-                    <legend><%= I18n.translate(locale, "Create playlist") %></legend>
+                    <legend><%= translate(locale, "Create playlist") %></legend>
 
                     <div class="pure-control-group">
-                        <label for="title"><%= I18n.translate(locale, "Title") %> :</label>
-                        <input required name="title" type="text" placeholder="<%= I18n.translate(locale, "Title") %>">
+                        <label for="title"><%= translate(locale, "Title") %> :</label>
+                        <input required name="title" type="text" placeholder="<%= translate(locale, "Title") %>">
                     </div>
 
                     <div class="pure-control-group">
-                        <label for="privacy"><%= I18n.translate(locale, "Playlist privacy") %> :</label>
+                        <label for="privacy"><%= translate(locale, "Playlist privacy") %> :</label>
                         <select name="privacy" id="privacy">
                             <% PlaylistPrivacy.names.each do |option| %>
-                                <option value="<%= option %>" <% if option == "Public" %> selected <% end %>><%= I18n.translate(locale,  option) %></option>
+                                <option value="<%= option %>" <% if option == "Public" %> selected <% end %>><%= translate(locale,  option) %></option>
                             <% end %>
                         </select>
                     </div>
 
                     <div class="pure-controls">
                         <button type="submit" name="action" value="create_playlist" class="pure-button pure-button-primary">
-                            <%= I18n.translate(locale, "Create playlist") %>
+                            <%= translate(locale, "Create playlist") %>
                         </button>
                     </div>
 

@@ -34,7 +34,7 @@ module Invidious::Database
     return # TODO
 
     if !PG_DB.query_one?("SELECT true FROM pg_type WHERE typname = $1", enum_name, as: Bool)
-      ::Log.forf.info { "CREATE TYPE #{enum_name}" }
+      Log.info { "check_enum: CREATE TYPE #{enum_name}" }
 
       PG_DB.using_connection do |conn|
         conn.as(PG::Connection).exec_all(File.read("config/sql/#{enum_name}.sql"))
@@ -47,7 +47,7 @@ module Invidious::Database
     begin
       PG_DB.exec("SELECT * FROM #{table_name} LIMIT 0")
     rescue ex
-      ::Log.forf.info { "CREATE TABLE #{table_name}" }
+      Log.info { "check_table: CREATE TABLE #{table_name}" }
 
       PG_DB.using_connection do |conn|
         conn.as(PG::Connection).exec_all(File.read("config/sql/#{table_name}.sql"))
@@ -67,7 +67,7 @@ module Invidious::Database
       if name != column_array[i]?
         if !column_array[i]?
           new_column = column_types.select(&.starts_with?(name))[0]
-          ::Log.forf.info { "ALTER TABLE #{table_name} ADD COLUMN #{new_column}" }
+          Log.info { "check_table: ALTER TABLE #{table_name} ADD COLUMN #{new_column}" }
           PG_DB.exec("ALTER TABLE #{table_name} ADD COLUMN #{new_column}")
           next
         end
@@ -85,29 +85,29 @@ module Invidious::Database
 
             # There's a column we didn't expect
             if !new_column
-              ::Log.forf.info { "ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]}" }
+              Log.info { "check_table: ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]}" }
               PG_DB.exec("ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE")
 
               column_array = get_column_array(PG_DB, table_name)
               next
             end
 
-            ::Log.forf.info { "ALTER TABLE #{table_name} ADD COLUMN #{new_column}" }
+            Log.info { "check_table: ALTER TABLE #{table_name} ADD COLUMN #{new_column}" }
             PG_DB.exec("ALTER TABLE #{table_name} ADD COLUMN #{new_column}")
 
-            ::Log.forf.info { "UPDATE #{table_name} SET #{column_array[i]}_new=#{column_array[i]}" }
+            Log.info { "check_table: UPDATE #{table_name} SET #{column_array[i]}_new=#{column_array[i]}" }
             PG_DB.exec("UPDATE #{table_name} SET #{column_array[i]}_new=#{column_array[i]}")
 
-            ::Log.forf.info { "ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE" }
+            Log.info { "check_table: ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE" }
             PG_DB.exec("ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE")
 
-            ::Log.forf.info { "ALTER TABLE #{table_name} RENAME COLUMN #{column_array[i]}_new TO #{column_array[i]}" }
+            Log.info { "check_table: ALTER TABLE #{table_name} RENAME COLUMN #{column_array[i]}_new TO #{column_array[i]}" }
             PG_DB.exec("ALTER TABLE #{table_name} RENAME COLUMN #{column_array[i]}_new TO #{column_array[i]}")
 
             column_array = get_column_array(PG_DB, table_name)
           end
         else
-          ::Log.forf.info { "ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE" }
+          Log.info { "check_table: ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE" }
           PG_DB.exec("ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE")
         end
       end
@@ -117,7 +117,7 @@ module Invidious::Database
 
     column_array.each do |column|
       if !struct_array.includes? column
-        ::Log.forf.info { "ALTER TABLE #{table_name} DROP COLUMN #{column} CASCADE" }
+        Log.info { "check_table: ALTER TABLE #{table_name} DROP COLUMN #{column} CASCADE" }
         PG_DB.exec("ALTER TABLE #{table_name} DROP COLUMN #{column} CASCADE")
       end
     end
