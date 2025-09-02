@@ -324,9 +324,14 @@ class Config
       puts "Config: 'domain' is required/can't be empty"
       exit(1)
     elsif parsed_domain = URI.parse(domain)
-      if !parsed_domain.scheme.nil?
-        puts "Config: 'domain' cannot contain a scheme (#{parsed_domain.scheme})"
-        puts "Config: (Hint) Set 'domain' to '#{parsed_domain.host}'"
+      if domain != parsed_domain.domain
+        puts "Config: 'domain' is invalid.
+        
+        if parsed_domain.host.presence
+          puts "Config: (Hint) Did you mean #{parsed_domain.host} ?"
+        else
+          puts "Config: (Hint) 'domain' should look like this: invidious.example.com"
+        end
         exit(1)
       end
     end
