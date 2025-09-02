@@ -3,7 +3,7 @@ ARG OPENSSL_VERSION='3.5.2'
 FROM crystallang/crystal:1.16.3-alpine AS dependabot-crystal
 
 FROM dependabot-crystal AS openssl-builder
-RUN apk add curl perl linux-headers
+RUN apk add --no-cache curl perl linux-headers
 
 WORKDIR /
 
