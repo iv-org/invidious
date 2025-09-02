@@ -466,7 +466,7 @@
     "footer_documentation": "Documentation",
     "footer_source_code": "Source code",
     "footer_original_source_code": "Original source code",
-    "footer_modfied_source_code": "Modified source code",
+    "footer_modified_source_code": "Modified source code",
     "adminprefs_modified_source_code_url_label": "URL to modified source code repository",
     "none": "none",
     "videoinfo_started_streaming_x_ago": "Started streaming `x` ago",

@@ -355,7 +355,7 @@
     "search_filters_duration_option_short": "Kratko (< 4 minute)",
     "search_filters_duration_option_long": "Dugo (> 20 minute)",
     "footer_source_code": "Izvorni kod",
-    "footer_modfied_source_code": "Prilagođen izvorni kod",
+    "footer_modified_source_code": "Prilagođen izvorni kod",
     "footer_documentation": "Dokumentacija",
     "footer_original_source_code": "Prvobitan izvorni kod",
     "preferences_region_label": "Zemlja sadržaja: ",

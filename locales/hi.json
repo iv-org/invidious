@@ -440,7 +440,7 @@
     "footer_documentation": "प्रलेख",
     "footer_source_code": "स्रोत कोड",
     "footer_original_source_code": "मूल स्रोत कोड",
-    "footer_modfied_source_code": "बदला गया स्रोत कोड",
+    "footer_modified_source_code": "बदला गया स्रोत कोड",
     "Current version: ": "वर्तमान संस्करण: ",
     "next_steps_error_message": "इसके बाद आपके ये आज़माने चाहिए: ",
     "next_steps_error_message_refresh": "साफ़ करें",

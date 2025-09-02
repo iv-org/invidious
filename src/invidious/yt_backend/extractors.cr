@@ -770,8 +770,8 @@ private module Parsers
   #
   # continuationItemRenderer contains various metadata ued to load more
   # content (i.e when the user scrolls down). The interesting bit is the
-  # protobuf object known as the "continutation token". Previously, those
-  # were generated from sratch, but recent (as of 11/2022) Youtube changes
+  # protobuf object known as the "continuation token". Previously, those
+  # were generated from scratch, but recent (as of 11/2022) Youtube changes
   # are forcing us to extract them from replies.
   #
   module ContinuationItemRendererParser
