@@ -34,7 +34,7 @@ COPY ./assets/ ./assets/
 COPY ./videojs-dependencies.yml ./videojs-dependencies.yml
 
 RUN crystal spec --warnings all \
---link-flags "-lxml2 -llzma"    
+    --link-flags "-lxml2 -llzma"    
 
 ARG OPENSSL_VERSION
 COPY --from=openssl-builder /openssl-${OPENSSL_VERSION} /openssl-${OPENSSL_VERSION}
