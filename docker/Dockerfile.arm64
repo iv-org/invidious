@@ -18,7 +18,6 @@ RUN cd openssl-${OPENSSL_VERSION} && ./Configure --openssldir=/etc/ssl && make -
 FROM dependabot-alpine AS builder
 RUN apk add --no-cache 'crystal=1.14.0-r0' shards sqlite-static yaml-static yaml-dev libxml2-static \
        zlib-static musl-dev xz-static
-RUN apk del openssl-dev openssl-libs-static
 
 ARG release
 
