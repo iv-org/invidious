@@ -1,11 +1,11 @@
 # https://github.com/openssl/openssl/releases/tag/openssl-3.5.2
 ARG OPENSSL_VERSION='3.5.2'
 
+FROM crystallang/crystal:1.16.3-alpine AS dependabot-crystal
+
 # We compile openssl ourselves due to a memory leak in how crystal interacts
 # with openssl
 # Reference: https://github.com/iv-org/invidious/issues/1438#issuecomment-3087636228
-FROM crystallang/crystal:1.16.3-alpine AS dependabot-crystal
-
 FROM dependabot-crystal AS openssl-builder
 RUN apk add --no-cache curl perl linux-headers
 
