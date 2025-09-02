@@ -99,7 +99,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Use ARM64 Dockerfile if ARM64
-        if: ${{ matrix.name }} == "ARM64"
+        if: ${{ matrix.name == 'ARM64' }}
         run: sed -i 's/Dockerfile/Dockerfile.arm64/' docker-compose.yml
 
       - name: Build Docker
