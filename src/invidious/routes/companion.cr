@@ -8,7 +8,6 @@ module Invidious::Routes::Companion
 
     begin
       COMPANION_POOL.client do |wrapper|
-        puts env.request.headers
         wrapper.client.get(url, env.request.headers) do |resp|
           return self.proxy_companion(env, resp)
         end
