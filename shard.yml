@@ -17,7 +17,7 @@ dependencies:
     version: ~> 0.21.0
   kemal:
     github: kemalcr/kemal
-    version: ~> 1.6.0
+    version: ~> 1.7.2
   protodec:
     github: iv-org/protodec
     version: ~> 0.1.5

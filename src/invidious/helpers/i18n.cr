@@ -98,7 +98,7 @@ def translate(locale : String?, key : String, text : String | Hash(String, Strin
   # Log a warning if "key" doesn't exist in en-US locale and return
   # that key as the text, so this is more or less transparent to the user.
   if !LOCALES["en-US"].has_key?(key)
-    LOGGER.warn("i18n: Missing translation key \"#{key}\"")
+    Log.warn { "Missing translation key \"#{key}\"" }
     return key
   end
 
@@ -165,7 +165,7 @@ def translate_count(locale : String, key : String, count : Int, format = NumberF
       translation = translate_count("en-US", key, count)
     else
       # Return key if we're already in english, as the translation is missing
-      LOGGER.warn("i18n: Missing translation key \"#{key}\"")
+      Log.warn { "Missing translation key \"#{key}\"" }
       return key
     end
   end

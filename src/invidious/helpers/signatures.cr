@@ -2,6 +2,8 @@ require "http/params"
 require "./sig_helper"
 
 class Invidious::DecryptFunction
+  Log = ::Log.for(self).for("SignatureDecryption")
+
   @last_update : Time = Time.utc - 42.days
 
   def initialize(uri_or_path)
@@ -18,7 +20,7 @@ class Invidious::DecryptFunction
     update_time_elapsed = (@client.get_player_timestamp || 301).seconds
 
     if update_time_elapsed > 5.minutes
-      LOGGER.debug("Signature: Player might be outdated, updating")
+      Log.debug { "Player might be outdated, updating" }
       @client.force_update
       @last_update = Time.utc
     end
@@ -28,8 +30,8 @@ class Invidious::DecryptFunction
     self.check_update
     return @client.decrypt_n_param(n)
   rescue ex
-    LOGGER.debug(ex.message || "Signature: Unknown error")
-    LOGGER.trace(ex.inspect_with_backtrace)
+    Log.debug { ex.message || "Unknown error" }
+    Log.trace { ex.inspect_with_backtrace }
     return nil
   end
 
@@ -37,8 +39,8 @@ class Invidious::DecryptFunction
     self.check_update
     return @client.decrypt_sig(str)
   rescue ex
-    LOGGER.debug(ex.message || "Signature: Unknown error")
-    LOGGER.trace(ex.inspect_with_backtrace)
+    Log.debug { ex.message || "Unknown error" }
+    Log.trace { ex.inspect_with_backtrace }
     return nil
   end
 
@@ -46,8 +48,8 @@ class Invidious::DecryptFunction
     self.check_update
     return @client.get_signature_timestamp
   rescue ex
-    LOGGER.debug(ex.message || "Signature: Unknown error")
-    LOGGER.trace(ex.inspect_with_backtrace)
+    Log.debug { ex.message || "Unknown error" }
+    Log.trace { ex.inspect_with_backtrace }
     return nil
   end
 end

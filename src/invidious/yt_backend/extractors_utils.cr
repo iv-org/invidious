@@ -62,8 +62,8 @@ def has_verified_badge?(badges : JSON::Any?)
 
   return false
 rescue ex
-  LOGGER.debug("Unable to parse owner badges. Got exception: #{ex.message}")
-  LOGGER.trace("Owner badges data: #{badges.to_json}")
+  Log.debug { "Unable to parse owner badges. Got exception: #{ex.message}" }
+  Log.trace { "Owner badges data: #{badges.to_json}" }
 
   return false
 end

@@ -5,7 +5,7 @@ class Invidious::Jobs::ClearExpiredItemsJob < Invidious::Jobs::BaseJob
     loop do
       failed = false
 
-      LOGGER.info("jobs: running ClearExpiredItems job")
+      Log.info { "running ClearExpiredItemsJob job" }
 
       begin
         Invidious::Database::Videos.delete_expired
@@ -16,10 +16,10 @@ class Invidious::Jobs::ClearExpiredItemsJob < Invidious::Jobs::BaseJob
 
       # Retry earlier than scheduled on DB error
       if failed
-        LOGGER.info("jobs: ClearExpiredItems failed. Retrying in 10 minutes.")
+        Log.info { "ClearExpiredItems failed. Retrying in 10 minutes." }
         sleep 10.minutes
       else
-        LOGGER.info("jobs: ClearExpiredItems done.")
+        Log.info { "ClearExpiredItems done." }
         sleep 1.hour
       end
     end

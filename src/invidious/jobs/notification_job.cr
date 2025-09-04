@@ -57,7 +57,7 @@ class Invidious::Jobs::NotificationJob < Invidious::Jobs::BaseJob
     spawn do
       loop do
         begin
-          LOGGER.debug("NotificationJob: waking up")
+          Log.debug { "waking up" }
           cloned = {} of String => Set(VideoNotification)
           notify_mutex.synchronize do
             cloned = to_notify.clone
@@ -69,7 +69,7 @@ class Invidious::Jobs::NotificationJob < Invidious::Jobs::BaseJob
               next
             end
 
-            LOGGER.info("NotificationJob: updating channel #{channel_id} with #{notifications.size} notifications")
+            Log.info { "updating channel #{channel_id} with #{notifications.size} notifications" }
             if CONFIG.enable_user_notifications
               video_ids = notifications.map(&.video_id)
               Invidious::Database::Users.add_multiple_notifications(channel_id, video_ids)
@@ -89,9 +89,9 @@ class Invidious::Jobs::NotificationJob < Invidious::Jobs::BaseJob
             end
           end
 
-          LOGGER.trace("NotificationJob: Done, sleeping")
+          Log.trace { "Done, sleeping" }
         rescue ex
-          LOGGER.error("NotificationJob: #{ex.message}")
+          Log.error { ex.message }
         end
         sleep 1.minute
         Fiber.yield

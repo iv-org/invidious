@@ -14,12 +14,12 @@ class Invidious::Database::Migrator
       .each do |migration|
         next if versions.includes?(migration.version)
 
-        puts "Running migration: #{migration.class.name}"
+        Log.info { "Running migration: #{migration.class.name}" }
         migration.migrate
         ran_migration = true
       end
 
-    puts "No migrations to run." unless ran_migration
+    Log.info { "No migrations to run." } unless ran_migration
   end
 
   def pending_migrations? : Bool

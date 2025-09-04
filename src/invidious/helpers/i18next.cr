@@ -145,7 +145,7 @@ module I18next::Plurals
       if version > 4 || version == 0
         raise "Invalid i18next version: v#{version}."
       elsif version == 4
-        # Logger.error("Unsupported i18next version: v4. Falling back to v3")
+        # Log.error { "Unsupported i18next version: v4. Falling back to v3" }
         @version = 3_u8
       else
         @version = version.to_u8

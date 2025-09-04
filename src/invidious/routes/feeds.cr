@@ -403,7 +403,7 @@ module Invidious::Routes::Feeds
     signature = env.request.headers["X-Hub-Signature"].lchop("sha1=")
 
     if signature != OpenSSL::HMAC.hexdigest(:sha1, HMAC_KEY, body)
-      LOGGER.error("/feed/webhook/#{token} : Invalid signature")
+      Log.error { "/feed/webhook/#{token} : Invalid signature" }
       haltf env, status_code: 200
     end
 

@@ -73,6 +73,8 @@ module Invidious::SigHelper
   # ----------------------
 
   class Client
+    Log = ::Log.for(self)
+
     @mux : Multiplexor
 
     def initialize(uri_or_path)
@@ -156,8 +158,8 @@ module Invidious::SigHelper
       slice = channel.receive
       return yield slice
     rescue ex
-      LOGGER.debug("SigHelper: Error when sending a request")
-      LOGGER.trace(ex.inspect_with_backtrace)
+      Log.debug { "Error when sending a request" }
+      Log.trace { ex.inspect_with_backtrace }
       return nil
     end
   end
@@ -167,6 +169,8 @@ module Invidious::SigHelper
   # ---------------------
 
   class Multiplexor
+    Log = ::Log.for(self)
+
     alias TransactionID = UInt32
     record Transaction, channel = ::Channel(Bytes).new
 
@@ -185,22 +189,22 @@ module Invidious::SigHelper
     def listen : Nil
       raise "Socket is closed" if @conn.closed?
 
-      LOGGER.debug("SigHelper: Multiplexor listening")
+      Log.debug { "Multiplexor listening" }
 
       spawn do
         loop do
           begin
             receive_data
           rescue ex
-            LOGGER.info("SigHelper: Connection to helper died with '#{ex.message}' trying to reconnect...")
+            Log.info { "Connection to helper died with '#{ex.message}' trying to reconnect..." }
             # We close the socket because for some reason is not closed.
             @conn.close
             loop do
               begin
                 @conn = Connection.new(@uri_or_path)
-                LOGGER.info("SigHelper: Reconnected to SigHelper!")
+                Log.info { "Reconnected to SigHelper!" }
               rescue ex
-                LOGGER.debug("SigHelper: Reconnection to helper unsuccessful with error '#{ex.message}'. Retrying")
+                Log.debug { "Reconnection to helper unsuccessful with error '#{ex.message}'. Retrying" }
                 sleep 500.milliseconds
                 next
               end
@@ -238,7 +242,7 @@ module Invidious::SigHelper
         if transaction = @queue.delete(transaction_id)
           # Remove transaction from queue and send data to the channel
           transaction.channel.send(slice)
-          LOGGER.trace("SigHelper: Transaction unqueued and data sent to channel")
+          Log.trace { "Transaction unqueued and data sent to channel" }
         else
           raise Exception.new("SigHelper: Received transaction was not in queue")
         end
@@ -251,7 +255,7 @@ module Invidious::SigHelper
       transaction_id = @conn.read_bytes(UInt32, NetworkEndian)
       length = @conn.read_bytes(UInt32, NetworkEndian)
 
-      LOGGER.trace("SigHelper: Recv transaction 0x#{transaction_id.to_s(base: 16)} / length #{length}")
+      Log.trace { "Recv transaction 0x#{transaction_id.to_s(base: 16)} / length #{length}" }
 
       if length > 67_000
         raise Exception.new("SigHelper: Packet longer than expected (#{length})")
@@ -261,15 +265,15 @@ module Invidious::SigHelper
       slice = Bytes.new(length)
       @conn.read(slice) if length > 0
 
-      LOGGER.trace("SigHelper: payload = #{slice}")
-      LOGGER.trace("SigHelper: Recv transaction 0x#{transaction_id.to_s(base: 16)} - Done")
+      Log.trace { "payload = #{slice}" }
+      Log.trace { "Recv transaction 0x#{transaction_id.to_s(base: 16)} - Done" }
 
       return transaction_id, slice
     end
 
     # Write a single packet to the socket
     private def write_packet(transaction_id : TransactionID, request : Request)
-      LOGGER.trace("SigHelper: Send transaction 0x#{transaction_id.to_s(base: 16)} / opcode #{request.opcode}")
+      Log.trace { "Send transaction 0x#{transaction_id.to_s(base: 16)} / opcode #{request.opcode}" }
 
       io = IO::Memory.new(1024)
       io.write_bytes(request.opcode.to_u8, NetworkEndian)
@@ -282,11 +286,13 @@ module Invidious::SigHelper
       @conn.send(io)
       @conn.flush
 
-      LOGGER.trace("SigHelper: Send transaction 0x#{transaction_id.to_s(base: 16)} - Done")
+      Log.trace { "Send transaction 0x#{transaction_id.to_s(base: 16)} - Done" }
     end
   end
 
   class Connection
+    Log = ::Log.for(self)
+
     @socket : UNIXSocket | TCPSocket
 
     {% if flag?(:advanced_debug) %}
@@ -309,7 +315,7 @@ module Invidious::SigHelper
         uri = URI.parse("tcp://#{host_or_path}")
         @socket = TCPSocket.new(uri.host.not_nil!, uri.port.not_nil!)
       end
-      LOGGER.info("SigHelper: Using helper at '#{host_or_path}'")
+      Log.info { "Using helper at '#{host_or_path}'" }
 
       {% if flag?(:advanced_debug) %}
         @io = IO::Hexdump.new(@socket, output: STDERR, read: true, write: true)
