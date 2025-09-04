@@ -94,7 +94,7 @@ class Config
   property feed_threads : Int32 = 1
   # Log file path or STDOUT
   property output : String = "STDOUT"
-  # Default log level, valid YAML values are ints and strings, see https://crystal-lang.org/api/master/CLog.Severity.html#enum-members
+  # Default log level, valid YAML values are ints and strings, see https://crystal-lang.org/api/1.17.1/Log/Severity.html#enum-members
   property log_level : Log::Severity = Log::Severity::Info
   # Enables colors in logs. Useful for debugging purposes
   property colorize_logs : Bool = false
