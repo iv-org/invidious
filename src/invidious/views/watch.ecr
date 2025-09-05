@@ -354,9 +354,8 @@ we're going to need to do it here in order to allow for translations.
 
                                 <div class="pure-u-10-24" style="text-align:right">
                                     <b class="width:100%"><%=
-                                        views = rv["view_count"]?.try &.to_i?
-                                        views ||= rv["view_count_short"]?.try { |x| short_text_to_number(x) }
-                                        translate_count(locale, "generic_views_count", views || 0, NumberFormatting::Short)
+                                        views = short_text_to_number(rv["short_view_count"]? || "0")
+                                        translate_count(locale, "generic_views_count", views, NumberFormatting::Short)
                                     %></b>
                                 </div>
                             </h5>
