@@ -122,6 +122,7 @@
     "Redirect homepage to feed: ": "Redirect homepage to feed: ",
     "preferences_max_results_label": "Number of videos shown in feed: ",
     "preferences_sort_label": "Sort videos by: ",
+    "preferences_default_playlist": "Default playlist: ",
     "published": "published",
     "published - reverse": "published - reverse",
     "alphabetically": "alphabetically",

@@ -208,6 +208,18 @@
                 <input name="automatic_instance_redirect" id="automatic_instance_redirect" type="checkbox" <% if preferences.automatic_instance_redirect %>checked<% end %>>
             </div>
 
+            <% if user = env.get?("user").as(User) %>
+                <% playlists = Invidious::Database::Playlists.select_user_created_playlists(user.email) %>
+                <div class="pure-control-group">
+                    <label for="default_playlist"><%= translate(locale, "preferences_default_playlist") %></label>
+                    <select name="default_playlist" id="default_playlist">
+                        <% playlists.each do |plid, playlist_title| %>
+                            <option value="<%= plid %>" <%= "selected" if user.preferences.default_playlist == plid %>><%= HTML.escape(playlist_title) %></option>
+                        <% end %>
+                    </select>
+                </div>
+            <% end %>
+
             <% if env.get? "user" %>
                 <legend><%= translate(locale, "preferences_category_subscription") %></legend>
 

@@ -78,6 +78,7 @@
     "Redirect homepage to feed: ": "Redirigir la página de inicio a la fuente: ",
     "preferences_max_results_label": "Número de videos mostrados en la fuente: ",
     "preferences_sort_label": "Ordenar los videos por: ",
+    "preferences_default_playlist": "Lista de reproducción por defecto: ",
     "published": "fecha de publicación",
     "published - reverse": "fecha de publicación: orden inverso",
     "alphabetically": "alfabéticamente",
