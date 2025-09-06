@@ -126,6 +126,19 @@
                 <input name="save_player_pos" id="save_player_pos" type="checkbox" <% if preferences.save_player_pos %>checked<% end %>>
             </div>
 
+            <% if user = env.get?("user").try &.as(User) %>
+                <% playlists = Invidious::Database::Playlists.select_user_created_playlists(user.email) %>
+                <div class="pure-control-group">
+                    <label for="default_playlist"><%= translate(locale, "preferences_default_playlist") %></label>
+                    <select name="default_playlist" id="default_playlist">
+                        <option value=""><%= translate(locale, "preferences_default_playlist_none") %></option>
+                        <% playlists.each do |plid, playlist_title| %>
+                            <option value="<%= plid %>" <%= "selected" if user.preferences.default_playlist == plid %>><%= HTML.escape(playlist_title) %></option>
+                        <% end %>
+                    </select>
+                </div>
+            <% end %>
+
             <legend><%= translate(locale, "preferences_category_visual") %></legend>
 
             <div class="pure-control-group">
@@ -207,19 +220,6 @@
                 <label for="automatic_instance_redirect"><%= translate(locale, "preferences_automatic_instance_redirect_label") %></label>
                 <input name="automatic_instance_redirect" id="automatic_instance_redirect" type="checkbox" <% if preferences.automatic_instance_redirect %>checked<% end %>>
             </div>
-
-            <% if user = env.get?("user").try &.as(User) %>
-                <% playlists = Invidious::Database::Playlists.select_user_created_playlists(user.email) %>
-                <div class="pure-control-group">
-                    <label for="default_playlist"><%= translate(locale, "preferences_default_playlist") %></label>
-                    <select name="default_playlist" id="default_playlist">
-                        <option value=""><%= translate(locale, "preferences_default_playlist_none") %></option>
-                        <% playlists.each do |plid, playlist_title| %>
-                            <option value="<%= plid %>" <%= "selected" if user.preferences.default_playlist == plid %>><%= HTML.escape(playlist_title) %></option>
-                        <% end %>
-                    </select>
-                </div>
-            <% end %>
 
             <% if env.get? "user" %>
                 <legend><%= translate(locale, "preferences_category_subscription") %></legend>
