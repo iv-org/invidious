@@ -123,6 +123,7 @@
     "preferences_max_results_label": "Number of videos shown in feed: ",
     "preferences_sort_label": "Sort videos by: ",
     "preferences_default_playlist": "Default playlist: ",
+    "preferences_default_playlist_none": "No default playlist set",
     "published": "published",
     "published - reverse": "published - reverse",
     "alphabetically": "alphabetically",
