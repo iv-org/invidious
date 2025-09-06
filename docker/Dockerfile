@@ -1,5 +1,6 @@
 # https://github.com/openssl/openssl/releases/tag/openssl-3.5.2
 ARG OPENSSL_VERSION='3.5.2'
+ARG OPENSSL_SHA256='c53a47e5e441c930c3928cf7bf6fb00e5d129b630e0aa873b08258656e7345ec'
 
 FROM crystallang/crystal:1.16.3-alpine AS dependabot-crystal
 
@@ -12,8 +13,9 @@ RUN apk add --no-cache curl perl linux-headers
 WORKDIR /
 
 ARG OPENSSL_VERSION
+ARG OPENSSL_SHA256
 RUN curl -Ls "https://github.com/openssl/openssl/releases/download/openssl-${OPENSSL_VERSION}/openssl-${OPENSSL_VERSION}.tar.gz" --output openssl-${OPENSSL_VERSION}.tar.gz
-RUN echo "c53a47e5e441c930c3928cf7bf6fb00e5d129b630e0aa873b08258656e7345ec  openssl-${OPENSSL_VERSION}.tar.gz" | sha256sum -c
+RUN echo "${OPENSSL_SHA256}  openssl-${OPENSSL_VERSION}.tar.gz" | sha256sum -c
 RUN tar -xzvf openssl-${OPENSSL_VERSION}.tar.gz
 
 RUN cd openssl-${OPENSSL_VERSION} && ./Configure --openssldir=/etc/ssl && make -j$(nproc)
