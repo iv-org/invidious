@@ -2,11 +2,10 @@
 
 module Invidious::Routes::PreferencesRoute
   def self.show(env)
-    locale = env.get("preferences").as(Preferences).locale
+    preferences = env.get("preferences").as(Preferences)
+    locale = preferences.locale
 
     referer = get_referer(env)
-
-    preferences = env.get("preferences").as(Preferences)
 
     templated "user/preferences"
   end
