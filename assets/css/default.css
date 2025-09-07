@@ -167,6 +167,7 @@ body a.pure-button-primary,
 
 .pure-button-primary,
 .pure-button-secondary {
+  white-space: normal;
   border: 1px solid #a0a0a0;
   border-radius: 3px;
   margin: 0 .4em;
