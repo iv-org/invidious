@@ -102,6 +102,9 @@ def extract_video_info(video_id : String)
   # Don't fetch the next endpoint if the video is unavailable.
   if {"OK", "LIVE_STREAM_OFFLINE", "LOGIN_REQUIRED"}.any?(playability_status)
     next_response = YoutubeAPI.next({"videoId": video_id, "params": ""})
+    # Remove the microformat returned by the /next endpoint on some videos
+    # to prevent player_response microformat from being overwritten.
+    next_response.reject!("microformat")
     player_response = player_response.merge(next_response)
   end
 
