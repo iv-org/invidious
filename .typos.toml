@@ -13,7 +13,10 @@
     "TEST_IDS *= *\\{.*\\}",
 
     # Ignore two-letter region strings
-    "(\\b|\")[a-zA-Z]{2}(\\b|\"),"
+    "(\\b|\")[a-zA-Z]{2}(\\b|\"),",
+
+    # Github handles
+    "@[a-zA-z\\-]{1,39}"
     ]
 
 [default.extend-identifiers]
