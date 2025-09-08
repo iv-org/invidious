@@ -167,7 +167,7 @@ jobs:
         run: bin/ameba
 
   lint_spell:
-    name: Spell Check with Typos
+    name: Check spelling
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Actions Repository
