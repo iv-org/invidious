@@ -102,6 +102,9 @@ def extract_video_info(video_id : String)
   # Don't fetch the next endpoint if the video is unavailable.
   if {"OK", "LIVE_STREAM_OFFLINE", "LOGIN_REQUIRED"}.any?(playability_status)
     next_response = YoutubeAPI.next({"videoId": video_id, "params": ""})
+    # Remove the microformat returned by the /next endpoint on some videos
+    # to prevent player_response microformat from being overwritten.
+    next_response.delete("microformat")
     player_response = player_response.merge(next_response)
   end
 
@@ -111,16 +114,17 @@ def extract_video_info(video_id : String)
   if !CONFIG.invidious_companion.present?
     if player_response.dig?("streamingData", "adaptiveFormats", 0, "url").nil?
       LOGGER.warn("Missing URLs for adaptive formats, falling back to other YT clients.")
-      players_fallback = {YoutubeAPI::ClientType::TvHtml5, YoutubeAPI::ClientType::WebMobile}
+      players_fallback = {YoutubeAPI::ClientType::TvSimply, YoutubeAPI::ClientType::WebMobile}
 
       players_fallback.each do |player_fallback|
         client_config.client_type = player_fallback
 
         next if !(player_fallback_response = try_fetch_streaming_data(video_id, client_config))
 
-        if player_fallback_response.dig?("streamingData", "adaptiveFormats", 0, "url")
+        adaptive_formats = player_fallback_response.dig?("streamingData", "adaptiveFormats")
+        if adaptive_formats && (adaptive_formats.dig?(0, "url") || adaptive_formats.dig?(0, "signatureCipher"))
           streaming_data = player_response["streamingData"].as_h
-          streaming_data["adaptiveFormats"] = player_fallback_response["streamingData"]["adaptiveFormats"]
+          streaming_data["adaptiveFormats"] = adaptive_formats
           player_response["streamingData"] = JSON::Any.new(streaming_data)
           break
         end
@@ -146,7 +150,11 @@ def extract_video_info(video_id : String)
   if streaming_data = player_response["streamingData"]?
     %w[formats adaptiveFormats].each do |key|
       streaming_data.as_h[key]?.try &.as_a.each do |format|
-        format.as_h["url"] = JSON::Any.new(convert_url(format))
+        format = format.as_h
+        if format["url"]?.nil?
+          format["url"] = format["signatureCipher"]
+        end
+        format["url"] = JSON::Any.new(convert_url(format))
       end
     end
 

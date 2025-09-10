@@ -75,17 +75,25 @@ db:
 ## If you are using a reverse proxy then you will probably need to
 ## configure the public_url to be the same as the domain used for Invidious.
 ## Also apply when used from an external IP address (without a domain).
-## Examples: https://MYINVIDIOUSDOMAIN or http://192.168.1.100:8282
+## Examples: https://MYINVIDIOUSDOMAIN/companion or http://192.168.1.100:8282/companion
 ##
 ## Both parameter can have identical URL when Invidious is hosted in
 ## an internal network or at home or locally (localhost).
+##
+## NOTE: If public_url is omitted, Invidious will use its built-in proxy
+## to route companion requests through /companion, which is useful for
+## simple setups where companion runs on the same network. When using
+## the built-in proxy, CSP headers are not modified since requests
+## stay within the same domain.
 ##
 ## Accepted values: "http(s)://<IP-HOSTNAME>:<Port>"
 ## Default: <none>
 ##
 #invidious_companion:
-#  - private_url: "http://localhost:8282"
-#    public_url: "http://localhost:8282"
+#  - private_url: "http://localhost:8282/companion"
+#    public_url: "http://localhost:8282/companion"
+#  # Example with built-in proxy (omit public_url):
+#  # - private_url: "http://localhost:8282/companion"
 
 ##
 ## API key for Invidious companion, used for securing the communication
@@ -865,7 +873,7 @@ default_user_preferences:
   ##
   ## Default dash video quality.
   ##
-  ## Note: this setting only takes effet if the
+  ## Note: this setting only takes effect if the
   ## 'quality' parameter is set to "dash".
   ##
   ## Accepted values:

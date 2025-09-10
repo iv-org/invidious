@@ -5,6 +5,10 @@ var video_data = JSON.parse(document.getElementById('video_data').textContent);
 var options = {
     liveui: true,
     playbackRates: [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0],
+    fontPercent: [0.5, 0.75, 1.25, 1.5, 1.75, 2, 3, 4],
+    windowOpacity: ['0', '0.5', '1'],
+    textOpacity: ['0.5', '1'],
+    persistTextTrackSettings: true,
     controlBar: {
         children: [
             'playToggle',
@@ -180,7 +184,7 @@ var shareOptions = {
 };
 
 if (location.pathname.startsWith('/embed/')) {
-    var overlay_content = '<h1><a rel="noopener" target="_blank" href="' + location.origin + '/watch?v=' + video_data.id + '">' + player_data.title + '</a></h1>';
+    var overlay_content = '<h1><a rel="noopener noreferrer" target="_blank" href="' + location.origin + '/watch?v=' + video_data.id + '">' + player_data.title + '</a></h1>';
     player.overlay({
         overlays: [
             { start: 'loadstart', content: overlay_content, end: 'playing', align: 'top'},
@@ -450,7 +454,7 @@ if (!video_data.params.listen && video_data.params.annotations) {
             if (target === 'current') {
                 location.href = path;
             } else if (target === 'new') {
-                open(path, '_blank');
+                open(path, '_blank', 'noopener,noreferrer');
             }
         });
 
@@ -585,6 +589,13 @@ const toggle_captions = (function () {
     };
 })();
 
+// For real-time updates to captions (if currently showing)
+function update_captions() {
+    if (document.body.querySelector('.vjs-text-track-cue')) {
+        toggle_captions(); toggle_captions();
+    }
+}
+
 function toggle_fullscreen() {
     player.isFullscreen() ? player.exitFullscreen() : player.requestFullscreen();
 }
@@ -595,6 +606,34 @@ function increase_playback_rate(steps) {
     let newIndex = curIndex + steps;
     newIndex = helpers.clamp(newIndex, 0, maxIndex);
     player.playbackRate(options.playbackRates[newIndex]);
+}
+
+function increase_caption_size(steps) {
+    const maxIndex = options.fontPercent.length - 1;
+    const fontPercent = player.textTrackSettings.getValues().fontPercent || 1.25;
+    const curIndex = options.fontPercent.indexOf(fontPercent);
+    let newIndex = curIndex + steps;
+    newIndex = helpers.clamp(newIndex, 0, maxIndex);
+    player.textTrackSettings.setValues({ fontPercent: options.fontPercent[newIndex] });
+    update_captions();
+}
+
+function toggle_caption_window() {
+    const numOptions = options.windowOpacity.length;
+    const windowOpacity = player.textTrackSettings.getValues().windowOpacity || '0';
+    const curIndex = options.windowOpacity.indexOf(windowOpacity);
+    const newIndex = (curIndex + 1) % numOptions;
+    player.textTrackSettings.setValues({ windowOpacity: options.windowOpacity[newIndex] });
+    update_captions();
+}
+  
+function toggle_caption_opacity() {
+    const numOptions = options.textOpacity.length;
+    const textOpacity = player.textTrackSettings.getValues().textOpacity || '1';
+    const curIndex = options.textOpacity.indexOf(textOpacity);
+    const newIndex = (curIndex + 1) % numOptions;
+    player.textTrackSettings.setValues({ textOpacity: options.textOpacity[newIndex] });
+    update_captions();
 }
 
 addEventListener('keydown', function (e) {
@@ -692,6 +731,12 @@ addEventListener('keydown', function (e) {
 
         case '>': action = increase_playback_rate.bind(this, 1); break;
         case '<': action = increase_playback_rate.bind(this, -1); break;
+        
+        case '=': action = increase_caption_size.bind(this, 1); break;
+        case '-': action = increase_caption_size.bind(this, -1); break;
+
+        case 'w': action = toggle_caption_window; break;
+        case 'o': action = toggle_caption_opacity; break;
 
         default:
             console.info('Unhandled key down event: %s:', decoratedKey, e);
