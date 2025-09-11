@@ -2,6 +2,134 @@
 
 ## vX.Y.0 (future)
 
+
+## 2.20250912.0
+
+### Wrap-up
+
+This release primarily marks `invidious-companion`'s ascend out of beta and its stable integration thereof into Invidious!
+
+For those unaware `invidious-companion` is the successor to the `inv-sig-helper` tool, designed to securely pass YouTube's attestation checks and allow for the efficient retrieval and playback of video streams reliably.
+
+For more information see https://github.com/iv-org/invidious-companion and https://docs.invidious.io/installation/
+
+But companion isn't the only new thing in this release!
+
+Invidious will no longer error out completely as soon as a single item failed to parse in search results, channel pages, etc. Instead it now handles it gracefully rendering everything except for the items that failed to parse, substituting them with an error card.
+
+Additional keyboard shortcuts have been added to control subtitle styling
+
+DASH (higher quality videos) is now the default option in Invidious out-of-the-box
+
+A significant amount of bugs were fixed
+
+Base Invidious video retrieval without invidious-companion has been made more stable
+
+### New features & important changes
+#### For Users
+  - DASH is now enabled by default due to YouTube's removal of the 720p non-dash streams
+  - Javascript licencing info has been added to all of Invidious' scripts, restoring full compatibility with LibreJS
+  - There is no longer an option for a text captcha during registration due to the shutdown (presumably) of the upstream service
+  - Parse errors in feeds will no longer render the entire feed unusable and instead will substitute only the broken items with error cards
+  - Keyboard shortcuts have been added to configure caption styles:
+    - `-`,`=` can be used to change the font size
+    - `o` can be used to cycle the opacity of the caption text
+    - `w` can be used to cycle the opacity of the caption box
+  - Caption styles changed through the VideoJS menu will now persist
+
+#### For instance owners
+  - invidious-companion support has been added to replace the deprecated inv-sig-helper
+  - **DASH is now the default resolution! Please ensure that your instances can withstand the significantly higher bandwidth usage or manually configure your instance to use non-dash streams by default**
+  - Invidious will now warn when it is unable to connect to the database instead of failing silently
+
+#### For developers
+  - Dependabot is added to keep Github Actions and Docker dependencies up-to-date.
+  - CI version matrix has been bumped to the latest patch release for each minor version
+  - The versions of Crystal that we test in CI/CD are now: `1.12.2`, `1.13.3`, `1.14.1`, `1.15.1`, `1.16.3`
+  - `Kilt` is no longer a dependency of Invidious
+  - The ARM64  docker image builds (and the test CI) now uses Github's ARM64 runner instead of QEMU
+  - **An "error" JSON object can now be returned in various API responses in-place of an item that has failed to parse**:
+    ```json
+      {
+        "type": "parse-error",
+        "errorMessage": "...",
+        "errorBacktrace": "..."
+      }
+    ```
+
+### Bugs fixed
+#### User-side
+  - Livestream will now be properly proxied again allowing playback from the UI
+  - The proxy video preference for logged-in users will no longer get ignored when a default value is set by the instance
+  - Fixes the missing `label` key error on select search results and other feeds
+  - Invidious will no longer strip out spaces from search queries when navigating back from the preferences page
+  - Restores functionality to the `subscriptions:true` search keyword
+  - The channel RSS feeds will no longer have an empty title
+  - Individual community posts can be viewed again
+  - The playlists tab of channels can be viewed again
+  - Fix incorrect dates, region, etc of videos
+  - Various minor fixes were made to how video info is extracted in setups without invidious-companion to improve resiliency and chances of success
+  - Fix issue where the notification count becomes `TRUE` rather than an actual number
+#### For instance owners
+  - Fixed a minor typo in config.example.yml (`effet` -> `effect`)
+#### For developers
+  - The docker image test CI will now properly check whether Invidious has started
+
+### Full list of pull requests merged since the last release (newest first)
+
+* Add invidious companion support (https://github.com/iv-org/invidious/pull/4985, by @unixfox)
+* Bump shards.yml version to dev version (https://github.com/iv-org/invidious/pull/5206, by @syeopite)
+* chore: enforce 16 characters for invidious_companion_key (https://github.com/iv-org/invidious/pull/5220, by @unixfox)
+* chore: set dash by default (https://github.com/iv-org/invidious/pull/5216, by @unixfox)
+* Fix minor casing issues in brand names (https://github.com/iv-org/invidious/pull/5258, thanks @efb4f5ff-1298-471a-8973-3d47447115dc)
+* feat: route to invidious companion on downloads (https://github.com/iv-org/invidious/pull/5224, by @alexmaras)
+* Fix proxying live DASH streams (https://github.com/iv-org/invidious/pull/4589, thanks @absidue)
+* Reflect companion secret character limit in example config comment (https://github.com/iv-org/invidious/pull/5269, thanks @Vyquos)
+* chore: Add dependabot for docker and github actions (https://github.com/iv-org/invidious/pull/5285, by @unixfox)
+* Bump actions/stale from 8 to 9 (https://github.com/iv-org/invidious/pull/5291, thanks @dependabot[bot])
+* Bump actions/cache from 3 to 4 (https://github.com/iv-org/invidious/pull/5289, thanks @dependabot[bot])
+* Bump alpine from 3.20 to 3.21 in /docker (https://github.com/iv-org/invidious/pull/5288, thanks @dependabot[bot])
+* Bump docker/build-push-action from 5 to 6 (https://github.com/iv-org/invidious/pull/5287, thanks @dependabot[bot])
+* Bump crystal-lang/install-crystal from 1.8.0 to 1.8.2 (https://github.com/iv-org/invidious/pull/5286, thanks @dependabot[bot])
+* Bump crystallang/crystal from 1.12.2-alpine to 1.16.2-alpine in /docker (https://github.com/iv-org/invidious/pull/5290, thanks @dependabot[bot])
+* Bump crystallang/crystal from 1.16.2-alpine to 1.16.3-alpine in /docker (https://github.com/iv-org/invidious/pull/5301, thanks @dependabot[bot])
+* CI: Bump Crystal version matrix (https://github.com/iv-org/invidious/pull/5293, by @Fijxu)
+* fix(typo): 'Salect' -> 'Select' (https://github.com/iv-org/invidious/pull/5242, by @Fijxu)
+* fix: set CSP header after setting preferences of registered users (https://github.com/iv-org/invidious/pull/5275, by @Fijxu)
+* fix: safely access "label" key (https://github.com/iv-org/invidious/pull/5282, by @Fijxu)
+* Add missing javascript licenses (https://github.com/iv-org/invidious/pull/5292, by @Fijxu)
+* Add Javascript licence information automatically (https://github.com/iv-org/invidious/pull/5297, by @syeopite)
+* Remove text captcha due to textcaptcha.com being down (https://github.com/iv-org/invidious/pull/5308, by @Fijxu)
+* Release versioning maintenance (https://github.com/iv-org/invidious/pull/5310, by @syeopite)
+* Update Kemal to 1.6.0 and remove Kilt (https://github.com/iv-org/invidious/pull/5120, by @syeopite)
+* Translations update from Hosted Weblate (https://github.com/iv-org/invidious/pull/5192, thanks @weblate)
+* require base_job before the other jobs (https://github.com/iv-org/invidious/pull/5194, by @Fijxu)
+* Handle parse errors gracefully on timeline items (https://github.com/iv-org/invidious/pull/5196, by @syeopite)
+* fix: do not strip '+' character from referer (https://github.com/iv-org/invidious/pull/5276, by @Fijxu)
+* fix: pass user to `query.process` if present. (https://github.com/iv-org/invidious/pull/5277, by @Fijxu)
+* Add missing xml.text on "title" element for channels RSS (https://github.com/iv-org/invidious/pull/5320, by @Fijxu)
+* Remove `@iv-org/developers` from codeowners (https://github.com/iv-org/invidious/pull/5314, by @syeopite)
+* Make base-Invidious video info extraction more resilient (https://github.com/iv-org/invidious/pull/5312, by @syeopite)
+* Bump actions/checkout from 4 to 5 (https://github.com/iv-org/invidious/pull/5415, thanks @dependabot[bot])
+* Player: Add keyboard shortcuts to configure captions (https://github.com/iv-org/invidious/pull/5188, thanks @epicsam123)
+* CI: Use public ARM64 Github actions runners for ARM64 builds. (https://github.com/iv-org/invidious/pull/5305, by @Fijxu)
+* CI: Fix docker ci job not checking if Invidious starts successfully or not (https://github.com/iv-org/invidious/pull/5306, by @Fijxu)
+* YtAPI: Bump client versions (https://github.com/iv-org/invidious/pull/5325, by @Fijxu)
+* YTAPI: Add `TvSimply` client (https://github.com/iv-org/invidious/pull/5344, by @Fijxu)
+* Videos: Add fallback to TvSimply client (https://github.com/iv-org/invidious/pull/5345, by @Fijxu)
+* Show message when connection to the database is not possible (https://github.com/iv-org/invidious/pull/5346, by @Fijxu)
+* Channels: Fix fetching of individual community posts (https://github.com/iv-org/invidious/pull/5361, thanks @ChunkyProgrammer)
+* Videos: Fix missing .id to retrieve first playlist video ID (https://github.com/iv-org/invidious/pull/5366, by @SamantazFox)
+* HTML: Add Missing Noreferrers (https://github.com/iv-org/invidious/pull/5368, thanks @epicsam123)
+* Documentation: Fix typo (effet -> effect) (https://github.com/iv-org/invidious/pull/5369, thanks @nsunami)
+* Frontend: Fix notification count of `TRUE` (https://github.com/iv-org/invidious/pull/5391, thanks @fieryhenry)
+* Player: Persist caption settings (https://github.com/iv-org/invidious/pull/5417, thanks @p-himik)
+* Channels: Fix fetching channel playlists (https://github.com/iv-org/invidious/pull/5418, thanks @KrisVos130)
+* CI: fix wrong if statement for build-docker job (https://github.com/iv-org/invidious/pull/5442, by @Fijxu)
+* initial base_url companion support + proxy companion (https://github.com/iv-org/invidious/pull/5266, by @unixfox)
+* Prevent player microformat from being overwritten by the next microformat (https://github.com/iv-org/invidious/pull/5453, by @Fijxu)
+* Bump actions/stale from 9 to 10 (https://github.com/iv-org/invidious/pull/5457, thanks @dependabot[bot])
+
 ## v2.20250517.0
 
 Inverse fallback for the YouTube client from TVHTML then MWEB. Fixes https://github.com/iv-org/invidious/issues/5273
