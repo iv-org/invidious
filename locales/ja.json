@@ -44,8 +44,6 @@
     "User ID": "ユーザー ID",
     "Password": "パスワード",
     "Time (h:mm:ss):": "時間 (時:分分:秒秒):",
-    "Text CAPTCHA": "テキスト CAPTCHA",
-    "Image CAPTCHA": "画像 CAPTCHA",
     "Sign In": "サインイン",
     "Register": "登録",
     "E-mail": "メールアドレス",
@@ -484,5 +482,10 @@
     "Filipino (auto-generated)": "フィリピノ語 (自動生成)",
     "First page": "最初のページ",
     "channel_tab_posts_label": "投稿",
-    "channel_tab_courses_label": "コース"
+    "channel_tab_courses_label": "コース",
+    "timeline_parse_error_placeholder_message": "Invidious によるこの項目の解析中にエラーが発生。詳細は以下:",
+    "timeline_parse_error_placeholder_heading": "この項目を解析できません",
+    "timeline_parse_error_show_technical_details": "技術的詳細を表示",
+    "preferences_default_playlist": "デフォルトのプレイリスト: ",
+    "preferences_default_playlist_none": "デフォルトのプレイリストは設定されていません"
 }
