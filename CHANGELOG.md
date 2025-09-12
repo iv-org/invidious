@@ -7,9 +7,11 @@
 
 ### Wrap-up
 
-This release primarily marks `invidious-companion`'s ascend out of beta and its stable integration thereof into Invidious!
+This release primarily marks Invidious companion's ascend out of beta and its stable integration thereof into Invidious!
 
-For those unaware `invidious-companion` is the successor to the `inv-sig-helper` tool, designed to securely pass YouTube's attestation checks and allow for the efficient retrieval and playback of video streams reliably.
+For those unaware Invidious companion is the successor to the `inv-sig-helper` tool, designed to securely pass YouTube's attestation checks and allow for the efficient retrieval and playback of video streams reliably.
+
+Companion delivers YouTube fixes faster since it’s built on the community-driven [YouTube.js](https://github.com/LuanRT/YouTube.js) project, used by many open source projects such as [FreeTube](https://github.com/FreeTubeApp/FreeTube).
 
 For more information see https://github.com/iv-org/invidious-companion and https://docs.invidious.io/installation/
 
@@ -23,7 +25,7 @@ DASH (higher quality videos) is now the default option in Invidious out-of-the-b
 
 A significant amount of bugs were fixed
 
-Base Invidious video retrieval without invidious-companion has been made more stable
+Base Invidious video retrieval without Invidious companion has been made more stable
 
 ### New features & important changes
 #### For Users
@@ -38,7 +40,7 @@ Base Invidious video retrieval without invidious-companion has been made more st
   - Caption styles changed through the VideoJS menu will now persist
 
 #### For instance owners
-  - invidious-companion support has been added to replace the deprecated inv-sig-helper
+  - Invidious companion support has been added to replace the deprecated inv-sig-helper
   - **DASH is now the default resolution! Please ensure that your instances can withstand the significantly higher bandwidth usage or manually configure your instance to use non-dash streams by default**
   - Invidious will now warn when it is unable to connect to the database instead of failing silently
 
@@ -68,7 +70,7 @@ Base Invidious video retrieval without invidious-companion has been made more st
   - Individual community posts can be viewed again
   - The playlists tab of channels can be viewed again
   - Fix incorrect dates, region, etc of videos
-  - Various minor fixes were made to how video info is extracted in setups without invidious-companion to improve resiliency and chances of success
+  - Various minor fixes were made to how video info is extracted in setups without Invidious companion to improve resiliency and chances of success
   - Fix issue where the notification count becomes `TRUE` rather than an actual number
 #### For instance owners
   - Fixed a minor typo in config.example.yml (`effet` -> `effect`)
@@ -77,7 +79,7 @@ Base Invidious video retrieval without invidious-companion has been made more st
 
 ### Full list of pull requests merged since the last release (newest first)
 
-* Add invidious companion support (https://github.com/iv-org/invidious/pull/4985, by @unixfox)
+* Add Invidious companion support (https://github.com/iv-org/invidious/pull/4985, by @unixfox)
 * Bump shards.yml version to dev version (https://github.com/iv-org/invidious/pull/5206, by @syeopite)
 * chore: enforce 16 characters for invidious_companion_key (https://github.com/iv-org/invidious/pull/5220, by @unixfox)
 * chore: set dash by default (https://github.com/iv-org/invidious/pull/5216, by @unixfox)
