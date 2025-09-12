@@ -62,8 +62,6 @@
     "User ID": "Identifiant utilisateur",
     "Password": "Mot de passe",
     "Time (h:mm:ss):": "Heure (h:mm:ss) :",
-    "Text CAPTCHA": "CAPTCHA textuel",
-    "Image CAPTCHA": "CAPTCHA pictural",
     "Sign In": "S'identifier",
     "Register": "S'inscrire",
     "E-mail": "Courriel",
@@ -518,5 +516,6 @@
     "preferences_preload_label": "Précharger les données de la vidéo : ",
     "First page": "Première page",
     "channel_tab_courses_label": "Cours",
-    "channel_tab_posts_label": "Messages"
+    "channel_tab_posts_label": "Messages",
+    "timeline_parse_error_show_technical_details": "Afficher les détails techniques"
 }
