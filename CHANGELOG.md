@@ -2,7 +2,6 @@
 
 ## vX.Y.0 (future)
 
-
 ## 2.20250912.0
 
 ### Wrap-up
@@ -38,6 +37,7 @@ Base Invidious video retrieval without Invidious companion has been made more st
     - `o` can be used to cycle the opacity of the caption text
     - `w` can be used to cycle the opacity of the caption box
   - Caption styles changed through the VideoJS menu will now persist
+  - You can now choose a default playlist to add videos to instead of needing to manually select one each time
 
 #### For instance owners
   - Invidious companion support has been added to replace the deprecated inv-sig-helper
@@ -132,6 +132,10 @@ Base Invidious video retrieval without Invidious companion has been made more st
 * initial base_url companion support + proxy companion (https://github.com/iv-org/invidious/pull/5266, by @unixfox)
 * Prevent player microformat from being overwritten by the next microformat (https://github.com/iv-org/invidious/pull/5453, by @Fijxu)
 * Bump actions/stale from 9 to 10 (https://github.com/iv-org/invidious/pull/5457, thanks @dependabot[bot])
+* Better documentation for the specific case public_url with companion (https://github.com/iv-org/invidious/pull/5461, by @unixfox)
+* Add default playlist preference (https://github.com/iv-org/invidious/pull/5449, by @Fijxu)
+* Translations update from Hosted Weblate by (https://github.com/iv-org/invidious/pull/5313, thanks to our many translators)
+
 
 ## v2.20250517.0
 
