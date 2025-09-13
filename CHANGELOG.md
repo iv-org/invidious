@@ -16,15 +16,13 @@ For more information see https://github.com/iv-org/invidious-companion and https
 
 But companion isn't the only new thing in this release!
 
-Invidious will no longer error out completely as soon as a single item failed to parse in search results, channel pages, etc. Instead it now handles it gracefully rendering everything except for the items that failed to parse, substituting them with an error card.
+Invidious will no longer error out completely as soon as a single item failed to parse in search results, channel pages, etc. Instead it now handles it gracefully by substituting those problematic items with an error card and rendering the page normally.
 
-Additional keyboard shortcuts have been added to control subtitle styling
+The player has gained some quality of life features such as being able to choose a default playlist for videos to be added to, or persisting caption appearance settings across the session.
 
-DASH (higher quality videos) is now the default option in Invidious out-of-the-box
+Base Invidious video retrieval without Invidious companion has also been made more stable.
 
-A significant amount of bugs were fixed
-
-Base Invidious video retrieval without Invidious companion has been made more stable
+And finally a significant amount of bugs were fixed alongside many other minor improvements.
 
 ### New features & important changes
 #### For Users
@@ -43,13 +41,14 @@ Base Invidious video retrieval without Invidious companion has been made more st
   - Invidious companion support has been added to replace the deprecated inv-sig-helper
   - **DASH is now the default resolution! Please ensure that your instances can withstand the significantly higher bandwidth usage or manually configure your instance to use non-dash streams by default**
   - Invidious will now warn when it is unable to connect to the database instead of failing silently
+  - **The text captcha during registration has been removed due to the shutdown (presumably) of the upstream service**
 
 #### For developers
-  - Dependabot is added to keep Github Actions and Docker dependencies up-to-date.
+  - Dependabot has been added to keep Github Actions and Docker dependencies up-to-date.
   - CI version matrix has been bumped to the latest patch release for each minor version
   - The versions of Crystal that we test in CI/CD are now: `1.12.2`, `1.13.3`, `1.14.1`, `1.15.1`, `1.16.3`
   - `Kilt` is no longer a dependency of Invidious
-  - The ARM64  docker image builds (and the test CI) now uses Github's ARM64 runner instead of QEMU
+  - The ARM64 docker image builds (and the test CI) has been changed to use Github's ARM64 runner instead of QEMU
   - **An "error" JSON object can now be returned in various API responses in-place of an item that has failed to parse**:
 
       ```json
