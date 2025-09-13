@@ -33,7 +33,8 @@ module Invidious::Routes::Embed
   end
 
   def self.show(env)
-    locale = env.get("preferences").as(Preferences).locale
+    preferences = env.get("preferences").as(Preferences)
+    locale = preferences.locale
     id = env.params.url["id"]
 
     plid = env.params.query["list"]?.try &.gsub(/[^a-zA-Z0-9_-]/, "")
@@ -44,8 +45,6 @@ module Invidious::Routes::Embed
       video_series = md[0].split(",")
       env.params.query.delete("playlist")
     end
-
-    preferences = env.get("preferences").as(Preferences)
 
     if id.includes?("%20") || id.includes?("+") || env.params.query.to_s.includes?("%20") || env.params.query.to_s.includes?("+")
       id = env.params.url["id"].gsub("%20", "").delete("+")

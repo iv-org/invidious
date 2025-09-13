@@ -225,10 +225,10 @@ module Invidious::Routes::Playlists
   end
 
   def self.add_playlist_items_page(env)
-    prefs = env.get("preferences").as(Preferences)
-    locale = prefs.locale
+    preferences = env.get("preferences").as(Preferences)
+    locale = preferences.locale
 
-    region = env.params.query["region"]? || prefs.region
+    region = env.params.query["region"]? || preferences.region
 
     user = env.get? "user"
     sid = env.get? "sid"
