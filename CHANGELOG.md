@@ -51,13 +51,14 @@ Base Invidious video retrieval without Invidious companion has been made more st
   - `Kilt` is no longer a dependency of Invidious
   - The ARM64  docker image builds (and the test CI) now uses Github's ARM64 runner instead of QEMU
   - **An "error" JSON object can now be returned in various API responses in-place of an item that has failed to parse**:
-    ```json
-      {
-        "type": "parse-error",
-        "errorMessage": "...",
-        "errorBacktrace": "..."
-      }
-    ```
+
+      ```json
+        {
+          "type": "parse-error",
+          "errorMessage": "...",
+          "errorBacktrace": "..."
+        }
+      ```
 
 ### Bugs fixed
 #### User-side
