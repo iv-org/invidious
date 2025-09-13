@@ -1,67 +1,70 @@
 require "colorize"
 
-enum LogLevel
-  All   = 0
-  Trace = 1
-  Debug = 2
-  Info  = 3
-  Warn  = 4
-  Error = 5
-  Fatal = 6
-  Off   = 7
-end
+module Invidious::Logger
+  extend self
 
-class Invidious::LogHandler < Kemal::BaseLogHandler
-  def initialize(@io : IO = STDOUT, @level = LogLevel::Debug, use_color : Bool = true)
+  def formatter(use_color : Bool = true)
     Colorize.enabled = use_color
     Colorize.on_tty_only!
+
+    formatter = ::Log::Formatter.new do |entry, io|
+      message = entry.message
+      severity = entry.severity
+      data = entry.data
+      source = entry.source
+      timestamp = entry.timestamp
+
+      io << (use_color ? timestamp.colorize(:dark_gray) : timestamp) << " "
+      io << (use_color ? colorize_severity(severity) : severity.label) << " "
+      io << (use_color ? source.colorize(:dark_gray) : source) << ": " if !source.empty?
+      io << message
+      if !data.empty?
+        io << " "
+        data.each do |dat|
+          io << (use_color ? dat[0].to_s.colorize(:light_cyan) : dat[0].to_s)
+          io << "="
+          io << dat[1].to_s
+        end
+      end
+    end
+
+    return formatter
   end
+
+  private def colorize_severity(severity : Log::Severity)
+    case severity
+    in Log::Severity::Trace  then severity.label.colorize(:cyan)
+    in Log::Severity::Info   then severity.label.colorize(:green)
+    in Log::Severity::Notice then severity.label.colorize(:light_yellow)
+    in Log::Severity::Warn   then severity.label.colorize(:yellow)
+    in Log::Severity::Error  then severity.label.colorize(:red)
+    in Log::Severity::Fatal  then severity.label.colorize(:red)
+    in Log::Severity::Debug  then severity.label
+    in Log::Severity::None   then severity.label
+    end
+  end
+end
+
+class Invidious::RequestLogHandler < Kemal::RequestLogHandler
+  Log = ::Log.for(Kemal)
 
   def call(context : HTTP::Server::Context)
     elapsed_time = Time.measure { call_next(context) }
     elapsed_text = elapsed_text(elapsed_time)
-
-    # Default: full path with parameters
     requested_url = context.request.resource
 
     # Try not to log search queries passed as GET parameters during normal use
     # (They will still be logged if log level is 'Debug' or 'Trace')
-    if @level > LogLevel::Debug && (
+    if CONFIG.log_level > ::Log::Severity::Debug && (
          requested_url.downcase.includes?("search") || requested_url.downcase.includes?("q=")
        )
       # Log only the path
       requested_url = context.request.path
     end
 
-    info("#{context.response.status_code} #{context.request.method} #{requested_url} #{elapsed_text}")
-
+    Log.info { "#{context.response.status_code} #{context.request.method} #{requested_url} #{elapsed_text}" }
     context
   end
-
-  def write(message : String)
-    @io << message
-    @io.flush
-  end
-
-  def color(level)
-    case level
-    when LogLevel::Trace then :cyan
-    when LogLevel::Debug then :green
-    when LogLevel::Info  then :white
-    when LogLevel::Warn  then :yellow
-    when LogLevel::Error then :red
-    when LogLevel::Fatal then :magenta
-    else                      :default
-    end
-  end
-
-  {% for level in %w(trace debug info warn error fatal) %}
-    def {{level.id}}(message : String)
-      if LogLevel::{{level.id.capitalize}} >= @level
-        puts("#{Time.utc} [{{level.id}}] #{message}".colorize(color(LogLevel::{{level.id.capitalize}})))
-      end
-    end
-  {% end %}
 
   private def elapsed_text(elapsed)
     millis = elapsed.total_milliseconds

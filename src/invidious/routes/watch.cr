@@ -54,10 +54,10 @@ module Invidious::Routes::Watch
     begin
       video = get_video(id, region: params.region)
     rescue ex : NotFoundException
-      LOGGER.error("get_video not found: #{id} : #{ex.message}")
+      Log.error { "get_video not found: #{id} : #{ex.message}" }
       return error_template(404, ex)
     rescue ex
-      LOGGER.error("get_video: #{id} : #{ex.message}")
+      Log.error { "get_video: #{id} : #{ex.message}" }
       return error_template(500, ex)
     end
 

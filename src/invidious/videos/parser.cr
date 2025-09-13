@@ -6,7 +6,7 @@ require "json"
 #
 # TODO: "compactRadioRenderer" (Mix) and
 # TODO: Use a proper struct/class instead of a hacky JSON object
-def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
+private def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
   return nil if !related["videoId"]?
 
   # The compact renderer has video length in seconds, where the end
@@ -34,7 +34,7 @@ def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
     HelperExtractors.get_short_view_count(r).to_s
   end
 
-  LOGGER.trace("parse_related_video: Found \"watchNextEndScreenRenderer\" container")
+  Log.trace { "parse_related_video: Found \"watchNextEndScreenRenderer\" container" }
 
   if published_time_text = related["publishedTimeText"]?
     decoded_time = decode_date(published_time_text["simpleText"].to_s)
@@ -113,7 +113,7 @@ def extract_video_info(video_id : String)
 
   if !CONFIG.invidious_companion.present?
     if player_response.dig?("streamingData", "adaptiveFormats", 0, "url").nil?
-      LOGGER.warn("Missing URLs for adaptive formats, falling back to other YT clients.")
+      Log.warn { "Missing URLs for adaptive formats, falling back to other YT clients." }
       players_fallback = {YoutubeAPI::ClientType::TvSimply, YoutubeAPI::ClientType::WebMobile}
 
       players_fallback.each do |player_fallback|
@@ -129,7 +129,7 @@ def extract_video_info(video_id : String)
           break
         end
       rescue InfoException
-        next LOGGER.warn("Failed to fetch streams with #{player_fallback}")
+        next Log.warn { "Failed to fetch streams with #{player_fallback}" }
       end
     end
 
@@ -168,11 +168,11 @@ def extract_video_info(video_id : String)
 end
 
 def try_fetch_streaming_data(id : String, client_config : YoutubeAPI::ClientConfig) : Hash(String, JSON::Any)?
-  LOGGER.debug("try_fetch_streaming_data: [#{id}] Using #{client_config.client_type} client.")
+  Log.debug { "try_fetch_streaming_data: [#{id}] Using #{client_config.client_type} client." }
   response = YoutubeAPI.player(video_id: id, params: "2AMB", client_config: client_config)
 
   playability_status = response["playabilityStatus"]["status"]
-  LOGGER.debug("try_fetch_streaming_data: [#{id}] Got playabilityStatus == #{playability_status}.")
+  Log.debug { "try_fetch_streaming_data: [#{id}] Got playabilityStatus == #{playability_status}." }
 
   if id != response.dig?("videoDetails", "videoId")
     # YouTube may return a different video player response than expected.
@@ -269,7 +269,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
 
   # Related videos
 
-  LOGGER.debug("extract_video_info: parsing related videos...")
+  Log.debug { "parse_video_info: parsing related videos..." }
 
   related = [] of JSON::Any
 
@@ -336,8 +336,8 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
         .try &.dig?("accessibility", "accessibilityData", "label")
       likes = likes_txt.as_s.gsub(/\D/, "").to_i64? if likes_txt
 
-      LOGGER.trace("extract_video_info: Found \"likes\" button. Button text is \"#{likes_txt}\"")
-      LOGGER.debug("extract_video_info: Likes count is #{likes}") if likes
+      Log.trace { "parse_video_info: Found \"likes\" button. Button text is \"#{likes_txt}\"" }
+      Log.debug { "parse_video_info: Likes count is #{likes}" } if likes
     end
   end
 
@@ -485,7 +485,7 @@ private def convert_url(fmt)
     url = URI.parse(cfr["url"])
     params = url.query_params
 
-    LOGGER.debug("convert_url: Decoding '#{cfr}'")
+    Log.debug { "convert_url: Decoding '#{cfr}'" }
 
     unsig = DECRYPT_FUNCTION.try &.decrypt_signature(cfr["s"])
     params[sp] = unsig if unsig
@@ -502,11 +502,11 @@ private def convert_url(fmt)
   end
 
   url.query_params = params
-  LOGGER.trace("convert_url: new url is '#{url}'")
+  Log.trace { "convert_url: new url is '#{url}'" }
 
   return url.to_s
 rescue ex
-  LOGGER.debug("convert_url: Error when parsing video URL")
-  LOGGER.trace(ex.inspect_with_backtrace)
+  Log.debug { "convert_url: Error when parsing video URL" }
+  Log.trace { ex.inspect_with_backtrace }
   return ""
 end

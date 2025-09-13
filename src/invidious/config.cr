@@ -75,6 +75,7 @@ end
 
 class Config
   include YAML::Serializable
+  CLog = ::Log.for(self)
 
   class CompanionConfig
     include YAML::Serializable
@@ -98,8 +99,8 @@ class Config
   property feed_threads : Int32 = 1
   # Log file path or STDOUT
   property output : String = "STDOUT"
-  # Default log level, valid YAML values are ints and strings, see src/invidious/helpers/logger.cr
-  property log_level : LogLevel = LogLevel::Info
+  # Default log level, valid YAML values are ints and strings, see https://crystal-lang.org/api/1.17.1/Log/Severity.html#enum-members
+  property log_level : Log::Severity = Log::Severity::Info
   # Enables colors in logs. Useful for debugging purposes
   property colorize_logs : Bool = false
   # Database configuration with separate parameters (username, hostname, etc)
@@ -249,14 +250,14 @@ class Config
 
             # Exit on fail
             if !success
-                puts %(Config.{{ivar.id}} failed to parse #{env_value} as {{ivar.type}})
+                CLog.fatal { %({{ivar.id}} failed to parse #{env_value} as {{ivar.type}}) }
                 exit(1)
             end
         end
 
         # Warn when any config attribute is set to "CHANGE_ME!!"
         if config.{{ivar.id}} == "CHANGE_ME!!"
-          puts "Config: The value of '#{ {{ivar.stringify}} }' needs to be changed!!"
+          CLog.fatal { "The value of '#{ {{ivar.stringify}} }' needs to be changed!!" }
           exit(1)
         end
     {% end %}
@@ -264,16 +265,16 @@ class Config
     if config.invidious_companion.present?
       # invidious_companion and signature_server can't work together
       if config.signature_server
-        puts "Config: You can not run inv_sig_helper and invidious_companion at the same time."
+        CLog.fatal { "You can not run inv_sig_helper and invidious_companion at the same time." }
         exit(1)
       elsif config.invidious_companion_key.empty?
-        puts "Config: Please configure a key if you are using invidious companion."
+        CLog.fatal { "Please configure a key if you are using invidious companion." }
         exit(1)
       elsif config.invidious_companion_key == "CHANGE_ME!!"
-        puts "Config: The value of 'invidious_companion_key' needs to be changed!!"
+        CLog.fatal { "The value of 'invidious_companion_key' needs to be changed!!" }
         exit(1)
       elsif config.invidious_companion_key.size != 16
-        puts "Config: The value of 'invidious_companion_key' needs to be a size of 16 characters."
+        CLog.fatal { "The value of 'invidious_companion_key' needs to be a size of 16 characters." }
         exit(1)
       end
 
@@ -285,15 +286,15 @@ class Config
         end
       end
     elsif config.signature_server
-      puts("WARNING: inv-sig-helper is deprecated. Please switch to Invidious companion: https://docs.invidious.io/companion-installation/")
+      CLog.warn { "inv-sig-helper is deprecated. Please switch to Invidious companion: https://docs.invidious.io/companion-installation/" }
     else
-      puts("WARNING: Invidious companion is required to view and playback videos. For more information see https://docs.invidious.io/companion-installation/")
+      CLog.warn { "Invidious companion is required to view and playback videos. For more information see https://docs.invidious.io/companion-installation/" }
     end
 
     # HMAC_key is mandatory
     # See: https://github.com/iv-org/invidious/issues/3854
     if config.hmac_key.empty?
-      puts "Config: 'hmac_key' is required/can't be empty"
+      CLog.fatal { "'hmac_key' is required/can't be empty" }
       exit(1)
     end
 
@@ -309,7 +310,7 @@ class Config
           path: db.dbname,
         )
       else
-        puts "Config: Either database_url or db.* is required"
+        CLog.fatal { "Either database_url or db.* is required" }
         exit(1)
       end
     end
@@ -317,17 +318,17 @@ class Config
     # Check if the socket configuration is valid
     if sb = config.socket_binding
       if sb.path.ends_with?("/") || File.directory?(sb.path)
-        puts "Config: The socket path " + sb.path + " must not be a directory!"
+        CLog.fatal { "The socket path " + sb.path + " must not be a directory!" }
         exit(1)
       end
       d = File.dirname(sb.path)
       if !File.directory?(d)
-        puts "Config: Socket directory " + sb.path + " does not exist or is not a directory!"
+        CLog.fatal { "Socket directory " + sb.path + " does not exist or is not a directory!" }
         exit(1)
       end
       p = sb.permissions.to_i?(base: 8)
       if !p || p < 0 || p > 0o777
-        puts "Config: Socket permissions must be an octal between 0 and 777!"
+        CLog.fatal { "Socket permissions must be an octal between 0 and 777!" }
         exit(1)
       end
     end

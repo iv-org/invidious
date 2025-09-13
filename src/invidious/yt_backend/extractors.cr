@@ -40,8 +40,8 @@ private module Parsers
       begin
         return parse_internal(*args)
       rescue ex
-        LOGGER.debug("#{{{@type.name}}}: Failed to render item.")
-        LOGGER.debug("#{{{@type.name}}}: Got exception: #{ex.message}")
+        Log.debug { "#{{{@type.name}}}: Failed to render item." }
+        Log.debug { "#{{{@type.name}}}: Got exception: #{ex.message}" }
         ProblematicTimelineItem.new(
           parse_exception: ex
         )
@@ -1029,13 +1029,13 @@ def parse_item(item : JSON::Any, author_fallback : String? = "", author_id_fallb
   # Each parser automatically validates the data given to see if the data is
   # applicable to itself. If not nil is returned and the next parser is attempted.
   ITEM_PARSERS.each do |parser|
-    LOGGER.trace("parse_item: Attempting to parse item using \"#{parser.parser_name}\" (cycling...)")
+    Log.trace { "parse_item: Attempting to parse item using \"#{parser.parser_name}\" (cycling...)" }
 
     if result = parser.process(item, author_fallback)
-      LOGGER.debug("parse_item: Successfully parsed via #{parser.parser_name}")
+      Log.debug { "parse_item: Successfully parsed via #{parser.parser_name}" }
       return result
     else
-      LOGGER.trace("parse_item: Parser \"#{parser.parser_name}\" does not apply. Cycling to the next one...")
+      Log.trace { "parse_item: Parser \"#{parser.parser_name}\" does not apply. Cycling to the next one..." }
     end
   end
 end
@@ -1056,14 +1056,14 @@ def extract_items(initial_data : InitialData, &)
 
   # This is identical to the parser cycling of parse_item().
   ITEM_CONTAINER_EXTRACTOR.each do |extractor|
-    LOGGER.trace("extract_items: Attempting to extract item container using \"#{extractor.extractor_name}\" (cycling...)")
+    Log.trace { "extract_items: Attempting to extract item container using \"#{extractor.extractor_name}\" (cycling...)" }
 
     if container = extractor.process(unpackaged_data)
-      LOGGER.debug("extract_items: Successfully unpacked container with \"#{extractor.extractor_name}\"")
+      Log.debug { "extract_items: Successfully unpacked container with \"#{extractor.extractor_name}\"" }
       # Extract items in container
       container.each { |item| yield item }
     else
-      LOGGER.trace("extract_items: Extractor \"#{extractor.extractor_name}\" does not apply. Cycling to the next one...")
+      Log.trace { "extract_items: Extractor \"#{extractor.extractor_name}\" does not apply. Cycling to the next one..." }
     end
   end
 end

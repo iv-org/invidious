@@ -4,6 +4,7 @@
 
 module YoutubeAPI
   extend self
+  Log = ::Log.for(self)
 
   # For Android versions, see https://en.wikipedia.org/wiki/Android_version_history
   private ANDROID_APP_VERSION = "19.35.36"
@@ -640,9 +641,9 @@ module YoutubeAPI
     end
 
     # Logging
-    LOGGER.debug("YoutubeAPI: Using endpoint: \"#{endpoint}\"")
-    LOGGER.trace("YoutubeAPI: ClientConfig: #{client_config}")
-    LOGGER.trace("YoutubeAPI: POST data: #{data}")
+    Log.debug { "Using endpoint: \"#{endpoint}\"" }
+    Log.trace { "ClientConfig: #{client_config}" }
+    Log.trace { "POST data: #{data}" }
 
     # Send the POST request
     body = YT_POOL.client() do |client|
@@ -665,9 +666,9 @@ module YoutubeAPI
       message = initial_data["error"]["message"].to_s.sub(/(\\n)+\^$/, "")
 
       # Logging
-      LOGGER.error("YoutubeAPI: Got error #{code} when requesting #{endpoint}")
-      LOGGER.error("YoutubeAPI: #{message}")
-      LOGGER.info("YoutubeAPI: POST data was: #{data}")
+      Log.error { "Got error #{code} when requesting #{endpoint}" }
+      Log.error { message }
+      Log.info { "POST data was: #{data}" }
 
       raise InfoException.new("Could not extract JSON. Youtube API returned \
       error #{code} with message:<br>\"#{message}\"")
@@ -695,8 +696,8 @@ module YoutubeAPI
     }
 
     # Logging
-    LOGGER.debug("Invidious companion: Using endpoint: \"#{endpoint}\"")
-    LOGGER.trace("Invidious companion: POST data: #{data}")
+    Log.debug { "Invidious companion: Using endpoint: \"#{endpoint}\"" }
+    Log.trace { "Invidious companion: POST data: #{data}" }
 
     # Send the POST request
 

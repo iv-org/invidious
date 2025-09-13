@@ -6,6 +6,8 @@ abstract class Invidious::Jobs::BaseJob
   # and to create the associated instance property.
   #
   macro inherited
+    Log = ::Log.for(self)
+
     macro finished
       # This config structure can be expanded as required.
       struct Config

@@ -156,8 +156,8 @@ def get_channel(id) : InvidiousChannel
 end
 
 def fetch_channel(ucid, pull_all_videos : Bool)
-  LOGGER.debug("fetch_channel: #{ucid}")
-  LOGGER.trace("fetch_channel: #{ucid} : pull_all_videos = #{pull_all_videos}")
+  Log.debug { "fetch_channel: #{ucid}" }
+  Log.trace { "fetch_channel: #{ucid} : pull_all_videos = #{pull_all_videos}" }
 
   namespaces = {
     "yt"      => "http://www.youtube.com/xml/schemas/2015",
@@ -165,9 +165,9 @@ def fetch_channel(ucid, pull_all_videos : Bool)
     "default" => "http://www.w3.org/2005/Atom",
   }
 
-  LOGGER.trace("fetch_channel: #{ucid} : Downloading RSS feed")
+  Log.trace { "fetch_channel: #{ucid} : Downloading RSS feed" }
   rss = YT_POOL.client &.get("/feeds/videos.xml?channel_id=#{ucid}").body
-  LOGGER.trace("fetch_channel: #{ucid} : Parsing RSS feed")
+  Log.trace { "fetch_channel: #{ucid} : Parsing RSS feed" }
   rss = XML.parse(rss)
 
   author = rss.xpath_node("//default:feed/default:title", namespaces)
@@ -184,7 +184,7 @@ def fetch_channel(ucid, pull_all_videos : Bool)
     auto_generated = true
   end
 
-  LOGGER.trace("fetch_channel: #{ucid} : author = #{author}, auto_generated = #{auto_generated}")
+  Log.trace { "fetch_channel: #{ucid} : author = #{author}, auto_generated = #{auto_generated}" }
 
   channel = InvidiousChannel.new({
     id:         ucid,
@@ -194,10 +194,10 @@ def fetch_channel(ucid, pull_all_videos : Bool)
     subscribed: nil,
   })
 
-  LOGGER.trace("fetch_channel: #{ucid} : Downloading channel videos page")
+  Log.trace { "fetch_channel: #{ucid} : Downloading channel videos page" }
   videos, continuation = IV::Channel::Tabs.get_videos(channel)
 
-  LOGGER.trace("fetch_channel: #{ucid} : Extracting videos from channel RSS feed")
+  Log.trace { "fetch_channel: #{ucid} : Extracting videos from channel RSS feed" }
   rss.xpath_nodes("//default:feed/default:entry", namespaces).each do |entry|
     video_id = entry.xpath_node("yt:videoId", namespaces).not_nil!.content
     title = entry.xpath_node("default:title", namespaces).not_nil!.content
@@ -241,17 +241,17 @@ def fetch_channel(ucid, pull_all_videos : Bool)
       views:              views,
     })
 
-    LOGGER.trace("fetch_channel: #{ucid} : video #{video_id} : Updating or inserting video")
+    Log.trace { "fetch_channel: #{ucid} : video #{video_id} : Updating or inserting video" }
 
     # We don't include the 'premiere_timestamp' here because channel pages don't include them,
     # meaning the above timestamp is always null
     was_insert = Invidious::Database::ChannelVideos.insert(video)
 
     if was_insert
-      LOGGER.trace("fetch_channel: #{ucid} : video #{video_id} : Inserted, updating subscriptions")
+      Log.trace { "fetch_channel: #{ucid} : video #{video_id} : Inserted, updating subscriptions" }
       NOTIFICATION_CHANNEL.send(VideoNotification.from_video(video))
     else
-      LOGGER.trace("fetch_channel: #{ucid} : video #{video_id} : Updated")
+      Log.trace { "fetch_channel: #{ucid} : video #{video_id} : Updated" }
     end
   end
 
