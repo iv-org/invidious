@@ -1,7 +1,7 @@
 module Invidious::Frontend::Comments
   extend self
 
-  def template_youtube(comments, locale, thin_mode, is_replies = false)
+  def template_youtube(comments, locale, thin_mode, id, type = "video", is_replies = false)
     String.build do |html|
       root = comments["comments"].as_a
       root.each do |child|
@@ -13,17 +13,17 @@ module Invidious::Frontend::Comments
           )
 
           replies_html = <<-END_HTML
-          <div id="replies" class="pure-g">
+          <div class="pure-g replies">
             <div class="pure-u-1-24"></div>
             <div class="pure-u-23-24">
               <p>
-                <a href="javascript:void(0)" data-continuation="#{child["replies"]["continuation"]}"
+                <a target="_blank" href="/comment_viewer?continuation=#{child["replies"]["continuation"]}&id=#{id}&type=#{type}" data-continuation="#{child["replies"]["continuation"]}"
                   data-onclick="get_youtube_replies" data-load-replies>#{replies_count_text}</a>
               </p>
             </div>
           </div>
           END_HTML
-        elsif comments["authorId"]? && !comments["singlePost"]?
+        elsif comments["authorId"]? && !comments["singlePost"]? && type != "post"
           # for posts we should display a link to the post
           replies_count_text = translate_count(locale,
             "comments_view_x_replies",
@@ -147,7 +147,12 @@ module Invidious::Frontend::Comments
           |
         END_HTML
 
-        if comments["videoId"]?
+        if type == "post" && !comments["singlePost"]?
+          html << <<-END_HTML
+            <a href="https://www.youtube.com/channel/#{comments["authorId"]}/community?lb=#{id}&lc=#{child["commentId"]}" title="#{translate(locale, "YouTube comment permalink")}">[YT]</a>
+            |
+          END_HTML
+        elsif comments["videoId"]?
           html << <<-END_HTML
             <a rel="noreferrer noopener" href="https://www.youtube.com/watch?v=#{comments["videoId"]}&lc=#{child["commentId"]}" title="#{translate(locale, "YouTube comment permalink")}">[YT]</a>
             |
@@ -196,7 +201,7 @@ module Invidious::Frontend::Comments
         <div class="pure-g">
           <div class="pure-u-1">
             <p>
-              <a href="javascript:void(0)" data-continuation="#{comments["continuation"]}"
+              <a target="_blank" href="/comment_viewer?continuation=#{comments["continuation"]}&id=#{id}&type=#{type}" data-continuation="#{comments["continuation"]}"
                 data-onclick="get_youtube_replies" data-load-more #{"data-load-replies" if is_replies}>#{translate(locale, "Load more")}</a>
             </p>
           </div>
