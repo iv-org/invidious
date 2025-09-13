@@ -133,8 +133,8 @@ And finally a significant amount of bugs were fixed alongside many other minor i
 * Bump actions/stale from 9 to 10 (https://github.com/iv-org/invidious/pull/5457, thanks @dependabot[bot])
 * Better documentation for the specific case public_url with companion (https://github.com/iv-org/invidious/pull/5461, by @unixfox)
 * Add default playlist preference (https://github.com/iv-org/invidious/pull/5449, by @Fijxu)
-* Translations update from Hosted Weblate by (https://github.com/iv-org/invidious/pull/5313, thanks to our many translators)
-
+* Translations update from Hosted Weblate (https://github.com/iv-org/invidious/pull/5313, thanks to our many translators)
+* Release `v2.20250913.0` (https://github.com/iv-org/invidious/pull/5463, by @syeopite)
 
 ## v2.20250517.0
 
