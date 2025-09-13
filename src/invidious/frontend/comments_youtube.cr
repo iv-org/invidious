@@ -101,58 +101,46 @@ module Invidious::Frontend::Comments
               </div>
               END_HTML
             else
-              if !thin_mode
-                html << <<-END_HTML
-                  <a href="/watch?v=#{attachment["videoId"]}">
-                    <div class="thumbnail">
-                        <img loading="lazy" class="thumbnail" src="/vi/#{attachment["videoId"]}/mqdefault.jpg" alt="" />
-                        <div class="bottom-right-overlay">
-                          <p class="length">#{recode_length_seconds(attachment["lengthSeconds"].as_i)}</p>
-                        </div>
-                    </div>
-                    <div class="video-card-row">
-                      <p style="width:100%">#{attachment["title"]}</p>
-                    </div>
-                  </a>
-                END_HTML
+              html << <<-END_HTML
+                <a href="/watch?v=#{attachment["videoId"]}">
+                  <div class="thumbnail">
+              END_HTML
+
+              if thin_mode
+                html << %(<img loading="lazy" class="thumbnail" src="/vi/)
+                html << attachment["videoId"]
+                html << %(/mqdefault.jpg" alt="" />)
               else
-                html << <<-END_HTML
-                  <a href="/watch?v=#{attachment["videoId"]}">
-                    <div class="thumbnail">
-                        <div class="thumbnail-placeholder"></div>
-                        <div class="bottom-right-overlay">
-                          <p class="length">#{recode_length_seconds(attachment["lengthSeconds"].as_i)}</p>
-                        </div>
-                    </div>
-                    <div class="video-card-row">
-                      <p style="width:100%">#{attachment["title"]}</p>
-                    </div>
-                  </a>
-                END_HTML
+                html << %(<div class="bottom-right-overlay">)
               end
 
+              html << <<-END_HTML
+                    <div class="bottom-right-overlay">
+                      <p class="length">#{recode_length_seconds(attachment["lengthSeconds"].as_i)}</p>
+                    </div>
+                  </div>
+                  <div class="video-card-row">
+                    <p style="width:100%">#{attachment["title"]}</p>
+                  </div>
+                </a>
+              END_HTML
+
               if !attachment["authorId"].as_s.empty?
-                if !attachment["authorVerified"].as_bool
-                  html << <<-END_HTML
-                    <a href="/channel/#{attachment["authorId"]}">
-                      <div class="video-card-row flexible">
-                        <p class="channel-name">
-                          <b style="width:100%">#{attachment["author"]}</b>
-                        </p>
-                      </div>
-                    </a>
-                  END_HTML
+                if attachment["authorVerified"].as_bool
+                  verified_icon_html = %(&nbsp;<i class="icon ion ion-md-checkmark-circle"></i>)
                 else
-                  html << <<-END_HTML
-                    <a href="/channel/#{attachment["authorId"]}">
-                      <div class="video-card-row flexible">
-                        <p class="channel-name">
-                          <b style="width:100%">#{attachment["author"]}</b>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i>
-                        </p>
-                      </div>
-                    </a>
-                  END_HTML
+                  verified_icon_html = ""
                 end
+
+                html << <<-END_HTML
+                  <a href="/channel/#{attachment["authorId"]}">
+                    <div class="video-card-row flexible">
+                      <p class="channel-name">
+                        <b style="width:100%">#{attachment["author"]}</b>#{verified_icon_html}
+                      </p>
+                    </div>
+                  </a>
+                END_HTML
               else
                 html << <<-END_HTML
                   <div class="video-card-row flexible">
