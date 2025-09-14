@@ -171,6 +171,8 @@ struct SearchPlaylist
   property videos : Array(SearchPlaylistVideo)
   property thumbnail : String?
   property author_verified : Bool
+  @[DB::Field(ignore: true)]
+  property is_mix : Bool = false
 
   def to_json(locale : String?, json : JSON::Builder)
     json.object do
