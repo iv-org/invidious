@@ -2,7 +2,7 @@
 ARG OPENSSL_VERSION='3.6.2'
 ARG OPENSSL_SHA256='aaf51a1fe064384f811daeaeb4ec4dce7340ec8bd893027eee676af31e83a04f'
 
-FROM crystallang/crystal:1.20.2-alpine AS dependabot-crystal
+FROM 84codes/crystal:1.20.2-alpine AS dependabot-crystal
 
 # We compile openssl ourselves due to a memory leak in how crystal interacts
 # with openssl
