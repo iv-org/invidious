@@ -39,8 +39,6 @@
     "User ID": "Gebruikers-id",
     "Password": "Wachtwoord",
     "Time (h:mm:ss):": "Tijd (h:mm:ss):",
-    "Text CAPTCHA": "Tekst-CAPTCHA",
-    "Image CAPTCHA": "Afbeelding-CAPTCHA",
     "Sign In": "Inloggen",
     "Register": "Registreren",
     "E-mail": "E-mailadres",
@@ -501,5 +499,8 @@
     "Filipino (auto-generated)": "Filipijns (automatisch gegenereerd)",
     "channel_tab_courses_label": "Cursussen",
     "First page": "Eerste pagina",
-    "channel_tab_posts_label": "Gepost"
+    "channel_tab_posts_label": "Gepost",
+    "timeline_parse_error_placeholder_heading": "Kan item niet parsen",
+    "timeline_parse_error_placeholder_message": "Invidious kwam een fout tegen bij het proberen te parsen van dit item. Voor meer informatie, kijk hieronder:",
+    "timeline_parse_error_show_technical_details": "Technische details weergeven"
 }

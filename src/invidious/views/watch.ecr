@@ -163,7 +163,7 @@ we're going to need to do it here in order to allow for translations.
                             <label for="playlist_id"><%= translate(locale, "Add to playlist: ") %></label>
                             <select style="width:100%" name="playlist_id" id="playlist_id">
                                 <% playlists.each do |plid, playlist_title| %>
-                                    <option data-plid="<%= plid %>" value="<%= plid %>"><%= HTML.escape(playlist_title) %></option>
+                                    <option data-plid="<%= plid %>" value="<%= plid %>" <%= "selected" if user.preferences.default_playlist == plid %>><%= HTML.escape(playlist_title) %></option>
                                 <% end %>
                             </select>
                         </div>

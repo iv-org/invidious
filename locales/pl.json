@@ -39,8 +39,6 @@
     "User ID": "ID użytkownika",
     "Password": "Hasło",
     "Time (h:mm:ss):": "Godzina (h:mm:ss):",
-    "Text CAPTCHA": "Tekst CAPTCHA",
-    "Image CAPTCHA": "Obraz CAPTCHA",
     "Sign In": "Zaloguj się",
     "Register": "Zarejestruj się",
     "E-mail": "E-mail",
@@ -78,7 +76,7 @@
     "Redirect homepage to feed: ": "Przekieruj stronę główną do subskrybcji: ",
     "preferences_max_results_label": "Liczba filmów widoczna na stronie subskrybcji: ",
     "preferences_sort_label": "Sortuj filmy: ",
-    "published": "po czasie publikacji",
+    "published": "opublikowano",
     "published - reverse": "po czasie publikacji od najstarszych",
     "alphabetically": "alfabetycznie",
     "alphabetically - reverse": "alfabetycznie od tyłu",
@@ -518,5 +516,10 @@
     "Filipino (auto-generated)": "filipiński (wygenerowany automatycznie)",
     "First page": "Pierwsza strona",
     "channel_tab_posts_label": "Posty",
-    "channel_tab_courses_label": "Kursy"
+    "channel_tab_courses_label": "Kursy",
+    "timeline_parse_error_placeholder_message": "Invidious napotkał błąd podczas próby parsowania tego elementu. Aby uzyskać więcej informacji, zobacz poniżej:",
+    "timeline_parse_error_placeholder_heading": "Nie można przeanalizować elementu",
+    "timeline_parse_error_show_technical_details": "Pokaż szczegóły techniczne",
+    "preferences_default_playlist_none": "Brak domyślnej playlisty",
+    "preferences_default_playlist": "Domyślna playlista: "
 }

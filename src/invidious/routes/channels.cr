@@ -284,7 +284,7 @@ module Invidious::Routes::Channels
       response = YoutubeAPI.resolve_url("https://www.youtube.com/post/#{id}")
       return error_template(400, "Invalid post ID") if response["error"]?
 
-      ucid = response.dig("endpoint", "browseEndpoint", "browseId").as_s
+      ucid = decode_ucid_from_post_protobuf(response.dig("endpoint", "browseEndpoint", "params").as_s)
       post_response = fetch_channel_community_post(ucid, id, locale, "json", thin_mode)
     end
 
