@@ -4,7 +4,7 @@ module Invidious::Routes::ErrorRoutes
     if HOST_URL.empty? && env.request.path.starts_with?("/v1/storyboards/sb")
       return env.redirect "#{env.request.path[15..]}?#{env.params.query}"
     end
-    
+
     if md = env.request.path.match(/^\/(?<id>([a-zA-Z0-9_-]{11})|(\w+))$/)
       item = md["id"]
 
