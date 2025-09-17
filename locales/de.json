@@ -502,5 +502,7 @@
     "channel_tab_posts_label": "Beiträge",
     "timeline_parse_error_show_technical_details": "Technische Details anzeigen",
     "timeline_parse_error_placeholder_heading": "Element kann nicht geparsed werden",
-    "timeline_parse_error_placeholder_message": "Invidious ist beim Parsen dieses Elements auf einen Fehler gestossen. Für weitere Informationen siehe unten:"
+    "timeline_parse_error_placeholder_message": "Invidious ist beim Parsen dieses Elements auf einen Fehler gestossen. Für weitere Informationen siehe unten:",
+    "preferences_default_playlist": "Standard-Wiedergabeliste: ",
+    "preferences_default_playlist_none": "Keine Standard-Wiedergabeliste gesetzt"
 }
