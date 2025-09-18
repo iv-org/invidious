@@ -4,6 +4,8 @@ def fetch_trending(trending_type, region, locale)
 
   plid = nil
 
+  browse_id = "FEtrending"
+
   case trending_type.try &.downcase
   when "music"
     params = "4gINGgt5dG1hX2NoYXJ0cw%3D%3D"
@@ -11,12 +13,15 @@ def fetch_trending(trending_type, region, locale)
     params = "4gIcGhpnYW1pbmdfY29ycHVzX21vc3RfcG9wdWxhcg%3D%3D"
   when "movies"
     params = "4gIKGgh0cmFpbGVycw%3D%3D"
+  when "livestreams"
+    browse_id = "UC4R8DWoMoI7CAwX8_LjQHig"
+    params = "EgdsaXZldGFikgEDCKEK"
   else # Default
     params = ""
   end
 
   client_config = YoutubeAPI::ClientConfig.new(region: region)
-  initial_data = YoutubeAPI.browse("FEtrending", params: params, client_config: client_config)
+  initial_data = YoutubeAPI.browse(browse_id, params: params, client_config: client_config)
 
   items, _ = extract_items(initial_data)
 
