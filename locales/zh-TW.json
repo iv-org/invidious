@@ -44,8 +44,6 @@
     "User ID": "使用者 ID",
     "Password": "密碼",
     "Time (h:mm:ss):": "時間 (h:mm:ss):",
-    "Text CAPTCHA": "文字 CAPTCHA",
-    "Image CAPTCHA": "圖片 CAPTCHA",
     "Sign In": "登入",
     "Register": "註冊",
     "E-mail": "電子郵件",
@@ -484,5 +482,10 @@
     "Filipino (auto-generated)": "菲律賓語（自動產生）",
     "channel_tab_courses_label": "課程",
     "First page": "第一頁",
-    "channel_tab_posts_label": "貼文"
+    "channel_tab_posts_label": "貼文",
+    "timeline_parse_error_show_technical_details": "顯示技術細節",
+    "timeline_parse_error_placeholder_heading": "無法解析項目",
+    "timeline_parse_error_placeholder_message": "Invidious 在嘗試解析此項目時遇到錯誤。要取得更多資訊，請見下方：",
+    "preferences_default_playlist": "預設播放清單： ",
+    "preferences_default_playlist_none": "未設定預設播放清單"
 }

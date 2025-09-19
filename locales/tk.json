@@ -1,7 +1,26 @@
 {
-    "Add to playlist": "Aýdym sanawyna goş",
+    "Add to playlist": "Pleýer Sanawa goş",
     "Add to playlist: ": "Pleýliste goş: ",
     "Answer": "Jogap",
     "Search for videos": "Wideo gözläň",
-    "The Popular feed has been disabled by the administrator.": "Trende bolan administrator tarapyndan ýapyldy."
+    "The Popular feed has been disabled by the administrator.": "Trende bolan administrator tarapyndan ýapyldy.",
+    "generic_views_count": "{{count}} gezek görülen",
+    "generic_views_count_plural": "{{count}} görülen",
+    "generic_button_delete": "Öçür",
+    "generic_button_save": "Ýatda sakla",
+    "generic_button_cancel": "Goýbolsun",
+    "generic_button_rss": "RSS",
+    "LIVE": "Efif",
+    "generic_playlists_count": "{{count}} Oýnaw sanawy",
+    "generic_playlists_count_plural": "{{count}} Oýnaw sanawlary",
+    "generic_subscribers_count": "{{count}} abuna",
+    "generic_subscribers_count_plural": "{{count}} abunaçalar",
+    "generic_subscriptions_count": "{{count}} abuna",
+    "generic_subscriptions_count_plural": "{{count}} abunalar",
+    "generic_button_edit": "Üýtget",
+    "generic_videos_count": "{{count}} widýo",
+    "generic_videos_count_plural": "{{count}} widýolar",
+    "Shared `x` ago": "`x` öň paýlaşyldy",
+    "generic_channels_count": "{{count}} kanal",
+    "generic_channels_count_plural": "{{count}} kanallar"
 }
