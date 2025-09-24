@@ -285,9 +285,9 @@ class Config
         end
       end
     elsif config.signature_server
-      puts("WARNING: inv-sig-helper is deprecated. Please switch to Invidious companion: https://docs.invidious.io/companion-installation/")
+      puts("WARNING: inv-sig-helper is deprecated. Please switch to Invidious companion: https://docs.invidious.io/installation/#migration-needed-new-invidious-companion")
     else
-      puts("WARNING: Invidious companion is required to view and playback videos. For more information see https://docs.invidious.io/companion-installation/")
+      puts("WARNING: Invidious companion is required to view and playback videos. For more information see https://docs.invidious.io/installation/#migration-needed-new-invidious-companion")
     end
 
     # HMAC_key is mandatory
