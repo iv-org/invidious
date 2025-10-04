@@ -321,6 +321,7 @@ private module Parsers
       video_count = HelperExtractors.get_video_count(item_contents)
       playlist_thumbnail = HelperExtractors.get_thumbnails(item_contents)
 
+      is_mix = plid.starts_with? "RD"
       SearchPlaylist.new({
         title:           title,
         id:              plid,
@@ -330,6 +331,7 @@ private module Parsers
         videos:          [] of SearchPlaylistVideo,
         thumbnail:       playlist_thumbnail,
         author_verified: author_verified,
+        is_mix:          is_mix,
       })
     end
 
@@ -382,6 +384,7 @@ private module Parsers
 
       # TODO: item_contents["publishedTimeText"]?
 
+      is_mix = plid.starts_with? "RD"
       SearchPlaylist.new({
         title:           title,
         id:              plid,
@@ -391,6 +394,7 @@ private module Parsers
         videos:          videos,
         thumbnail:       playlist_thumbnail,
         author_verified: author_verified,
+        is_mix:          is_mix,
       })
     end
 
@@ -656,27 +660,34 @@ private module Parsers
 
       thumbnail = thumbnail_view_model.dig("image", "sources", 0, "url").as_s
 
-      # This complicated sequences tries to extract the following data structure:
-      # "overlays": [{
-      #   "thumbnailOverlayBadgeViewModel": {
-      #     "thumbnailBadges": [{
-      #       "thumbnailBadgeViewModel": {
-      #         "text": "430 episodes",
-      #         "badgeStyle": "THUMBNAIL_OVERLAY_BADGE_STYLE_DEFAULT"
-      #       }
-      #     }]
-      #   }
-      # }]
-      #
-      # NOTE: this simplistic `.to_i` conversion might not work on larger
-      # playlists and hasn't been tested.
-      video_count = thumbnail_view_model.dig("overlays").as_a
+      # Parse overlays badges
+      overlays = thumbnail_view_model.dig("overlays").as_a
         .compact_map(&.dig?("thumbnailOverlayBadgeViewModel", "thumbnailBadges").try &.as_a)
         .flatten
-        .find(nil, &.dig?("thumbnailBadgeViewModel", "text").try { |node|
-          {"episodes", "videos"}.any? { |str| node.as_s.ends_with?(str) }
-        })
-        .try &.dig("thumbnailBadgeViewModel", "text").as_s.to_i(strict: false)
+
+      # Detect Mix playlists via icon imageName at any index or text case-insensitively
+      is_mix = overlays.any? { |badge|
+        sources = badge.dig?("thumbnailBadgeViewModel", "icon", "sources").try &.as_a || [] of JSON::Any
+        has_mix_icon = sources.any? { |s| s.dig?("clientResource", "imageName").try &.as_s == "MIX" }
+        text = badge.dig?("thumbnailBadgeViewModel", "text").try &.as_s || ""
+        has_mix_text = text.downcase == "mix"
+        has_mix_icon || has_mix_text
+      }
+
+      # Fallback: RD-prefixed playlist IDs are Mixes
+      is_mix ||= playlist_id.starts_with? "RD"
+
+      # Robustly extract digits from any badge text for video_count; fallback to -1 if not found
+      video_count = nil.as(Int32?)
+      overlays.each do |badge|
+        t = badge.dig?("thumbnailBadgeViewModel", "text").try &.as_s
+        next unless t
+        digits = t.gsub(/\D/, "")
+        unless digits.empty?
+          video_count = digits.to_i
+          break
+        end
+      end
 
       metadata = item_contents.dig("metadata", "lockupMetadataViewModel")
       title = metadata.dig("title", "content").as_s
@@ -699,6 +710,7 @@ private module Parsers
         videos:          [] of SearchPlaylistVideo,
         thumbnail:       thumbnail,
         author_verified: false,
+        is_mix:          is_mix,
       })
     end
 
