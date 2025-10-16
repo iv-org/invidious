@@ -138,6 +138,8 @@ class Config
   property cache_annotations : Bool = false
   # Optional banner to be displayed along top of page for announcements, etc.
   property banner : String? = nil
+  # Optional footer banner to be displayed along the bottom of the page. Can be used for maintainer contact info, etc.
+  property footer : String? = nil
   # Enables 'Strict-Transport-Security'. Ensure that `domain` and all subdomains are served securely
   property hsts : Bool? = true
   # Disable proxying server-wide: options: 'dash', 'livestreams', 'downloads', 'local'
