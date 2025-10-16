@@ -15,6 +15,93 @@ db:
   port: 5432
   dbname: invidious
 
+
+  ## -----------------------------------
+  ## Database connection pool settings
+  ## -----------------------------------
+
+  ##
+  ## The maximum allowed number of connections within the connection pool.
+  ## When this number is reached and no connections are free, Invidious will
+  ## wait for up to `checkout_timeout` before raising an exception.
+  ##
+  ## Note: Setting to 0 will disable this limit and allow the the pool to
+  ## grow indefinitely.
+  ##
+  ## Accepted values: a positive integer
+  ## Default: 100
+  ##
+  #max_pool_size: 100
+
+  ##
+  ## How many idle connections should be allowed to exist within the connection pool.
+  ##
+  ## There is no concept of whether a connection is closed or open, or how long it has been
+  ## idly sitting by. Instead Idle connections are defined as any connections that are not
+  ## currently being used. When this number is exceeded but the amount of connections is still
+  ## under max_pool_size, new connections will be created on a checkout but immediately closed
+  ## and destroyed during an release operation.
+  ##
+  ## For the most part, this should just be set to the same number as the `max_pool_size`.
+  ##
+  ## Accepted values: a positive integer
+  ## Default: 100
+  ##
+  #max_idle_pool_size: 100
+
+  ##
+  ## The amount of connections to establish on start-up.
+  ##
+  ## When Invidious starts up, the database connection pool is immediately populated
+  ## with this many connections. This could allow an instance to avoid potentially experiencing
+  ## any degraded service during start-up; since a good amount of connections will be available
+  ## from the start rather than needing to be created on the fly as requests come in.
+  ##
+  ##
+  ## Accepted values: a positive integer
+  ## Default: 1
+  ##
+  #initial_pool_size  : 1
+
+  ##
+  ## How long to wait (in seconds) before timing out during a checkout
+  ##
+  ## Accepted values: a positive float
+  ## Default: 5.0
+  ##
+  #checkout_timeout: 5.0
+
+  ##
+  ## How many attempts to retry a connection
+  ##
+  ## This allows Invidious to gracefully handle network problems that can
+  ## cause a connection to fail or be unable to get established in the first
+  ## place.
+  ##
+  ## Note: The mechanisms of the underlying library will first try to reuse all the
+  ## currently available idle connections within the pool, as well as one additional attempt,
+  ## at no delay. Afterwards, it will began counting down the `retry_attempts` and wait
+  ## `retry_delay` seconds between each attempt.
+  ##
+  ## This heuristic ensures that unnecessary new connections are not being made for no reason, and
+  ## in the event of widespread network failures, will help to throw out dead connections from the
+  ## pool.
+  ##
+  ## Accepted values: a positive integer
+  ## Default: 5
+  ##
+  #retry_attempts: 5
+
+  ##
+  ## How long to wait (in seconds) between each retry attempt
+  ##
+  ## Note: See description for `retry_attempts` for more information
+  ##
+  ## Accepted values: a positive float
+  ## Default: 1.0
+  ##
+  #retry_delay: 1.0
+
 ##
 ## Database configuration using a single URI. This is an
 ## alternative to the 'db' parameter above. If both forms
@@ -25,6 +112,10 @@ db:
 ## sockets. To do so, remove the IP address (or FQDN) and port
 ## and append the 'host' parameter. E.g:
 ##   postgres://kemal:kemal@/invidious?host=/var/run/postgresql
+##
+## You can also configure the connection pool here by
+## adding query parameters with the same name as the value you
+## want to change.
 ##
 ## Accepted values: a postgres:// URI
 ## Default: postgres://kemal:kemal@localhost:5432/invidious
