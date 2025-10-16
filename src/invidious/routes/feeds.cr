@@ -43,13 +43,14 @@ module Invidious::Routes::Feeds
   end
 
   def self.trending(env)
-    locale = env.get("preferences").as(Preferences).locale
+    preferences = env.get("preferences").as(Preferences)
+    locale = preferences.locale
 
     trending_type = env.params.query["type"]?
     trending_type ||= "Default"
 
     region = env.params.query["region"]?
-    region ||= env.get("preferences").as(Preferences).region
+    region ||= preferences.region
 
     begin
       trending, plid = fetch_trending(trending_type, region, locale)
