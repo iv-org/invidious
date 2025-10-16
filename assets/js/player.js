@@ -137,16 +137,18 @@ player.on('timeupdate', function () {
 
     // YouTube links
 
-    let elem_yt_watch = document.getElementById('link-yt-watch');
-    if (elem_yt_watch) {
-        let base_url_yt_watch = elem_yt_watch.getAttribute('data-base-url');
-        elem_yt_watch.href = addCurrentTimeToURL(base_url_yt_watch);
-    }
-    
-    let elem_yt_embed = document.getElementById('link-yt-embed');
-    if (elem_yt_embed) {
-        let base_url_yt_embed = elem_yt_embed.getAttribute('data-base-url');
-        elem_yt_embed.href = addCurrentTimeToURL(base_url_yt_embed);
+    if (!video_data.live_now) {
+        let elem_yt_watch = document.getElementById('link-yt-watch');
+        if (elem_yt_watch) {
+            let base_url_yt_watch = elem_yt_watch.getAttribute('data-base-url');
+            elem_yt_watch.href = addCurrentTimeToURL(base_url_yt_watch);
+        }
+        
+        let elem_yt_embed = document.getElementById('link-yt-embed');
+        if (elem_yt_embed) {
+            let base_url_yt_embed = elem_yt_embed.getAttribute('data-base-url');
+            elem_yt_embed.href = addCurrentTimeToURL(base_url_yt_embed);
+        }
     }
 
     // Invidious links
