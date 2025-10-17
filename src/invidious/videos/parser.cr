@@ -25,11 +25,6 @@ def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
 
   ucid = channel_info.try { |ci| HelperExtractors.get_browse_id(ci) }
 
-  # "4,088,033 views", only available on compact renderer
-  # and when video is not a livestream
-  view_count = related.dig?("viewCountText", "simpleText")
-    .try &.as_s.gsub(/\D/, "")
-
   short_view_count = related.try do |r|
     HelperExtractors.get_short_view_count(r).to_s
   end
@@ -51,7 +46,6 @@ def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
     "author"           => author || JSON::Any.new(""),
     "ucid"             => JSON::Any.new(ucid || ""),
     "length_seconds"   => JSON::Any.new(length || "0"),
-    "view_count"       => JSON::Any.new(view_count || "0"),
     "short_view_count" => JSON::Any.new(short_view_count || "0"),
     "author_verified"  => JSON::Any.new(author_verified),
     "published"        => JSON::Any.new(published || ""),
