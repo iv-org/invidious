@@ -2,7 +2,8 @@
 
 module Invidious::Routes::Watch
   def self.handle(env)
-    locale = env.get("preferences").as(Preferences).locale
+    preferences = env.get("preferences").as(Preferences)
+    locale = preferences.locale
     region = env.params.query["region"]?
 
     if env.params.query.to_s.includes?("%20") || env.params.query.to_s.includes?("+")
@@ -37,8 +38,6 @@ module Invidious::Routes::Watch
 
     nojs ||= "0"
     nojs = nojs == "1"
-
-    preferences = env.get("preferences").as(Preferences)
 
     user = env.get?("user").try &.as(User)
     if user
