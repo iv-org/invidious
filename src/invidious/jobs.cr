@@ -31,7 +31,7 @@ module Invidious::Jobs
 
   def self.start_all
     JOBS.each do |job|
-      # Don't run the main rountine if the job is disabled by config
+      # Don't run the main routine if the job is disabled by config
       next if job.disabled?
 
       spawn { job.begin }

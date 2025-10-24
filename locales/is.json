@@ -449,7 +449,7 @@
     "search_filters_sort_label": "Raða eftir",
     "search_filters_sort_option_relevance": "Samsvörun",
     "footer_donate_page": "Styrkja",
-    "footer_modfied_source_code": "Breyttur grunnkóði",
+    "footer_modified_source_code": "Breyttur grunnkóði",
     "crash_page_refresh": "reynt að <a href=\"`x`\">endurlesa síðuna</a>",
     "crash_page_search_issue": "leitað að <a href=\"`x`\">fyrirliggjandi villum á GitHub</a>",
     "none": "ekkert",

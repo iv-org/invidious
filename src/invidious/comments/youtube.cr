@@ -138,7 +138,7 @@ module Invidious::Comments
                 end
 
                 if cvm = node["commentViewModel"]?
-                  # two commentViewModels for inital request
+                  # two commentViewModels for initial request
                   # one commentViewModel when getting a replies to a comment
                   cvm = cvm["commentViewModel"] if cvm["commentViewModel"]?
 
