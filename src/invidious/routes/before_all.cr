@@ -103,6 +103,35 @@ module Invidious::Routes::BeforeAll
     env.set "preferences", preferences
 
     path = env.request.path
+
+    # Allow media resources to be loaded from google servers
+    # TODO: check if *.youtube.com can be removed
+    #
+    # `!preferences.local` has to be checked after setting and
+    # reading `preferences` from the "PREFS" cookie and
+    # saved user preferences from the database, otherwise
+    # `https://*.googlevideo.com:443 https://*.youtube.com:443`
+    # will not be set in the CSP header if
+    # `default_user_preferences.local` is set to true on the
+    # configuration file, causing preference “Proxy Videos”
+    # not to work while having it disabled and using medium quality.
+    if CONFIG.disabled?("local") || !preferences.local
+      env.response.headers["Content-Security-Policy"] = env.response.headers["Content-Security-Policy"].gsub("media-src", "media-src https://*.googlevideo.com:443 https://*.youtube.com:443")
+    end
+
+    current_page = path
+    if env.request.query
+      query = HTTP::Params.parse(env.request.query.not_nil!)
+
+      if query["referer"]?
+        query["referer"] = get_referer(env, "/")
+      end
+
+      current_page += "?#{query}"
+    end
+
+    env.set "current_page", URI.encode_www_form(current_page)
+
     page_key = case path
                when "/feed/popular", "/api/v1/popular"
                  "popular"
@@ -123,33 +152,5 @@ module Invidious::Routes::BeforeAll
         return error_template(403, message)
       end
     end
-
-    # Allow media resources to be loaded from google servers
-    # TODO: check if *.youtube.com can be removed
-    #
-    # `!preferences.local` has to be checked after setting and
-    # reading `preferences` from the "PREFS" cookie and
-    # saved user preferences from the database, otherwise
-    # `https://*.googlevideo.com:443 https://*.youtube.com:443`
-    # will not be set in the CSP header if
-    # `default_user_preferences.local` is set to true on the
-    # configuration file, causing preference “Proxy Videos”
-    # not to work while having it disabled and using medium quality.
-    if CONFIG.disabled?("local") || !preferences.local
-      env.response.headers["Content-Security-Policy"] = env.response.headers["Content-Security-Policy"].gsub("media-src", "media-src https://*.googlevideo.com:443 https://*.youtube.com:443")
-    end
-
-    current_page = env.request.path
-    if env.request.query
-      query = HTTP::Params.parse(env.request.query.not_nil!)
-
-      if query["referer"]?
-        query["referer"] = get_referer(env, "/")
-      end
-
-      current_page += "?#{query}"
-    end
-
-    env.set "current_page", URI.encode_www_form(current_page)
   end
 end
