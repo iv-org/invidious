@@ -73,7 +73,7 @@ end
 
 # Structure used for global per-page feature toggles
 record PagesEnabled,
-  trending : Bool = true,
+  trending : Bool = false,
   popular : Bool = true,
   search : Bool = true do
   include YAML::Serializable

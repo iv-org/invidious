@@ -24,7 +24,7 @@ Spectator.describe Config do
           search: false
       YAML
 
-      expect(config.page_enabled?("trending")).to eq(true)
+      expect(config.page_enabled?("trending")).to eq(false)
       expect(config.page_enabled?("popular")).to eq(false)
       expect(config.page_enabled?("search")).to eq(false)
     end

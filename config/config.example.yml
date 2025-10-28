@@ -314,7 +314,7 @@ https_only: false
 ## Enable/Disable specific pages on the main page.
 ##
 #pages_enabled:
-#  trending: true
+#  trending: false
 #  popular: true
 #  search: true
 ##
