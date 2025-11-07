@@ -67,10 +67,6 @@ module Invidious::Routes::Watch
     end
     env.params.query.delete_all("iv_load_policy")
 
-    if watched && preferences.watch_history
-      Invidious::Database::Users.mark_watched(user.as(User), id)
-    end
-
     if CONFIG.enable_user_notifications && notifications && notifications.includes? id
       Invidious::Database::Users.remove_notification(user.as(User), id)
       env.get("user").as(User).notifications.delete(id)
