@@ -201,7 +201,9 @@ player.on('timeupdate', function () {
     // Only increase time watched when the time difference is one second or the video is not already marked as watched
     const isOneSecondDifference = current_ts - last_player_time === 1;
     const exceedsMarkWatchedAfterDuration = time_watched > MARK_WATCHED_AFTER_DURATION;
-    const markWatchedAfterDuration = helpers.storage.get(STORAGE_MARK_WATCHED_AFTER_DURATION) ?? false;
+
+    const $markWatchedAfterDuration = document.getElementById(`${STORAGE_MARK_WATCHED_AFTER_DURATION}_pref`);
+    const markWatchedAfterDuration = $markWatchedAfterDuration.innerText === "true" ?? false;
 
     if (!isOneSecondDifference || exceedsMarkWatchedAfterDuration || markWatchedAfterDuration === false) return;
     
