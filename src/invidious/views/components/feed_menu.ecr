@@ -3,6 +3,18 @@
     <% if !env.get?("user") %>
         <% feed_menu.reject! {|item| {"Subscriptions", "Playlists"}.includes? item} %>
     <% end %>
+    <% feed_menu.reject! do |feed|
+        case feed
+        when "Popular"
+            !CONFIG.page_enabled?("popular")
+        when "Trending"
+            !CONFIG.page_enabled?("trending")
+        when ""
+            !CONFIG.page_enabled?("search")
+        else
+            false
+        end
+    end %>
     <% feed_menu.each do |feed| %>
         <a href="/feed/<%= feed.downcase %>" class="feed-menu-item pure-menu-heading">
             <%= translate(locale, feed) %>

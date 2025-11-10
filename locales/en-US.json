@@ -3,7 +3,8 @@
     "Add to playlist: ": "Add to playlist: ",
     "Answer": "Answer",
     "Search for videos": "Search for videos",
-    "The Popular feed has been disabled by the administrator.": "The Popular feed has been disabled by the administrator.",
+    "popular_page_disabled": "The Popular feed has been disabled by the administrator.",
+    "trending_page_disabled": "The Trending feed has been disabled by the administrator.",
     "generic_channels_count": "{{count}} channel",
     "generic_channels_count_plural": "{{count}} channels",
     "generic_views_count": "{{count}} view",
@@ -503,7 +504,10 @@
     "carousel_slide": "Slide {{current}} of {{total}}",
     "carousel_skip": "Skip the Carousel",
     "carousel_go_to": "Go to slide `x`",
+    "preferences_trending_enabled_label": "Trending enabled: ",
+    "preferences_search_enabled_label": "Search enabled: ",
     "timeline_parse_error_placeholder_heading": "Unable to parse item",
     "timeline_parse_error_placeholder_message": "Invidious encountered an error while trying to parse this item. For more information see below:",
-    "timeline_parse_error_show_technical_details": "Show technical details"
+    "timeline_parse_error_show_technical_details": "Show technical details",
+    "search_page_disabled": "Search has been disabled by the administrator."
 }
