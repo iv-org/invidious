@@ -193,14 +193,17 @@ player.on('timeupdate', function () {
         elem_iv_other.href = addCurrentTimeToURL(base_url_iv_other, domain);
     }
 
+    // Check if the feature is enabled
+    const $markWatchedAfterDuration = document.getElementById(`${STORAGE_MARK_WATCHED_AFTER_DURATION}_pref`);
+    const markWatchedAfterDuration = $markWatchedAfterDuration?.innerText === "true";
+
+    if (!markWatchedAfterDuration) return;
+
     // Only increase time watched when the time difference is one second and the video has not been marked as watched
     const isOneSecondDifference = current_ts - last_player_time === 1;
     const exceedsMarkWatchedAfterDuration = time_watched > MARK_WATCHED_AFTER_DURATION;
 
-    const $markWatchedAfterDuration = document.getElementById(`${STORAGE_MARK_WATCHED_AFTER_DURATION}_pref`);
-    const markWatchedAfterDuration = $markWatchedAfterDuration?.innerText === "true";
-
-    if (!isOneSecondDifference || exceedsMarkWatchedAfterDuration || markWatchedAfterDuration === false) return;
+    if (!isOneSecondDifference || exceedsMarkWatchedAfterDuration) return;
     
     time_watched += 1;
 
