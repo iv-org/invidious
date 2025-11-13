@@ -25,6 +25,7 @@ struct VideoPreferences
   property volume : Int32
   property vr_mode : Bool
   property save_player_pos : Bool
+  property mark_watched_after_duration : Bool
 end
 
 def process_video_params(query, preferences)
@@ -48,6 +49,7 @@ def process_video_params(query, preferences)
   volume = query["volume"]?.try &.to_i?
   vr_mode = query["vr_mode"]?.try { |q| (q == "true" || q == "1").to_unsafe }
   save_player_pos = query["save_player_pos"]?.try { |q| (q == "true" || q == "1").to_unsafe }
+  mark_watched_after_duration = query["mark_watched_after_duration"]?.try { |q| (q == "true" || q == "1").to_unsafe }
 
   if preferences
     # region ||= preferences.region
@@ -70,6 +72,7 @@ def process_video_params(query, preferences)
     volume ||= preferences.volume
     vr_mode ||= preferences.vr_mode.to_unsafe
     save_player_pos ||= preferences.save_player_pos.to_unsafe
+    mark_watched_after_duration ||= preferences.mark_watched_after_duration.to_unsafe
   end
 
   annotations ||= CONFIG.default_user_preferences.annotations.to_unsafe
@@ -91,6 +94,7 @@ def process_video_params(query, preferences)
   volume ||= CONFIG.default_user_preferences.volume
   vr_mode ||= CONFIG.default_user_preferences.vr_mode.to_unsafe
   save_player_pos ||= CONFIG.default_user_preferences.save_player_pos.to_unsafe
+  mark_watched_after_duration ||= CONFIG.default_user_preferences.mark_watched_after_duration.to_unsafe
 
   annotations = annotations == 1
   preload = preload == 1
@@ -104,6 +108,7 @@ def process_video_params(query, preferences)
   extend_desc = extend_desc == 1
   vr_mode = vr_mode == 1
   save_player_pos = save_player_pos == 1
+  mark_watched_after_duration = mark_watched_after_duration == 1
 
   if CONFIG.disabled?("dash") && quality == "dash"
     quality = "high"
@@ -132,30 +137,31 @@ def process_video_params(query, preferences)
   controls = controls >= 1
 
   params = VideoPreferences.new({
-    annotations:        annotations,
-    preload:            preload,
-    autoplay:           autoplay,
-    comments:           comments,
-    continue:           continue,
-    continue_autoplay:  continue_autoplay,
-    controls:           controls,
-    listen:             listen,
-    local:              local,
-    player_style:       player_style,
-    preferred_captions: preferred_captions,
-    quality:            quality,
-    quality_dash:       quality_dash,
-    raw:                raw,
-    region:             region,
-    related_videos:     related_videos,
-    speed:              speed,
-    video_end:          video_end,
-    video_loop:         video_loop,
-    extend_desc:        extend_desc,
-    video_start:        video_start,
-    volume:             volume,
-    vr_mode:            vr_mode,
-    save_player_pos:    save_player_pos,
+    annotations:                 annotations,
+    preload:                     preload,
+    autoplay:                    autoplay,
+    comments:                    comments,
+    continue:                    continue,
+    continue_autoplay:           continue_autoplay,
+    controls:                    controls,
+    listen:                      listen,
+    local:                       local,
+    player_style:                player_style,
+    preferred_captions:          preferred_captions,
+    quality:                     quality,
+    quality_dash:                quality_dash,
+    raw:                         raw,
+    region:                      region,
+    related_videos:              related_videos,
+    speed:                       speed,
+    video_end:                   video_end,
+    video_loop:                  video_loop,
+    extend_desc:                 extend_desc,
+    video_start:                 video_start,
+    volume:                      volume,
+    vr_mode:                     vr_mode,
+    save_player_pos:             save_player_pos,
+    mark_watched_after_duration: mark_watched_after_duration,
   })
 
   return params
