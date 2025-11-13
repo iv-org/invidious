@@ -158,12 +158,7 @@ player.on('timeupdate', function () {
     // Only update once every second
     let current_ts = Math.floor(player.currentTime());
     const last_player_time = timeupdate_last_ts;
-    if (
-        // Seek forward
-        current_ts > timeupdate_last_ts ||
-        // Seek backward
-        current_ts < timeupdate_last_ts
-    ) timeupdate_last_ts = current_ts;
+    if (current_ts !== timeupdate_last_ts) timeupdate_last_ts = current_ts;
     else return;
 
     // YouTube links
@@ -198,16 +193,16 @@ player.on('timeupdate', function () {
         elem_iv_other.href = addCurrentTimeToURL(base_url_iv_other, domain);
     }
 
-    // Only increase time watched when the time difference is one second or the video is not already marked as watched
+    // Only increase time watched when the time difference is one second and the video has not been marked as watched
     const isOneSecondDifference = current_ts - last_player_time === 1;
     const exceedsMarkWatchedAfterDuration = time_watched > MARK_WATCHED_AFTER_DURATION;
 
     const $markWatchedAfterDuration = document.getElementById(`${STORAGE_MARK_WATCHED_AFTER_DURATION}_pref`);
-    const markWatchedAfterDuration = $markWatchedAfterDuration.innerText === "true" ?? false;
+    const markWatchedAfterDuration = $markWatchedAfterDuration?.innerText === "true";
 
     if (!isOneSecondDifference || exceedsMarkWatchedAfterDuration || markWatchedAfterDuration === false) return;
     
-    time_watched += 1
+    time_watched += 1;
 
     // Check if time watched exceeds 30 seconds or the video is fully watched
     const absolute_video_duration = Math.floor(player.duration());
@@ -232,7 +227,7 @@ player.on('timeupdate', function () {
         id: video_id
     });
 
-    const url = `/watch_ajax?${params}`
+    const url = `/watch_ajax?${params}`;
 
     helpers.xhr('POST', url, { payload: `csrf_token=${csrf_token}` }, {
         on200: () => {
