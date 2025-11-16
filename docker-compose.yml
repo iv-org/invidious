@@ -4,21 +4,16 @@
 # If you want to use Invidious in production, see the docker-compose.yml file provided
 # in the installation documentation: https://docs.invidious.io/installation/
 
+version: "3"
 services:
+
   invidious:
-    container_name: invidious
-    hostname: invidious
-    # image: quay.io/invidious/invidious:latest
     build:
       context: .
       dockerfile: docker/Dockerfile
     restart: unless-stopped
     ports:
       - "127.0.0.1:3000:3000"
-    depends_on:
-      invidious-db:
-        condition: service_healthy
-        restart: true
     environment:
       # Please read the following file for a comprehensive list of all available
       # configuration options and their associated syntax:
@@ -31,81 +26,19 @@ services:
           host: invidious-db
           port: 5432
         check_tables: true
-
-        # IT is NOT recommended to use the same key as HMAC KEY. Generate a new key!
-        # Use the key generated in the 2nd step
-        invidious_companion_key: ksMXJJmbDiZLBmw8
-        # URL used for the internal communication between invidious and invidious companion
-        # There is no need to change that except if Invidious companion does not run on the same docker compose file.
-        invidious_companion:
-          - private_url: "http://companion:8282/companion"
-
-        # Reverse-proxy awareness
-        external_port: 443
-        domain: invidious-miraidon.pcscorp.dev
-        https_only: true
-
-        # Server-wide flags (real, upstream-supported)
-        hmac_key: "gf35h462Fe24g4tu46beg4"
-        registration_enabled: true
-        captcha_enabled: false
-        admins: ["norkz"]
-
-        pages_enabled:
-          popular: false
-          trending: false
-          search: false
-
-        # ↓ These MUST be nested here, not at top level
-        default_user_preferences:
-          player_style: youtube
-          save_player_pos: true
-          # Hide Popular/Trending from the menu by not listing them
-          feed_menu: ["Subscriptions", "Playlists"]
-          # Use literal string "<none>" to show no feed by default
-          default_home: "<none>"
-          related_videos: false
+        # external_port:
+        # domain:
+        # https_only: false
+        # statistics_enabled: false
+        hmac_key: "CHANGE_ME!!"
     healthcheck:
-      test: wget -nv --tries=1 --spider http://127.0.0.1:3000/ || exit 1
+      test: wget -nv --tries=1 --spider http://127.0.0.1:3000/api/v1/trending || exit 1
       interval: 30s
       timeout: 5s
       retries: 2
-    depends_on:
-      invidious-db:
-        condition: service_healthy
-    networks:
-      - proxy
-
-  companion:
-    image: quay.io/invidious/invidious-companion:latest
-    environment:
-    # Use the key generated in the 2nd step
-       - SERVER_SECRET_KEY=ksMXJJmbDiZLBmw8
-    restart: unless-stopped
-    # Uncomment only if you have configured "public_url" for Invidious companion
-    # Or if you want to use Invidious companion as an API in your program.
-    # Remove "127.0.0.1:" if used from an external IP
-    ports:
-      - 8282:8282
-    logging:
-      options:
-        max-size: "1G"
-        max-file: "4"
-    cap_drop:
-      - ALL
-    read_only: true
-    # cache for youtube library
-    volumes:
-      - companioncache:/var/tmp/youtubei.js:rw
-    security_opt:
-      - no-new-privileges:true
-    networks:
-      - proxy
 
   invidious-db:
     image: docker.io/library/postgres:14
-    container_name: invidious-db
-    hostname: invidious-db
     restart: unless-stopped
     volumes:
       - postgresdata:/var/lib/postgresql/data
@@ -117,14 +50,6 @@ services:
       POSTGRES_PASSWORD: kemal
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
-    networks:
-      - proxy
 
 volumes:
   postgresdata:
-  companioncache:
-
-networks:
-  proxy:
-    driver: bridge
-    external: true
