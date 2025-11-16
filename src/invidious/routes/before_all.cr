@@ -63,6 +63,7 @@ module Invidious::Routes::BeforeAll
                 "/videoplayback",
                 "/latest_version",
                 "/download",
+                "/companion/",
               }.any? { |r| env.request.resource.starts_with? r }
 
     if env.request.cookies.has_key? "SID"

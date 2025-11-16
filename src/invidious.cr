@@ -60,7 +60,13 @@ alias IV = Invidious
 CONFIG   = Config.load
 HMAC_KEY = CONFIG.hmac_key
 
-PG_DB       = DB.open CONFIG.database_url
+PG_DB = begin
+  DB.open CONFIG.database_url
+rescue ex
+  puts "Failed to connect to PostgreSQL database: #{ex.cause.try &.message}"
+  puts "Check your 'config.yml' database settings or PostgreSQL settings."
+  exit(1)
+end
 ARCHIVE_URL = URI.parse("https://archive.org")
 PUBSUB_URL  = URI.parse("https://pubsubhubbub.appspot.com")
 REDDIT_URL  = URI.parse("https://www.reddit.com")
@@ -221,8 +227,8 @@ error 404 do |env|
   Invidious::Routes::ErrorRoutes.error_404(env)
 end
 
-error 500 do |env, ex|
-  error_template(500, ex)
+error 500 do |env, exception|
+  error_template(500, exception)
 end
 
 static_headers do |env|

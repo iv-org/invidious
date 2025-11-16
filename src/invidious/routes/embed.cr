@@ -20,7 +20,7 @@ module Invidious::Routes::Embed
         return error_template(500, ex)
       end
 
-      url = "/embed/#{first_playlist_video}?#{env.params.query}"
+      url = "/embed/#{first_playlist_video.id}?#{env.params.query}"
 
       if env.params.query.size > 0
         url += "?#{env.params.query}"
@@ -209,10 +209,17 @@ module Invidious::Routes::Embed
 
     if CONFIG.invidious_companion.present?
       invidious_companion = CONFIG.invidious_companion.sample
-      env.response.headers["Content-Security-Policy"] =
-        env.response.headers["Content-Security-Policy"]
-          .gsub("media-src", "media-src #{invidious_companion.public_url}")
-          .gsub("connect-src", "connect-src #{invidious_companion.public_url}")
+      invidious_companion_urls = CONFIG.invidious_companion.reject(&.builtin_proxy).map do |companion|
+        uri =
+          "#{companion.public_url.scheme}://#{companion.public_url.host}#{companion.public_url.port ? ":#{companion.public_url.port}" : ""}"
+      end.join(" ")
+
+      if !invidious_companion_urls.empty?
+        env.response.headers["Content-Security-Policy"] =
+          env.response.headers["Content-Security-Policy"]
+            .gsub("media-src", "media-src #{invidious_companion_urls}")
+            .gsub("connect-src", "connect-src #{invidious_companion_urls}")
+      end
     end
 
     rendered "embed"
