@@ -103,6 +103,8 @@ module Invidious::Routes::BeforeAll
     preferences.locale = locale
     env.set "preferences", preferences
 
+    path = env.request.path
+
     # Allow media resources to be loaded from google servers
     # TODO: check if *.youtube.com can be removed
     #
@@ -118,7 +120,7 @@ module Invidious::Routes::BeforeAll
       env.response.headers["Content-Security-Policy"] = env.response.headers["Content-Security-Policy"].gsub("media-src", "media-src https://*.googlevideo.com:443 https://*.youtube.com:443")
     end
 
-    current_page = env.request.path
+    current_page = path
     if env.request.query
       query = HTTP::Params.parse(env.request.query.not_nil!)
 
@@ -130,5 +132,26 @@ module Invidious::Routes::BeforeAll
     end
 
     env.set "current_page", URI.encode_www_form(current_page)
+
+    page_key = case path
+               when "/feed/popular", "/api/v1/popular"
+                 "popular"
+               when "/feed/trending", "/api/v1/trending"
+                 "trending"
+               when "/search", "/api/v1/search"
+                 "search"
+               else
+                 nil
+               end
+
+    if page_key && !CONFIG.page_enabled?(page_key)
+      if path.starts_with?("/api/")
+        error_message = {error: "Administrator has disabled this endpoint."}.to_json
+        haltf env, 403, error_message
+      else
+        message = "#{page_key}_page_disabled"
+        return error_template(403, message)
+      end
+    end
   end
 end
