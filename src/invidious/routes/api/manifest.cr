@@ -33,7 +33,7 @@ module Invidious::Routes::API::Manifest
       end
 
       # Proxy URLs for video playback on invidious.
-      # Other API clients can get the original URLs by omiting `local=true`.
+      # Other API clients can get the original URLs by omitting `local=true`.
       manifest = response.body.gsub(/<BaseURL>[^<]+<\/BaseURL>/) do |baseurl|
         url = baseurl.lchop("<BaseURL>").rchop("</BaseURL>")
         url = HttpServer::Utils.proxy_video_url(url, absolute: true) if local
@@ -74,7 +74,7 @@ module Invidious::Routes::API::Manifest
               displayname = audio_track["displayName"]?.try &.as_s || "Unknown"
               bitrate = fmt["bitrate"]
 
-              # Different representations of the same audio should be groupped into one AdaptationSet.
+              # Different representations of the same audio should be grouped into one AdaptationSet.
               # However, most players don't support auto quality switching, so we have to trick them
               # into providing a quality selector.
               # See https://github.com/iv-org/invidious/issues/3074 for more details.
