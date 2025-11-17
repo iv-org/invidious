@@ -505,5 +505,6 @@
     "carousel_go_to": "Go to slide `x`",
     "timeline_parse_error_placeholder_heading": "Unable to parse item",
     "timeline_parse_error_placeholder_message": "Invidious encountered an error while trying to parse this item. For more information see below:",
-    "timeline_parse_error_show_technical_details": "Show technical details"
+    "timeline_parse_error_show_technical_details": "Show technical details",
+    "dmca_content": "This video cannot be downloaded on this instance due to a DMCA/copyright infringement letter sent to the instance administrator."
 }
