@@ -1,5 +1,11 @@
 <div class="feed-menu">
     <% feed_menu = env.get("preferences").as(Preferences).feed_menu.dup %>
+    <% 
+      # Remove the Trending page from the menu for users with the Trending
+      # item inside their PREFS cookie or in their user preferences saved
+      # in the database (if registered user)
+      # https://github.com/iv-org/invidious/issues/5397
+    %>
     <% feed_menu.reject! {|item| "Trending" == item} %>
     <% if !env.get?("user") %>
         <% feed_menu.reject! {|item| {"Subscriptions", "Playlists"}.includes? item} %>
