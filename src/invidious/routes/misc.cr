@@ -9,8 +9,6 @@ module Invidious::Routes::Misc
     case preferences.default_home
     when "Popular"
       env.redirect "/feed/popular"
-    when "Trending"
-      env.redirect "/feed/trending"
     when "Subscriptions"
       if user
         env.redirect "/feed/subscriptions"

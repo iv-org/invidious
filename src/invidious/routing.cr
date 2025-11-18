@@ -98,7 +98,6 @@ module Invidious::Routing
     get "/view_all_playlists", Routes::Feeds, :view_all_playlists_redirect
     get "/feed/playlists", Routes::Feeds, :playlists
     get "/feed/popular", Routes::Feeds, :popular
-    get "/feed/trending", Routes::Feeds, :trending
     get "/feed/subscriptions", Routes::Feeds, :subscriptions
     get "/feed/history", Routes::Feeds, :history
 
@@ -249,7 +248,6 @@ module Invidious::Routing
       get "/api/v1/transcripts/:id", {{namespace}}::Videos, :transcripts
 
       # Feeds
-      get "/api/v1/trending", {{namespace}}::Feeds, :trending
       get "/api/v1/popular", {{namespace}}::Feeds, :popular
 
       # Channels

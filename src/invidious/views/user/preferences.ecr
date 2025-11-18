@@ -183,9 +183,9 @@
             </div>
 
             <% if env.get?("user") %>
-                <% feed_options = {"", "Popular", "Trending", "Subscriptions", "Playlists"} %>
+                <% feed_options = {"", "Popular", "Subscriptions", "Playlists"} %>
             <% else %>
-                <% feed_options = {"", "Popular", "Trending"} %>
+                <% feed_options = {"", "Popular"} %>
             <% end %>
 
             <div class="pure-control-group">

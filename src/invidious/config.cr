@@ -38,7 +38,7 @@ struct ConfigPreferences
   property quality : String = "dash"
   property quality_dash : String = "auto"
   property default_home : String? = "Popular"
-  property feed_menu : Array(String) = ["Popular", "Trending", "Subscriptions", "Playlists"]
+  property feed_menu : Array(String) = ["Popular", "Subscriptions", "Playlists"]
   property automatic_instance_redirect : Bool = false
   property region : String = "US"
   property related_videos : Bool = true

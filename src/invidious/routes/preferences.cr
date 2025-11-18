@@ -103,7 +103,7 @@ module Invidious::Routes::PreferencesRoute
     default_home = env.params.body["default_home"]?.try &.as(String) || CONFIG.default_user_preferences.default_home
 
     feed_menu = [] of String
-    4.times do |index|
+    3.times do |index|
       option = env.params.body["feed_menu[#{index}]"]?.try &.as(String) || ""
       if !option.empty?
         feed_menu << option
@@ -194,7 +194,7 @@ module Invidious::Routes::PreferencesRoute
         CONFIG.default_user_preferences.default_home = env.params.body["admin_default_home"]?.try &.as(String) || CONFIG.default_user_preferences.default_home
 
         admin_feed_menu = [] of String
-        4.times do |index|
+        3.times do |index|
           option = env.params.body["admin_feed_menu[#{index}]"]?.try &.as(String) || ""
           if !option.empty?
             admin_feed_menu << option
