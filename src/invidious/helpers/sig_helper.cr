@@ -316,7 +316,7 @@ module Invidious::SigHelper
       {% end %}
 
       @socket.sync = false
-      @socket.blocking = false
+      Socket.set_blocking(@socket.fd, false)
     end
 
     def closed? : Bool
