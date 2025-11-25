@@ -77,6 +77,7 @@
     "preferences_listen_label": "Listen by default: ",
     "preferences_local_label": "Proxy videos: ",
     "preferences_watch_history_label": "Enable watch history: ",
+    "preferences_mark_watched_after_duration_label": "Mark video as watched after watching for some time: ",
     "preferences_speed_label": "Default speed: ",
     "preferences_quality_label": "Preferred video quality: ",
     "preferences_quality_option_dash": "DASH (adaptive quality)",
