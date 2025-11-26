@@ -712,12 +712,12 @@ default_user_preferences:
   ## when the user is logged in.
   ##
   ## Accepted values: A list of strings
-  ## Each entry can be one of: "Popular", "Trending",
+  ## Each entry can be one of: "Popular",
   ##    "Subscriptions", "Playlists"
   ##
-  ## Default: ["Popular", "Trending", "Subscriptions", "Playlists"]  (show all feeds)
+  ## Default: ["Popular", "Subscriptions", "Playlists"]  (show all feeds)
   ##
-  #feed_menu: ["Popular", "Trending", "Subscriptions", "Playlists"]
+  #feed_menu: ["Popular", "Subscriptions", "Playlists"]
 
   ##
   ## Default feed to display on the home page.
@@ -725,7 +725,7 @@ default_user_preferences:
   ## Note: setting this option to "Popular" has no
   ## effect when 'popular_enabled' is set to false.
   ##
-  ## Accepted values: Popular, Trending, Subscriptions, Playlists, <none>
+  ## Accepted values: Popular, Subscriptions, Playlists, <none>
   ## Default: Popular
   ##
   #default_home: Popular
