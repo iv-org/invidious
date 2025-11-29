@@ -487,5 +487,6 @@
     "timeline_parse_error_placeholder_heading": "無法解析項目",
     "timeline_parse_error_placeholder_message": "Invidious 在嘗試解析此項目時遇到錯誤。要取得更多資訊，請見下方：",
     "preferences_default_playlist": "預設播放清單： ",
-    "preferences_default_playlist_none": "未設定預設播放清單"
+    "preferences_default_playlist_none": "未設定預設播放清單",
+    "Livestreams": "即時串流"
 }

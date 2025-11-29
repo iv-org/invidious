@@ -499,5 +499,8 @@
     "Filipino (auto-generated)": "Filippinska (auto-genererad)",
     "First page": "Första sidan",
     "channel_tab_courses_label": "Kurser",
-    "channel_tab_posts_label": "Inlägg"
+    "channel_tab_posts_label": "Inlägg",
+    "preferences_default_playlist": "Standardspellista: ",
+    "preferences_default_playlist_none": "Ingen standardspellista har angivits",
+    "timeline_parse_error_show_technical_details": "Visa tekniska detaljer"
 }
