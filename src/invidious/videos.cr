@@ -326,6 +326,10 @@ end
 def fetch_video(id, region)
   info = extract_video_info(video_id: id)
 
+  if info.nil?
+    raise InfoException.new("Invidious companion is not available. Video playback cannot continue.")
+  end
+
   if reason = info["reason"]?
     if reason == "Video unavailable"
       raise NotFoundException.new(reason.as_s || "")

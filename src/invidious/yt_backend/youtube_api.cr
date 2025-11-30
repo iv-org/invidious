@@ -199,10 +199,6 @@ module YoutubeAPI
   # conf_1 = ClientConfig.new(region: "NO")
   # YoutubeAPI::search("Kollektivet", params: "", client_config: conf_1)
   #
-  # # Use the Android client to request video streams URLs
-  # conf_2 = ClientConfig.new(client_type: ClientType::Android)
-  # YoutubeAPI::player(video_id: "dQw4w9WgXcQ", client_config: conf_2)
-  #
   #
   struct ClientConfig
     # Type of client to emulate.
@@ -451,58 +447,23 @@ module YoutubeAPI
   end
 
   ####################################################################
-  # player(video_id, params, client_config?)
+  # player(video_id)
   #
-  # Requests the youtubei/v1/player endpoint with the required headers
-  # and POST data in order to get a JSON reply.
+  # Requests the youtubei/v1/player Invidious Companion endpoint with
+  # the requested video ID.
   #
-  # The requested data is a video ID (`v=` parameter), with some
-  # additional parameters, formatted as a base64 string.
+  # The requested data is a video ID (`v=` parameter).
   #
-  # An optional ClientConfig parameter can be passed, too (see
-  # `struct ClientConfig` above for more details).
-  #
-  def player(
-    video_id : String,
-    *, # Force the following parameters to be passed by name
-    params : String,
-    client_config : ClientConfig | Nil = nil,
-  )
-    # Playback context, separate because it can be different between clients
-    playback_ctx = {
-      "html5Preference" => "HTML5_PREF_WANTS",
-      "referer"         => "https://www.youtube.com/watch?v=#{video_id}",
-    } of String => String | Int64
-
-    if {"WEB", "TVHTML5"}.any? { |s| client_config.name.starts_with? s }
-      if sts = DECRYPT_FUNCTION.try &.get_sts
-        playback_ctx["signatureTimestamp"] = sts.to_i64
-      end
-    end
-
-    # JSON Request data, required by the API
+  def player(video_id : String)
+    # JSON Request data, required by Invidious Companion
     data = {
-      "contentCheckOk" => true,
-      "videoId"        => video_id,
-      "context"        => self.make_context(client_config, video_id),
-      "racyCheckOk"    => true,
-      "user"           => {
-        "lockedSafetyMode" => false,
-      },
-      "playbackContext" => {
-        "contentPlaybackContext" => playback_ctx,
-      },
+      "videoId" => video_id,
     }
-
-    # Append the additional parameters if those were provided
-    if params != ""
-      data["params"] = params
-    end
 
     if CONFIG.invidious_companion.present?
       return self._post_invidious_companion("/youtubei/v1/player", data)
     else
-      return self._post_json("/youtubei/v1/player", data, client_config)
+      return nil
     end
   end
 
