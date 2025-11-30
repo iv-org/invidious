@@ -327,7 +327,11 @@ def fetch_video(id, region)
   info = extract_video_info(video_id: id)
 
   if info.nil?
-    raise InfoException.new("Invidious companion is not available. Video playback cannot continue.")
+    raise InfoException.new("Invidious companion is not available. \
+    Video playback cannot continue. \
+    If you are the administrator of this instance, install Invidious companion \
+    following the installation instructions \
+    <a href=\"https://docs.invidious.io/installation/\">https://docs.invidious.io/installation/</a>")
   end
 
   if reason = info["reason"]?
