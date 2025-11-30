@@ -185,6 +185,7 @@ module Invidious::Routing
     get "/opensearch.xml", Routes::Search, :opensearch
     get "/results", Routes::Search, :results
     get "/search", Routes::Search, :search
+    post "/search", Routes::Search, :search
     get "/hashtag/:hashtag", Routes::Search, :hashtag
   end
 

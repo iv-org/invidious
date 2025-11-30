@@ -145,6 +145,10 @@ module Invidious::Routes::PreferencesRoute
 
     default_playlist = env.params.body["default_playlist"]?.try &.as(String)
 
+    search_privacy = env.params.body["search_privacy"]?.try &.as(String)
+    search_privacy ||= "off"
+    search_privacy = search_privacy == "on"
+
     # Convert to JSON and back again to take advantage of converters used for compatibility
     preferences = Preferences.from_json({
       annotations:                 annotations,
@@ -182,6 +186,7 @@ module Invidious::Routes::PreferencesRoute
       show_nick:                   show_nick,
       save_player_pos:             save_player_pos,
       default_playlist:            default_playlist,
+      search_privacy:              search_privacy,
     }.to_json)
 
     if user = env.get? "user"
