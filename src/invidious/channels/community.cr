@@ -143,7 +143,7 @@ def extract_channel_community(items, *, ucid, locale, format, thin_mode, is_sing
                   case attachment.as_h
                   when .has_key?("videoRenderer")
                     parse_item(attachment)
-                      .as(SearchVideo)
+                      .as(SearchVideo | ProblematicTimelineItem)
                       .to_json(locale, json)
                   when .has_key?("backstageImageRenderer")
                     json.object do
