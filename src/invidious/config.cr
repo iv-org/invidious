@@ -153,9 +153,6 @@ class Config
   @[YAML::Field(converter: Preferences::FamilyConverter)]
   property force_resolve : Socket::Family = Socket::Family::UNSPEC
 
-  # External signature solver server socket (either a path to a UNIX domain socket or "<IP>:<Port>")
-  property signature_server : String? = nil
-
   # Port to listen for connections (overridden by command line argument)
   property port : Int32 = 3000
   # Host to bind (overridden by command line argument)
@@ -169,11 +166,6 @@ class Config
 
   # Use Innertube's transcripts API instead of timedtext for closed captions
   property use_innertube_for_captions : Bool = false
-
-  # visitor data ID for Google session
-  property visitor_data : String? = nil
-  # poToken for passing bot attestation
-  property po_token : String? = nil
 
   # Invidious companion
   property invidious_companion : Array(CompanionConfig) = [] of CompanionConfig
@@ -262,11 +254,7 @@ class Config
     {% end %}
 
     if config.invidious_companion.present?
-      # invidious_companion and signature_server can't work together
-      if config.signature_server
-        puts "Config: You can not run inv_sig_helper and invidious_companion at the same time."
-        exit(1)
-      elsif config.invidious_companion_key.empty?
+      if config.invidious_companion_key.empty?
         puts "Config: Please configure a key if you are using invidious companion."
         exit(1)
       elsif config.invidious_companion_key == "CHANGE_ME!!"
@@ -284,8 +272,6 @@ class Config
           companion.builtin_proxy = true
         end
       end
-    elsif config.signature_server
-      puts("WARNING: inv-sig-helper is deprecated. Please switch to Invidious companion: https://docs.invidious.io/installation/")
     else
       puts("WARNING: Invidious companion is required to view and playback videos. For more information see https://docs.invidious.io/installation/")
     end

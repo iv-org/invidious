@@ -40,20 +40,6 @@ db:
 ##
 #check_tables: false
 
-
-##
-## Path to an external signature resolver, used to emulate
-## the Youtube client's Javascript. If no such server is
-## available, some videos will not be playable.
-##
-## When this setting is commented out, no external
-## resolver will be used.
-##
-## Accepted values: a path to a UNIX socket or "<IP>:<Port>"
-## Default: <none>
-##
-#signature_server:
-
 ##
 ## Invidious companion is an external program
 ## for loading the video streams from YouTube servers.
@@ -258,19 +244,6 @@ https_only: false
 ## Default: false
 ##
 # use_innertube_for_captions: false
-
-##
-## Send Google session informations. This is useful when Invidious is blocked
-## by the message "This helps protect our community."
-## See https://github.com/iv-org/invidious/issues/4734.
-##
-## Warning: These strings gives much more identifiable information to Google!
-##
-## Accepted values: String
-## Default: <none>
-##
-# po_token: ""
-# visitor_data: ""
 
 # -----------------------------
 #  Logging

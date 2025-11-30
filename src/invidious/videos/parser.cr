@@ -491,10 +491,6 @@ private def convert_url(fmt)
   n = DECRYPT_FUNCTION.try &.decrypt_nsig(params["n"])
   params["n"] = n if n
 
-  if token = CONFIG.po_token
-    params["pot"] = token
-  end
-
   url.query_params = params
   LOGGER.trace("convert_url: new url is '#{url}'")
 

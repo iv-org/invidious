@@ -172,12 +172,7 @@ Invidious::Database.check_integrity(CONFIG)
 
 # Misc
 
-DECRYPT_FUNCTION =
-  if sig_helper_address = CONFIG.signature_server.presence
-    IV::DecryptFunction.new(sig_helper_address)
-  else
-    nil
-  end
+DECRYPT_FUNCTION = nil
 
 # Start jobs
 
