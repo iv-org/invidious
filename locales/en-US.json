@@ -122,8 +122,6 @@
     "Redirect homepage to feed: ": "Redirect homepage to feed: ",
     "preferences_max_results_label": "Number of videos shown in feed: ",
     "preferences_sort_label": "Sort videos by: ",
-    "preferences_default_playlist": "Default playlist: ",
-    "preferences_default_playlist_none": "No default playlist set",
     "published": "published",
     "published - reverse": "published - reverse",
     "alphabetically": "alphabetically",
@@ -505,5 +503,6 @@
     "carousel_go_to": "Go to slide `x`",
     "timeline_parse_error_placeholder_heading": "Unable to parse item",
     "timeline_parse_error_placeholder_message": "Invidious encountered an error while trying to parse this item. For more information see below:",
-    "timeline_parse_error_show_technical_details": "Show technical details"
+    "timeline_parse_error_show_technical_details": "Show technical details",
+    "label_mix": "Mix"
 }
