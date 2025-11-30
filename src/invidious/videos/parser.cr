@@ -445,7 +445,6 @@ end
 
 private def convert_url(fmt)
   if cfr = fmt["signatureCipher"]?.try { |json| HTTP::Params.parse(json.as_s) }
-    sp = cfr["sp"]
     url = URI.parse(cfr["url"])
     params = url.query_params
 
