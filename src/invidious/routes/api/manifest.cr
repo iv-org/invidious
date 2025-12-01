@@ -64,13 +64,34 @@ module Invidious::Routes::API::Manifest
             mime_streams = audio_streams.select { |stream| stream["mimeType"].as_s.starts_with? mime_type }
             next if mime_streams.empty?
 
+            # First scan to check if any track has "original" in its name
+            original_track_found = false
+            mime_streams.each do |fmt|
+              audio_track = fmt["audioTrack"]?.try &.as_h? || {} of String => JSON::Any
+              displayname = audio_track["displayName"]?.try &.as_s || "Unknown"
+              if displayname.downcase.includes?("original")
+                original_track_found = true
+                break
+              end
+            end
+
             mime_streams.each do |fmt|
               # OTF streams aren't supported yet (See https://github.com/TeamNewPipe/NewPipe/issues/2415)
               next if !(fmt.has_key?("indexRange") && fmt.has_key?("initRange"))
 
               audio_track = fmt["audioTrack"]?.try &.as_h? || {} of String => JSON::Any
               lang = audio_track["id"]?.try &.as_s.split('.')[0] || "und"
-              is_default = audio_track.has_key?("audioIsDefault") ? audio_track["audioIsDefault"].as_bool : i == 0
+              displayname = audio_track["displayName"]?.try &.as_s || "Unknown"
+    
+              # Determine if this track should be default
+              if original_track_found
+                # If any track has "original", only those tracks should be default
+                is_default = displayname.downcase.includes?("original")
+              else
+                # Otherwise use the original logic
+                is_default = audio_track.has_key?("audioIsDefault") ? audio_track["audioIsDefault"].as_bool : i == 0
+              end
+
               displayname = audio_track["displayName"]?.try &.as_s || "Unknown"
               bitrate = fmt["bitrate"]
 
