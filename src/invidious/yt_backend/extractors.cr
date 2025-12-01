@@ -674,9 +674,17 @@ private module Parsers
         .compact_map(&.dig?("thumbnailOverlayBadgeViewModel", "thumbnailBadges").try &.as_a)
         .flatten
         .find(nil, &.dig?("thumbnailBadgeViewModel", "text").try { |node|
-          {"episodes", "videos"}.any? { |str| node.as_s.ends_with?(str) }
+          {"episodes", "videos", "video", "Mix"}.any? { |str| node.as_s.ends_with?(str) }
         })
-        .try &.dig("thumbnailBadgeViewModel", "text").as_s.to_i(strict: false)
+        .try &.dig("thumbnailBadgeViewModel", "text").to_s
+
+      if video_count
+        # Tries to convert it to a number, video_count_n will be nil
+        # if `video_count` equals to `"Mix"`.
+        if video_count_n = video_count.to_i?(strict: false)
+          video_count = video_count_n
+        end
+      end
 
       metadata = item_contents.dig("metadata", "lockupMetadataViewModel")
       title = metadata.dig("title", "content").as_s
@@ -695,7 +703,7 @@ private module Parsers
         id:              playlist_id,
         author:          author_fallback.name,
         ucid:            author_fallback.id,
-        video_count:     video_count || -1,
+        video_count:     video_count || -1, # -1 if a fallback value in case video count is nil
         videos:          [] of SearchPlaylistVideo,
         thumbnail:       thumbnail,
         author_verified: false,
