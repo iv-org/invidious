@@ -1,0 +1,11 @@
+<% message = HTML.escape(env.response.status.description || "Unknown error") %>
+
+
+<% content_for "header" do %>
+<title><%= message %> - Invidious</title>
+<% end %>
+
+<div class="h-box center-hv">
+    <div><p class="error-code"><%= env.response.status.code %></p></div>
+    <div><p class="error-message"><%= message %></p></div>
+</div>
