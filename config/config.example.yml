@@ -562,6 +562,16 @@ hmac_key: "CHANGE_ME!!"
 #modified_source_code_url: ""
 
 ##
+## Instance donation URL. If your instance has a donation option.
+## you can add it here so it will be present in the footer along
+## with the donation link for the project itself.
+##
+## Accepted values: a string
+## Default: <none>
+##
+#donate_url: ""
+
+##
 ## Maximum custom playlist length limit.
 ##
 ## Accepted values: Integer

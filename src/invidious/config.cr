@@ -148,6 +148,7 @@ class Config
   # URL to the modified source code to be easily AGPL compliant
   # Will display in the footer, next to the main source code link
   property modified_source_code_url : String? = nil
+  property donate_url : String? = nil
 
   # Connect to YouTube over 'ipv6', 'ipv4'. Will sometimes resolve fix issues with rate-limiting (see https://github.com/ytdl-org/youtube-dl/issues/21729)
   @[YAML::Field(converter: Preferences::FamilyConverter)]
