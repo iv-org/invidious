@@ -152,6 +152,11 @@
                         <span><%= translate(locale, "Current version: ") %> <%= CURRENT_VERSION %>-<%= CURRENT_COMMIT %> @ <%= CURRENT_BRANCH %></span>
                     </div>
                 </div>
+                <% if CONFIG.footer %>
+                    <div class="h-box v-box" id="footer-info">
+                        <%= CONFIG.footer %>
+                    </div>
+                <% end %>
             </footer>
 
         </div>
