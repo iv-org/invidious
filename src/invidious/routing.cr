@@ -227,6 +227,7 @@ module Invidious::Routing
   def register_companion_routes
     if CONFIG.invidious_companion.present?
       get "/companion/*", Routes::Companion, :get_companion
+      post "/companion/*", Routes::Companion, :post_companion
       options "/companion/*", Routes::Companion, :options_companion
     end
   end
@@ -252,7 +253,7 @@ module Invidious::Routing
       get "/api/v1/trending", {{namespace}}::Feeds, :trending
       get "/api/v1/popular", {{namespace}}::Feeds, :popular
 
-      # Channels
+      # Channel
       get "/api/v1/channels/:ucid", {{namespace}}::Channels, :home
       get "/api/v1/channels/:ucid/latest", {{namespace}}::Channels, :latest
       get "/api/v1/channels/:ucid/videos", {{namespace}}::Channels, :videos
