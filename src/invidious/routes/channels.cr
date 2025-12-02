@@ -264,11 +264,11 @@ module Invidious::Routes::Channels
     id = env.params.url["id"]
     ucid = env.params.query["ucid"]?
 
-    prefs = env.get("preferences").as(Preferences)
+    preferences = env.get("preferences").as(Preferences)
 
-    locale = prefs.locale
+    locale = preferences.locale
 
-    thin_mode = env.params.query["thin_mode"]? || prefs.thin_mode
+    thin_mode = env.params.query["thin_mode"]? || preferences.thin_mode
     thin_mode = thin_mode == "true"
 
     nojs = env.params.query["nojs"]?
