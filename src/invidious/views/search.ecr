@@ -1,5 +1,5 @@
 <%
-	search_privacy = env.get("preferences").as(Preferences).search_privacy
+    search_privacy = preferences.search_privacy
     search_query = query.text.size > 30 ? HTML.escape(query.text[0,30].rstrip(".")) + "&hellip;" : HTML.escape(query.text)
 %>
 
