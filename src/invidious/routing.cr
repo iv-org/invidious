@@ -253,7 +253,7 @@ module Invidious::Routing
       get "/api/v1/trending", {{namespace}}::Feeds, :trending
       get "/api/v1/popular", {{namespace}}::Feeds, :popular
 
-      # Channel
+      # Channels
       get "/api/v1/channels/:ucid", {{namespace}}::Channels, :home
       get "/api/v1/channels/:ucid/latest", {{namespace}}::Channels, :latest
       get "/api/v1/channels/:ucid/videos", {{namespace}}::Channels, :videos
