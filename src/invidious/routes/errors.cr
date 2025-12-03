@@ -9,10 +9,13 @@ module Invidious::Routes::ErrorRoutes
       item = md["id"]
 
       # Check if item is branding URL e.g. https://youtube.com/gaming
-      response = YT_POOL.client &.get("/#{item}")
+      # Cookie to prevent redirects to the cookie consent page.
+      # Cookie values: CAE = Reject all, CAA = show the cookie banner, CAI = Accept all
+      headers = HTTP::Headers{"Cookie" => "SOCS=CAE"}
 
+      response = YT_POOL.client &.get("/#{item}", headers: headers)
       if response.status_code == 301
-        response = YT_POOL.client &.get(URI.parse(response.headers["Location"]).request_target)
+        response = YT_POOL.client &.get(URI.parse(response.headers["Location"]).request_target, headers: headers)
       end
 
       if response.body.empty?
