@@ -38,7 +38,7 @@ development_dependencies:
 
 crystal: ">= 1.10.0, < 2.0.0"
 
-license: AGPLv3
+license: AGPL-3.0-only
 
 repository: https://github.com/iv-org/invidious
 homepage: https://invidious.io
