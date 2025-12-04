@@ -170,15 +170,6 @@ Invidious::Database.check_integrity(CONFIG)
   {% puts "\nDone checking player dependencies, now compiling Invidious...\n" %}
 {% end %}
 
-# Misc
-
-DECRYPT_FUNCTION =
-  if sig_helper_address = CONFIG.signature_server.presence
-    IV::DecryptFunction.new(sig_helper_address)
-  else
-    nil
-  end
-
 # Start jobs
 
 if CONFIG.channel_threads > 0
