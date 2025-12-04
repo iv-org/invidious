@@ -504,5 +504,6 @@
     "timeline_parse_error_placeholder_message": "Selle objekti töötlemisel tekkis Invidiouses viga. Lisateave on alljärgnevas:",
     "timeline_parse_error_show_technical_details": "Näita tehnilisi üksikasju",
     "preferences_default_playlist": "Vaikimisi esitusloend: ",
-    "preferences_default_playlist_none": "Ühtegi vaikimisi esitusloendit ei leidu"
+    "preferences_default_playlist_none": "Ühtegi vaikimisi esitusloendit ei leidu",
+    "Livestreams": "Otseülekanded"
 }
