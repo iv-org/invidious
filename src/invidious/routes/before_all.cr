@@ -4,8 +4,7 @@ module Invidious::Routes::BeforeAll
 
     def initialize
       self.companion_urls = CONFIG.invidious_companion.reject(&.builtin_proxy).map do |companion|
-        uri =
-          "#{companion.public_url.scheme}://#{companion.public_url.host}#{companion.public_url.port ? ":#{companion.public_url.port}" : ""}"
+        "#{companion.public_url.scheme}://#{companion.public_url.host}#{companion.public_url.port ? ":#{companion.public_url.port}" : ""}"
       end.join(" ")
     end
   end
