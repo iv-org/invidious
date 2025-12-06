@@ -56,7 +56,6 @@ struct Preferences
   property extend_desc : Bool = CONFIG.default_user_preferences.extend_desc
   property volume : Int32 = CONFIG.default_user_preferences.volume
   property save_player_pos : Bool = CONFIG.default_user_preferences.save_player_pos
-  property mark_watched_after_duration : Bool = CONFIG.default_user_preferences.mark_watched_after_duration
   property default_playlist : String? = nil
 
   module BoolToString

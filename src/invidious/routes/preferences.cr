@@ -81,10 +81,6 @@ module Invidious::Routes::PreferencesRoute
     save_player_pos ||= "off"
     save_player_pos = save_player_pos == "on"
 
-    mark_watched_after_duration = env.params.body["mark_watched_after_duration"]?.try &.as(String)
-    mark_watched_after_duration ||= "off"
-    mark_watched_after_duration = mark_watched_after_duration == "on"
-
     show_nick = env.params.body["show_nick"]?.try &.as(String)
     show_nick ||= "off"
     show_nick = show_nick == "on"
@@ -185,7 +181,6 @@ module Invidious::Routes::PreferencesRoute
       vr_mode:                     vr_mode,
       show_nick:                   show_nick,
       save_player_pos:             save_player_pos,
-      mark_watched_after_duration: mark_watched_after_duration,
       default_playlist:            default_playlist,
     }.to_json)
 

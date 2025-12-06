@@ -52,7 +52,6 @@ struct ConfigPreferences
   property vr_mode : Bool = true
   property show_nick : Bool = true
   property save_player_pos : Bool = false
-  property mark_watched_after_duration : Bool = false
   @[YAML::Field(ignore: true)]
   property default_playlist : String? = nil
 
