@@ -2,8 +2,6 @@
 var player_data = JSON.parse(document.getElementById('player_data').textContent);
 var video_data = JSON.parse(document.getElementById('video_data').textContent);
 
-const STORAGE_MARK_WATCHED_AFTER_DURATION = "mark_watched_after_duration";
-
 var options = {
     liveui: true,
     playbackRates: [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0],
@@ -192,12 +190,6 @@ player.on('timeupdate', function () {
         let base_url_iv_other = elem_iv_other.getAttribute('data-base-url');
         elem_iv_other.href = addCurrentTimeToURL(base_url_iv_other, domain);
     }
-
-    // Check if the feature is enabled
-    const $markWatchedAfterDuration = document.getElementById(`${STORAGE_MARK_WATCHED_AFTER_DURATION}_pref`);
-    const markWatchedAfterDuration = $markWatchedAfterDuration?.innerText === "true";
-
-    if (!markWatchedAfterDuration) return;
 
     // Only increase time watched when the time difference is one second and the video has not been marked as watched
     const isOneSecondDifference = current_ts - last_player_time === 1;
