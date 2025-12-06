@@ -326,12 +326,13 @@ class Config
           puts "Config (Hint): Remove the port from your domain: ':#{port}'"
           exit(1)
         end
-        if scheme = parsed_domain.scheme.presence
-          puts "Config (Hint): Remove the scheme from your domain: '#{scheme}'"
+        if (path_items = parsed_domain.path.split("/")).size > 1
+          path = path_items[1..].join("/")
+          puts "Config (Hint): Remove the path from your domain: '/#{path}'"
           exit(1)
         end
-        if host = parsed_domain.host.presence
-          puts "Config (Hint): Did you mean #{host}?"
+        if scheme = parsed_domain.scheme.presence
+          puts "Config (Hint): Remove the scheme from your domain: '#{scheme}://'"
           exit(1)
         end
       end
