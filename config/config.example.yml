@@ -178,6 +178,20 @@ https_only: false
 #  path: /tmp/invidious.sock
 #  permissions: 777
 
+##
+## Maximum size of the HTTP request line (in bytes).
+## Increase this value if you encounter 414 errors when using URLs with long
+## query parameters (e.g., very long continuation tokens).
+##
+## Note: This directly sets the HTTP server's max_request_line_size.
+## Be cautious when increasing this value on public instances.
+##
+## Accepted values: integer (size in bytes)
+## Default: 8192 (8KB, Crystal's default)
+## Recommended: 16384 (16KB) if experiencing 414 errors
+##
+#max_request_line_size: 16384
+
 
 # -----------------------------
 #  Network (outbound)
