@@ -144,9 +144,13 @@ def translate(locale : String?, key : String, text : String | Hash(String, Strin
   return translation
 end
 
-def translate_count(locale : String, key : String, count : Int, format = NumberFormatting::None) : String
+def translate_count(locale : String, key : String, count : Int | String, format = NumberFormatting::None) : String
   # Fallback on english if locale doesn't exist
   locale = "en-US" if !LOCALES.has_key?(locale)
+
+  if count.is_a?(String)
+    return translate(locale, count)
+  end
 
   # Retrieve suffix
   suffix = I18next::Plurals::RESOLVER.get_suffix(locale, count)
