@@ -16,7 +16,7 @@ module Invidious::Routes::Companion
     end
   end
 
-# /companion
+ # /companion
   def self.post_companion(env)
     url = env.request.path
     if env.request.query
