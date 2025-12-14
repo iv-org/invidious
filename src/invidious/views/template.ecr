@@ -150,7 +150,24 @@
                             <i class="icon ion-ios-wallet"></i>
                             <a href="https://invidious.io/donate/"><%= translate(locale, "footer_donate_page") %></a>
                         </span>
-                        <span><%= translate(locale, "Current version: ") %> <%= CURRENT_VERSION %>-<%= CURRENT_COMMIT %> @ <%= CURRENT_BRANCH %></span>
+                        <span>
+                            <%= translate(locale, "Current version: ") %>
+                            <% if CONFIG.modified_source_code_url %>
+                                <a href="<%= CONFIG.modified_source_code_url %>/commit/<%= CURRENT_COMMIT %>"><%= CURRENT_VERSION %>-<%= CURRENT_COMMIT %></a>
+                            <% else %>
+                                <a href="https://github.com/iv-org/invidious/commit/<%= CURRENT_COMMIT %>"><%= CURRENT_VERSION %>-<%= CURRENT_COMMIT %></a>
+                            <% end %>
+                            @ <%= CURRENT_BRANCH %>
+                            <% if CURRENT_TAG != "" %>
+                            (                                
+                                <% if CONFIG.modified_source_code_url %>
+                                    <a href="<%= CONFIG.modified_source_code_url %>/releases/tag/<%= CURRENT_TAG %>"><%= CURRENT_TAG %></a>
+                                <% else %>
+                                    <a href="https://github.com/iv-org/invidious/releases/tag/<%= CURRENT_TAG %>"><%= CURRENT_TAG %></a>
+                                <% end %>
+                            )
+                            <% end %>
+                        </span>
                     </div>
                 </div>
             </footer>
