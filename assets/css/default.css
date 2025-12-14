@@ -555,6 +555,10 @@ span > select {
   border: 1px solid black;
 }
 
+.light-theme .cookie-url-box {
+  border: 2px solid #444
+}
+
 @media (prefers-color-scheme: light) {
   .no-theme a:hover,
   .no-theme a:active,
@@ -604,6 +608,10 @@ span > select {
 
   .no-theme .error-card {
     border: 1px solid black;
+  }
+
+  .no-theme .cookie-url-box {
+    border: 2px solid #444
   }
 }
 
@@ -671,6 +679,10 @@ body.dark-theme {
   border: 1px solid #5e5e5e;
 }
 
+.dark-theme .cookie-url-box {
+  border: 2px solid #ccc
+}
+
 @media (prefers-color-scheme: dark) {
   .no-theme a:hover,
   .no-theme a:active,
@@ -735,6 +747,10 @@ body.dark-theme {
 
   .no-theme .error-card {
     border: 1px solid #5e5e5e;
+  }
+  
+  .no-theme .cookie-url-box {
+    border: 2px solid #ccc
   }
 }
 
@@ -886,4 +902,8 @@ h1, h2, h3, h4, h5, p,
 .error-issue-template {
   padding: 20px;
   background: rgba(0, 0, 0, 0.12345);
+}
+
+.cookie-url-box {
+  padding: 4px
 }
