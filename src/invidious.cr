@@ -250,6 +250,8 @@ Kemal.config.app_name = "Invidious"
 {% end %}
 
 Kemal.run do |config|
+  config.server.not_nil!.max_request_line_size = 16384
+
   if socket_binding = CONFIG.socket_binding
     File.delete?(socket_binding.path)
     # Create a socket and set its desired permissions
