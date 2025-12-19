@@ -61,28 +61,13 @@ class Kemal::ExceptionHandler
   end
 end
 
-class FilteredCompressHandler < Kemal::Handler
+class FilteredCompressHandler < HTTP::CompressHandler
   exclude ["/videoplayback", "/videoplayback/*", "/vi/*", "/sb/*", "/ggpht/*", "/api/v1/auth/notifications"]
   exclude ["/api/v1/auth/notifications", "/data_control"], "POST"
 
-  def call(env)
-    return call_next env if exclude_match? env
-
-    {% if flag?(:without_zlib) %}
-      call_next env
-    {% else %}
-      request_headers = env.request.headers
-
-      if request_headers.includes_word?("Accept-Encoding", "gzip")
-        env.response.headers["Content-Encoding"] = "gzip"
-        env.response.output = Compress::Gzip::Writer.new(env.response.output, sync_close: true)
-      elsif request_headers.includes_word?("Accept-Encoding", "deflate")
-        env.response.headers["Content-Encoding"] = "deflate"
-        env.response.output = Compress::Deflate::Writer.new(env.response.output, sync_close: true)
-      end
-
-      call_next env
-    {% end %}
+  def call(context)
+    return call_next context if exclude_match? context
+    super
   end
 end
 

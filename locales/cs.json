@@ -39,8 +39,6 @@
     "User ID": "ID uživatele",
     "Password": "Heslo",
     "Time (h:mm:ss):": "Čas (h:mm:ss):",
-    "Text CAPTCHA": "Textové CAPTCHA",
-    "Image CAPTCHA": "Obrázkové CAPTCHA",
     "Sign In": "Přihlásit se",
     "Register": "Vytvořit účet",
     "E-mail": "E-mail",
@@ -518,5 +516,10 @@
     "Filipino (auto-generated)": "Filipínština (vytvořeno automaticky)",
     "First page": "První stránka",
     "channel_tab_courses_label": "Kurzy",
-    "channel_tab_posts_label": "Příspěvky"
+    "channel_tab_posts_label": "Příspěvky",
+    "timeline_parse_error_show_technical_details": "Zobrazit technické podrobnosti",
+    "timeline_parse_error_placeholder_message": "Invidious narazil při pokusu o zpracování této položky na chybu. Další informace naleznete níže:",
+    "timeline_parse_error_placeholder_heading": "Nepodařilo se zpracovat položku",
+    "preferences_default_playlist": "Výchozí playlist: ",
+    "preferences_default_playlist_none": "Nenastaven žádný výchozí playlist"
 }

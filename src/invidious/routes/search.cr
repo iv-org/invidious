@@ -37,10 +37,10 @@ module Invidious::Routes::Search
   end
 
   def self.search(env)
-    prefs = env.get("preferences").as(Preferences)
-    locale = prefs.locale
+    preferences = env.get("preferences").as(Preferences)
+    locale = preferences.locale
 
-    region = env.params.query["region"]? || prefs.region
+    region = env.params.query["region"]? || preferences.region
 
     query = Invidious::Search::Query.new(env.params.query, :regular, region)
 

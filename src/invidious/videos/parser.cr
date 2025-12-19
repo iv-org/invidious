@@ -25,11 +25,6 @@ def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
 
   ucid = channel_info.try { |ci| HelperExtractors.get_browse_id(ci) }
 
-  # "4,088,033 views", only available on compact renderer
-  # and when video is not a livestream
-  view_count = related.dig?("viewCountText", "simpleText")
-    .try &.as_s.gsub(/\D/, "")
-
   short_view_count = related.try do |r|
     HelperExtractors.get_short_view_count(r).to_s
   end
@@ -51,7 +46,6 @@ def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
     "author"           => author || JSON::Any.new(""),
     "ucid"             => JSON::Any.new(ucid || ""),
     "length_seconds"   => JSON::Any.new(length || "0"),
-    "view_count"       => JSON::Any.new(view_count || "0"),
     "short_view_count" => JSON::Any.new(short_view_count || "0"),
     "author_verified"  => JSON::Any.new(author_verified),
     "published"        => JSON::Any.new(published || ""),
@@ -59,11 +53,12 @@ def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
 end
 
 def extract_video_info(video_id : String)
-  # Init client config for the API
-  client_config = YoutubeAPI::ClientConfig.new
-
   # Fetch data from the player endpoint
-  player_response = YoutubeAPI.player(video_id: video_id, params: "2AMB", client_config: client_config)
+  player_response = YoutubeAPI.player(video_id: video_id)
+
+  if player_response.nil?
+    return nil
+  end
 
   playability_status = player_response.dig?("playabilityStatus", "status").try &.as_s
 
@@ -102,41 +97,14 @@ def extract_video_info(video_id : String)
   # Don't fetch the next endpoint if the video is unavailable.
   if {"OK", "LIVE_STREAM_OFFLINE", "LOGIN_REQUIRED"}.any?(playability_status)
     next_response = YoutubeAPI.next({"videoId": video_id, "params": ""})
+    # Remove the microformat returned by the /next endpoint on some videos
+    # to prevent player_response microformat from being overwritten.
+    next_response.delete("microformat")
     player_response = player_response.merge(next_response)
   end
 
   params = parse_video_info(video_id, player_response)
   params["reason"] = JSON::Any.new(reason) if reason
-
-  if !CONFIG.invidious_companion.present?
-    if player_response.dig?("streamingData", "adaptiveFormats", 0, "url").nil?
-      LOGGER.warn("Missing URLs for adaptive formats, falling back to other YT clients.")
-      players_fallback = {YoutubeAPI::ClientType::TvHtml5, YoutubeAPI::ClientType::WebMobile}
-
-      players_fallback.each do |player_fallback|
-        client_config.client_type = player_fallback
-
-        next if !(player_fallback_response = try_fetch_streaming_data(video_id, client_config))
-
-        if player_fallback_response.dig?("streamingData", "adaptiveFormats", 0, "url")
-          streaming_data = player_response["streamingData"].as_h
-          streaming_data["adaptiveFormats"] = player_fallback_response["streamingData"]["adaptiveFormats"]
-          player_response["streamingData"] = JSON::Any.new(streaming_data)
-          break
-        end
-      rescue InfoException
-        next LOGGER.warn("Failed to fetch streams with #{player_fallback}")
-      end
-    end
-
-    # Seems like video page can still render even without playable streams.
-    # its better than nothing.
-    #
-    # # Were we able to find playable video streams?
-    # if player_response.dig?("streamingData", "adaptiveFormats", 0, "url").nil?
-    #   # No :(
-    # end
-  end
 
   {"captions", "playabilityStatus", "playerConfig", "storyboards"}.each do |f|
     params[f] = player_response[f] if player_response[f]?
@@ -146,7 +114,11 @@ def extract_video_info(video_id : String)
   if streaming_data = player_response["streamingData"]?
     %w[formats adaptiveFormats].each do |key|
       streaming_data.as_h[key]?.try &.as_a.each do |format|
-        format.as_h["url"] = JSON::Any.new(convert_url(format))
+        format = format.as_h
+        if format["url"]?.nil?
+          format["url"] = format["signatureCipher"]
+        end
+        format["url"] = JSON::Any.new(convert_url(format))
       end
     end
 
@@ -161,7 +133,7 @@ end
 
 def try_fetch_streaming_data(id : String, client_config : YoutubeAPI::ClientConfig) : Hash(String, JSON::Any)?
   LOGGER.debug("try_fetch_streaming_data: [#{id}] Using #{client_config.client_type} client.")
-  response = YoutubeAPI.player(video_id: id, params: "2AMB", client_config: client_config)
+  response = YoutubeAPI.player(video_id: id)
 
   playability_status = response["playabilityStatus"]["status"]
   LOGGER.debug("try_fetch_streaming_data: [#{id}] Got playabilityStatus == #{playability_status}.")
@@ -473,24 +445,13 @@ end
 
 private def convert_url(fmt)
   if cfr = fmt["signatureCipher"]?.try { |json| HTTP::Params.parse(json.as_s) }
-    sp = cfr["sp"]
     url = URI.parse(cfr["url"])
     params = url.query_params
 
     LOGGER.debug("convert_url: Decoding '#{cfr}'")
-
-    unsig = DECRYPT_FUNCTION.try &.decrypt_signature(cfr["s"])
-    params[sp] = unsig if unsig
   else
     url = URI.parse(fmt["url"].as_s)
     params = url.query_params
-  end
-
-  n = DECRYPT_FUNCTION.try &.decrypt_nsig(params["n"])
-  params["n"] = n if n
-
-  if token = CONFIG.po_token
-    params["pot"] = token
   end
 
   url.query_params = params

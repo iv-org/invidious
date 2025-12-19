@@ -65,12 +65,18 @@
             <% end %>
         <% end %>
 
-        <% preferred_captions.each do |caption| %>
-            <track kind="captions" src="/api/v1/captions/<%= video.id %>?label=<%= caption.name %>" label="<%= caption.name %>">
+        <% preferred_captions.each do |caption|
+            api_captions_url = "/api/v1/captions/"
+            api_captions_url = invidious_companion.public_url.to_s + api_captions_url if (invidious_companion)
+        %>
+            <track kind="captions" src="<%= api_captions_url %><%= video.id %>?label=<%= caption.name %>" label="<%= caption.name %>">
         <% end %>
 
-        <% captions.each do |caption| %>
-            <track kind="captions" src="/api/v1/captions/<%= video.id %>?label=<%= caption.name %>" label="<%= caption.name %>">
+        <% captions.each do |caption|
+            api_captions_url = "/api/v1/captions/"
+            api_captions_url = invidious_companion.public_url.to_s + api_captions_url if (invidious_companion)
+        %>
+            <track kind="captions" src="<%= api_captions_url %><%= video.id %>?label=<%= caption.name %>" label="<%= caption.name %>">
         <% end %>
     <% end %>
 </video>

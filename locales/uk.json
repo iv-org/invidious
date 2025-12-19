@@ -39,8 +39,6 @@
     "User ID": "ID користувача",
     "Password": "Пароль",
     "Time (h:mm:ss):": "Час (г:хх:сс):",
-    "Text CAPTCHA": "Текст CAPTCHA",
-    "Image CAPTCHA": "Зображення CAPTCHA",
     "Sign In": "Увійти",
     "Register": "Зареєструватися",
     "E-mail": "Електронна пошта",
@@ -518,5 +516,8 @@
     "Filipino (auto-generated)": "Філіппінська (згенеровано автоматично)",
     "First page": "Перша сторінка",
     "channel_tab_courses_label": "Курси",
-    "channel_tab_posts_label": "Дописи"
+    "channel_tab_posts_label": "Дописи",
+    "timeline_parse_error_placeholder_heading": "Неможливо розібрати елемент",
+    "timeline_parse_error_show_technical_details": "Показати технічні подробиці",
+    "timeline_parse_error_placeholder_message": "Invidious зіткнувся з помилкою під час спроби розібрати цей елемент. Докладнішу інформацію читайте нижче:"
 }

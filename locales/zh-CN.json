@@ -44,8 +44,6 @@
     "User ID": "用户 ID",
     "Password": "密码",
     "Time (h:mm:ss):": "时间 (h:mm:ss):",
-    "Text CAPTCHA": "文本验证码",
-    "Image CAPTCHA": "图片验证码",
     "Sign In": "登录",
     "Register": "注册",
     "E-mail": "E-mail",
@@ -484,5 +482,10 @@
     "Filipino (auto-generated)": "菲律宾语 (自动生成)",
     "channel_tab_posts_label": "帖子",
     "First page": "第一页",
-    "channel_tab_courses_label": "课程"
+    "channel_tab_courses_label": "课程",
+    "timeline_parse_error_show_technical_details": "显示技术细节",
+    "timeline_parse_error_placeholder_heading": "无法解析项目",
+    "timeline_parse_error_placeholder_message": "Invidious 在尝试解析此项目时遇到一个错误。更多信息请见下方：",
+    "preferences_default_playlist": "默认播放列表： ",
+    "preferences_default_playlist_none": "尚无默认播放列表"
 }

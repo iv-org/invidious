@@ -48,7 +48,7 @@ jobs:
             stable: false
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
 
@@ -58,7 +58,7 @@ jobs:
         shell: bash
 
       - name: Install Crystal
-        uses: crystal-lang/install-crystal@v1.8.2
+        uses: crystal-lang/install-crystal@v1.9.1
         with:
           crystal: ${{ matrix.crystal }}
 
@@ -83,46 +83,43 @@ jobs:
         run: crystal build --warnings all --error-on-warnings --error-trace src/invidious.cr
 
   build-docker:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            name: "AMD64"
+            # GitHub doesn't have a ubuntu-latest-arm runner
+          - os: ubuntu-24.04-arm
+            name: "ARM64"
 
-    runs-on: ubuntu-latest
+    name: Test ${{ matrix.name }} Docker build
+    runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+
+      - name: Use ARM64 Dockerfile if ARM64
+        if: ${{ matrix.name == 'ARM64' }}
+        run: sed -i 's/Dockerfile/Dockerfile.arm64/' docker-compose.yml
 
       - name: Build Docker
-        run: docker compose build --build-arg release=0
+        run: docker compose build
+
+      - name: Change hmac_key on docker-compose.yml
+        run: sed -i '/hmac_key/s/CHANGE_ME!!/docker-build-hmac-key/' docker-compose.yml
 
       - name: Run Docker
         run: docker compose up -d
 
       - name: Test Docker
-        run: while curl -Isf http://localhost:3000; do sleep 1; done
+        id: test
+        run: curl -If http://localhost:3000 --retry 5 --retry-delay 1 --retry-all-errors
 
-  build-docker-arm64:
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: arm64
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build Docker ARM64 image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: docker/Dockerfile.arm64
-          platforms: linux/arm64/v8
-          build-args: release=0
-
-      - name: Test Docker
-        run: while curl -Isf http://localhost:3000; do sleep 1; done
+      - name: Print Invidious container logs
+        # Tells Github Actions to always run this step regardless of whether the previous step has failed
+        # Without this expression this step would simply be skipped when the previous step fails.
+        if: success() || steps.test.conclusion == 'failure'
+        run: docker compose logs
 
   lint:
 
@@ -131,13 +128,13 @@ jobs:
     continue-on-error: true
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
 
       - name: Install Crystal
         id: lint_step_install_crystal
-        uses: crystal-lang/install-crystal@v1.8.2
+        uses: crystal-lang/install-crystal@v1.9.1
         with:
           crystal: latest
 

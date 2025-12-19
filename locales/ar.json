@@ -39,8 +39,6 @@
     "User ID": "مُعرِّف المُستخدم",
     "Password": "كلمة المرور",
     "Time (h:mm:ss):": "الوقت (h:mm:ss):",
-    "Text CAPTCHA": "نص الكابتشا",
-    "Image CAPTCHA": "صورة الكابتشا",
     "Sign In": "إنشاء حساب",
     "Register": "التسجيل",
     "E-mail": "البريد الإلكتروني",
@@ -569,5 +567,8 @@
     "Filipino (auto-generated)": "الفلبينية (المولدة تلقائيًا)",
     "channel_tab_courses_label": "الدورات",
     "channel_tab_posts_label": "المنشورات",
-    "First page": "الصفحة الأولى"
+    "First page": "الصفحة الأولى",
+    "timeline_parse_error_placeholder_heading": "غير قادر على تحليل العنصر",
+    "timeline_parse_error_placeholder_message": "واجه Invidious خطأ أثناء محاولة تحليل هذا العنصر. لمزيد من المعلومات انظر أدناه:",
+    "timeline_parse_error_show_technical_details": "عرض التفاصيل التقنية"
 }

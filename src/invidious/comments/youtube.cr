@@ -16,23 +16,27 @@ module Invidious::Comments
     return parse_youtube(id, response, format, locale, thin_mode, sort_by)
   end
 
-  def fetch_community_post_comments(ucid, post_id)
+  def fetch_community_post_comments(ucid, post_id, sort_by = "top")
+    case sort_by
+    when "top"
+      sort_by_val = 0_i64
+    when "new", "newest"
+      sort_by_val = 1_i64
+    else # top
+      sort_by_val = 0_i64
+    end
+
     object = {
-      "2:string"    => "community",
-      "25:embedded" => {
-        "22:string" => post_id,
-      },
-      "45:embedded" => {
-        "2:varint" => 1_i64,
-        "3:varint" => 1_i64,
-      },
+      "2:string"    => "posts",
       "53:embedded" => {
         "4:embedded" => {
-          "6:varint"  => 0_i64,
-          "27:varint" => 1_i64,
+          "6:varint"  => sort_by_val,
+          "15:varint" => 2_i64,
+          "25:varint" => 0_i64,
           "29:string" => post_id,
           "30:string" => ucid,
         },
+        "7:varint" => 0_i64,
         "8:string" => "comments-section",
       },
     }
@@ -43,7 +47,7 @@ module Invidious::Comments
 
     object2 = {
       "80226972:embedded" => {
-        "2:string" => ucid,
+        "2:string" => "FEcomment_post_detail_page_web_top_level",
         "3:string" => object_parsed,
       },
     }
@@ -320,6 +324,15 @@ module Invidious::Comments
   end
 
   def produce_continuation(video_id, cursor = "", sort_by = "top")
+    case sort_by
+    when "top"
+      sort_by_val = 0_i64
+    when "new", "newest"
+      sort_by_val = 1_i64
+    else # top
+      sort_by_val = 0_i64
+    end
+
     object = {
       "2:embedded" => {
         "2:string"    => video_id,
@@ -340,20 +353,11 @@ module Invidious::Comments
         "1:string"   => cursor,
         "4:embedded" => {
           "4:string" => video_id,
-          "6:varint" => 0_i64,
+          "6:varint" => sort_by_val,
         },
         "5:varint" => 20_i64,
       },
     }
-
-    case sort_by
-    when "top"
-      object["6:embedded"].as(Hash)["4:embedded"].as(Hash)["6:varint"] = 0_i64
-    when "new", "newest"
-      object["6:embedded"].as(Hash)["4:embedded"].as(Hash)["6:varint"] = 1_i64
-    else # top
-      object["6:embedded"].as(Hash)["4:embedded"].as(Hash)["6:varint"] = 0_i64
-    end
 
     continuation = object.try { |i| Protodec::Any.cast_json(i) }
       .try { |i| Protodec::Any.from_json(i) }

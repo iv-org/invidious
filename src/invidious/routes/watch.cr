@@ -2,7 +2,8 @@
 
 module Invidious::Routes::Watch
   def self.handle(env)
-    locale = env.get("preferences").as(Preferences).locale
+    preferences = env.get("preferences").as(Preferences)
+    locale = preferences.locale
     region = env.params.query["region"]?
 
     if env.params.query.to_s.includes?("%20") || env.params.query.to_s.includes?("+")
@@ -37,8 +38,6 @@ module Invidious::Routes::Watch
 
     nojs ||= "0"
     nojs = nojs == "1"
-
-    preferences = env.get("preferences").as(Preferences)
 
     user = env.get?("user").try &.as(User)
     if user
@@ -194,10 +193,17 @@ module Invidious::Routes::Watch
 
     if CONFIG.invidious_companion.present?
       invidious_companion = CONFIG.invidious_companion.sample
-      env.response.headers["Content-Security-Policy"] =
-        env.response.headers["Content-Security-Policy"]
-          .gsub("media-src", "media-src #{invidious_companion.public_url}")
-          .gsub("connect-src", "connect-src #{invidious_companion.public_url}")
+      invidious_companion_urls = CONFIG.invidious_companion.reject(&.builtin_proxy).map do |companion|
+        uri =
+          "#{companion.public_url.scheme}://#{companion.public_url.host}#{companion.public_url.port ? ":#{companion.public_url.port}" : ""}"
+      end.join(" ")
+
+      if !invidious_companion_urls.empty?
+        env.response.headers["Content-Security-Policy"] =
+          env.response.headers["Content-Security-Policy"]
+            .gsub("media-src", "media-src #{invidious_companion_urls}")
+            .gsub("connect-src", "connect-src #{invidious_companion_urls}")
+      end
     end
 
     templated "watch"

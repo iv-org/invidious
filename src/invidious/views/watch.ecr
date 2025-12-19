@@ -65,7 +65,8 @@ we're going to need to do it here in order to allow for translations.
     "vr" => video.vr?,
     "projection_type" => video.projection_type,
     "local_disabled" => CONFIG.disabled?("local"),
-    "support_reddit" => true
+    "support_reddit" => true,
+    "live_now" => video.live_now
 }.to_pretty_json
 %>
 </script>
@@ -163,7 +164,7 @@ we're going to need to do it here in order to allow for translations.
                             <label for="playlist_id"><%= translate(locale, "Add to playlist: ") %></label>
                             <select style="width:100%" name="playlist_id" id="playlist_id">
                                 <% playlists.each do |plid, playlist_title| %>
-                                    <option data-plid="<%= plid %>" value="<%= plid %>"><%= HTML.escape(playlist_title) %></option>
+                                    <option data-plid="<%= plid %>" value="<%= plid %>" <%= "selected" if user.preferences.default_playlist == plid %>><%= HTML.escape(playlist_title) %></option>
                                 <% end %>
                             </select>
                         </div>
@@ -229,7 +230,7 @@ we're going to need to do it here in order to allow for translations.
                         <% if !video.author_thumbnail.empty? %>
                             <img src="/ggpht<%= URI.parse(video.author_thumbnail).request_target %>" alt="" />
                         <% end %>
-                        <span id="channel-name"><%= author %><% if !video.author_verified.nil? && video.author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></span>
+                        <span id="channel-name" class="channel-name"><%= author %><% if !video.author_verified.nil? && video.author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></span>
                     </div>
                 </a>
             </div>
@@ -354,9 +355,8 @@ we're going to need to do it here in order to allow for translations.
 
                                 <div class="pure-u-10-24" style="text-align:right">
                                     <b class="width:100%"><%=
-                                        views = rv["view_count"]?.try &.to_i?
-                                        views ||= rv["view_count_short"]?.try { |x| short_text_to_number(x) }
-                                        translate_count(locale, "generic_views_count", views || 0, NumberFormatting::Short)
+                                        views = short_text_to_number(rv["short_view_count"]? || "0")
+                                        translate_count(locale, "generic_views_count", views, NumberFormatting::Short)
                                     %></b>
                                 </div>
                             </h5>

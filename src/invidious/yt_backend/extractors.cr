@@ -442,6 +442,7 @@ private module Parsers
         if content_container = special_category_container["horizontalListRenderer"]?
         elsif content_container = special_category_container["expandedShelfContentsRenderer"]?
         elsif content_container = special_category_container["verticalListRenderer"]?
+        elsif content_container = special_category_container["gridRenderer"]?
         else
           # Anything else, such as `horizontalMovieListRenderer` is currently unsupported.
           return

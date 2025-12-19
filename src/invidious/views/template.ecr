@@ -1,6 +1,7 @@
 <%
-  locale = env.get("preferences").as(Preferences).locale
-  dark_mode = env.get("preferences").as(Preferences).dark_mode
+  preferences = env.get("preferences").as(Preferences)
+  locale = preferences.locale
+  dark_mode = preferences.dark_mode
 %>
 <!DOCTYPE html>
 <html lang="<%= locale %>">
