@@ -8,6 +8,13 @@
 ## Database configuration with separate parameters.
 ## This setting is MANDATORY, unless 'database_url' is used.
 ##
+## Note: The 'db' setting allows the use of UNIX
+## sockets. To do so, set 'host' to ""
+## E.g:
+##    password: kemal
+##    host: ""
+##    port: 5432
+##
 db:
   user: kemal
   password: kemal
