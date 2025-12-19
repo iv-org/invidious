@@ -227,6 +227,7 @@ module Invidious::Routing
   def register_companion_routes
     if CONFIG.invidious_companion.present?
       get "/companion/*", Routes::Companion, :get_companion
+      post "/companion/*", Routes::Companion, :post_companion
       options "/companion/*", Routes::Companion, :options_companion
     end
   end
