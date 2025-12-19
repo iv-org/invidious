@@ -517,5 +517,9 @@
     "First page": "Première page",
     "channel_tab_courses_label": "Cours",
     "channel_tab_posts_label": "Messages",
-    "timeline_parse_error_show_technical_details": "Afficher les détails techniques"
+    "timeline_parse_error_show_technical_details": "Afficher les détails techniques",
+    "preferences_default_playlist": "Playlist par défaut : ",
+    "preferences_default_playlist_none": "Aucune playlist par défaut définie",
+    "timeline_parse_error_placeholder_message": "Invidious a subi une erreur en essayant de récupérer (parse) cet item. Pour plus d'information, voir ci-dessous :",
+    "timeline_parse_error_placeholder_heading": "Impossible d'interpréter (parse) cet item"
 }
