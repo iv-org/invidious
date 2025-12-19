@@ -149,6 +149,8 @@
     "preferences_default_home_label": "Default homepage: ",
     "preferences_feed_menu_label": "Feed menu: ",
     "preferences_show_nick_label": "Show nickname on top: ",
+    "preferences_category_cookies": "Preferences cookies",
+    "preferences_cookie_desccription": "With this URL you can restore your preferences on any other browser.",
     "Popular enabled: ": "Popular enabled: ",
     "Top enabled: ": "Top enabled: ",
     "CAPTCHA enabled: ": "CAPTCHA enabled: ",
