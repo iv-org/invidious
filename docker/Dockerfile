@@ -2,7 +2,7 @@
 ARG OPENSSL_VERSION='3.5.2'
 ARG OPENSSL_SHA256='c53a47e5e441c930c3928cf7bf6fb00e5d129b630e0aa873b08258656e7345ec'
 
-FROM crystallang/crystal:1.16.3-alpine AS dependabot-crystal
+FROM crystallang/crystal:1.18.2-alpine AS dependabot-crystal
 
 # We compile openssl ourselves due to a memory leak in how crystal interacts
 # with openssl
@@ -61,7 +61,7 @@ RUN --mount=type=cache,target=/root/.cache/crystal if [[ "${release}" == 1 ]] ; 
         --link-flags "-lxml2 -llzma"; \
     fi
 
-FROM alpine:3.21
+FROM alpine:3.23
 RUN apk add --no-cache rsvg-convert ttf-opensans tini tzdata
 WORKDIR /invidious
 RUN addgroup -g 1000 -S invidious && \
