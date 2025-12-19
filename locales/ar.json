@@ -38,7 +38,7 @@
     "Log in/register": "تسجيل الدخول \\ إنشاء حساب",
     "User ID": "مُعرِّف المُستخدم",
     "Password": "كلمة المرور",
-    "Time (h:mm:ss):": "الوقت (h:mm:ss):",
+    "Time (hh:mm:ss):": "الوقت (hh:mm:ss):",
     "Sign In": "إنشاء حساب",
     "Register": "التسجيل",
     "E-mail": "البريد الإلكتروني",
