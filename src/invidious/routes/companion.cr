@@ -33,7 +33,6 @@ module Invidious::Routes::Companion
     end
   end
 
-
   def self.options_companion(env)
     url = env.request.path
     if env.request.query
