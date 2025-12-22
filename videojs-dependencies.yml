@@ -1,31 +1,27 @@
 # find the checksum of latest version using npm view <package>
 video.js:
-  version: 8.10.0
-  shasum: 603a49909ef33f839264da8b73513f9daf592b57
+  version: 8.23.4
+  shasum: 65876174dfcee1057102a03a847fdaa8cf346c66
 
 videojs-contrib-quality-levels:
   version: 4.1.0
   shasum: 44c2d2167114a5c8418548b10a25cb409d6cba51
 
 videojs-contrib-quality-menu:
-  version: 1.0.3
-  shasum: a15daff78170a332e5d1cd67601c82af2cd4c6da
+  version: 1.0.4
+  shasum: 8379fcd1767ae042ba77e0c80d9463e458a39abd
 
 videojs-markers:
   version: 1.0.1
   shasum: d7f8d804253fd587813271f8db308a22b9f7df34
 
 videojs-mobile-ui:
-  version: 1.1.1
-  shasum: 6b5e75df36cf688906b3662070399b23da9e8e06
+  version: 1.1.3
+  shasum: 43baeeafb371ea2ff63834764ca69b1362eddd53
 
 videojs-overlay:
-  version: 3.1.0
-  shasum: d57505d375eca952feeb36e5b33e0a130e3dc9e0
-
-videojs-share:
-  version: 3.2.1
-  shasum: 0a3024b981387b9d21c058c829760a72c14b8ceb
+  version: 4.0.0
+  shasum: aa450b3e6e0a86d9bfc61eff66bbdd9f6ed1f07d
 
 videojs-vr:
   version: 2.0.0
