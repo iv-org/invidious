@@ -781,7 +781,7 @@ addEventListener('keydown', function (e) {
 }());
 
 // Since videojs-share can sometimes be blocked, we defer it until last
-if (player.share) player.share(shareOptions);
+if (player.shareMenu) player.shareMenu();
 
 // show the preferred caption by default
 if (player_data.preferred_caption_found) {
