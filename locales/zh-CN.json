@@ -487,5 +487,7 @@
     "timeline_parse_error_placeholder_heading": "无法解析项目",
     "timeline_parse_error_placeholder_message": "Invidious 在尝试解析此项目时遇到一个错误。更多信息请见下方：",
     "preferences_default_playlist": "默认播放列表： ",
-    "preferences_default_playlist_none": "尚无默认播放列表"
+    "preferences_default_playlist_none": "尚无默认播放列表",
+    "Livestreams": "直播",
+    "dmca_content": "由于发送给实例管理员的 DMCA/侵犯版权信件，无法在这个实例上下载该视频。"
 }
