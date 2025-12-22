@@ -21,7 +21,7 @@ RUN tar -xzvf openssl-${OPENSSL_VERSION}.tar.gz
 RUN cd openssl-${OPENSSL_VERSION} && ./Configure --openssldir=/etc/ssl && make -j$(nproc)
 
 FROM dependabot-alpine AS builder
-RUN apk add --no-cache 'crystal=1.18.2-r0' shards \
+RUN apk add --no-cache 'crystal=1.16.3-r0' shards \
         sqlite-static yaml-static yaml-dev \
         pcre2-static gc-static \
         libxml2-static zlib-static \
