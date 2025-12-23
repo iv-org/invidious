@@ -231,8 +231,10 @@ module Invidious::Routes::Channels
       env.redirect "/post/#{URI.encode_www_form(lb)}?ucid=#{URI.encode_www_form(ucid)}"
     end
 
-    thin_mode = env.params.query["thin_mode"]? || env.get("preferences").as(Preferences).thin_mode
-    thin_mode = thin_mode == "true"
+    preferences = env.get("preferences").as(Preferences)
+
+    thin_mode = env.params.query["thin_mode"]?
+    thin_mode = (thin_mode == "true") || preferences.thin_mode
 
     continuation = env.params.query["continuation"]?
 
