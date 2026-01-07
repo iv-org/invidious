@@ -1,6 +1,15 @@
 <%
     invidious_companion_check_id = invidious_companion_encrypt(video.id) if invidious_companion
+    use_sabr = params.quality == "sabr"
 %>
+<% if use_sabr %>
+    <div id="sabr-player-container" class="sabr-player-container"
+         data-video-id="<%= video.id %>"
+         data-autoplay="<%= params.autoplay %>"
+         data-video-loop="<%= params.video_loop %>"
+         data-quality-sabr="<%= params.quality_sabr %>">
+    </div>
+<% else %>
 <video style="outline:none;width:100%;background-color:#000" playsinline poster="<%= thumbnail %>"
     id="player" class="on-video_player video-js player-style-<%= params.player_style %>"
     preload="<% if params.preload %>auto<% else %>none<% end %>"
@@ -85,6 +94,7 @@
         <% end %>
     <% end %>
 </video>
+<% end %>
 
 <script id="player_data" type="application/json">
 <%=
@@ -93,8 +103,24 @@
     "title" => video.title,
     "description" => HTML.escape(video.short_description),
     "thumbnail" => thumbnail,
-    "preferred_caption_found" => !preferred_captions.empty?
+    "preferred_caption_found" => !preferred_captions.empty?,
+    "use_sabr" => use_sabr
 }.to_pretty_json
 %>
 </script>
-<script src="/js/player.js?v=<%= ASSET_COMMIT %>"></script>
+
+<% if use_sabr %>
+    <!-- SABR Player dependencies -->
+    <link rel="stylesheet" href="/css/sabr_player.css?v=<%= ASSET_COMMIT %>">
+    <link rel="stylesheet" href="/js/sabr/shaka-player/controls.css?v=<%= ASSET_COMMIT %>">
+    <script src="/js/sabr/shaka-player/shaka-player.ui.js?v=<%= ASSET_COMMIT %>"></script>
+    <script src="/js/sabr_helpers.js?v=<%= ASSET_COMMIT %>"></script>
+    <script src="/js/sabr_potoken.js?v=<%= ASSET_COMMIT %>"></script>
+    <script src="/js/sabr_shaka_adapter.js?v=<%= ASSET_COMMIT %>"></script>
+    <script src="/js/sabr_player.js?v=<%= ASSET_COMMIT %>"></script>
+    <script src="/js/sabr_init.js?v=<%= ASSET_COMMIT %>"></script>
+    <!-- ES module loader for SABR libraries (youtubei.js, googlevideo, bgutils) -->
+    <script type="module" src="/js/sabr_loader.js?v=<%= ASSET_COMMIT %>"></script>
+<% else %>
+    <script src="/js/player.js?v=<%= ASSET_COMMIT %>"></script>
+<% end %>

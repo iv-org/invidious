@@ -1,0 +1,16 @@
+{
+  "name": "invidious-sabr",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "bundle-sabr": "node scripts/bundle-sabr-libs.js"
+  },
+  "dependencies": {
+    "googlevideo": "^4.0.4",
+    "youtubei.js": "^16.0.0",
+    "bgutils-js": "^3.1.3"
+  },
+  "devDependencies": {
+    "esbuild": "^0.27.2"
+  }
+}
