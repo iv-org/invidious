@@ -14,6 +14,7 @@ struct VideoPreferences
   property player_style : String
   property quality : String
   property quality_dash : String
+  property quality_sabr : String
   property raw : Bool
   property region : String?
   property related_videos : Bool
@@ -40,6 +41,7 @@ def process_video_params(query, preferences)
   preferred_captions = query["subtitles"]?.try &.split(",").map(&.downcase)
   quality = query["quality"]?
   quality_dash = query["quality_dash"]?
+  quality_sabr = query["quality_sabr"]?
   region = query["region"]?
   related_videos = query["related_videos"]?.try { |q| (q == "true" || q == "1").to_unsafe }
   speed = query["speed"]?.try &.rchop("x").to_f?
@@ -63,6 +65,7 @@ def process_video_params(query, preferences)
     preferred_captions ||= preferences.captions
     quality ||= preferences.quality
     quality_dash ||= preferences.quality_dash
+    quality_sabr ||= preferences.quality_sabr
     related_videos ||= preferences.related_videos.to_unsafe
     speed ||= preferences.speed
     video_loop ||= preferences.video_loop.to_unsafe
@@ -84,6 +87,7 @@ def process_video_params(query, preferences)
   preferred_captions ||= CONFIG.default_user_preferences.captions
   quality ||= CONFIG.default_user_preferences.quality
   quality_dash ||= CONFIG.default_user_preferences.quality_dash
+  quality_sabr ||= CONFIG.default_user_preferences.quality_sabr
   related_videos ||= CONFIG.default_user_preferences.related_videos.to_unsafe
   speed ||= CONFIG.default_user_preferences.speed
   video_loop ||= CONFIG.default_user_preferences.video_loop.to_unsafe
@@ -145,6 +149,7 @@ def process_video_params(query, preferences)
     preferred_captions: preferred_captions,
     quality:            quality,
     quality_dash:       quality_dash,
+    quality_sabr:       quality_sabr,
     raw:                raw,
     region:             region,
     related_videos:     related_videos,

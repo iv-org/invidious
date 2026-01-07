@@ -66,6 +66,9 @@ module Invidious::Routes::PreferencesRoute
     quality_dash = env.params.body["quality_dash"]?.try &.as(String)
     quality_dash ||= CONFIG.default_user_preferences.quality_dash
 
+    quality_sabr = env.params.body["quality_sabr"]?.try &.as(String)
+    quality_sabr ||= CONFIG.default_user_preferences.quality_sabr
+
     volume = env.params.body["volume"]?.try &.as(String).to_i?
     volume ||= CONFIG.default_user_preferences.volume
 
@@ -166,6 +169,7 @@ module Invidious::Routes::PreferencesRoute
       player_style:                player_style,
       quality:                     quality,
       quality_dash:                quality_dash,
+      quality_sabr:                quality_sabr,
       default_home:                default_home,
       feed_menu:                   feed_menu,
       automatic_instance_redirect: automatic_instance_redirect,

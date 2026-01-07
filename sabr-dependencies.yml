@@ -1,0 +1,23 @@
+# SABR (Server ABR) streaming dependencies
+# These are fetched from esm.sh as pre-built ESM bundles
+
+shaka-player:
+  version: 4.16.4
+  # esm.sh URL: https://esm.sh/shaka-player@4.16.4/dist/shaka-player.compiled.js
+  files:
+    - src: "dist/shaka-player.compiled.js"
+      dest: "shaka-player.js"
+    - src: "dist/controls.css"
+      dest: "shaka-player.css"
+
+googlevideo:
+  version: 4.0.4
+  # Pre-bundled ESM from esm.sh
+
+youtubei.js:
+  version: 16.0.1
+  # Pre-bundled ESM from esm.sh (web bundle)
+
+bgutils-js:
+  version: 3.2.0
+  # Pre-bundled ESM from esm.sh

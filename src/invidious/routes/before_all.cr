@@ -29,13 +29,16 @@ module Invidious::Routes::BeforeAll
 
     # TODO: Remove style-src's 'unsafe-inline', requires to remove all
     # inline styles (<style> [..] </style>, style=" [..] ")
+    # Note: 'unsafe-eval' is required for SABR player (youtubei.js URL deciphering)
+    # Note: 'unsafe-inline' is required for BotGuard interpreter injection
+    # Note: googleapis.com and youtube.com are required for BotGuard/PoToken generation
     env.response.headers["Content-Security-Policy"] = {
       "default-src 'none'",
-      "script-src 'self'",
+      "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data:",
       "font-src 'self' data:",
-      "connect-src 'self'",
+      "connect-src 'self' https://*.googleapis.com https://*.youtube.com",
       "manifest-src 'self'",
       "media-src 'self' blob:",
       "child-src 'self' blob:",
