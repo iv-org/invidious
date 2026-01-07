@@ -1,0 +1,259 @@
+/**
+ * SABR Player CSS Styles
+ * Customizes Shaka Player UI to match Invidious video.js theme
+ */
+
+/* Override Shaka Player's Google Fonts with system fonts */
+.shaka-video-container,
+.shaka-controls-container,
+.shaka-overflow-menu,
+.shaka-settings-menu,
+.shaka-tooltip,
+.shaka-current-time,
+.shaka-time-separator,
+.shaka-duration {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+}
+
+/* Container styling - match video.js #player-container */
+#sabr-player-container {
+    position: relative;
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: 1em;
+    margin-right: 1em;
+    padding-bottom: 82vh;
+    height: 0;
+    background-color: #000;
+    overflow: hidden;
+    width: calc(100% - 2em);
+}
+
+#sabr-player-container video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Override Shaka video container */
+.shaka-video-container {
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.shaka-video-container video {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+}
+
+/* IMPORTANT: Force controls to be visible */
+.shaka-controls-button-panel,
+.shaka-scrim-container,
+.shaka-play-button {
+    opacity: 1 !important;
+    transition: opacity cubic-bezier(.4, 0, .6, 1) .6s;
+}
+
+/* Controls bar - match video.js style */
+.shaka-controls-container {
+    background: linear-gradient(rgba(0,0,0,0.1), rgba(0, 0, 0,0.5));
+}
+
+.shaka-bottom-controls {
+    background: transparent;
+}
+
+/* Buttons - match video.js colors */
+.shaka-controls-button-panel button,
+.shaka-overflow-menu-button {
+    color: #fff;
+}
+
+.shaka-controls-button-panel button:hover,
+.shaka-overflow-menu-button:hover {
+    color: rgba(0, 182, 240, 1);
+}
+
+/* Progress bar - match video.js style */
+.shaka-seek-bar-container {
+    height: 5px !important;
+    margin-bottom: 10px;
+    opacity: 1 !important;
+}
+
+.shaka-seek-bar {
+    background-color: rgba(15, 15, 15, 0.5) !important;
+}
+
+.shaka-seek-bar-value {
+    background-color: rgba(0, 182, 240, 1) !important;
+}
+
+.shaka-seek-bar-container:hover {
+    height: 8px !important;
+}
+
+/* Buffer indicator - match video.js */
+.shaka-seek-bar-buffer {
+    background-color: rgba(87, 87, 88, 1) !important;
+}
+
+/* Volume slider */
+.shaka-volume-bar-container {
+    height: 4px;
+}
+
+.shaka-volume-bar {
+    background-color: rgba(15, 15, 15, 0.5);
+}
+
+.shaka-volume-bar-value {
+    background-color: rgba(0, 182, 240, 1);
+}
+
+/* Time display */
+.shaka-current-time,
+.shaka-time-separator,
+.shaka-duration {
+    color: #fff;
+    font-family: inherit;
+}
+
+/* Overflow menu - match video.js menu style */
+.shaka-overflow-menu,
+.shaka-settings-menu {
+    background-color: rgba(35, 35, 35, 0.75);
+    border-radius: 2px;
+}
+
+.shaka-overflow-menu button,
+.shaka-settings-menu button {
+    color: #fff;
+}
+
+.shaka-overflow-menu button:hover,
+.shaka-settings-menu button:hover {
+    background-color: rgba(255, 255, 255, 0.75);
+    color: rgba(49, 49, 51, 0.75);
+}
+
+.shaka-overflow-menu button[aria-selected="true"],
+.shaka-settings-menu button[aria-selected="true"] {
+    background-color: rgba(0, 182, 240, 0.75);
+}
+
+/* Quality/resolution labels */
+.shaka-resolution-button span,
+.shaka-language-button span {
+    color: #fff;
+}
+
+/* Big play button - match video.js style */
+.shaka-play-button-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.shaka-play-button {
+    background-color: rgba(35, 35, 35, 0.75) !important;
+    border-radius: 0.3em !important;
+    width: 1.5em !important;
+    height: 1.5em !important;
+    padding: 1.5em !important;
+    box-sizing: content-box !important;
+}
+
+.shaka-play-button:hover {
+    background-color: rgba(35, 35, 35, 0.9) !important;
+}
+
+/* Spinner */
+.shaka-spinner-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.shaka-spinner {
+    border-color: rgba(0, 182, 240, 1) transparent transparent transparent !important;
+}
+
+/* Captions/subtitles - match video.js */
+.shaka-text-container {
+    text-shadow: 1px 1px 2px #000;
+}
+
+.shaka-text-container > div > div > div {
+    background-color: rgba(0, 0, 0, 0.75) !important;
+    border-radius: 9px !important;
+    padding: 5px !important;
+    line-height: 1.5 !important;
+}
+
+/* Tooltips */
+.shaka-tooltip {
+    background-color: rgba(35, 35, 35, 0.75);
+    color: #fff;
+    border-radius: 2px;
+    padding: 4px 8px;
+}
+
+/* Error display */
+.sabr-error-display {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+    background-color: rgba(35, 35, 35, 0.75);
+    border-radius: 8px;
+}
+
+.sabr-error-display a {
+    color: rgba(0, 182, 240, 1);
+}
+
+.sabr-error-display a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive - match video.js responsive behavior */
+@media only screen and (max-aspect-ratio: 16/9) {
+    #sabr-player-container {
+        padding-bottom: 46.86% !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .shaka-play-button {
+        padding: 1em !important;
+    }
+    
+    .shaka-controls-button-panel button {
+        padding: 8px;
+    }
+}
+
+/* Hide unnecessary Shaka elements */
+.shaka-ad-controls,
+.shaka-client-side-ad-container {
+    display: none !important;
+}
+
+/* Poster/thumbnail styling */
+.shaka-video-container .shaka-poster {
+    background-size: cover;
+    object-fit: cover;
+}

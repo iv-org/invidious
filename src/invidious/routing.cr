@@ -46,6 +46,7 @@ module Invidious::Routing
     self.register_api_v1_routes
     self.register_api_manifest_routes
     self.register_video_playback_routes
+    self.register_proxy_routes
     self.register_companion_routes
   end
 
@@ -225,6 +226,16 @@ module Invidious::Routing
     get "/vi/:id/:name", Routes::Images, :thumbnails
     get "/pl_c/:id/:name", Routes::Images, :pl_c_image
     get "/tvfilm_banner/:id/:name", Routes::Images, :tvfilm_banner_image
+  end
+
+  def register_proxy_routes
+    # SABR proxy routes
+    get "/proxy", Routes::Proxy, :proxy
+    get "/proxy/*", Routes::Proxy, :proxy
+    post "/proxy", Routes::Proxy, :proxy
+    post "/proxy/*", Routes::Proxy, :proxy
+    options "/proxy", Routes::Proxy, :options
+    options "/proxy/*", Routes::Proxy, :options
   end
 
   def register_companion_routes
