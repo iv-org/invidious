@@ -29,6 +29,10 @@ private def copy_string(str : String::Builder, iter : Iterator, count : Int) : I
   return copied
 end
 
+private def utf16_length(content : String) : Int32
+  content.each_char.sum { |ch| ch.ord >= 0x10000 ? 2 : 1 }
+end
+
 def parse_description(desc, video_id : String) : String?
   return "" if desc.nil?
 
@@ -40,7 +44,7 @@ def parse_description(desc, video_id : String) : String?
     # Slightly faster than HTML.escape, as we're only doing one pass on
     # the string instead of five for the standard library
     return String.build do |str|
-      copy_string(str, content.each_codepoint, content.size)
+      copy_string(str, content.each_codepoint, utf16_length(content))
     end
   end
 
@@ -76,7 +80,7 @@ def parse_description(desc, video_id : String) : String?
     end
 
     # Copy the end of the string (past the last command).
-    remaining_length = content.size - index
+    remaining_length = utf16_length(content) - index
     copy_string(str, iter, remaining_length) if remaining_length > 0
   end
 end
