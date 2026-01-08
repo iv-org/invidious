@@ -223,9 +223,12 @@ https_only: false
 
 ##
 ## Configuration for using a HTTP proxy
-##
 ## If unset, then no HTTP proxy will be used.
 ## 
+## This is not used for loading the video streams from YouTube servers (circumvent YouTube restrictions)
+## Please instead configure the proxy in Invidious companion:
+## https://github.com/iv-org/invidious-companion/blob/master/config/config.example.toml
+##
 #http_proxy:
 #  user:
 #  password:
