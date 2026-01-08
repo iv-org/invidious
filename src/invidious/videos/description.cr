@@ -21,8 +21,6 @@ private def copy_string(str : String::Builder, iter : Iterator, count : Int) : I
       str << cp.chr
     end
 
-    # A codepoint from the SMP counts twice
-    copied += 1 if cp > 0xFFFF
     copied += 1
   end
 
@@ -44,10 +42,6 @@ def parse_description(desc, video_id : String) : String?
     end
   end
 
-  # Not everything is stored in UTF-8 on youtube's side. The SMP codepoints
-  # (0x10000 and above) are encoded as UTF-16 surrogate pairs, which are
-  # automatically decoded by the JSON parser. It means that we need to count
-  # copied byte in a special manner, preventing the use of regular string copy.
   iter = content.each_codepoint
 
   index = 0
