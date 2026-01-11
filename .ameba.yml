@@ -14,11 +14,6 @@ Lint/UselessAssign:
     - src/invidious/helpers/errors.cr
     - src/invidious/routes/**/*.cr
 
-# Ignore false negative (if !db.query_one?...)
-Lint/UnreachableCode:
-  Excluded:
-    - src/invidious/database/base.cr
-
 # Ignore shadowed variable `key` (it works for now, and that's
 # a sensitive part of the code)
 Lint/ShadowingOuterLocalVar:

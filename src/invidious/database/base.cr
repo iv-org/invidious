@@ -32,6 +32,7 @@ module Invidious::Database
   def check_enum(enum_name, struct_type = nil)
     return # TODO
 
+    # ameba:disable Lint/UnreachableCode
     if !PG_DB.query_one?("SELECT true FROM pg_type WHERE typname = $1", enum_name, as: Bool)
       LOGGER.info("check_enum: CREATE TYPE #{enum_name}")
 
