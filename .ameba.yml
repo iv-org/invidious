@@ -2,9 +2,14 @@
 # Lint
 #
 
+Lint/UnusedArgument:
+  Excluded:
+    - "**/*.ecr"
+
 # Exclude assigns for ECR files
 Lint/UselessAssign:
   Excluded:
+    - "**/*.ecr"
     - src/invidious.cr
     - src/invidious/helpers/errors.cr
     - src/invidious/routes/**/*.cr
