@@ -16,7 +16,7 @@
                best_m4a_stream_bitrate = 0
                audio_streams.each_with_index do |fmt, i|
                  bandwidth = fmt["bitrate"].as_i
-                 if (fmt["mimeType"].as_s.starts_with?("audio/mp4") && bandwidth > best_m4a_stream_bitrate)
+                 if fmt["mimeType"].as_s.starts_with?("audio/mp4") && bandwidth > best_m4a_stream_bitrate
                    best_m4a_stream_bitrate = bandwidth
                    best_m4a_stream_index = i
                  end
@@ -26,7 +26,7 @@
                 src_url  = "/latest_version?id=#{video.id}&itag=#{fmt["itag"]}"
                 src_url += "&local=true" if params.local
                 src_url = invidious_companion.public_url.to_s + src_url +
-                            "&check=#{invidious_companion_check_id}" if (invidious_companion)
+                            "&check=#{invidious_companion_check_id}" if invidious_companion
 
                 bitrate = fmt["bitrate"]
                 mimetype = HTML.escape(fmt["mimeType"].as_s)
@@ -42,7 +42,7 @@
             <% if params.quality == "dash"
                src_url = "/api/manifest/dash/id/" + video.id + "?local=true&unique_res=1"
                src_url = invidious_companion.public_url.to_s + src_url +
-                            "&check=#{invidious_companion_check_id}" if (invidious_companion)
+                            "&check=#{invidious_companion_check_id}" if invidious_companion
             %>
                 <source src="<%= src_url %>" type='application/dash+xml' label="dash">
             <% end %>
@@ -54,7 +54,7 @@
                 src_url  = "/latest_version?id=#{video.id}&itag=#{fmt["itag"]}"
                 src_url += "&local=true" if params.local
                 src_url = invidious_companion.public_url.to_s + src_url +
-                            "&check=#{invidious_companion_check_id}" if (invidious_companion)
+                            "&check=#{invidious_companion_check_id}" if invidious_companion
 
                 quality = fmt["quality"]
                 mimetype = HTML.escape(fmt["mimeType"].as_s)
@@ -70,7 +70,7 @@
 
         <% preferred_captions.each do |caption|
             api_captions_url = "/api/v1/captions/"
-            api_captions_url = invidious_companion.public_url.to_s + api_captions_url if (invidious_companion)
+            api_captions_url = invidious_companion.public_url.to_s + api_captions_url if invidious_companion
             api_captions_check_id = "&check=#{invidious_companion_check_id}"
         %>
             <track kind="captions" src="<%= api_captions_url %><%= video.id %>?label=<%= caption.name %><%= api_captions_check_id %>" label="<%= caption.name %>">
@@ -78,7 +78,7 @@
 
         <% captions.each do |caption|
             api_captions_url = "/api/v1/captions/"
-            api_captions_url = invidious_companion.public_url.to_s + api_captions_url if (invidious_companion)
+            api_captions_url = invidious_companion.public_url.to_s + api_captions_url if invidious_companion
             api_captions_check_id = "&check=#{invidious_companion_check_id}"
         %>
             <track kind="captions" src="<%= api_captions_url %><%= video.id %>?label=<%= caption.name %><%= api_captions_check_id %>" label="<%= caption.name %>">

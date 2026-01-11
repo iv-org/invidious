@@ -78,7 +78,7 @@ module UrlSanitizer
     new_uri = URI.new(path: "/")
 
     # Redirect to homepage for bogus URLs
-    return new_uri if (unsafe_host.nil? || unsafe_path.nil?)
+    return new_uri if unsafe_host.nil? || unsafe_path.nil?
 
     breadcrumbs = unsafe_path
       .split('/', remove_empty: true)

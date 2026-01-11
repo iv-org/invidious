@@ -294,12 +294,12 @@ module I18next::Plurals
     # Rule: (n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5)
     #
     def self.special_arabic(count : Int) : UInt8
-      return count.to_u8 if (count == 0 || count == 1 || count == 2)
+      return count.to_u8 if count == 0 || count == 1 || count == 2
 
       n_mod_100 = count % 100
 
-      return 3_u8 if (n_mod_100 >= 3 && n_mod_100 <= 10)
-      return 4_u8 if (n_mod_100 >= 11)
+      return 3_u8 if n_mod_100 >= 3 && n_mod_100 <= 10
+      return 4_u8 if n_mod_100 >= 11
       5_u8
     end
 
@@ -309,8 +309,8 @@ module I18next::Plurals
     # Rule: ((n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2)
     #
     def self.special_czech_slovak(count : Int) : UInt8
-      return 0_u8 if (count == 1)
-      return 1_u8 if (count >= 2 && count <= 4)
+      return 0_u8 if count == 1
+      return 1_u8 if count >= 2 && count <= 4
       2_u8
     end
 
@@ -320,7 +320,7 @@ module I18next::Plurals
     # Rule: (n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)
     #
     def self.special_polish_kashubian(count : Int) : UInt8
-      return 0_u8 if (count == 1)
+      return 0_u8 if count == 1
 
       n_mod_10 = count % 10
       n_mod_100 = count % 100
@@ -338,9 +338,9 @@ module I18next::Plurals
     # Rule: ((n==1) ? 0 : (n==2) ? 1 : (n != 8 && n != 11) ? 2 : 3)
     #
     def self.special_welsh(count : Int) : UInt8
-      return 0_u8 if (count == 1)
-      return 1_u8 if (count == 2)
-      return 2_u8 if (count != 8 && count != 11)
+      return 0_u8 if count == 1
+      return 1_u8 if count == 2
+      return 2_u8 if count != 8 && count != 11
       3_u8
     end
 
@@ -350,10 +350,10 @@ module I18next::Plurals
     # Rule: (n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4)
     #
     def self.special_irish(count : Int) : UInt8
-      return 0_u8 if (count == 1)
-      return 1_u8 if (count == 2)
-      return 2_u8 if (count < 7)
-      return 3_u8 if (count < 11)
+      return 0_u8 if count == 1
+      return 1_u8 if count == 2
+      return 2_u8 if count < 7
+      return 3_u8 if count < 11
       4_u8
     end
 
@@ -363,9 +363,9 @@ module I18next::Plurals
     # Rule: ((n==1 || n==11) ? 0 : (n==2 || n==12) ? 1 : (n > 2 && n < 20) ? 2 : 3)
     #
     def self.special_scottish_gaelic(count : Int) : UInt8
-      return 0_u8 if (count == 1 || count == 11)
-      return 1_u8 if (count == 2 || count == 12)
-      return 2_u8 if (count > 2 && count < 20)
+      return 0_u8 if count == 1 || count == 11
+      return 1_u8 if count == 2 || count == 12
+      return 2_u8 if count > 2 && count < 20
       3_u8
     end
 
@@ -468,8 +468,8 @@ module I18next::Plurals
       return 1_u8 if count == 0
 
       n_mod_100 = count % 100
-      return 1_u8 if (n_mod_100 > 1 && n_mod_100 < 11)
-      return 2_u8 if (n_mod_100 > 10 && n_mod_100 < 20)
+      return 1_u8 if n_mod_100 > 1 && n_mod_100 < 11
+      return 2_u8 if n_mod_100 > 10 && n_mod_100 < 20
       3_u8
     end
 
@@ -483,7 +483,7 @@ module I18next::Plurals
       return 1_u8 if count == 0
 
       n_mod_100 = count % 100
-      return 1_u8 if (n_mod_100 > 0 && n_mod_100 < 20)
+      return 1_u8 if n_mod_100 > 0 && n_mod_100 < 20
       2_u8
     end
 
@@ -494,9 +494,9 @@ module I18next::Plurals
     #
     def self.special_slovenian(count : Int) : UInt8
       n_mod_100 = count % 100
-      return 1_u8 if (n_mod_100 == 1)
-      return 2_u8 if (n_mod_100 == 2)
-      return 3_u8 if (n_mod_100 == 3 || n_mod_100 == 4)
+      return 1_u8 if n_mod_100 == 1
+      return 2_u8 if n_mod_100 == 2
+      return 3_u8 if n_mod_100 == 3 || n_mod_100 == 4
       0_u8
     end
 
@@ -506,8 +506,8 @@ module I18next::Plurals
     # Rule: (n==1 ? 0 : n==2 ? 1 : (n<0 || n>10) && n%10==0 ? 2 : 3)
     #
     def self.special_hebrew(count : Int) : UInt8
-      return 0_u8 if (count == 1)
-      return 1_u8 if (count == 2)
+      return 0_u8 if count == 1
+      return 1_u8 if count == 2
 
       if (count < 0 || count > 10) && (count % 10) == 0
         2_u8
@@ -535,9 +535,9 @@ module I18next::Plurals
     # This rule is mostly compliant to CLDR v42
     #
     def self.special_cldr_spanish_italian(count : Int) : UInt8
-      return 0_u8 if (count == 1)                           # one
-      return 1_u8 if (count != 0 && count % 1_000_000 == 0) # many
-      2_u8                                                  # other
+      return 0_u8 if count == 1                           # one
+      return 1_u8 if count != 0 && count % 1_000_000 == 0 # many
+      2_u8                                                # other
     end
 
     # Plural form for French and Portuguese
@@ -545,9 +545,9 @@ module I18next::Plurals
     # This rule is mostly compliant to CLDR v42
     #
     def self.special_cldr_french_portuguese(count : Int) : UInt8
-      return 0_u8 if (count == 0 || count == 1) # one
-      return 1_u8 if (count % 1_000_000 == 0)   # many
-      2_u8                                      # other
+      return 0_u8 if count == 0 || count == 1 # one
+      return 1_u8 if count % 1_000_000 == 0   # many
+      2_u8                                    # other
     end
 
     # Plural form for Hungarian and Serbian
@@ -558,9 +558,9 @@ module I18next::Plurals
       n_mod_10 = count % 10
       n_mod_100 = count % 100
 
-      return 0_u8 if (n_mod_10 == 1 && n_mod_100 != 11)                         # one
-      return 1_u8 if (2 <= n_mod_10 <= 4 && (n_mod_100 < 12 || 14 < n_mod_100)) # few
-      2_u8                                                                      # other
+      return 0_u8 if n_mod_10 == 1 && n_mod_100 != 11                         # one
+      return 1_u8 if 2 <= n_mod_10 <= 4 && (n_mod_100 < 12 || 14 < n_mod_100) # few
+      2_u8                                                                    # other
     end
   end
 end

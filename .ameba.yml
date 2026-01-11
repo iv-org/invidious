@@ -31,9 +31,6 @@ Lint/SpecFilename:
 # Style
 #
 
-Style/ParenthesesAroundCondition:
-  Enabled: false
-
 # This requires a rewrite of most data structs (and their usage) in Invidious.
 Naming/QueryBoolMethods:
   Enabled: false

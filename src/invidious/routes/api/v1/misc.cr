@@ -7,7 +7,7 @@ module Invidious::Routes::API::V1::Misc
       {"software" => SOFTWARE}.to_json
     else
       # Calculate playback success rate
-      if (tracker = Invidious::Jobs::StatisticsRefreshJob::STATISTICS["playback"]?)
+      if tracker = Invidious::Jobs::StatisticsRefreshJob::STATISTICS["playback"]?
         tracker = tracker.as(Hash(String, Int64 | Float64))
 
         if !tracker.empty?

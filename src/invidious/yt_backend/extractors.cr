@@ -204,7 +204,7 @@ private module Parsers
       # TODO change default value to nil
 
       subscriber_count = item_contents.dig?("subscriberCountText", "simpleText").try &.as_s
-      channel_handle = subscriber_count if (subscriber_count.try &.starts_with? "@")
+      channel_handle = subscriber_count if subscriber_count.try &.starts_with? "@"
 
       # Since youtube added channel handles, `VideoCountText` holds the number of
       # subscribers and `subscriberCountText` holds the handle, except when the
