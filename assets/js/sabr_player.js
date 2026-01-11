@@ -527,6 +527,8 @@ var SABRPlayer = (function() {
                         console.log('[SABRPlayer] Building SABR formats from', streamingData.adaptive_formats.length, 'adaptive formats');
                         var sabrFormats = streamingData.adaptive_formats.map(function(fmt) {
                             return buildSabrFormat(fmt);
+                        }).filter(function(format) {
+                            return !format.xtags;
                         });
                         console.log('[SABRPlayer] Setting', sabrFormats.length, 'SABR formats on adapter');
                         sabrAdapter.setServerAbrFormats(sabrFormats);
