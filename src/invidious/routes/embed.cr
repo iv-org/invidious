@@ -119,7 +119,6 @@ module Invidious::Routes::Embed
       end
 
       return env.redirect url
-    else nil # Continue
     end
 
     params = process_video_params(env.params.query, preferences)

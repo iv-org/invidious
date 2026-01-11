@@ -152,7 +152,6 @@ private module Parsers
         when "Premium"
           # TODO: Potentially available as item_contents["topStandaloneBadge"]["metadataBadgeRenderer"]
           badges |= VideoBadges::Premium
-        else nil # Ignore
         end
       end
 

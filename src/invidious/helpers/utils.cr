@@ -108,7 +108,6 @@ def decode_date(string : String)
     return Time.utc
   when "yesterday"
     return Time.utc - 1.day
-  else nil # Continue
   end
 
   # String matches format "20 hours ago", "4 months ago", "20s ago", "15min ago"...

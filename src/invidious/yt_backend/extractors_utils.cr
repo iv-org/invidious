@@ -24,8 +24,6 @@ def extract_text(item : JSON::Any?) : String?
     return text_container.as_s
   elsif text_container = item["runs"]?
     return text_container.as_a.map(&.["text"].as_s).join("")
-  else
-    nil
   end
 end
 

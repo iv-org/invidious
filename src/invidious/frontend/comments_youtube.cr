@@ -137,7 +137,6 @@ module Invidious::Frontend::Comments
                 <div id="skip-#{child["commentId"]}"></div>
               </section>
               END_HTML
-          else nil # Ignore
           end
         end
 
