@@ -41,11 +41,11 @@ module Invidious::Frontend::SearchFilters
     str << "\t\t\t\t<div class=\"filter-column\"><fieldset>\n"
 
     str << "\t\t\t\t\t<legend><div class=\"filter-name underlined\">"
-    str << translate(locale, "search_filters_{{name}}_label")
+    str << translate(locale, "search_filters_{{ name }}_label")
     str << "</div></legend>\n"
 
     str << "\t\t\t\t\t<div class=\"filter-options\">\n"
-    make_{{name}}_filter_options(str, filters.{{name}}, locale)
+    make_{{ name }}_filter_options(str, filters.{{ name }}, locale)
     str << "\t\t\t\t\t</div>"
 
     str << "\t\t\t\t</fieldset></div>\n"
@@ -57,12 +57,12 @@ module Invidious::Frontend::SearchFilters
       {% date = value.underscore %}
 
       str << "\t\t\t\t\t\t<div>"
-      str << "<input type='radio' name='date' id='filter-date-{{date}}' value='{{date}}'"
-      str << " checked" if value.{{date}}?
+      str << "<input type='radio' name='date' id='filter-date-{{ date }}' value='{{ date }}'"
+      str << " checked" if value.{{ date }}?
       str << '>'
 
-      str << "<label for='filter-date-{{date}}'>"
-      str << translate(locale, "search_filters_date_option_{{date}}")
+      str << "<label for='filter-date-{{ date }}'>"
+      str << translate(locale, "search_filters_date_option_{{ date }}")
       str << "</label></div>\n"
     {% end %}
   end
@@ -73,12 +73,12 @@ module Invidious::Frontend::SearchFilters
       {% type = value.underscore %}
 
       str << "\t\t\t\t\t\t<div>"
-      str << "<input type='radio' name='type' id='filter-type-{{type}}' value='{{type}}'"
-      str << " checked" if value.{{type}}?
+      str << "<input type='radio' name='type' id='filter-type-{{ type }}' value='{{ type }}'"
+      str << " checked" if value.{{ type }}?
       str << '>'
 
-      str << "<label for='filter-type-{{type}}'>"
-      str << translate(locale, "search_filters_type_option_{{type}}")
+      str << "<label for='filter-type-{{ type }}'>"
+      str << translate(locale, "search_filters_type_option_{{ type }}")
       str << "</label></div>\n"
     {% end %}
   end
@@ -89,12 +89,12 @@ module Invidious::Frontend::SearchFilters
       {% duration = value.underscore %}
 
       str << "\t\t\t\t\t\t<div>"
-      str << "<input type='radio' name='duration' id='filter-duration-{{duration}}' value='{{duration}}'"
-      str << " checked" if value.{{duration}}?
+      str << "<input type='radio' name='duration' id='filter-duration-{{ duration }}' value='{{ duration }}'"
+      str << " checked" if value.{{ duration }}?
       str << '>'
 
-      str << "<label for='filter-duration-{{duration}}'>"
-      str << translate(locale, "search_filters_duration_option_{{duration}}")
+      str << "<label for='filter-duration-{{ duration }}'>"
+      str << translate(locale, "search_filters_duration_option_{{ duration }}")
       str << "</label></div>\n"
     {% end %}
   end
@@ -106,12 +106,12 @@ module Invidious::Frontend::SearchFilters
         {% feature = value.underscore %}
 
         str << "\t\t\t\t\t\t<div>"
-        str << "<input type='checkbox' name='features' id='filter-feature-{{feature}}' value='{{feature}}'"
-        str << " checked" if value.{{feature}}?
+        str << "<input type='checkbox' name='features' id='filter-feature-{{ feature }}' value='{{ feature }}'"
+        str << " checked" if value.{{ feature }}?
         str << '>'
 
-        str << "<label for='filter-feature-{{feature}}'>"
-        str << translate(locale, "search_filters_features_option_{{feature}}")
+        str << "<label for='filter-feature-{{ feature }}'>"
+        str << translate(locale, "search_filters_features_option_{{ feature }}")
         str << "</label></div>\n"
       {% end %}
     {% end %}
@@ -123,12 +123,12 @@ module Invidious::Frontend::SearchFilters
       {% sort = value.underscore %}
 
       str << "\t\t\t\t\t\t<div>"
-      str << "<input type='radio' name='sort' id='filter-sort-{{sort}}' value='{{sort}}'"
-      str << " checked" if value.{{sort}}?
+      str << "<input type='radio' name='sort' id='filter-sort-{{ sort }}' value='{{ sort }}'"
+      str << " checked" if value.{{ sort }}?
       str << '>'
 
-      str << "<label for='filter-sort-{{sort}}'>"
-      str << translate(locale, "search_filters_sort_option_{{sort}}")
+      str << "<label for='filter-sort-{{ sort }}'>"
+      str << translate(locale, "search_filters_sort_option_{{ sort }}")
       str << "</label></div>\n"
     {% end %}
   end

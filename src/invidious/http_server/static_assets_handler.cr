@@ -106,7 +106,7 @@ module Invidious::HttpServer
     # Can be removed once https://github.com/crystal-lang/crystal/issues/15817 is fixed.
     private def serve_file_range(context : HTTP::Server::Context, file : IO, range_header : String, file_info)
       # Paste in the body of inherited serve_file_range
-      {{@type.superclass.methods.select(&.name.==("serve_file_range"))[0].body}}
+      {{ @type.superclass.methods.select(&.name.==("serve_file_range"))[0].body }}
     end
 
     # Clear cached files.

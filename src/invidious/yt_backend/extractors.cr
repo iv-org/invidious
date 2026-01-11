@@ -40,8 +40,8 @@ private module Parsers
       begin
         return parse_internal(*args)
       rescue ex
-        LOGGER.debug("#{{{@type.name}}}: Failed to render item.")
-        LOGGER.debug("#{{{@type.name}}}: Got exception: #{ex.message}")
+        LOGGER.debug("#{{{ @type.name }}}: Failed to render item.")
+        LOGGER.debug("#{{{ @type.name }}}: Got exception: #{ex.message}")
         ProblematicTimelineItem.new(
           parse_exception: ex
         )
@@ -173,7 +173,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{@type.name}}
+      return {{ @type.name }}
     end
   end
 
@@ -240,7 +240,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{@type.name}}
+      return {{ @type.name }}
     end
   end
 
@@ -289,7 +289,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{@type.name}}
+      return {{ @type.name }}
     end
   end
 
@@ -334,7 +334,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{@type.name}}
+      return {{ @type.name }}
     end
   end
 
@@ -395,7 +395,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{@type.name}}
+      return {{ @type.name }}
     end
   end
 
@@ -467,7 +467,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{@type.name}}
+      return {{ @type.name }}
     end
   end
 
@@ -496,7 +496,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{@type.name}}
+      return {{ @type.name }}
     end
   end
 
@@ -527,7 +527,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{@type.name}}
+      return {{ @type.name }}
     end
   end
 
@@ -626,7 +626,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{@type.name}}
+      return {{ @type.name }}
     end
   end
 
@@ -704,7 +704,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{@type.name}}
+      return {{ @type.name }}
     end
   end
 
@@ -762,7 +762,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{@type.name}}
+      return {{ @type.name }}
     end
   end
 
@@ -791,7 +791,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{@type.name}}
+      return {{ @type.name }}
     end
   end
 end
@@ -878,7 +878,7 @@ private module Extractors
     end
 
     def self.extractor_name
-      return {{@type.name}}
+      return {{ @type.name }}
     end
   end
 
@@ -919,7 +919,7 @@ private module Extractors
     end
 
     def self.extractor_name
-      return {{@type.name}}
+      return {{ @type.name }}
     end
   end
 
@@ -953,7 +953,7 @@ private module Extractors
     end
 
     def self.extractor_name
-      return {{@type.name}}
+      return {{ @type.name }}
     end
   end
 end

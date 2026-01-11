@@ -3,7 +3,7 @@
 # -------------------
 
 macro error_template(*args)
-  error_template_helper(env, {{args.splat}})
+  error_template_helper(env, {{ args.splat }})
 end
 
 def github_details(summary : String, content : String)
@@ -106,7 +106,7 @@ end
 # -------------------
 
 macro error_atom(*args)
-  error_atom_helper(env, {{args.splat}})
+  error_atom_helper(env, {{ args.splat }})
 end
 
 def error_atom_helper(env : HTTP::Server::Context, status_code : Int32, exception : Exception)
@@ -132,7 +132,7 @@ end
 # -------------------
 
 macro error_json(*args)
-  error_json_helper(env, {{args.splat}})
+  error_json_helper(env, {{ args.splat }})
 end
 
 def error_json_helper(

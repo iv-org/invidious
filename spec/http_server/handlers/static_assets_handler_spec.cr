@@ -59,7 +59,7 @@ end
 
 # Get relative file path to a file within the static_assets_handler folder
 macro get_file_path(basename)
-  "spec/http_server/handlers/static_assets_handler/#{ {{basename}} }"
+  "spec/http_server/handlers/static_assets_handler/#{ {{ basename }} }"
 end
 
 Spectator.describe StaticAssetsHandler do
