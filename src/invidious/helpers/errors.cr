@@ -61,7 +61,7 @@ def error_template_helper(env : HTTP::Server::Context, status_code : Int32, exce
   url_new_issue += "?labels=bug&template=bug_report.md&title="
   url_new_issue += URI.encode_www_form("[Bug] " + issue_title)
 
-  error_message = <<-END_HTML
+  error_message = <<-HTML
     <div class="error_message">
       <h2>#{translate(locale, "crash_page_you_found_a_bug")}</h2>
       <br/><br/>
@@ -80,7 +80,7 @@ def error_template_helper(env : HTTP::Server::Context, status_code : Int32, exce
       <!-- TODO: Add a "copy to clipboard" button -->
       <pre class="error-issue-template">#{issue_template}</pre>
     </div>
-    END_HTML
+    HTML
 
   # Don't show the usual "next steps" widget. The same options are
   # proposed above the error message, just worded differently.
@@ -191,7 +191,7 @@ def error_redirect_helper(env : HTTP::Server::Context)
     go_to_youtube = translate(locale, "next_steps_error_message_go_to_youtube")
     switch_instance = translate(locale, "Switch Invidious Instance")
 
-    return <<-END_HTML
+    return <<-HTML
       <p style="margin-bottom: 4px;">#{next_steps_text}</p>
       <ul>
         <li>
@@ -204,7 +204,7 @@ def error_redirect_helper(env : HTTP::Server::Context)
           <a rel="noreferrer noopener" href="https://youtube.com#{env.request.resource}">#{go_to_youtube}</a>
         </li>
       </ul>
-      END_HTML
+      HTML
   else
     return ""
   end

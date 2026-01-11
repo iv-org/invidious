@@ -508,7 +508,7 @@ def extract_playlist_videos(initial_data : Hash(String, JSON::Any))
 end
 
 def template_playlist(playlist, listen)
-  html = <<-END_HTML
+  html = <<-HTML
     <h3>
       <a href="/playlist?list=#{playlist["playlistId"]}">
         #{playlist["title"]}
@@ -516,10 +516,10 @@ def template_playlist(playlist, listen)
     </h3>
     <div class="pure-menu pure-menu-scrollable playlist-restricted">
       <ol class="pure-menu-list">
-    END_HTML
+    HTML
 
   playlist["videos"].as_a.each do |video|
-    html += <<-END_HTML
+    html += <<-HTML
       <li class="pure-menu-item" id="#{video["videoId"]}">
         <a href="/watch?v=#{video["videoId"]}&list=#{playlist["playlistId"]}&index=#{video["index"]}#{listen ? "&listen=1" : ""}">
           <div class="thumbnail">
@@ -532,14 +532,14 @@ def template_playlist(playlist, listen)
           </p>
         </a>
       </li>
-      END_HTML
+      HTML
   end
 
-  html += <<-END_HTML
+  html += <<-HTML
       </ol>
     </div>
     <hr>
-    END_HTML
+    HTML
 
   html
 end

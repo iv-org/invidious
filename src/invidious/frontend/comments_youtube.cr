@@ -12,7 +12,7 @@ module Invidious::Frontend::Comments
             NumberFormatting::Separator
           )
 
-          replies_html = <<-END_HTML
+          replies_html = <<-HTML
             <div id="replies" class="pure-g">
               <div class="pure-u-1-24"></div>
               <div class="pure-u-23-24">
@@ -22,7 +22,7 @@ module Invidious::Frontend::Comments
                 </p>
               </div>
             </div>
-            END_HTML
+            HTML
         elsif comments["authorId"]? && !comments["singlePost"]?
           # for posts we should display a link to the post
           replies_count_text = translate_count(locale,
@@ -31,7 +31,7 @@ module Invidious::Frontend::Comments
             NumberFormatting::Separator
           )
 
-          replies_html = <<-END_HTML
+          replies_html = <<-HTML
             <div class="pure-g">
               <div class="pure-u-1-24"></div>
               <div class="pure-u-23-24">
@@ -40,7 +40,7 @@ module Invidious::Frontend::Comments
                 </p>
               </div>
             </div>
-            END_HTML
+            HTML
         end
 
         if !thin_mode
@@ -65,7 +65,7 @@ module Invidious::Frontend::Comments
             str << %(width="16" height="16" />)
           end
         end
-        html << <<-END_HTML
+        html << <<-HTML
           <div class="pure-g" style="width:100%">
             <div class="channel-profile pure-u-4-24 pure-u-md-2-24">
               <img loading="lazy" style="margin-right:1em;margin-top:1em;width:90%" src="#{author_thumbnail}" alt="" />
@@ -77,7 +77,7 @@ module Invidious::Frontend::Comments
                 </b>
                 #{sponsor_icon}
                 <p style="white-space:pre-wrap">#{child["contentHtml"]}</p>
-          END_HTML
+          HTML
 
         if child["attachment"]?
           attachment = child["attachment"]
@@ -86,81 +86,81 @@ module Invidious::Frontend::Comments
           when "image"
             attachment = attachment["imageThumbnails"][1]
 
-            html << <<-END_HTML
+            html << <<-HTML
               <div class="pure-g">
                 <div class="pure-u-1 pure-u-md-1-2">
                   <img loading="lazy" style="width:100%" src="/ggpht#{URI.parse(attachment["url"].as_s).request_target}" alt="" />
                 </div>
               </div>
-              END_HTML
+              HTML
           when "video"
             if attachment["error"]?
-              html << <<-END_HTML
+              html << <<-HTML
                 <div class="pure-g video-iframe-wrapper">
                   <p>#{attachment["error"]}</p>
                 </div>
-                END_HTML
+                HTML
             else
-              html << <<-END_HTML
+              html << <<-HTML
                 <div class="pure-g video-iframe-wrapper">
                   <iframe class="video-iframe" src='/embed/#{attachment["videoId"]?}?autoplay=0'></iframe>
                 </div>
-                END_HTML
+                HTML
             end
           when "multiImage"
-            html << <<-END_HTML
+            html << <<-HTML
               <section class="carousel">
               <a class="skip-link" href="#skip-#{child["commentId"]}">#{translate(locale, "carousel_skip")}</a>
               <div class="slides">
-              END_HTML
+              HTML
             image_array = attachment["images"].as_a
 
             image_array.each_index do |i|
-              html << <<-END_HTML
+              html << <<-HTML
                   <div class="slides-item slide-#{i + 1}" id="#{child["commentId"]}-slide-#{i + 1}" aria-label="#{translate(locale, "carousel_slide", {"current" => (i + 1).to_s, "total" => image_array.size.to_s})}" tabindex="0">
                     <img loading="lazy" src="/ggpht#{URI.parse(image_array[i][1]["url"].as_s).request_target}" alt="" />
                   </div>
-                END_HTML
+                HTML
             end
 
-            html << <<-END_HTML
+            html << <<-HTML
               </div>
               <div class="carousel__nav">
-              END_HTML
+              HTML
             attachment["images"].as_a.each_index do |i|
-              html << <<-END_HTML
+              html << <<-HTML
                   <a class="slider-nav" href="##{child["commentId"]}-slide-#{i + 1}" aria-label="#{translate(locale, "carousel_go_to", (i + 1).to_s)}" tabindex="-1" aria-hidden="true">#{i + 1}</a>
-                END_HTML
+                HTML
             end
-            html << <<-END_HTML
+            html << <<-HTML
                 </div>
                 <div id="skip-#{child["commentId"]}"></div>
               </section>
-              END_HTML
+              HTML
           end
         end
 
-        html << <<-END_HTML
+        html << <<-HTML
           <p>
             <span title="#{Time.unix(child["published"].as_i64).to_s(translate(locale, "%A %B %-d, %Y"))}">#{translate(locale, "`x` ago", recode_date(Time.unix(child["published"].as_i64), locale))} #{child["isEdited"] == true ? translate(locale, "(edited)") : ""}</span>
             |
-          END_HTML
+          HTML
 
         if comments["videoId"]?
-          html << <<-END_HTML
+          html << <<-HTML
             <a rel="noreferrer noopener" href="https://www.youtube.com/watch?v=#{comments["videoId"]}&lc=#{child["commentId"]}" title="#{translate(locale, "YouTube comment permalink")}">[YT]</a>
             |
-            END_HTML
+            HTML
         elsif comments["authorId"]?
-          html << <<-END_HTML
+          html << <<-HTML
             <a rel="noreferrer noopener" href="https://www.youtube.com/channel/#{comments["authorId"]}/community?lb=#{child["commentId"]}" title="#{translate(locale, "YouTube comment permalink")}">[YT]</a>
             |
-            END_HTML
+            HTML
         end
 
-        html << <<-END_HTML
+        html << <<-HTML
           <i class="icon ion-ios-thumbs-up"></i> #{number_with_separator(child["likeCount"])}
-          END_HTML
+          HTML
 
         if child["creatorHeart"]?
           if !thin_mode
@@ -169,7 +169,7 @@ module Invidious::Frontend::Comments
             creator_thumbnail = ""
           end
 
-          html << <<-END_HTML
+          html << <<-HTML
             &nbsp;
             <span class="creator-heart-container" title="#{translate(locale, "`x` marked it with a ❤", child["creatorHeart"]["creatorName"].as_s)}">
                 <span class="creator-heart">
@@ -179,19 +179,19 @@ module Invidious::Frontend::Comments
                     </span>
                 </span>
             </span>
-            END_HTML
+            HTML
         end
 
-        html << <<-END_HTML
+        html << <<-HTML
               </p>
               #{replies_html}
             </div>
           </div>
-          END_HTML
+          HTML
       end
 
       if comments["continuation"]?
-        html << <<-END_HTML
+        html << <<-HTML
           <div class="pure-g">
             <div class="pure-u-1">
               <p>
@@ -200,7 +200,7 @@ module Invidious::Frontend::Comments
               </p>
             </div>
           </div>
-          END_HTML
+          HTML
       end
     end
   end

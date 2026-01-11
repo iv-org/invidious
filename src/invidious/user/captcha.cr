@@ -19,7 +19,7 @@ struct Invidious::User
         hour = 12
       end
 
-      clock_svg = <<-END_SVG
+      clock_svg = <<-SVG
         <svg viewBox="0 0 100 100" width="200px" height="200px">
         <circle cx="50" cy="50" r="45" fill="#eee" stroke="black" stroke-width="2"></circle>
 
@@ -41,7 +41,7 @@ struct Invidious::User
         <line id="minute" transform="rotate(#{minute_angle}, 50, 50)" x1="50" y1="50" x2="50" y2="16" fill="black" stroke="black" stroke-width="2"></line>
         <line id="hour"   transform="rotate(#{hour_angle}, 50, 50)" x1="50" y1="50" x2="50" y2="24" fill="black" stroke="black" stroke-width="2"></line>
         </svg>
-        END_SVG
+        SVG
 
       image = "data:image/png;base64,"
       image += Process.run(%(rsvg-convert -w 400 -h 400 -b none -f png), shell: true,

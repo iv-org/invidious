@@ -15,20 +15,20 @@ module Invidious::Frontend::Comments
           end
 
           if child.depth > 0
-            html << <<-END_HTML
+            html << <<-HTML
               <div class="pure-g">
               <div class="pure-u-1-24">
               </div>
               <div class="pure-u-23-24">
-              END_HTML
+              HTML
           else
-            html << <<-END_HTML
+            html << <<-HTML
               <div class="pure-g">
               <div class="pure-u-1">
-              END_HTML
+              HTML
           end
 
-          html << <<-END_HTML
+          html << <<-HTML
             <p>
               <a href="javascript:void(0)" data-onclick="toggle_parent">[ − ]</a>
               <b><a href="https://www.reddit.com/user/#{child.author}">#{child.author}</a></b>
@@ -42,7 +42,7 @@ module Invidious::Frontend::Comments
             </div>
             </div>
             </div>
-            END_HTML
+            HTML
         end
       end
     end
