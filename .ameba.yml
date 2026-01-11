@@ -31,9 +31,6 @@ Lint/SpecFilename:
 # Style
 #
 
-Style/RedundantNext:
-  Enabled: false
-
 Style/ParenthesesAroundCondition:
   Enabled: false
 

@@ -41,7 +41,7 @@ struct YoutubeConnectionPool
     )
 
     DB::Pool(HTTP::Client).new(options) do
-      next make_client(url, force_resolve: true)
+      make_client(url, force_resolve: true)
     end
   end
 end
