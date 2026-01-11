@@ -673,9 +673,9 @@ private module Parsers
       video_count = thumbnail_view_model.dig("overlays").as_a
         .compact_map(&.dig?("thumbnailOverlayBadgeViewModel", "thumbnailBadges").try &.as_a)
         .flatten
-        .find(nil, &.dig?("thumbnailBadgeViewModel", "text").try { |node|
+        .find(nil, &.dig?("thumbnailBadgeViewModel", "text").try do |node|
           {"episodes", "videos"}.any? { |str| node.as_s.ends_with?(str) }
-        })
+        end)
         .try &.dig("thumbnailBadgeViewModel", "text").as_s.to_i(strict: false)
 
       metadata = item_contents.dig("metadata", "lockupMetadataViewModel")

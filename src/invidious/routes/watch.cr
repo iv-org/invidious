@@ -145,14 +145,14 @@ module Invidious::Routes::Watch
 
     captions = video.captions
 
-    preferred_captions = captions.select { |caption|
+    preferred_captions = captions.select do |caption|
       params.preferred_captions.includes?(caption.name) ||
         params.preferred_captions.includes?(caption.language_code.split("-")[0])
-    }
-    preferred_captions.sort_by! { |caption|
+    end
+    preferred_captions.sort_by! do |caption|
       (params.preferred_captions.index(caption.name) ||
         params.preferred_captions.index(caption.language_code.split("-")[0])).not_nil!
-    }
+    end
     captions = captions - preferred_captions
 
     aspect_ratio = "16:9"
