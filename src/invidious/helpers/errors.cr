@@ -61,6 +61,7 @@ def error_template_helper(env : HTTP::Server::Context, status_code : Int32, exce
   url_new_issue += "?labels=bug&template=bug_report.md&title="
   url_new_issue += URI.encode_www_form("[Bug] " + issue_title)
 
+  # ameba:disable Lint/UselessAssign
   error_message = <<-HTML
     <div class="error_message">
       <h2>#{translate(locale, "crash_page_you_found_a_bug")}</h2>
@@ -84,6 +85,7 @@ def error_template_helper(env : HTTP::Server::Context, status_code : Int32, exce
 
   # Don't show the usual "next steps" widget. The same options are
   # proposed above the error message, just worded differently.
+  # ameba:disable Lint/UselessAssign
   next_steps = ""
 
   templated "error"
@@ -95,7 +97,9 @@ def error_template_helper(env : HTTP::Server::Context, status_code : Int32, mess
 
   locale = env.get("preferences").as(Preferences).locale
 
+  # ameba:disable Lint/UselessAssign
   error_message = translate(locale, message)
+  # ameba:disable Lint/UselessAssign
   next_steps = error_redirect_helper(env)
 
   templated "error"
