@@ -38,9 +38,6 @@ Style/ParenthesesAroundCondition:
 Naming/QueryBoolMethods:
   Enabled: false
 
-Naming/AccessorMethodName:
-  Enabled: false
-
 Naming/BlockParameterName:
   Enabled: false
 

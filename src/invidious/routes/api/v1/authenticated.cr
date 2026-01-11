@@ -17,6 +17,7 @@ module Invidious::Routes::API::V1::Authenticated
     user.preferences.to_json
   end
 
+  # ameba:disable Naming/AccessorMethodName
   def self.set_preferences(env)
     env.response.content_type = "application/json"
     user = env.get("user").as(User)
