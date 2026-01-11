@@ -20,7 +20,7 @@ module WebVTT
     # Writes an vtt cue with the specified time stamp and contents
     def cue(start_time : Time::Span, end_time : Time::Span, text : String)
       timestamp(start_time, end_time)
-      @io << self.escape(text)
+      @io << escape(text)
       @io << "\n\n"
     end
 

@@ -151,17 +151,17 @@ module I18next::Plurals
         @version = version.to_u8
       end
 
-      self.init_rules
+      init_rules
     end
 
     def init_rules
       # Look into sets
       PLURAL_SETS.each do |form, langs|
-        langs.each { |lang| self.forms[lang] = form }
+        langs.each { |lang| forms[lang] = form }
       end
 
       # Add plurals from the "singles" set
-      self.forms.merge!(PLURAL_SINGLES)
+      forms.merge!(PLURAL_SINGLES)
     end
 
     def get_plural_form(locale : String) : PluralForms
@@ -170,7 +170,7 @@ module I18next::Plurals
         locale = locale.split('-')[0]
       end
 
-      return self.forms[locale] if self.forms[locale]?
+      return forms[locale] if forms[locale]?
 
       # If nothing was found, then use the most common form, i.e
       # one singular and one plural, as in english. Not perfect,

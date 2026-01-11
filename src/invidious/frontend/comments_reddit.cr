@@ -11,7 +11,7 @@ module Invidious::Frontend::Comments
           replies_html = ""
           if child.replies.is_a?(RedditThing)
             replies = child.replies.as(RedditThing)
-            replies_html = self.template_reddit(replies.data.as(RedditListing).children, locale)
+            replies_html = template_reddit(replies.data.as(RedditListing).children, locale)
           end
 
           if child.depth > 0

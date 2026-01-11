@@ -8,11 +8,11 @@ module Invidious::Routes::Channels
   end
 
   def self.home(env)
-    self.videos(env)
+    videos(env)
   end
 
   def self.videos(env)
-    data = self.fetch_basic_information(env)
+    data = fetch_basic_information(env)
     return data if !data.is_a?(Tuple)
 
     locale, user, subscriptions, continuation, ucid, channel = data
@@ -64,7 +64,7 @@ module Invidious::Routes::Channels
   end
 
   def self.shorts(env)
-    data = self.fetch_basic_information(env)
+    data = fetch_basic_information(env)
     return data if !data.is_a?(Tuple)
 
     locale, user, subscriptions, continuation, ucid, channel = data
@@ -99,7 +99,7 @@ module Invidious::Routes::Channels
   end
 
   def self.streams(env)
-    data = self.fetch_basic_information(env)
+    data = fetch_basic_information(env)
     return data if !data.is_a?(Tuple)
 
     locale, user, subscriptions, continuation, ucid, channel = data
@@ -134,7 +134,7 @@ module Invidious::Routes::Channels
   end
 
   def self.playlists(env)
-    data = self.fetch_basic_information(env)
+    data = fetch_basic_information(env)
     return data if !data.is_a?(Tuple)
 
     locale, user, subscriptions, continuation, ucid, channel = data
@@ -158,7 +158,7 @@ module Invidious::Routes::Channels
   end
 
   def self.podcasts(env)
-    data = self.fetch_basic_information(env)
+    data = fetch_basic_information(env)
     return data if !data.is_a?(Tuple)
 
     locale, user, subscriptions, continuation, ucid, channel = data
@@ -178,7 +178,7 @@ module Invidious::Routes::Channels
   end
 
   def self.releases(env)
-    data = self.fetch_basic_information(env)
+    data = fetch_basic_information(env)
     return data if !data.is_a?(Tuple)
 
     locale, user, subscriptions, continuation, ucid, channel = data
@@ -198,7 +198,7 @@ module Invidious::Routes::Channels
   end
 
   def self.courses(env)
-    data = self.fetch_basic_information(env)
+    data = fetch_basic_information(env)
     return data if !data.is_a?(Tuple)
 
     locale, user, subscriptions, continuation, ucid, channel = data
@@ -220,7 +220,7 @@ module Invidious::Routes::Channels
   def self.community(env)
     return env.redirect env.request.path.sub("posts", "community") if env.request.path.split("/").last == "posts"
 
-    data = self.fetch_basic_information(env)
+    data = fetch_basic_information(env)
     if !data.is_a?(Tuple)
       return data
     end
@@ -298,7 +298,7 @@ module Invidious::Routes::Channels
   end
 
   def self.channels(env)
-    data = self.fetch_basic_information(env)
+    data = fetch_basic_information(env)
     return data if !data.is_a?(Tuple)
 
     locale, user, subscriptions, continuation, ucid, channel = data
@@ -318,7 +318,7 @@ module Invidious::Routes::Channels
   end
 
   def self.about(env)
-    data = self.fetch_basic_information(env)
+    data = fetch_basic_information(env)
     if !data.is_a?(Tuple)
       return data
     end

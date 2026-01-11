@@ -13,10 +13,10 @@ module Invidious::JSONify::APIv1
       json.field "error", video.info["reason"] if video.info["reason"]?
 
       json.field "videoThumbnails" do
-        self.thumbnails(json, video.id)
+        thumbnails(json, video.id)
       end
       json.field "storyboards" do
-        self.storyboards(json, video.id, video.storyboards)
+        storyboards(json, video.id, video.storyboards)
       end
 
       json.field "description", video.description
@@ -241,7 +241,7 @@ module Invidious::JSONify::APIv1
                 json.field "videoId", rv["id"]
                 json.field "title", rv["title"]
                 json.field "videoThumbnails" do
-                  self.thumbnails(json, rv["id"])
+                  thumbnails(json, rv["id"])
                 end
 
                 json.field "author", rv["author"]

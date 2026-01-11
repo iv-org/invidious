@@ -70,7 +70,7 @@ module Invidious::Frontend::Pagination
         params_prev = URI::Params{"page" => (current_page - 1).to_s}
         url_prev = HttpServer::Utils.add_params_to_url(base_url, params_prev)
 
-        self.previous_page(str, locale, url_prev.to_s)
+        previous_page(str, locale, url_prev.to_s)
       end
 
       str << %(</div>\n)
@@ -80,7 +80,7 @@ module Invidious::Frontend::Pagination
         params_next = URI::Params{"page" => (current_page + 1).to_s}
         url_next = HttpServer::Utils.add_params_to_url(base_url, params_next)
 
-        self.next_page(str, locale, url_next.to_s)
+        next_page(str, locale, url_next.to_s)
       end
 
       str << %(</div>\n)
@@ -109,7 +109,7 @@ module Invidious::Frontend::Pagination
         params["continuation"] = ctoken
         url_next = HttpServer::Utils.add_params_to_url(base_url, params)
 
-        self.next_page(str, locale, url_next.to_s)
+        next_page(str, locale, url_next.to_s)
       end
 
       str << %(</div>\n)

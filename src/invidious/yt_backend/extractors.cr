@@ -64,7 +64,7 @@ private module Parsers
 
     def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = (item["videoRenderer"]? || item["gridVideoRenderer"]?)
-        return self.parse(item_contents, author_fallback)
+        return parse(item_contents, author_fallback)
       end
     end
 
@@ -192,7 +192,7 @@ private module Parsers
 
     def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = (item["channelRenderer"]? || item["gridChannelRenderer"]?)
-        return self.parse(item_contents, author_fallback)
+        return parse(item_contents, author_fallback)
       end
     end
 
@@ -255,7 +255,7 @@ private module Parsers
 
     def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["hashtagTileRenderer"]?
-        return self.parse(item_contents)
+        return parse(item_contents)
       end
     end
 
@@ -308,7 +308,7 @@ private module Parsers
 
     def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["gridPlaylistRenderer"]?
-        return self.parse(item_contents, author_fallback)
+        return parse(item_contents, author_fallback)
       end
     end
 
@@ -352,7 +352,7 @@ private module Parsers
 
     def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["playlistRenderer"]?
-        return self.parse(item_contents, author_fallback)
+        return parse(item_contents, author_fallback)
       end
     end
 
@@ -415,7 +415,7 @@ private module Parsers
 
     def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["shelfRenderer"]?
-        return self.parse(item_contents, author_fallback)
+        return parse(item_contents, author_fallback)
       end
     end
 
@@ -484,7 +484,7 @@ private module Parsers
 
     def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item.dig?("itemSectionRenderer", "contents", 0)
-        return self.parse(item_contents, author_fallback)
+        return parse(item_contents, author_fallback)
       end
     end
 
@@ -513,7 +513,7 @@ private module Parsers
 
     def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item.dig?("richItemRenderer", "content")
-        return self.parse(item_contents, author_fallback)
+        return parse(item_contents, author_fallback)
       end
     end
 
@@ -546,7 +546,7 @@ private module Parsers
 
     def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["reelItemRenderer"]?
-        return self.parse(item_contents, author_fallback)
+        return parse(item_contents, author_fallback)
       end
     end
 
@@ -643,7 +643,7 @@ private module Parsers
 
     def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["lockupViewModel"]?
-        return self.parse(item_contents, author_fallback)
+        return parse(item_contents, author_fallback)
       end
     end
 
@@ -721,7 +721,7 @@ private module Parsers
 
     def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["shortsLockupViewModel"]?
-        return self.parse(item_contents, author_fallback)
+        return parse(item_contents, author_fallback)
       end
     end
 
@@ -778,7 +778,7 @@ private module Parsers
   module ContinuationItemRendererParser
     def self.process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["continuationItemRenderer"]?
-        return self.parse(item_contents)
+        return parse(item_contents)
       end
     end
 
@@ -831,7 +831,7 @@ private module Extractors
   module YouTubeTabs
     def self.process(initial_data : InitialData)
       if target = initial_data["twoColumnBrowseResultsRenderer"]?
-        self.extract(target)
+        extract(target)
       end
     end
 
@@ -853,7 +853,7 @@ private module Extractors
 
       contents.as_a.each do |item|
         if item_section_content = item.dig?("itemSectionRenderer", "contents")
-          raw_items += self.unpack_item_section(item_section_content)
+          raw_items += unpack_item_section(item_section_content)
         else
           raw_items << item
         end
@@ -902,7 +902,7 @@ private module Extractors
   module SearchResults
     def self.process(initial_data : InitialData)
       if target = initial_data["twoColumnSearchResultsRenderer"]?
-        self.extract(target)
+        extract(target)
       end
     end
 
@@ -936,11 +936,11 @@ private module Extractors
   module ContinuationContent
     def self.process(initial_data : InitialData)
       if target = initial_data["continuationContents"]?
-        self.extract(target)
+        extract(target)
       elsif target = initial_data["appendContinuationItemsAction"]?
-        self.extract(target)
+        extract(target)
       elsif target = initial_data["reloadContinuationItemsCommand"]?
-        self.extract(target)
+        extract(target)
       end
     end
 

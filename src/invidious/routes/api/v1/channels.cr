@@ -137,7 +137,7 @@ module Invidious::Routes::API::V1::Channels
     env.params.query.delete("sort_by") if env.params.query.has_key?("sort_by")
     env.params.query.delete("continuation") if env.params.query.has_key?("continuation")
 
-    return self.videos(env)
+    return videos(env)
   end
 
   def self.videos(env)

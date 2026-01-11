@@ -25,7 +25,7 @@ class Invidious::Jobs::InstanceListRefreshJob < Invidious::Jobs::BaseJob
   # -  Is it an instance with a good uptime?
   # -  Is it an updated instance?
   private def refresh_instances
-    raw_instance_list = self.fetch_instances
+    raw_instance_list = fetch_instances
     filtered_instance_list = [] of Tuple(String, String)
 
     raw_instance_list.each do |instance_data|

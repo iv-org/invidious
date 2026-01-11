@@ -9,7 +9,7 @@ module Invidious::Routes::Companion
     begin
       COMPANION_POOL.client do |wrapper|
         wrapper.client.get(url, env.request.headers) do |resp|
-          return self.proxy_companion(env, resp)
+          return proxy_companion(env, resp)
         end
       end
     rescue ex
@@ -26,7 +26,7 @@ module Invidious::Routes::Companion
     begin
       COMPANION_POOL.client do |wrapper|
         wrapper.client.post(url, env.request.headers, env.request.body) do |resp|
-          return self.proxy_companion(env, resp)
+          return proxy_companion(env, resp)
         end
       end
     rescue ex
@@ -42,7 +42,7 @@ module Invidious::Routes::Companion
     begin
       COMPANION_POOL.client do |wrapper|
         wrapper.client.options(url, env.request.headers) do |resp|
-          return self.proxy_companion(env, resp)
+          return proxy_companion(env, resp)
         end
       end
     rescue ex

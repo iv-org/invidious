@@ -42,11 +42,11 @@ module Invidious::Routing
       end
     {% end %}
 
-    self.register_image_routes
-    self.register_api_v1_routes
-    self.register_api_manifest_routes
-    self.register_video_playback_routes
-    self.register_companion_routes
+    register_image_routes
+    register_api_v1_routes
+    register_api_manifest_routes
+    register_video_playback_routes
+    register_companion_routes
   end
 
   # -------------------

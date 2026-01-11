@@ -268,7 +268,7 @@ module YoutubeAPI
     # Convert to string, for logging purposes
     def to_s
       return {
-        client_type: self.name,
+        client_type: name,
         region:      @region,
       }.to_s
     end
@@ -356,11 +356,11 @@ module YoutubeAPI
   def browse(continuation : String, client_config : ClientConfig? = nil)
     # JSON Request data, required by the API
     data = {
-      "context"      => self.make_context(client_config),
+      "context"      => make_context(client_config),
       "continuation" => continuation,
     }
 
-    return self._post_json("/youtubei/v1/browse", data, client_config)
+    return _post_json("/youtubei/v1/browse", data, client_config)
   end
 
   # :ditto:
@@ -373,7 +373,7 @@ module YoutubeAPI
     # JSON Request data, required by the API
     data = {
       "browseId" => browse_id,
-      "context"  => self.make_context(client_config),
+      "context"  => make_context(client_config),
     }
 
     # Append the additional parameters if those were provided
@@ -382,7 +382,7 @@ module YoutubeAPI
       data["params"] = params
     end
 
-    return self._post_json("/youtubei/v1/browse", data, client_config)
+    return _post_json("/youtubei/v1/browse", data, client_config)
   end
 
   ####################################################################
@@ -424,21 +424,21 @@ module YoutubeAPI
   def next(continuation : String, *, client_config : ClientConfig? = nil)
     # JSON Request data, required by the API
     data = {
-      "context"      => self.make_context(client_config),
+      "context"      => make_context(client_config),
       "continuation" => continuation,
     }
 
-    return self._post_json("/youtubei/v1/next", data, client_config)
+    return _post_json("/youtubei/v1/next", data, client_config)
   end
 
   # :ditto:
   def next(data : Hash, *, client_config : ClientConfig? = nil)
     # JSON Request data, required by the API
     data2 = data.merge({
-      "context" => self.make_context(client_config),
+      "context" => make_context(client_config),
     })
 
-    return self._post_json("/youtubei/v1/next", data2, client_config)
+    return _post_json("/youtubei/v1/next", data2, client_config)
   end
 
   # Allow a NamedTuple to be passed, too.
@@ -461,7 +461,7 @@ module YoutubeAPI
     }
 
     if CONFIG.invidious_companion.present?
-      return self._post_invidious_companion("/youtubei/v1/player", data)
+      return _post_invidious_companion("/youtubei/v1/player", data)
     else
       return nil
     end
@@ -497,11 +497,11 @@ module YoutubeAPI
   #
   def resolve_url(url : String, client_config : ClientConfig? = nil)
     data = {
-      "context" => self.make_context(nil),
+      "context" => make_context(nil),
       "url"     => url,
     }
 
-    return self._post_json("/youtubei/v1/navigation/resolve_url", data, client_config)
+    return _post_json("/youtubei/v1/navigation/resolve_url", data, client_config)
   end
 
   ####################################################################
@@ -526,11 +526,11 @@ module YoutubeAPI
     # JSON Request data, required by the API
     data = {
       "query"   => search_query,
-      "context" => self.make_context(client_config),
+      "context" => make_context(client_config),
       "params"  => params,
     }
 
-    return self._post_json("/youtubei/v1/search", data, client_config)
+    return _post_json("/youtubei/v1/search", data, client_config)
   end
 
   ####################################################################
@@ -550,11 +550,11 @@ module YoutubeAPI
     client_config : ClientConfig? = nil,
   ) : Hash(String, JSON::Any)
     data = {
-      "context" => self.make_context(client_config),
+      "context" => make_context(client_config),
       "params"  => params,
     }
 
-    return self._post_json("/youtubei/v1/get_transcript", data, client_config)
+    return _post_json("/youtubei/v1/get_transcript", data, client_config)
   end
 
   ####################################################################
@@ -602,7 +602,7 @@ module YoutubeAPI
             status code #{response.status_code}. See <a href=\"https://docs.invidious.io/youtube-errors-explained/\"> \
             https://docs.invidious.io/youtube-errors-explained/</a> for troubleshooting.")
         end
-        self._decompress(response.body_io, response.headers["Content-Encoding"]?)
+        _decompress(response.body_io, response.headers["Content-Encoding"]?)
       end
     end
 

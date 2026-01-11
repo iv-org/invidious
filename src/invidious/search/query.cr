@@ -30,7 +30,7 @@ module Invidious::Search
 
     # Same as `empty_raw_query?`, but named for external use
     def empty?
-      return self.empty_raw_query?
+      return empty_raw_query?
     end
 
     # Getter for the query string.
@@ -70,7 +70,7 @@ module Invidious::Search
 
       # Stop here if raw query is empty
       # NOTE: maybe raise in the future?
-      return if self.empty_raw_query?
+      return if empty_raw_query?
 
       # Specific handling
       case @type
@@ -120,7 +120,7 @@ module Invidious::Search
       items = [] of SearchItem
 
       # Don't bother going further if search query is empty
-      return items if self.empty_raw_query?
+      return items if empty_raw_query?
 
       case @type
       when .regular?, .playlist?

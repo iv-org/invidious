@@ -73,7 +73,7 @@ struct Video
   end
 
   def live_now
-    return (self.video_type == VideoType::Livestream)
+    return (video_type == VideoType::Livestream)
   end
 
   def post_live_dvr
@@ -124,11 +124,11 @@ struct Video
 
   def storyboards
     container = info.dig?("storyboards") || JSON::Any.new("{}")
-    return IV::Videos::Storyboard.from_yt_json(container, self.length_seconds)
+    return IV::Videos::Storyboard.from_yt_json(container, length_seconds)
   end
 
   def paid
-    return (self.reason || "").includes? "requires payment"
+    return (reason || "").includes? "requires payment"
   end
 
   def premium
@@ -170,7 +170,7 @@ struct Video
   end
 
   def vr? : Bool?
-    return {"EQUIRECTANGULAR", "MESH"}.includes? self.projection_type
+    return {"EQUIRECTANGULAR", "MESH"}.includes? projection_type
   end
 
   def projection_type : String?
