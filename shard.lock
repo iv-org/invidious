@@ -2,7 +2,7 @@ version: 2.0
 shards:
   ameba:
     git: https://github.com/crystal-ameba/ameba.git
-    version: 1.6.1
+    version: 1.7.0-dev+git.commit.9dbeb92f89d7a668940029bd7b935bef370f26c1
 
   athena-negotiation:
     git: https://github.com/athena-framework/negotiation.git
