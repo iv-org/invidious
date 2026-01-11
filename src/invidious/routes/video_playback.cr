@@ -241,7 +241,7 @@ module Invidious::Routes::VideoPlayback
     query_params = HTTP::Params.new(raw_params)
 
     env.response.headers["Access-Control-Allow-Origin"] = "*"
-    return env.redirect "/videoplayback?#{query_params}"
+    env.redirect "/videoplayback?#{query_params}"
   end
 
   # /videoplayback/* && /videoplayback/*
@@ -307,6 +307,6 @@ module Invidious::Routes::VideoPlayback
       url += "&title=#{URI.encode_www_form(title, space_to_plus: false)}" if title
     end
 
-    return env.redirect url
+    env.redirect url
   end
 end

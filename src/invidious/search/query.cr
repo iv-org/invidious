@@ -25,19 +25,19 @@ module Invidious::Search
 
     # Return true if @raw_query is either `nil` or empty
     private def empty_raw_query?
-      return @raw_query.empty?
+      @raw_query.empty?
     end
 
     # Same as `empty_raw_query?`, but named for external use
     def empty?
-      return empty_raw_query?
+      empty_raw_query?
     end
 
     # Getter for the query string.
     # It is named `text` to reduce confusion (`search_query.text` makes more
     # sense than `search_query.query`)
     def text
-      return @query
+      @query
     end
 
     # Initialize a new search query.
@@ -135,7 +135,7 @@ module Invidious::Search
         end
       end
 
-      return items
+      items
     end
 
     # Return the HTTP::Params corresponding to this Query (invidious format)
@@ -145,7 +145,7 @@ module Invidious::Search
       params["q"] = @query
       params["channel"] = @channel if !@channel.empty?
 
-      return params
+      params
     end
 
     # Checks if the query is a standalone URL
@@ -160,7 +160,7 @@ module Invidious::Search
       return false if !@filters.default?
 
       # Simple heuristics: domain name
-      return @raw_query.starts_with?(
+      @raw_query.starts_with?(
         /(https?:\/\/)?(www\.)?(m\.)?youtu(\.be|be\.com)\//
       )
     end

@@ -60,7 +60,7 @@ module Invidious::Frontend::Pagination
   end
 
   def nav_numeric(locale : String?, *, base_url : String | URI, current_page : Int, show_next : Bool = true)
-    return String.build do |str|
+    String.build do |str|
       str << %(<div class="h-box">\n)
       str << %(<div class="page-nav-container flexible">\n)
 
@@ -91,7 +91,7 @@ module Invidious::Frontend::Pagination
   end
 
   def nav_ctoken(locale : String?, *, base_url : String | URI, ctoken : String?, first_page : Bool, params : URI::Params)
-    return String.build do |str|
+    String.build do |str|
       str << %(<div class="h-box">\n)
       str << %(<div class="page-nav-container flexible">\n)
 

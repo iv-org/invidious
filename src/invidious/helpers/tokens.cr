@@ -16,7 +16,7 @@ def generate_token(email, scopes, expire, key)
 
   token["signature"] = sign_token(key, token)
 
-  return token.to_json
+  token.to_json
 end
 
 def generate_response(session, scopes, key, expire = 6.hours, use_nonce = false)
@@ -36,7 +36,7 @@ def generate_response(session, scopes, key, expire = 6.hours, use_nonce = false)
 
   token["signature"] = sign_token(key, token)
 
-  return token.to_json
+  token.to_json
 end
 
 def sign_token(key, hash)
@@ -63,7 +63,7 @@ def sign_token(key, hash)
   end
 
   string_to_sign = string_to_sign.sort.join("\n")
-  return Base64.urlsafe_encode(OpenSSL::HMAC.digest(:sha256, key, string_to_sign)).strip
+  Base64.urlsafe_encode(OpenSSL::HMAC.digest(:sha256, key, string_to_sign)).strip
 end
 
 def validate_request(token, session, request, key, locale = nil)
@@ -131,7 +131,7 @@ def scope_includes_scope(scope, subset)
     return false
   end
 
-  return true
+  true
 end
 
 def scopes_include_scope(scopes, subset)
@@ -141,5 +141,5 @@ def scopes_include_scope(scopes, subset)
     end
   end
 
-  return false
+  false
 end

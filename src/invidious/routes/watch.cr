@@ -215,7 +215,7 @@ module Invidious::Routes::Watch
       url += "&#{env.params.query}"
     end
 
-    return env.redirect url
+    env.redirect url
   end
 
   def self.mark_watched(env)
@@ -289,9 +289,9 @@ module Invidious::Routes::Watch
         env.params.query["end"] = end_time.to_s if end_time != nil
       end
 
-      return env.redirect "/watch?v=#{video_id}&#{env.params.query}"
+      env.redirect "/watch?v=#{video_id}&#{env.params.query}"
     else
-      return error_template(404, "The requested clip doesn't exist")
+      error_template(404, "The requested clip doesn't exist")
     end
   end
 
@@ -330,16 +330,16 @@ module Invidious::Routes::Watch
       env.params.query["title"] = filename
       env.params.query["label"] = URI.decode_www_form(label.as_s)
 
-      return Invidious::Routes::API::V1::Videos.captions(env)
+      Invidious::Routes::API::V1::Videos.captions(env)
     elsif itag = download_widget["itag"]?.try &.as_i.to_s
       # URL params specific to /latest_version
       env.params.query["id"] = video_id
       env.params.query["title"] = filename
       env.params.query["local"] = "true"
 
-      return Invidious::Routes::VideoPlayback.latest_version(env)
+      Invidious::Routes::VideoPlayback.latest_version(env)
     else
-      return error_template(400, "Invalid label or itag")
+      error_template(400, "Invalid label or itag")
     end
   end
 end

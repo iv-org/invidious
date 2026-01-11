@@ -137,7 +137,7 @@ module Invidious::Routes::API::V1::Channels
     env.params.query.delete("sort_by") if env.params.query.has_key?("sort_by")
     env.params.query.delete("continuation") if env.params.query.has_key?("continuation")
 
-    return videos(env)
+    videos(env)
   end
 
   def self.videos(env)
@@ -173,7 +173,7 @@ module Invidious::Routes::API::V1::Channels
       end
     end
 
-    return JSON.build do |json|
+    JSON.build do |json|
       json.object do
         json.field "videos" do
           json.array do
@@ -219,7 +219,7 @@ module Invidious::Routes::API::V1::Channels
       end
     end
 
-    return JSON.build do |json|
+    JSON.build do |json|
       json.object do
         json.field "videos" do
           json.array do
@@ -265,7 +265,7 @@ module Invidious::Routes::API::V1::Channels
       end
     end
 
-    return JSON.build do |json|
+    JSON.build do |json|
       json.object do
         json.field "videos" do
           json.array do
@@ -416,7 +416,7 @@ module Invidious::Routes::API::V1::Channels
     begin
       fetch_channel_community(ucid, continuation, locale, format, thin_mode)
     rescue ex
-      return error_json(500, ex)
+      error_json(500, ex)
     end
   end
 
@@ -444,7 +444,7 @@ module Invidious::Routes::API::V1::Channels
     begin
       fetch_channel_community_post(ucid, id, locale, format, thin_mode)
     rescue ex
-      return error_json(500, ex)
+      error_json(500, ex)
     end
   end
 
@@ -472,7 +472,7 @@ module Invidious::Routes::API::V1::Channels
     else
       comments = YoutubeAPI.browse(continuation: continuation)
     end
-    return Comments.parse_youtube(id, comments, format, locale, thin_mode, is_post: true)
+    Comments.parse_youtube(id, comments, format, locale, thin_mode, is_post: true)
   end
 
   def self.channels(env)

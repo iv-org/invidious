@@ -148,6 +148,6 @@ module Invidious::Routes::Images
       return env.response.headers.delete("Transfer-Encoding")
     end
 
-    return proxy_file(response, env)
+    proxy_file(response, env)
   end
 end

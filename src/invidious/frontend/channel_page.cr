@@ -14,7 +14,7 @@ module Invidious::Frontend::ChannelPage
   end
 
   def generate_tabs_links(locale : String, channel : AboutChannel, selected_tab : TabsAvailable)
-    return String.build(1500) do |str|
+    String.build(1500) do |str|
       base_url = "/channel/#{channel.ucid}"
 
       TabsAvailable.each do |tab|

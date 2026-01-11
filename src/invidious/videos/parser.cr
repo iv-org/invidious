@@ -40,7 +40,7 @@ def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
 
   # TODO: when refactoring video types, make a struct for related videos
   # or reuse an existing type, if that fits.
-  return {
+  {
     "id"               => related["videoId"],
     "title"            => related["title"]["simpleText"],
     "author"           => author || JSON::Any.new(""),
@@ -128,7 +128,7 @@ def extract_video_info(video_id : String)
   # Data structure version, for cache control
   params["version"] = JSON::Any.new(Video::SCHEMA_VERSION.to_i64)
 
-  return params
+  params
 end
 
 def try_fetch_streaming_data(id : String, client_config : YoutubeAPI::ClientConfig) : Hash(String, JSON::Any)?
@@ -145,7 +145,7 @@ def try_fetch_streaming_data(id : String, client_config : YoutubeAPI::ClientConf
       "The video returned by YouTube isn't the requested one. (#{client_config.client_type} client)"
     )
   elsif playability_status == "OK"
-    return response
+    response
   else
     return
   end
@@ -440,7 +440,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     "subCountText"    => JSON::Any.new(subs_text || "-"),
   }
 
-  return params
+  params
 end
 
 private def convert_url(fmt)
@@ -457,9 +457,9 @@ private def convert_url(fmt)
   url.query_params = params
   LOGGER.trace("convert_url: new url is '#{url}'")
 
-  return url.to_s
+  url.to_s
 rescue ex
   LOGGER.debug("convert_url: Error when parsing video URL")
   LOGGER.trace(ex.inspect_with_backtrace)
-  return ""
+  ""
 end

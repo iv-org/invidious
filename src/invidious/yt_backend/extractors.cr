@@ -37,7 +37,7 @@ record AuthorFallback, name : String, id : String
 private module Parsers
   module BaseParser
     def parse(*args)
-      return parse_internal(*args)
+      parse_internal(*args)
     rescue ex
       LOGGER.debug("#{{{ @type.name }}}: Failed to render item.")
       LOGGER.debug("#{{{ @type.name }}}: Got exception: #{ex.message}")
@@ -170,7 +170,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{ @type.name }}
+      {{ @type.name }}
     end
   end
 
@@ -237,7 +237,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{ @type.name }}
+      {{ @type.name }}
     end
   end
 
@@ -277,7 +277,7 @@ private module Parsers
         end
       end
 
-      return SearchHashtag.new({
+      SearchHashtag.new({
         title:         title,
         url:           url,
         video_count:   short_text_to_number(video_count_txt || ""),
@@ -286,7 +286,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{ @type.name }}
+      {{ @type.name }}
     end
   end
 
@@ -331,7 +331,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{ @type.name }}
+      {{ @type.name }}
     end
   end
 
@@ -392,7 +392,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{ @type.name }}
+      {{ @type.name }}
     end
   end
 
@@ -464,7 +464,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{ @type.name }}
+      {{ @type.name }}
     end
   end
 
@@ -489,11 +489,11 @@ private module Parsers
       child = VideoRendererParser.process(item_contents, author_fallback)
       child ||= PlaylistRendererParser.process(item_contents, author_fallback)
 
-      return child
+      child
     end
 
     def self.parser_name
-      return {{ @type.name }}
+      {{ @type.name }}
     end
   end
 
@@ -520,11 +520,11 @@ private module Parsers
       child ||= PlaylistRendererParser.process(item_contents, author_fallback)
       child ||= LockupViewModelParser.process(item_contents, author_fallback)
       child ||= ShortsLockupViewModelParser.process(item_contents, author_fallback)
-      return child
+      child
     end
 
     def self.parser_name
-      return {{ @type.name }}
+      {{ @type.name }}
     end
   end
 
@@ -623,7 +623,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{ @type.name }}
+      {{ @type.name }}
     end
   end
 
@@ -688,7 +688,7 @@ private module Parsers
       # item_contents.dig("rendererContext", "commandContext", "onTap", "innertubeCommand", "watchEndpoint")
       # Available fields: "videoId", "playlistId", "params"
 
-      return SearchPlaylist.new({
+      SearchPlaylist.new({
         title:           title,
         id:              playlist_id,
         author:          author_fallback.name,
@@ -701,7 +701,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{ @type.name }}
+      {{ @type.name }}
     end
   end
 
@@ -759,7 +759,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{ @type.name }}
+      {{ @type.name }}
     end
   end
 
@@ -788,7 +788,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{ @type.name }}
+      {{ @type.name }}
     end
   end
 end
@@ -842,7 +842,7 @@ private module Extractors
         raw_items = rich_grid_contents.as_a
       end
 
-      return raw_items
+      raw_items
     end
 
     private def self.unpack_section_list(contents)
@@ -856,7 +856,7 @@ private module Extractors
         end
       end
 
-      return raw_items
+      raw_items
     end
 
     private def self.unpack_item_section(contents)
@@ -871,11 +871,11 @@ private module Extractors
         end
       end
 
-      return raw_items
+      raw_items
     end
 
     def self.extractor_name
-      return {{ @type.name }}
+      {{ @type.name }}
     end
   end
 
@@ -912,11 +912,11 @@ private module Extractors
         end
       end
 
-      return raw_items.flatten
+      raw_items.flatten
     end
 
     def self.extractor_name
-      return {{ @type.name }}
+      {{ @type.name }}
     end
   end
 
@@ -946,11 +946,11 @@ private module Extractors
       content ||= target.dig?("gridContinuation", "items")
       content ||= target.dig?("richGridContinuation", "contents")
 
-      return content.nil? ? [] of JSON::Any : content.as_a
+      content.nil? ? [] of JSON::Any : content.as_a
     end
 
     def self.extractor_name
-      return {{ @type.name }}
+      {{ @type.name }}
     end
   end
 end
@@ -966,14 +966,14 @@ module HelperExtractors
   def self.get_video_count(container : JSON::Any) : Int32
     if box = container["videoCountText"]?
       if (extracted_text = extract_text(box)) && !extracted_text.includes? " subscriber"
-        return extracted_text.gsub(/\D/, "").to_i
+        extracted_text.gsub(/\D/, "").to_i
       else
-        return 0
+        0
       end
     elsif box = container["videoCount"]?
-      return box.as_s.to_i
+      box.as_s.to_i
     else
-      return 0
+      0
     end
   end
 
@@ -987,7 +987,7 @@ module HelperExtractors
 
     # Simpletext: "4M views"
     # runs: {"text": "1.1K"},{"text":" watching"}
-    return box["simpleText"]?.try &.as_s.sub(" views", "") ||
+    box["simpleText"]?.try &.as_s.sub(" views", "") ||
       box.dig?("runs", 0, "text").try &.as_s || "0"
   end
 
@@ -997,7 +997,7 @@ module HelperExtractors
   #
   # Raises when it's unable to parse from the given JSON data.
   def self.get_thumbnails(container : JSON::Any) : String
-    return container.dig("thumbnail", "thumbnails", 0, "url").as_s
+    container.dig("thumbnail", "thumbnails", 0, "url").as_s
   end
 
   # ditto
@@ -1005,13 +1005,13 @@ module HelperExtractors
   # YouTube sometimes sends the thumbnail as:
   # {"thumbnails": [{"thumbnails": [{"url": "example.com"}, ...]}]}
   def self.get_thumbnails_plural(container : JSON::Any) : String
-    return container.dig("thumbnails", 0, "thumbnails", 0, "url").as_s
+    container.dig("thumbnails", 0, "thumbnails", 0, "url").as_s
   end
 
   # Retrieves the ID required for querying the InnerTube browse endpoint.
   # Returns an empty string when it's unable to do so
   def self.get_browse_id(container)
-    return container.dig?("navigationEndpoint", "browseEndpoint", "browseId").try &.as_s || ""
+    container.dig?("navigationEndpoint", "browseEndpoint", "browseId").try &.as_s || ""
   end
 end
 

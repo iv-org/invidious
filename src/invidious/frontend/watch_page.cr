@@ -33,7 +33,7 @@ module Invidious::Frontend::WatchPage
       url = "#{invidious_companion.public_url}/download?check=#{invidious_companion_encrypt(video.id)}"
     end
 
-    return String.build(4000) do |str|
+    String.build(4000) do |str|
       str << "<form"
       str << " class=\"pure-form pure-form-stacked\""
       str << " action='#{url}'"

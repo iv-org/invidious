@@ -19,6 +19,6 @@ module Invidious::Database::Annotations
       WHERE id = $1
       SQL
 
-    return PG_DB.query_one?(request, id, as: Annotation)
+    PG_DB.query_one?(request, id, as: Annotation)
   end
 end

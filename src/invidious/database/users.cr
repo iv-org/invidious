@@ -194,7 +194,7 @@ module Invidious::Database::Users
       WHERE email = $1
       SQL
 
-    return PG_DB.query_one?(request, email, as: User)
+    PG_DB.query_one?(request, email, as: User)
   end
 
   # Same as select, but can raise an exception
@@ -204,7 +204,7 @@ module Invidious::Database::Users
       WHERE email = $1
       SQL
 
-    return PG_DB.query_one(request, email, as: User)
+    PG_DB.query_one(request, email, as: User)
   end
 
   def select(*, token : String) : User?
@@ -213,7 +213,7 @@ module Invidious::Database::Users
       WHERE token = $1
       SQL
 
-    return PG_DB.query_one?(request, token, as: User)
+    PG_DB.query_one?(request, token, as: User)
   end
 
   def select_notifications(user : User) : Array(String)
@@ -223,6 +223,6 @@ module Invidious::Database::Users
       WHERE email = $1
       SQL
 
-    return PG_DB.query_one(request, user.email, as: Array(String))
+    PG_DB.query_one(request, user.email, as: Array(String))
   end
 end

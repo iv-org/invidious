@@ -91,7 +91,7 @@ def load_all_locales
     locales[name] = JSON.parse(File.read("locales/#{name}.json")).as_h
   end
 
-  return locales
+  locales
 end
 
 def translate(locale : String?, key : String, text : String | Hash(String, String)? = nil) : String
@@ -141,7 +141,7 @@ def translate(locale : String?, key : String, text : String | Hash(String, Strin
     end
   end
 
-  return translation
+  translation
 end
 
 def translate_count(locale : String, key : String, count : Int, format = NumberFormatting::None) : String
@@ -177,15 +177,15 @@ def translate_count(locale : String, key : String, count : Int, format = NumberF
   else                  count_txt = count.to_s
   end
 
-  return translation.gsub("{{count}}", count_txt)
+  translation.gsub("{{count}}", count_txt)
 end
 
 def translate_bool(locale : String?, translation : Bool)
   case translation
   when true
-    return translate(locale, "Yes")
+    translate(locale, "Yes")
   when false
-    return translate(locale, "No")
+    translate(locale, "No")
   end
 end
 
@@ -195,5 +195,5 @@ def locale_is_rtl?(locale : String?)
 
   # Arabic, Persian, Hebrew
   # See https://en.wikipedia.org/wiki/Right-to-left_script#List_of_RTL_scripts
-  return {"ar", "fa", "he"}.includes? locale
+  {"ar", "fa", "he"}.includes? locale
 end

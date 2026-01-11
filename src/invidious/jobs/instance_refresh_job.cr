@@ -73,7 +73,7 @@ class Invidious::Jobs::InstanceListRefreshJob < Invidious::Jobs::BaseJob
       raw_instance_list = [] of JSON::Any
     end
 
-    return raw_instance_list
+    raw_instance_list
   end
 
   # Checks if the given target instance is outdated
@@ -84,7 +84,7 @@ class Invidious::Jobs::InstanceListRefreshJob < Invidious::Jobs::BaseJob
     remote_commit_date = Time.parse(remote_commit_date[0], "%Y.%m.%d", Time::Location::UTC)
     local_commit_date = Time.parse(CURRENT_VERSION, "%Y.%m.%d", Time::Location::UTC)
 
-    return (remote_commit_date - local_commit_date).abs.days > 30
+    (remote_commit_date - local_commit_date).abs.days > 30
   end
 
   # Checks if the uptime of the target instance is greater than 90% over a 30 day period
@@ -92,6 +92,6 @@ class Invidious::Jobs::InstanceListRefreshJob < Invidious::Jobs::BaseJob
     return true if !target_instance_health_monitor["down"].as_bool == false
     return true if target_instance_health_monitor["uptime"].as_f < 90
 
-    return false
+    false
   end
 end

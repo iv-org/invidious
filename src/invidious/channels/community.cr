@@ -21,7 +21,7 @@ def fetch_channel_community(ucid, cursor, locale, format, thin_mode)
     items = container.as_a
   end
 
-  return extract_channel_community(items, ucid: ucid, locale: locale, format: format, thin_mode: thin_mode)
+  extract_channel_community(items, ucid: ucid, locale: locale, format: format, thin_mode: thin_mode)
 end
 
 def decode_ucid_from_post_protobuf(params)
@@ -30,7 +30,7 @@ def decode_ucid_from_post_protobuf(params)
     .try { |i| IO::Memory.new(i) }
     .try { |i| Protodec::Any.parse(i) }
 
-  return decoded_protobuf.try(&.["56:0:embedded"]["2:0:string"].as_s)
+  decoded_protobuf.try(&.["56:0:embedded"]["2:0:string"].as_s)
 end
 
 def fetch_channel_community_post(ucid, post_id, locale, format, thin_mode)
@@ -53,7 +53,7 @@ def fetch_channel_community_post(ucid, post_id, locale, format, thin_mode)
     items << item
   end
 
-  return extract_channel_community(items, ucid: ucid, locale: locale, format: format, thin_mode: thin_mode, is_single_post: true)
+  extract_channel_community(items, ucid: ucid, locale: locale, format: format, thin_mode: thin_mode, is_single_post: true)
 end
 
 def extract_channel_community(items, *, ucid, locale, format, thin_mode, is_single_post : Bool = false)
@@ -294,7 +294,7 @@ def extract_channel_community(items, *, ucid, locale, format, thin_mode, is_sing
     end
   end
 
-  return response
+  response
 end
 
 def produce_channel_community_continuation(ucid, cursor)
@@ -310,7 +310,7 @@ def produce_channel_community_continuation(ucid, cursor)
     .try { |i| Base64.urlsafe_encode(i) }
     .try { |i| URI.encode_www_form(i) }
 
-  return continuation
+  continuation
 end
 
 def extract_channel_community_cursor(continuation)

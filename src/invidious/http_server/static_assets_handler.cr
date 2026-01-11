@@ -68,7 +68,7 @@ module Invidious::HttpServer
         end
       end
 
-      return flush_io_to_cache(retrieve_bytes_from, file_path, file_info)
+      flush_io_to_cache(retrieve_bytes_from, file_path, file_info)
     end
 
     # Writes file data to the cache
@@ -114,7 +114,7 @@ module Invidious::HttpServer
     # This is only used in the specs to clear the cache before each handler test
     def self.clear_cache
       @@current_cache_size = 0
-      return @@cached_files.clear
+      @@cached_files.clear
     end
   end
 end

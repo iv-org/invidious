@@ -21,7 +21,7 @@ def extract_text(item : JSON::Any?) : String?
   end
 
   if text_container = item["simpleText"]?
-    return text_container.as_s
+    text_container.as_s
   elsif text_container = item["runs"]?
     return text_container.as_a.map(&.["text"].as_s).join("")
   end
@@ -58,18 +58,18 @@ def has_verified_badge?(badges : JSON::Any?)
     return true if style == "BADGE_STYLE_TYPE_VERIFIED_ARTIST"
   end
 
-  return false
+  false
 rescue ex
   LOGGER.debug("Unable to parse owner badges. Got exception: #{ex.message}")
   LOGGER.trace("Owner badges data: #{badges.to_json}")
 
-  return false
+  false
 end
 
 # This function extracts SearchVideo items from a Category.
 # Categories are commonly returned in search results and trending pages.
 def extract_category(category : Category) : Array(SearchVideo)
-  return category.contents.select(SearchVideo)
+  category.contents.select(SearchVideo)
 end
 
 # :ditto:
@@ -81,5 +81,5 @@ end
 
 def extract_selected_tab(tabs)
   # Extract the selected tab from the array of tabs Youtube returns
-  return tabs.as_a.select(&.["tabRenderer"]?.try &.["selected"]?.try &.as_bool)[0]["tabRenderer"]
+  tabs.as_a.select(&.["tabRenderer"]?.try &.["selected"]?.try &.as_bool)[0]["tabRenderer"]
 end

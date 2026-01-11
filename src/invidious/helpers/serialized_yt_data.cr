@@ -315,7 +315,7 @@ struct ProblematicTimelineItem
 
   # Provides compatibility with PlaylistVideo
   def to_json(json : JSON::Builder, *args, **kwargs)
-    return to_json("", json)
+    to_json("", json)
   end
 
   def to_xml(env, locale, xml : XML::Builder)

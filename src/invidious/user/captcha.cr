@@ -53,7 +53,7 @@ struct Invidious::User
       answer = "#{hour}:#{minute.to_s.rjust(2, '0')}:#{second.to_s.rjust(2, '0')}"
       answer = OpenSSL::HMAC.hexdigest(:sha256, key, answer)
 
-      return {
+      {
         question: image,
         tokens:   {generate_response(answer, {":login"}, key, use_nonce: true)},
       }

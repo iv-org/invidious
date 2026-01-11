@@ -18,7 +18,7 @@ module Invidious::Routes::API::V1::Videos
       return error_json(500, ex)
     end
 
-    return JSON.build do |json|
+    JSON.build do |json|
       Invidious::JSONify::APIv1.video(video, json, locale: locale, proxy: proxy)
     end
   end
@@ -247,7 +247,7 @@ module Invidious::Routes::API::V1::Videos
     # videojs-vtt-thumbnails is not compliant to the VTT specification, it
     # doesn't unescape the HTML entities, so we have to do it here:
     # TODO: remove this when we migrate to VideoJS 8
-    return HTML.unescape(vtt_file)
+    HTML.unescape(vtt_file)
   end
 
   def self.annotations(env)
@@ -352,7 +352,7 @@ module Invidious::Routes::API::V1::Videos
         return error_json(500, ex)
       end
 
-      return comments
+      comments
     elsif source == "reddit"
       sort_by ||= "confidence"
 
@@ -418,7 +418,7 @@ module Invidious::Routes::API::V1::Videos
       return error_json(500, ex)
     end
 
-    return JSON.build do |json|
+    JSON.build do |json|
       json.object do
         json.field "startTime", start_time
         json.field "endTime", end_time
@@ -513,6 +513,6 @@ module Invidious::Routes::API::V1::Videos
       return error_json(500, ex)
     end
 
-    return transcript.to_json
+    transcript.to_json
   end
 end

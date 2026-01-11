@@ -50,6 +50,6 @@ module Invidious::Database::Nonces
       WHERE nonce = $1
       SQL
 
-    return PG_DB.query_one?(request, nonce, as: {String, Time})
+    PG_DB.query_one?(request, nonce, as: {String, Time})
   end
 end

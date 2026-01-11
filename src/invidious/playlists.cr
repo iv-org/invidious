@@ -180,7 +180,7 @@ struct InvidiousPlaylist
 
   module PlaylistPrivacyConverter
     def self.from_rs(rs)
-      return PlaylistPrivacy.parse(String.new(rs.read(Slice(UInt8))))
+      PlaylistPrivacy.parse(String.new(rs.read(Slice(UInt8))))
     end
   end
 
@@ -265,7 +265,7 @@ def create_playlist(title, privacy, user)
 
   Invidious::Database::Playlists.insert(playlist)
 
-  return playlist
+  playlist
 end
 
 def subscribe_playlist(user, playlist)
@@ -283,7 +283,7 @@ def subscribe_playlist(user, playlist)
 
   Invidious::Database::Playlists.insert(playlist)
 
-  return playlist
+  playlist
 end
 
 def produce_playlist_continuation(id, index)
@@ -318,18 +318,18 @@ def produce_playlist_continuation(id, index)
     .try { |i| Base64.urlsafe_encode(i) }
     .try { |i| URI.encode_www_form(i) }
 
-  return continuation
+  continuation
 end
 
 def get_playlist(plid : String)
   if plid.starts_with? "IV"
     if playlist = Invidious::Database::Playlists.select(id: plid)
-      return playlist
+      playlist
     else
       raise NotFoundException.new("Playlist does not exist.")
     end
   else
-    return fetch_playlist(plid)
+    fetch_playlist(plid)
   end
 end
 
@@ -398,7 +398,7 @@ def fetch_playlist(plid : String)
     ucid = author_info.dig?("title", "runs", 0, "navigationEndpoint", "browseEndpoint", "browseId").try &.as_s || ""
   end
 
-  return Playlist.new({
+  Playlist.new({
     title:            title,
     id:               plid,
     author:           author,
@@ -443,7 +443,7 @@ def get_playlist_videos(playlist : InvidiousPlaylist | Playlist, offset : Int32,
       offset += 100
     end
 
-    return videos
+    videos
   end
 end
 
@@ -504,7 +504,7 @@ def extract_playlist_videos(initial_data : Hash(String, JSON::Any))
     videos << ProblematicTimelineItem.new(parse_exception: ex)
   end
 
-  return videos
+  videos
 end
 
 def template_playlist(playlist, listen)

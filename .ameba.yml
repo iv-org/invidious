@@ -31,9 +31,6 @@ Lint/SpecFilename:
 # Style
 #
 
-Style/RedundantReturn:
-  Enabled: false
-
 Style/RedundantNext:
   Enabled: false
 

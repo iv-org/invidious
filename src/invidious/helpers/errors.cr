@@ -15,7 +15,7 @@ def github_details(summary : String, content : String)
   details += %(\n```)
   details += %(\n</p>)
   details += %(\n</details>)
-  return HTML.escape(details)
+  HTML.escape(details)
 end
 
 def get_issue_template(env : HTTP::Server::Context, exception : Exception) : Tuple(String, String)
@@ -86,7 +86,7 @@ def error_template_helper(env : HTTP::Server::Context, status_code : Int32, exce
   # proposed above the error message, just worded differently.
   next_steps = ""
 
-  return templated "error"
+  templated "error"
 end
 
 def error_template_helper(env : HTTP::Server::Context, status_code : Int32, message : String)
@@ -98,7 +98,7 @@ def error_template_helper(env : HTTP::Server::Context, status_code : Int32, mess
   error_message = translate(locale, message)
   next_steps = error_redirect_helper(env)
 
-  return templated "error"
+  templated "error"
 end
 
 # -------------------
@@ -117,14 +117,14 @@ def error_atom_helper(env : HTTP::Server::Context, status_code : Int32, exceptio
   env.response.content_type = "application/atom+xml"
   env.response.status_code = status_code
 
-  return "<error>#{exception.inspect_with_backtrace}</error>"
+  "<error>#{exception.inspect_with_backtrace}</error>"
 end
 
 def error_atom_helper(env : HTTP::Server::Context, status_code : Int32, message : String)
   env.response.content_type = "application/atom+xml"
   env.response.status_code = status_code
 
-  return "<error>#{message}</error>"
+  "<error>#{message}</error>"
 end
 
 # -------------------
@@ -154,7 +154,7 @@ def error_json_helper(
     error_message = error_message.merge(additional_fields)
   end
 
-  return error_message.to_json
+  error_message.to_json
 end
 
 def error_json_helper(
@@ -172,7 +172,7 @@ def error_json_helper(
     error_message = error_message.merge(additional_fields)
   end
 
-  return error_message.to_json
+  error_message.to_json
 end
 
 # -------------------
@@ -191,7 +191,7 @@ def error_redirect_helper(env : HTTP::Server::Context)
     go_to_youtube = translate(locale, "next_steps_error_message_go_to_youtube")
     switch_instance = translate(locale, "Switch Invidious Instance")
 
-    return <<-HTML
+    <<-HTML
       <p style="margin-bottom: 4px;">#{next_steps_text}</p>
       <ul>
         <li>
@@ -206,6 +206,6 @@ def error_redirect_helper(env : HTTP::Server::Context)
       </ul>
       HTML
   else
-    return ""
+    ""
   end
 end

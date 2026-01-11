@@ -7,7 +7,7 @@ Spectator.configure do |config|
 end
 
 def csv_sample
-  return <<-CSV
+  <<-CSV
     Kanal-ID,Kanal-URL,Kanaltitel
     UC0hHW5Y08ggq-9kbrGgWj0A,http://www.youtube.com/channel/UC0hHW5Y08ggq-9kbrGgWj0A,Matias Marolla
     UC0vBXGSyV14uvJ4hECDOl0Q,http://www.youtube.com/channel/UC0vBXGSyV14uvJ4hECDOl0Q,Techquickie

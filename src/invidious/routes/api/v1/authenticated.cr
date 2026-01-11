@@ -35,7 +35,7 @@ module Invidious::Routes::API::V1::Authenticated
     env.response.content_type = "application/json"
     user = env.get("user").as(User)
 
-    return Invidious::User::Export.to_invidious(user)
+    Invidious::User::Export.to_invidious(user)
   end
 
   def self.import_invidious(env)
@@ -71,7 +71,7 @@ module Invidious::Routes::API::V1::Authenticated
     end
     watched ||= [] of String
 
-    return watched.to_json
+    watched.to_json
   end
 
   def self.mark_watched(env)
@@ -423,7 +423,7 @@ module Invidious::Routes::API::V1::Authenticated
       env.response.content_type = "text/html"
 
       csrf_token = generate_response(sid, {":authorize_token"}, HMAC_KEY, use_nonce: true)
-      return templated "user/authorize_token"
+      templated "user/authorize_token"
     else
       env.response.content_type = "application/json"
 

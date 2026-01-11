@@ -4,7 +4,7 @@ module Invidious::Routes::API::V1::Misc
     env.response.content_type = "application/json"
 
     if !CONFIG.statistics_enabled
-      return {"software" => SOFTWARE}.to_json
+      {"software" => SOFTWARE}.to_json
     else
       # Calculate playback success rate
       if (tracker = Invidious::Jobs::StatisticsRefreshJob::STATISTICS["playback"]?)
@@ -22,7 +22,7 @@ module Invidious::Routes::API::V1::Misc
         end
       end
 
-      return Invidious::Jobs::StatisticsRefreshJob::STATISTICS.to_json
+      Invidious::Jobs::StatisticsRefreshJob::STATISTICS.to_json
     end
   end
 

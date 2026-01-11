@@ -267,7 +267,7 @@ module YoutubeAPI
 
     # Convert to string, for logging purposes
     def to_s
-      return {
+      {
         client_type: name,
         region:      @region,
       }.to_s
@@ -331,7 +331,7 @@ module YoutubeAPI
       client_context["client"]["platform"] = platform
     end
 
-    return client_context
+    client_context
   end
 
   ####################################################################
@@ -360,7 +360,7 @@ module YoutubeAPI
       "continuation" => continuation,
     }
 
-    return _post_json("/youtubei/v1/browse", data, client_config)
+    _post_json("/youtubei/v1/browse", data, client_config)
   end
 
   # :ditto:
@@ -382,7 +382,7 @@ module YoutubeAPI
       data["params"] = params
     end
 
-    return _post_json("/youtubei/v1/browse", data, client_config)
+    _post_json("/youtubei/v1/browse", data, client_config)
   end
 
   ####################################################################
@@ -428,7 +428,7 @@ module YoutubeAPI
       "continuation" => continuation,
     }
 
-    return _post_json("/youtubei/v1/next", data, client_config)
+    _post_json("/youtubei/v1/next", data, client_config)
   end
 
   # :ditto:
@@ -438,12 +438,12 @@ module YoutubeAPI
       "context" => make_context(client_config),
     })
 
-    return _post_json("/youtubei/v1/next", data2, client_config)
+    _post_json("/youtubei/v1/next", data2, client_config)
   end
 
   # Allow a NamedTuple to be passed, too.
   def next(data : NamedTuple, *, client_config : ClientConfig? = nil)
-    return self.next(data.to_h, client_config: client_config)
+    self.next(data.to_h, client_config: client_config)
   end
 
   ####################################################################
@@ -461,7 +461,7 @@ module YoutubeAPI
     }
 
     if CONFIG.invidious_companion.present?
-      return _post_invidious_companion("/youtubei/v1/player", data)
+      _post_invidious_companion("/youtubei/v1/player", data)
     else
       return
     end
@@ -501,7 +501,7 @@ module YoutubeAPI
       "url"     => url,
     }
 
-    return _post_json("/youtubei/v1/navigation/resolve_url", data, client_config)
+    _post_json("/youtubei/v1/navigation/resolve_url", data, client_config)
   end
 
   ####################################################################
@@ -530,7 +530,7 @@ module YoutubeAPI
       "params"  => params,
     }
 
-    return _post_json("/youtubei/v1/search", data, client_config)
+    _post_json("/youtubei/v1/search", data, client_config)
   end
 
   ####################################################################
@@ -554,7 +554,7 @@ module YoutubeAPI
       "params"  => params,
     }
 
-    return _post_json("/youtubei/v1/get_transcript", data, client_config)
+    _post_json("/youtubei/v1/get_transcript", data, client_config)
   end
 
   ####################################################################
@@ -623,7 +623,7 @@ module YoutubeAPI
       error #{code} with message:<br>\"#{message}\"")
     end
 
-    return initial_data
+    initial_data
   end
 
   ####################################################################
@@ -661,7 +661,7 @@ module YoutubeAPI
         end
       end
 
-      return response_body
+      response_body
     rescue ex
       raise InfoException.new("Error while communicating with Invidious companion: " + (ex.message || "no extra info found"))
     end
@@ -695,6 +695,6 @@ module YoutubeAPI
       end
     end
 
-    return body_io.gets_to_end
+    body_io.gets_to_end
   end
 end # End of module

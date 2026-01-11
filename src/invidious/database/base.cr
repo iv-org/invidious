@@ -132,6 +132,6 @@ module Invidious::Database
       end
     end
 
-    return column_array
+    column_array
   end
 end

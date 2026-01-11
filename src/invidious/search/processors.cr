@@ -10,7 +10,7 @@ module Invidious::Search
       initial_data = YoutubeAPI.search(query.text, search_params, client_config: client_config)
 
       items, _ = extract_items(initial_data)
-      return items.reject!(Category)
+      items.reject!(Category)
     end
 
     # Search a youtube channel
@@ -32,14 +32,14 @@ module Invidious::Search
       response_json = YoutubeAPI.browse(continuation)
 
       items, _ = extract_items(response_json, "", ucid)
-      return items.reject!(Category)
+      items.reject!(Category)
     end
 
     # Search inside of user subscriptions
     def subscriptions(query : Query, user : Invidious::User) : Array(ChannelVideo)
       view_name = "subscriptions_#{sha256(user.email)}"
 
-      return PG_DB.query_all(<<-SQL, query.text, (query.page - 1) * 20, as: ChannelVideo)
+      PG_DB.query_all(<<-SQL, query.text, (query.page - 1) * 20, as: ChannelVideo)
         SELECT id,title,published,updated,ucid,author,length_seconds
         FROM (
           SELECT *,

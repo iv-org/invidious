@@ -40,7 +40,7 @@ module WebVTT
     end
 
     private def escape(text : String) : String
-      return text.gsub(ESCAPE_SUBSTITUTIONS)
+      text.gsub(ESCAPE_SUBSTITUTIONS)
     end
 
     def document(setting_fields : Hash(String, String)? = nil, &)

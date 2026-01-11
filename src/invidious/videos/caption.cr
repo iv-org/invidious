@@ -33,7 +33,7 @@ module Invidious::Videos
           captions_list << Captions::Metadata.new(name, language_code, base_url, auto_generated)
         end
 
-        return captions_list
+        captions_list
       end
 
       def timedtext_to_vtt(timedtext : String, tlang = nil) : String
@@ -82,7 +82,7 @@ module Invidious::Videos
           end
         end
 
-        return result
+        result
       end
     end
 

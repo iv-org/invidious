@@ -45,7 +45,7 @@ module Invidious::Comments
       html = node
     end
 
-    return html.to_xml(options: XML::SaveOptions::NO_DECL)
+    html.to_xml(options: XML::SaveOptions::NO_DECL)
   end
 
   def fill_links(html, scheme, host)
@@ -71,6 +71,6 @@ module Invidious::Comments
       html = html.xpath_node(%q(//body/p)).not_nil!
     end
 
-    return html.to_xml(options: XML::SaveOptions::NO_DECL)
+    html.to_xml(options: XML::SaveOptions::NO_DECL)
   end
 end

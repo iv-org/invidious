@@ -4,7 +4,7 @@ module Invidious::Routes::Channels
   # Redirection for unsupported routes ("tabs")
   def self.redirect_home(env)
     ucid = env.params.url["ucid"]
-    return env.redirect "/channel/#{URI.encode_www_form(ucid)}"
+    env.redirect "/channel/#{URI.encode_www_form(ucid)}"
   end
 
   def self.home(env)
@@ -365,7 +365,7 @@ module Invidious::Routes::Channels
 
     url += "?#{invidious_url_params}" if !invidious_url_params.empty?
 
-    return env.redirect url
+    env.redirect url
   end
 
   # Handles redirects for the /profile endpoint
@@ -378,7 +378,7 @@ module Invidious::Routes::Channels
 
     user = env.params.query["user"]?
     if !user
-      return error_template(404, "This channel does not exist.")
+      error_template(404, "This channel does not exist.")
     else
       env.redirect "/user/#{user}#{uri_params}"
     end

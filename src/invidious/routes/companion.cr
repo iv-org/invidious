@@ -55,6 +55,6 @@ module Invidious::Routes::Companion
       env.response.headers[key] = value
     end
 
-    return IO.copy response.body_io, env.response
+    IO.copy response.body_io, env.response
   end
 end

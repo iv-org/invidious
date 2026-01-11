@@ -183,15 +183,15 @@ class Config
   def disabled?(option)
     case disabled = CONFIG.disable_proxy
     when Bool
-      return disabled
+      disabled
     when Array
       if disabled.includes? option
-        return true
+        true
       else
-        return false
+        false
       end
     else
-      return false
+      false
     end
   end
 
@@ -318,6 +318,6 @@ class Config
       end
     end
 
-    return config
+    config
   end
 end

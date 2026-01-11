@@ -72,7 +72,7 @@ module Invidious::Database::Channels
       WHERE id = $1
       SQL
 
-    return PG_DB.query_one?(request, id, as: InvidiousChannel)
+    PG_DB.query_one?(request, id, as: InvidiousChannel)
   end
 
   def select(ids : Array(String)) : Array(InvidiousChannel)?
@@ -83,7 +83,7 @@ module Invidious::Database::Channels
       WHERE id = ANY($1)
       SQL
 
-    return PG_DB.query_all(request, ids, as: InvidiousChannel)
+    PG_DB.query_all(request, ids, as: InvidiousChannel)
   end
 end
 
@@ -114,7 +114,7 @@ module Invidious::Database::ChannelVideos
       RETURNING (xmax=0) AS was_insert
       SQL
 
-    return PG_DB.query_one(request, *video.to_tuple, as: Bool)
+    PG_DB.query_one(request, *video.to_tuple, as: Bool)
   end
 
   # -------------------
@@ -130,7 +130,7 @@ module Invidious::Database::ChannelVideos
       ORDER BY published DESC
       SQL
 
-    return PG_DB.query_all(request, ids, as: ChannelVideo)
+    PG_DB.query_all(request, ids, as: ChannelVideo)
   end
 
   def select_notfications(ucid : String, since : Time) : Array(ChannelVideo)
@@ -141,7 +141,7 @@ module Invidious::Database::ChannelVideos
       LIMIT 15
       SQL
 
-    return PG_DB.query_all(request, ucid, since, as: ChannelVideo)
+    PG_DB.query_all(request, ucid, since, as: ChannelVideo)
   end
 
   def select_popular_videos : Array(ChannelVideo)

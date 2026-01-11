@@ -47,6 +47,6 @@ module Invidious::Database::Videos
       WHERE id = $1
       SQL
 
-    return PG_DB.query_one?(request, id, as: Video)
+    PG_DB.query_one?(request, id, as: Video)
   end
 end

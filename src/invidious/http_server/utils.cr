@@ -14,9 +14,9 @@ module Invidious::HttpServer
       url.query_params = params
 
       if absolute
-        return "#{HOST_URL}#{url.request_target}"
+        "#{HOST_URL}#{url.request_target}"
       else
-        return url.request_target
+        url.request_target
       end
     end
 
@@ -35,7 +35,7 @@ module Invidious::HttpServer
         str << params
       end
 
-      return url
+      url
     end
   end
 end

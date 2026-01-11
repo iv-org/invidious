@@ -53,7 +53,7 @@ module Invidious::Routes::API::V1::Search
         end
       end
     rescue ex
-      return error_json(500, ex)
+      error_json(500, ex)
     end
   end
 

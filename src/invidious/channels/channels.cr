@@ -141,7 +141,7 @@ def get_batch_channels(channels)
     end
   end
 
-  return final
+  final
 end
 
 def get_channel(id) : InvidiousChannel
@@ -152,7 +152,7 @@ def get_channel(id) : InvidiousChannel
     Invidious::Database::Channels.insert(channel, update_on_conflict: true)
   end
 
-  return channel
+  channel
 end
 
 def fetch_channel(ucid, pull_all_videos : Bool)
@@ -292,5 +292,5 @@ def fetch_channel(ucid, pull_all_videos : Bool)
   end
 
   channel.updated = Time.utc
-  return channel
+  channel
 end

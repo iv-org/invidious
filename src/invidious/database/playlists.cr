@@ -100,7 +100,7 @@ module Invidious::Database::Playlists
       WHERE id = $1
       SQL
 
-    return PG_DB.query_one?(request, id, as: InvidiousPlaylist)
+    PG_DB.query_one?(request, id, as: InvidiousPlaylist)
   end
 
   def select_all(*, author : String) : Array(InvidiousPlaylist)
@@ -109,7 +109,7 @@ module Invidious::Database::Playlists
       WHERE author = $1
       SQL
 
-    return PG_DB.query_all(request, author, as: InvidiousPlaylist)
+    PG_DB.query_all(request, author, as: InvidiousPlaylist)
   end
 
   # -------------------
@@ -157,7 +157,7 @@ module Invidious::Database::Playlists
       WHERE id = $1
       SQL
 
-    return PG_DB.query_one?(request, id, as: String).nil?
+    PG_DB.query_one?(request, id, as: String).nil?
   end
 
   # Count how many playlist a user has created.
@@ -167,7 +167,7 @@ module Invidious::Database::Playlists
       WHERE author = $1
       SQL
 
-    return PG_DB.query_one?(request, author, as: Int64) || 0_i64
+    PG_DB.query_one?(request, author, as: Int64) || 0_i64
   end
 end
 
@@ -225,7 +225,7 @@ module Invidious::Database::PlaylistVideos
       OFFSET $4
       SQL
 
-    return PG_DB.query_all(request, plid, index, limit, offset, as: PlaylistVideo)
+    PG_DB.query_all(request, plid, index, limit, offset, as: PlaylistVideo)
   end
 
   def select_index(plid : String, vid : String) : Int64?
@@ -235,7 +235,7 @@ module Invidious::Database::PlaylistVideos
       LIMIT 1
       SQL
 
-    return PG_DB.query_one?(request, plid, vid, as: Int64)
+    PG_DB.query_one?(request, plid, vid, as: Int64)
   end
 
   def select_one_id(plid : String, index : VideoIndex) : String?
@@ -246,7 +246,7 @@ module Invidious::Database::PlaylistVideos
       LIMIT 1
       SQL
 
-    return PG_DB.query_one?(request, plid, index, as: String)
+    PG_DB.query_one?(request, plid, index, as: String)
   end
 
   def select_ids(plid : String, index : VideoIndex, limit = 500) : Array(String)
@@ -257,6 +257,6 @@ module Invidious::Database::PlaylistVideos
       LIMIT $3
       SQL
 
-    return PG_DB.query_all(request, plid, index, limit, as: String)
+    PG_DB.query_all(request, plid, index, limit, as: String)
   end
 end

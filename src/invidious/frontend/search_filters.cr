@@ -3,7 +3,7 @@ module Invidious::Frontend::SearchFilters
 
   # Generate the search filters collapsable widget.
   def generate(filters : Search::Filters, query : String, page : Int, locale : String) : String
-    return String.build(8000) do |str|
+    String.build(8000) do |str|
       str << "<div id='filters'>\n"
       str << "\t<details id='filters-collapse'>"
       str << "\t\t<summary>" << translate(locale, "search_filters_title") << "</summary>\n"
