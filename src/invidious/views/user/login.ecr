@@ -30,8 +30,8 @@
                             <% captcha[:tokens].each_with_index do |token, i| %>
                                 <input type="hidden" name="token[<%= i %>]" value="<%= HTML.escape(token) %>">
                             <% end %>
-                            <label for="answer"><%= translate(locale, "Time (h:mm:ss):") %></label>
-                            <input type="text" name="answer" type="text" placeholder="h:mm:ss">
+                            <label for="answer"><%= translate(locale, "Time (hh:mm:ss):") %></label>
+                            <input type="text" name="answer" type="text" placeholder="hh:mm:ss">
 
                             <button type="submit" name="action" value="signin" class="pure-button pure-button-primary">
                                 <%= translate(locale, "Register") %>

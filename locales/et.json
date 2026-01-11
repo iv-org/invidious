@@ -39,7 +39,7 @@
     "source": "allikas",
     "User ID": "Kasutajatunnus",
     "Password": "Salasõna",
-    "Time (h:mm:ss):": "Aeg (h:mm:ss):",
+    "Time (hh:mm:ss):": "Aeg (hh:mm:ss):",
     "Sign In": "Logi sisse",
     "Register": "Registreeru",
     "E-mail": "E-post",
