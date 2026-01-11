@@ -22,12 +22,12 @@ def get_issue_template(env : HTTP::Server::Context, exception : Exception) : Tup
   issue_title = "#{exception.message} (#{exception.class})"
 
   issue_template = <<-TEXT
-  Title: `#{HTML.escape(issue_title)}`
-  Date: `#{Time::Format::ISO_8601_DATE_TIME.format(Time.utc)}`
-  Route: `#{HTML.escape(env.request.resource)}`
-  Version: `#{SOFTWARE["version"]} @ #{SOFTWARE["branch"]}`
+    Title: `#{HTML.escape(issue_title)}`
+    Date: `#{Time::Format::ISO_8601_DATE_TIME.format(Time.utc)}`
+    Route: `#{HTML.escape(env.request.resource)}`
+    Version: `#{SOFTWARE["version"]} @ #{SOFTWARE["branch"]}`
 
-  TEXT
+    TEXT
 
   issue_template += github_details("Backtrace", exception.inspect_with_backtrace)
 
@@ -80,7 +80,7 @@ def error_template_helper(env : HTTP::Server::Context, status_code : Int32, exce
       <!-- TODO: Add a "copy to clipboard" button -->
       <pre class="error-issue-template">#{issue_template}</pre>
     </div>
-  END_HTML
+    END_HTML
 
   # Don't show the usual "next steps" widget. The same options are
   # proposed above the error message, just worded differently.
@@ -204,7 +204,7 @@ def error_redirect_helper(env : HTTP::Server::Context)
           <a rel="noreferrer noopener" href="https://youtube.com#{env.request.resource}">#{go_to_youtube}</a>
         </li>
       </ul>
-    END_HTML
+      END_HTML
   else
     return ""
   end

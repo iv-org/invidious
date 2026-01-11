@@ -509,14 +509,14 @@ end
 
 def template_playlist(playlist, listen)
   html = <<-END_HTML
-  <h3>
-    <a href="/playlist?list=#{playlist["playlistId"]}">
-      #{playlist["title"]}
-    </a>
-  </h3>
-  <div class="pure-menu pure-menu-scrollable playlist-restricted">
-    <ol class="pure-menu-list">
-  END_HTML
+    <h3>
+      <a href="/playlist?list=#{playlist["playlistId"]}">
+        #{playlist["title"]}
+      </a>
+    </h3>
+    <div class="pure-menu pure-menu-scrollable playlist-restricted">
+      <ol class="pure-menu-list">
+    END_HTML
 
   playlist["videos"].as_a.each do |video|
     html += <<-END_HTML
@@ -532,14 +532,14 @@ def template_playlist(playlist, listen)
           </p>
         </a>
       </li>
-    END_HTML
+      END_HTML
   end
 
   html += <<-END_HTML
-    </ol>
-  </div>
-  <hr>
-  END_HTML
+      </ol>
+    </div>
+    <hr>
+    END_HTML
 
   html
 end
