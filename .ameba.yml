@@ -5,20 +5,20 @@
 # Exclude assigns for ECR files
 Lint/UselessAssign:
   Excluded:
-  - src/invidious.cr
-  - src/invidious/helpers/errors.cr
-  - src/invidious/routes/**/*.cr
+    - src/invidious.cr
+    - src/invidious/helpers/errors.cr
+    - src/invidious/routes/**/*.cr
 
 # Ignore false negative (if !db.query_one?...)
 Lint/UnreachableCode:
   Excluded:
-  - src/invidious/database/base.cr
+    - src/invidious/database/base.cr
 
 # Ignore shadowed variable `key` (it works for now, and that's
 # a sensitive part of the code)
 Lint/ShadowingOuterLocalVar:
   Excluded:
-  - src/invidious/helpers/tokens.cr
+    - src/invidious/helpers/tokens.cr
 
 Lint/NotNil:
   Enabled: false
@@ -26,7 +26,6 @@ Lint/NotNil:
 Lint/SpecFilename:
   Excluded:
     - spec/parsers_helper.cr
-
 
 #
 # Style
@@ -53,14 +52,6 @@ Naming/AccessorMethodName:
 
 Naming/BlockParameterName:
   Enabled: false
-
-# Hides TODO comment warnings.
-#
-# Call `bin/ameba --only Documentation/DocumentationAdmonition` to
-# list them
-Documentation/DocumentationAdmonition:
-  Enabled: false
-
 
 #
 # Metrics
