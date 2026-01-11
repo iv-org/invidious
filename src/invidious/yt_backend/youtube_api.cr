@@ -463,7 +463,7 @@ module YoutubeAPI
     if CONFIG.invidious_companion.present?
       return _post_invidious_companion("/youtubei/v1/player", data)
     else
-      return nil
+      return
     end
   end
 

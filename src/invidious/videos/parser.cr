@@ -7,7 +7,7 @@ require "json"
 # TODO: "compactRadioRenderer" (Mix) and
 # TODO: Use a proper struct/class instead of a hacky JSON object
 def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
-  return nil if !related["videoId"]?
+  return if !related["videoId"]?
 
   # The compact renderer has video length in seconds, where the end
   # screen rendered has a full text version ("42:40")
@@ -57,7 +57,7 @@ def extract_video_info(video_id : String)
   player_response = YoutubeAPI.player(video_id: video_id)
 
   if player_response.nil?
-    return nil
+    return
   end
 
   playability_status = player_response.dig?("playabilityStatus", "status").try &.as_s
@@ -147,7 +147,7 @@ def try_fetch_streaming_data(id : String, client_config : YoutubeAPI::ClientConf
   elsif playability_status == "OK"
     return response
   else
-    return nil
+    return
   end
 end
 

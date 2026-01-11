@@ -17,7 +17,7 @@
 # another nil will be returned.
 def extract_text(item : JSON::Any?) : String?
   if item.nil?
-    return nil
+    return
   end
 
   if text_container = item["simpleText"]?

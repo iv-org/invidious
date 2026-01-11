@@ -149,7 +149,7 @@ struct Video
 
   def dash_manifest_url : String?
     raw_dash_url = info.dig?("streamingData", "dashManifestUrl").try &.as_s
-    return nil if raw_dash_url.nil?
+    return if raw_dash_url.nil?
 
     # Use manifest v5 parameter to reduce file size
     # See https://github.com/iv-org/invidious/issues/4186

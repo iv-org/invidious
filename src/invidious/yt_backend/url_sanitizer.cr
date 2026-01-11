@@ -46,7 +46,7 @@ module UrlSanitizer
     when "results", "search"
       return :search
     else # hashtag, post, trending, brand URLs, etc..
-      return nil
+      return
     end
   end
 
