@@ -45,6 +45,7 @@ def sign_token(key, hash)
   # TODO: figure out which "key" variable is used
   # Ameba reports a warning for "Lint/ShadowingOuterLocalVar" on this
   # variable, but it's preferable to not touch that (works fine atm).
+  # ameba:disable Lint/ShadowingOuterLocalVar
   hash.each do |key, value|
     next if key == "signature"
 
