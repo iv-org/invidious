@@ -39,7 +39,7 @@ module Invidious::Search
     def subscriptions(query : Query, user : Invidious::User) : Array(ChannelVideo)
       view_name = "subscriptions_#{sha256(user.email)}"
 
-      return PG_DB.query_all("
+      return PG_DB.query_all(<<-SQL, query.text, (query.page - 1) * 20, as: ChannelVideo)
         SELECT id,title,published,updated,ucid,author,length_seconds
         FROM (
           SELECT *,
@@ -47,10 +47,8 @@ module Invidious::Search
           to_tsvector(#{view_name}.author)
           as document
           FROM #{view_name}
-        ) v_search WHERE v_search.document @@ plainto_tsquery($1) LIMIT 20 OFFSET $2;",
-        query.text, (query.page - 1) * 20,
-        as: ChannelVideo
-      )
+        ) v_search WHERE v_search.document @@ plainto_tsquery($1) LIMIT 20 OFFSET $2;
+        SQL
     end
   end
 end
