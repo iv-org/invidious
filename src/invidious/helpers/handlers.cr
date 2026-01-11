@@ -20,7 +20,7 @@ module HTTP::Handler
 end
 
 class Kemal::RouteHandler
-  {% for method in %w(GET POST PUT HEAD DELETE PATCH OPTIONS) %}
+  {% for method in %w[GET POST PUT HEAD DELETE PATCH OPTIONS] %}
     exclude ["/api/v1/*"], {{ method }}
   {% end %}
 
@@ -44,7 +44,7 @@ class Kemal::RouteHandler
 end
 
 class Kemal::ExceptionHandler
-  {% for method in %w(GET POST PUT HEAD DELETE PATCH OPTIONS) %}
+  {% for method in %w[GET POST PUT HEAD DELETE PATCH OPTIONS] %}
     exclude ["/api/v1/*"], {{ method }}
   {% end %}
 
@@ -72,7 +72,7 @@ class FilteredCompressHandler < HTTP::CompressHandler
 end
 
 class AuthHandler < Kemal::Handler
-  {% for method in %w(GET POST PUT HEAD DELETE PATCH OPTIONS) %}
+  {% for method in %w[GET POST PUT HEAD DELETE PATCH OPTIONS] %}
     only ["/api/v1/auth/*"], {{ method }}
   {% end %}
 
@@ -121,7 +121,7 @@ class AuthHandler < Kemal::Handler
 end
 
 class APIHandler < Kemal::Handler
-  {% for method in %w(GET POST PUT HEAD DELETE PATCH OPTIONS) %}
+  {% for method in %w[GET POST PUT HEAD DELETE PATCH OPTIONS] %}
   only ["/api/v1/*"], {{ method }}
   {% end %}
   exclude ["/api/v1/auth/notifications"], "GET"
