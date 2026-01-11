@@ -64,20 +64,18 @@ struct Preferences
     end
 
     def self.from_json(value : JSON::PullParser) : String
-      begin
-        result = value.read_string
+      result = value.read_string
 
-        if result.empty?
-          CONFIG.default_user_preferences.dark_mode
-        else
-          result
-        end
-      rescue ex
-        if value.read_bool
-          "dark"
-        else
-          "light"
-        end
+      if result.empty?
+        CONFIG.default_user_preferences.dark_mode
+      else
+        result
+      end
+    rescue ex
+      if value.read_bool
+        "dark"
+      else
+        "light"
       end
     end
 
