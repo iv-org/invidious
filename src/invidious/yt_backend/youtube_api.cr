@@ -685,7 +685,7 @@ module YoutubeAPI
       # Multiple encodings can be combined, and are listed in the order
       # in which they were applied. E.g: "deflate, gzip" means that the
       # content must be first "gunzipped", then "defated".
-      encodings.split(',').reverse.each do |enc|
+      encodings.split(',').reverse!.each do |enc|
         case enc.strip(' ')
         when "gzip"
           body_io = Compress::Gzip::Reader.new(body_io, sync_close: true)
