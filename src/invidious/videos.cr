@@ -48,7 +48,7 @@ struct Video
     end
   end
 
-  def to_json(json : JSON::Builder | Nil = nil)
+  def to_json(json : JSON::Builder? = nil)
     to_json(nil, json)
   end
 

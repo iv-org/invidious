@@ -107,7 +107,7 @@ class ChannelRedirect < Exception
 end
 
 def get_batch_channels(channels)
-  finished_channel = Channel(String | Nil).new
+  finished_channel = Channel(String?).new
   max_threads = 10
 
   spawn do

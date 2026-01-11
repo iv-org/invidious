@@ -207,7 +207,7 @@ module YoutubeAPI
 
     # Region to provide to youtube, e.g to alter search results
     # (this is passed as the `gl` parameter).
-    property region : String | Nil
+    property region : String?
 
     # Initialization function
     def initialize(
@@ -283,7 +283,7 @@ module YoutubeAPI
   # Return, as a Hash, the "context" data required to request the
   # youtube API endpoints.
   #
-  private def make_context(client_config : ClientConfig | Nil, video_id = "dQw4w9WgXcQ") : Hash
+  private def make_context(client_config : ClientConfig?, video_id = "dQw4w9WgXcQ") : Hash
     # Use the default client config if nil is passed
     client_config ||= DEFAULT_CLIENT_CONFIG
 
@@ -353,7 +353,7 @@ module YoutubeAPI
   #
   #  - A playlist ID (parameters MUST be an empty string)
   #
-  def browse(continuation : String, client_config : ClientConfig | Nil = nil)
+  def browse(continuation : String, client_config : ClientConfig? = nil)
     # JSON Request data, required by the API
     data = {
       "context"      => self.make_context(client_config),
@@ -368,7 +368,7 @@ module YoutubeAPI
     browse_id : String,
     *, # Force the following parameters to be passed by name
     params : String,
-    client_config : ClientConfig | Nil = nil,
+    client_config : ClientConfig? = nil,
   )
     # JSON Request data, required by the API
     data = {
@@ -421,7 +421,7 @@ module YoutubeAPI
   #    })
   #    ```
   #
-  def next(continuation : String, *, client_config : ClientConfig | Nil = nil)
+  def next(continuation : String, *, client_config : ClientConfig? = nil)
     # JSON Request data, required by the API
     data = {
       "context"      => self.make_context(client_config),
@@ -432,7 +432,7 @@ module YoutubeAPI
   end
 
   # :ditto:
-  def next(data : Hash, *, client_config : ClientConfig | Nil = nil)
+  def next(data : Hash, *, client_config : ClientConfig? = nil)
     # JSON Request data, required by the API
     data2 = data.merge({
       "context" => self.make_context(client_config),
@@ -442,7 +442,7 @@ module YoutubeAPI
   end
 
   # Allow a NamedTuple to be passed, too.
-  def next(data : NamedTuple, *, client_config : ClientConfig | Nil = nil)
+  def next(data : NamedTuple, *, client_config : ClientConfig? = nil)
     return self.next(data.to_h, client_config: client_config)
   end
 
@@ -495,7 +495,7 @@ module YoutubeAPI
   # channel_b = YoutubeAPI.resolve_url("https://youtube.com/c/invalid")
   # ```
   #
-  def resolve_url(url : String, client_config : ClientConfig | Nil = nil)
+  def resolve_url(url : String, client_config : ClientConfig? = nil)
     data = {
       "context" => self.make_context(nil),
       "url"     => url,
@@ -521,7 +521,7 @@ module YoutubeAPI
   def search(
     search_query : String,
     params : String,
-    client_config : ClientConfig | Nil = nil,
+    client_config : ClientConfig? = nil,
   )
     # JSON Request data, required by the API
     data = {
@@ -547,7 +547,7 @@ module YoutubeAPI
 
   def get_transcript(
     params : String,
-    client_config : ClientConfig | Nil = nil,
+    client_config : ClientConfig? = nil,
   ) : Hash(String, JSON::Any)
     data = {
       "context" => self.make_context(client_config),
@@ -569,7 +569,7 @@ module YoutubeAPI
   def _post_json(
     endpoint : String,
     data : Hash,
-    client_config : ClientConfig | Nil,
+    client_config : ClientConfig?,
   ) : Hash(String, JSON::Any)
     # Use the default client config if nil is passed
     client_config ||= DEFAULT_CLIENT_CONFIG
