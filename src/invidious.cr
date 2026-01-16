@@ -78,7 +78,7 @@ TEST_IDS           = {"AgbeGFYluEA", "BaW_jenozKc", "a9LDPn-MO4I", "ddFvjfvPnqk"
 MAX_ITEMS_PER_PAGE = 1500
 
 REQUEST_HEADERS_WHITELIST  = {"accept", "accept-encoding", "cache-control", "content-length", "if-none-match", "range"}
-RESPONSE_HEADERS_BLACKLIST = {"access-control-allow-origin", "alt-svc", "server"}
+RESPONSE_HEADERS_BLACKLIST = {"access-control-allow-origin", "alt-svc", "server", "cross-origin-opener-policy-report-only", "report-to", "cross-origin", "timing-allow-origin", "cross-origin-resource-policy"}
 HTTP_CHUNK_SIZE            = 10485760 # ~10MB
 
 CURRENT_BRANCH  = {{ "#{`git branch | sed -n '/* /s///p'`.strip}" }}
