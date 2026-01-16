@@ -1,6 +1,9 @@
 require "html"
 
 module Invidious::Routes::API::V1::Videos
+  private INTERNET_ARCHIVE_URL = URI.parse("https://archive.org")
+  private CHARS_SAFE           = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
+
   def self.videos(env)
     locale = env.get("preferences").as(Preferences).locale
 
@@ -279,7 +282,7 @@ module Invidious::Routes::API::V1::Videos
 
         file = URI.encode_www_form("#{id[0, 3]}/#{id}.xml")
 
-        location = make_client(ARCHIVE_URL, &.get("/download/youtubeannotations_#{index}/#{id[0, 2]}.tar/#{file}"))
+        location = make_client(INTERNET_ARCHIVE_URL, &.get("/download/youtubeannotations_#{index}/#{id[0, 2]}.tar/#{file}"))
 
         if !location.headers["Location"]?
           env.response.status_code = location.status_code

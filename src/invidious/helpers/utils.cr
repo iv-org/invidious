@@ -1,3 +1,5 @@
+PUBSUB_URL = URI.parse("https://pubsubhubbub.appspot.com")
+
 # See http://www.evanmiller.org/how-not-to-sort-by-average-rating.html
 def ci_lower_bound(pos, n)
   if n == 0
