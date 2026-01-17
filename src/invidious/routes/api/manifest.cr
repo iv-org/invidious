@@ -140,7 +140,7 @@ module Invidious::Routes::API::Manifest
       end
     end
 
-    return manifest
+    manifest
   end
 
   # /api/manifest/dash/id/videoplayback

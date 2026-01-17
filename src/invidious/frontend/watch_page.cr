@@ -28,12 +28,12 @@ module Invidious::Frontend::WatchPage
     end
 
     url = "/download"
-    if (CONFIG.invidious_companion.present?)
+    if CONFIG.invidious_companion.present?
       invidious_companion = CONFIG.invidious_companion.sample
       url = "#{invidious_companion.public_url}/download?check=#{invidious_companion_encrypt(video.id)}"
     end
 
-    return String.build(4000) do |str|
+    String.build(4000) do |str|
       str << "<form"
       str << " class=\"pure-form pure-form-stacked\""
       str << " action='#{url}'"

@@ -35,7 +35,7 @@ def fetch_trending(trending_type, region, locale)
       # Ignore the smaller categories, as they generally contain a sponsored
       # channel, which brings a lot of noise on the trending page.
       # See: https://github.com/iv-org/invidious/issues/2989
-      next if (itm.contents.size < 24 && deduplicate)
+      next if itm.contents.size < 24 && deduplicate
 
       extracted.concat itm.contents.select(SearchItem)
     else

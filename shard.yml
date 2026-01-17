@@ -6,7 +6,7 @@ authors:
   - Contributors!
 
 description: |
-   Invidious is an alternative front-end to YouTube 
+  Invidious is an alternative front-end to YouTube
 
 dependencies:
   pg:
@@ -34,7 +34,7 @@ development_dependencies:
     version: ~> 0.10.4
   ameba:
     github: crystal-ameba/ameba
-    version: ~> 1.6.1
+    branch: master
 
 crystal: ">= 1.10.0, < 2.0.0"
 

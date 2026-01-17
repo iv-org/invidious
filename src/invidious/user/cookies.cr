@@ -11,7 +11,7 @@ struct Invidious::User
     # Session ID (SID) cookie
     # Parameter "domain" comes from the global config
     def sid(domain : String?, sid) : HTTP::Cookie
-      return HTTP::Cookie.new(
+      HTTP::Cookie.new(
         name: "SID",
         domain: domain,
         value: sid,
@@ -25,7 +25,7 @@ struct Invidious::User
     # Preferences (PREFS) cookie
     # Parameter "domain" comes from the global config
     def prefs(domain : String?, preferences : Preferences) : HTTP::Cookie
-      return HTTP::Cookie.new(
+      HTTP::Cookie.new(
         name: "PREFS",
         domain: domain,
         value: URI.encode_www_form(preferences.to_json),

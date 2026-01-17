@@ -16,7 +16,7 @@ module Invidious::Database::Playlists
     request = <<-SQL
       INSERT INTO playlists
       VALUES (#{arg_array(playlist_array)})
-    SQL
+      SQL
 
     PG_DB.exec(request, args: playlist_array)
   end
@@ -27,7 +27,7 @@ module Invidious::Database::Playlists
     request = <<-SQL
       DELETE FROM playlists *
       WHERE id = $1
-    SQL
+      SQL
 
     PG_DB.exec(request, id)
   end
@@ -41,7 +41,7 @@ module Invidious::Database::Playlists
       UPDATE playlists
       SET title = $1, privacy = $2, description = $3, updated = $4
       WHERE id = $5
-    SQL
+      SQL
 
     PG_DB.exec(request, title, privacy, description, updated, id)
   end
@@ -51,7 +51,7 @@ module Invidious::Database::Playlists
       UPDATE playlists
       SET description = $1
       WHERE id = $2
-    SQL
+      SQL
 
     PG_DB.exec(request, description, id)
   end
@@ -61,7 +61,7 @@ module Invidious::Database::Playlists
       UPDATE playlists
       SET subscribed = now()
       WHERE id = $1
-    SQL
+      SQL
 
     PG_DB.exec(request, id)
   end
@@ -73,7 +73,7 @@ module Invidious::Database::Playlists
           video_count = cardinality(index) + 1,
           updated = now()
       WHERE id = $2
-    SQL
+      SQL
 
     PG_DB.exec(request, index, id)
   end
@@ -85,7 +85,7 @@ module Invidious::Database::Playlists
           video_count = cardinality(index) - 1,
           updated = now()
       WHERE id = $2
-    SQL
+      SQL
 
     PG_DB.exec(request, index, id)
   end
@@ -98,18 +98,18 @@ module Invidious::Database::Playlists
     request = <<-SQL
       SELECT * FROM playlists
       WHERE id = $1
-    SQL
+      SQL
 
-    return PG_DB.query_one?(request, id, as: InvidiousPlaylist)
+    PG_DB.query_one?(request, id, as: InvidiousPlaylist)
   end
 
   def select_all(*, author : String) : Array(InvidiousPlaylist)
     request = <<-SQL
       SELECT * FROM playlists
       WHERE author = $1
-    SQL
+      SQL
 
-    return PG_DB.query_all(request, author, as: InvidiousPlaylist)
+    PG_DB.query_all(request, author, as: InvidiousPlaylist)
   end
 
   # -------------------
@@ -121,7 +121,7 @@ module Invidious::Database::Playlists
       SELECT * FROM playlists
       WHERE author = $1 AND id LIKE 'IV%'
       ORDER BY created
-    SQL
+      SQL
 
     PG_DB.query_all(request, email, as: InvidiousPlaylist)
   end
@@ -131,7 +131,7 @@ module Invidious::Database::Playlists
       SELECT * FROM playlists
       WHERE author = $1 AND id NOT LIKE 'IV%'
       ORDER BY created
-    SQL
+      SQL
 
     PG_DB.query_all(request, email, as: InvidiousPlaylist)
   end
@@ -141,7 +141,7 @@ module Invidious::Database::Playlists
       SELECT id,title FROM playlists
       WHERE author = $1 AND id LIKE 'IV%'
       ORDER BY title
-    SQL
+      SQL
 
     PG_DB.query_all(request, email, as: {String, String})
   end
@@ -155,9 +155,9 @@ module Invidious::Database::Playlists
     request = <<-SQL
       SELECT id FROM playlists
       WHERE id = $1
-    SQL
+      SQL
 
-    return PG_DB.query_one?(request, id, as: String).nil?
+    PG_DB.query_one?(request, id, as: String).nil?
   end
 
   # Count how many playlist a user has created.
@@ -165,9 +165,9 @@ module Invidious::Database::Playlists
     request = <<-SQL
       SELECT count(*) FROM playlists
       WHERE author = $1
-    SQL
+      SQL
 
-    return PG_DB.query_one?(request, author, as: Int64) || 0_i64
+    PG_DB.query_one?(request, author, as: Int64) || 0_i64
   end
 end
 
@@ -189,7 +189,7 @@ module Invidious::Database::PlaylistVideos
     request = <<-SQL
       INSERT INTO playlist_videos
       VALUES (#{arg_array(video_array)})
-    SQL
+      SQL
 
     PG_DB.exec(request, args: video_array)
   end
@@ -198,7 +198,7 @@ module Invidious::Database::PlaylistVideos
     request = <<-SQL
       DELETE FROM playlist_videos *
       WHERE index = $1
-    SQL
+      SQL
 
     PG_DB.exec(request, index)
   end
@@ -207,7 +207,7 @@ module Invidious::Database::PlaylistVideos
     request = <<-SQL
       DELETE FROM playlist_videos *
       WHERE plid = $1
-    SQL
+      SQL
 
     PG_DB.exec(request, plid)
   end
@@ -223,9 +223,9 @@ module Invidious::Database::PlaylistVideos
       ORDER BY array_position($2, index)
       LIMIT $3
       OFFSET $4
-    SQL
+      SQL
 
-    return PG_DB.query_all(request, plid, index, limit, offset, as: PlaylistVideo)
+    PG_DB.query_all(request, plid, index, limit, offset, as: PlaylistVideo)
   end
 
   def select_index(plid : String, vid : String) : Int64?
@@ -233,9 +233,9 @@ module Invidious::Database::PlaylistVideos
       SELECT index FROM playlist_videos
       WHERE plid = $1 AND id = $2
       LIMIT 1
-    SQL
+      SQL
 
-    return PG_DB.query_one?(request, plid, vid, as: Int64)
+    PG_DB.query_one?(request, plid, vid, as: Int64)
   end
 
   def select_one_id(plid : String, index : VideoIndex) : String?
@@ -244,9 +244,9 @@ module Invidious::Database::PlaylistVideos
       WHERE plid = $1
       ORDER BY array_position($2, index)
       LIMIT 1
-    SQL
+      SQL
 
-    return PG_DB.query_one?(request, plid, index, as: String)
+    PG_DB.query_one?(request, plid, index, as: String)
   end
 
   def select_ids(plid : String, index : VideoIndex, limit = 500) : Array(String)
@@ -255,8 +255,8 @@ module Invidious::Database::PlaylistVideos
       WHERE plid = $1
       ORDER BY array_position($2, index)
       LIMIT $3
-    SQL
+      SQL
 
-    return PG_DB.query_all(request, plid, index, limit, as: String)
+    PG_DB.query_all(request, plid, index, limit, as: String)
   end
 end

@@ -2,23 +2,15 @@
 # Lint
 #
 
+Lint/UnusedArgument:
+  Excluded:
+    - "**/*.ecr"
+
 # Exclude assigns for ECR files
 Lint/UselessAssign:
   Excluded:
-  - src/invidious.cr
-  - src/invidious/helpers/errors.cr
-  - src/invidious/routes/**/*.cr
-
-# Ignore false negative (if !db.query_one?...)
-Lint/UnreachableCode:
-  Excluded:
-  - src/invidious/database/base.cr
-
-# Ignore shadowed variable `key` (it works for now, and that's
-# a sensitive part of the code)
-Lint/ShadowingOuterLocalVar:
-  Excluded:
-  - src/invidious/helpers/tokens.cr
+    - "**/*.ecr"
+    - src/invidious/routes/**/*.cr
 
 Lint/NotNil:
   Enabled: false
@@ -27,40 +19,16 @@ Lint/SpecFilename:
   Excluded:
     - spec/parsers_helper.cr
 
-
 #
 # Style
 #
-
-Style/RedundantBegin:
-  Enabled: false
-
-Style/RedundantReturn:
-  Enabled: false
-
-Style/RedundantNext:
-  Enabled: false
-
-Style/ParenthesesAroundCondition:
-  Enabled: false
 
 # This requires a rewrite of most data structs (and their usage) in Invidious.
 Naming/QueryBoolMethods:
   Enabled: false
 
-Naming/AccessorMethodName:
-  Enabled: false
-
 Naming/BlockParameterName:
   Enabled: false
-
-# Hides TODO comment warnings.
-#
-# Call `bin/ameba --only Documentation/DocumentationAdmonition` to
-# list them
-Documentation/DocumentationAdmonition:
-  Enabled: false
-
 
 #
 # Metrics

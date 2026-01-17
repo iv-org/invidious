@@ -1,0 +1,19 @@
+name: Ameba
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download source
+        uses: actions/checkout@v6
+
+      - name: Run Ameba Linter
+        uses: crystal-ameba/github-action@master

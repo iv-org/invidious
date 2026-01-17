@@ -3,7 +3,7 @@
 # -------------------
 
 macro error_template(*args)
-  error_template_helper(env, {{args.splat}})
+  error_template_helper(env, {{ args.splat }})
 end
 
 def github_details(summary : String, content : String)
@@ -15,19 +15,19 @@ def github_details(summary : String, content : String)
   details += %(\n```)
   details += %(\n</p>)
   details += %(\n</details>)
-  return HTML.escape(details)
+  HTML.escape(details)
 end
 
 def get_issue_template(env : HTTP::Server::Context, exception : Exception) : Tuple(String, String)
   issue_title = "#{exception.message} (#{exception.class})"
 
   issue_template = <<-TEXT
-  Title: `#{HTML.escape(issue_title)}`
-  Date: `#{Time::Format::ISO_8601_DATE_TIME.format(Time.utc)}`
-  Route: `#{HTML.escape(env.request.resource)}`
-  Version: `#{SOFTWARE["version"]} @ #{SOFTWARE["branch"]}`
+    Title: `#{HTML.escape(issue_title)}`
+    Date: `#{Time::Format::ISO_8601_DATE_TIME.format(Time.utc)}`
+    Route: `#{HTML.escape(env.request.resource)}`
+    Version: `#{SOFTWARE["version"]} @ #{SOFTWARE["branch"]}`
 
-  TEXT
+    TEXT
 
   issue_template += github_details("Backtrace", exception.inspect_with_backtrace)
 
@@ -61,7 +61,8 @@ def error_template_helper(env : HTTP::Server::Context, status_code : Int32, exce
   url_new_issue += "?labels=bug&template=bug_report.md&title="
   url_new_issue += URI.encode_www_form("[Bug] " + issue_title)
 
-  error_message = <<-END_HTML
+  # ameba:disable Lint/UselessAssign
+  error_message = <<-HTML
     <div class="error_message">
       <h2>#{translate(locale, "crash_page_you_found_a_bug")}</h2>
       <br/><br/>
@@ -80,13 +81,14 @@ def error_template_helper(env : HTTP::Server::Context, status_code : Int32, exce
       <!-- TODO: Add a "copy to clipboard" button -->
       <pre class="error-issue-template">#{issue_template}</pre>
     </div>
-  END_HTML
+    HTML
 
   # Don't show the usual "next steps" widget. The same options are
   # proposed above the error message, just worded differently.
+  # ameba:disable Lint/UselessAssign
   next_steps = ""
 
-  return templated "error"
+  templated "error"
 end
 
 def error_template_helper(env : HTTP::Server::Context, status_code : Int32, message : String)
@@ -95,10 +97,12 @@ def error_template_helper(env : HTTP::Server::Context, status_code : Int32, mess
 
   locale = env.get("preferences").as(Preferences).locale
 
+  # ameba:disable Lint/UselessAssign
   error_message = translate(locale, message)
+  # ameba:disable Lint/UselessAssign
   next_steps = error_redirect_helper(env)
 
-  return templated "error"
+  templated "error"
 end
 
 # -------------------
@@ -106,7 +110,7 @@ end
 # -------------------
 
 macro error_atom(*args)
-  error_atom_helper(env, {{args.splat}})
+  error_atom_helper(env, {{ args.splat }})
 end
 
 def error_atom_helper(env : HTTP::Server::Context, status_code : Int32, exception : Exception)
@@ -117,14 +121,14 @@ def error_atom_helper(env : HTTP::Server::Context, status_code : Int32, exceptio
   env.response.content_type = "application/atom+xml"
   env.response.status_code = status_code
 
-  return "<error>#{exception.inspect_with_backtrace}</error>"
+  "<error>#{exception.inspect_with_backtrace}</error>"
 end
 
 def error_atom_helper(env : HTTP::Server::Context, status_code : Int32, message : String)
   env.response.content_type = "application/atom+xml"
   env.response.status_code = status_code
 
-  return "<error>#{message}</error>"
+  "<error>#{message}</error>"
 end
 
 # -------------------
@@ -132,14 +136,14 @@ end
 # -------------------
 
 macro error_json(*args)
-  error_json_helper(env, {{args.splat}})
+  error_json_helper(env, {{ args.splat }})
 end
 
 def error_json_helper(
   env : HTTP::Server::Context,
   status_code : Int32,
   exception : Exception,
-  additional_fields : Hash(String, Object) | Nil = nil,
+  additional_fields : Hash(String, Object)? = nil,
 )
   if exception.is_a?(InfoException)
     return error_json_helper(env, status_code, exception.message || "", additional_fields)
@@ -154,14 +158,14 @@ def error_json_helper(
     error_message = error_message.merge(additional_fields)
   end
 
-  return error_message.to_json
+  error_message.to_json
 end
 
 def error_json_helper(
   env : HTTP::Server::Context,
   status_code : Int32,
   message : String,
-  additional_fields : Hash(String, Object) | Nil = nil,
+  additional_fields : Hash(String, Object)? = nil,
 )
   env.response.content_type = "application/json"
   env.response.status_code = status_code
@@ -172,7 +176,7 @@ def error_json_helper(
     error_message = error_message.merge(additional_fields)
   end
 
-  return error_message.to_json
+  error_message.to_json
 end
 
 # -------------------
@@ -191,7 +195,7 @@ def error_redirect_helper(env : HTTP::Server::Context)
     go_to_youtube = translate(locale, "next_steps_error_message_go_to_youtube")
     switch_instance = translate(locale, "Switch Invidious Instance")
 
-    return <<-END_HTML
+    <<-HTML
       <p style="margin-bottom: 4px;">#{next_steps_text}</p>
       <ul>
         <li>
@@ -204,8 +208,8 @@ def error_redirect_helper(env : HTTP::Server::Context)
           <a rel="noreferrer noopener" href="https://youtube.com#{env.request.resource}">#{go_to_youtube}</a>
         </li>
       </ul>
-    END_HTML
+      HTML
   else
-    return ""
+    ""
   end
 end

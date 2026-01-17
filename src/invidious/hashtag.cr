@@ -9,7 +9,7 @@ module Invidious::Hashtag
     response = YoutubeAPI.browse(continuation: ctoken, client_config: client_config)
 
     items, _ = extract_items(response)
-    return items
+    items
   end
 
   def generate_continuation(hashtag : String, cursor : Int)
@@ -37,6 +37,6 @@ module Invidious::Hashtag
       .try { |i| Base64.urlsafe_encode(i) }
       .try { |i| URI.encode_www_form(i) }
 
-    return continuation
+    continuation
   end
 end

@@ -37,15 +37,13 @@ record AuthorFallback, name : String, id : String
 private module Parsers
   module BaseParser
     def parse(*args)
-      begin
-        return parse_internal(*args)
-      rescue ex
-        LOGGER.debug("#{{{@type.name}}}: Failed to render item.")
-        LOGGER.debug("#{{{@type.name}}}: Got exception: #{ex.message}")
-        ProblematicTimelineItem.new(
-          parse_exception: ex
-        )
-      end
+      parse_internal(*args)
+    rescue ex
+      LOGGER.debug("#{{{ @type.name }}}: Failed to render item.")
+      LOGGER.debug("#{{{ @type.name }}}: Got exception: #{ex.message}")
+      ProblematicTimelineItem.new(
+        parse_exception: ex
+      )
     end
   end
 
@@ -64,7 +62,7 @@ private module Parsers
 
     def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = (item["videoRenderer"]? || item["gridVideoRenderer"]?)
-        return self.parse(item_contents, author_fallback)
+        return parse(item_contents, author_fallback)
       end
     end
 
@@ -152,7 +150,6 @@ private module Parsers
         when "Premium"
           # TODO: Potentially available as item_contents["topStandaloneBadge"]["metadataBadgeRenderer"]
           badges |= VideoBadges::Premium
-        else nil # Ignore
         end
       end
 
@@ -173,7 +170,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{@type.name}}
+      {{ @type.name }}
     end
   end
 
@@ -192,7 +189,7 @@ private module Parsers
 
     def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = (item["channelRenderer"]? || item["gridChannelRenderer"]?)
-        return self.parse(item_contents, author_fallback)
+        return parse(item_contents, author_fallback)
       end
     end
 
@@ -207,7 +204,7 @@ private module Parsers
       # TODO change default value to nil
 
       subscriber_count = item_contents.dig?("subscriberCountText", "simpleText").try &.as_s
-      channel_handle = subscriber_count if (subscriber_count.try &.starts_with? "@")
+      channel_handle = subscriber_count if subscriber_count.try &.starts_with? "@"
 
       # Since youtube added channel handles, `VideoCountText` holds the number of
       # subscribers and `subscriberCountText` holds the handle, except when the
@@ -240,7 +237,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{@type.name}}
+      {{ @type.name }}
     end
   end
 
@@ -255,7 +252,7 @@ private module Parsers
 
     def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["hashtagTileRenderer"]?
-        return self.parse(item_contents)
+        return parse(item_contents)
       end
     end
 
@@ -280,7 +277,7 @@ private module Parsers
         end
       end
 
-      return SearchHashtag.new({
+      SearchHashtag.new({
         title:         title,
         url:           url,
         video_count:   short_text_to_number(video_count_txt || ""),
@@ -289,7 +286,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{@type.name}}
+      {{ @type.name }}
     end
   end
 
@@ -308,7 +305,7 @@ private module Parsers
 
     def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["gridPlaylistRenderer"]?
-        return self.parse(item_contents, author_fallback)
+        return parse(item_contents, author_fallback)
       end
     end
 
@@ -334,7 +331,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{@type.name}}
+      {{ @type.name }}
     end
   end
 
@@ -352,7 +349,7 @@ private module Parsers
 
     def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["playlistRenderer"]?
-        return self.parse(item_contents, author_fallback)
+        return parse(item_contents, author_fallback)
       end
     end
 
@@ -395,7 +392,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{@type.name}}
+      {{ @type.name }}
     end
   end
 
@@ -415,7 +412,7 @@ private module Parsers
 
     def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["shelfRenderer"]?
-        return self.parse(item_contents, author_fallback)
+        return parse(item_contents, author_fallback)
       end
     end
 
@@ -467,7 +464,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{@type.name}}
+      {{ @type.name }}
     end
   end
 
@@ -484,7 +481,7 @@ private module Parsers
 
     def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item.dig?("itemSectionRenderer", "contents", 0)
-        return self.parse(item_contents, author_fallback)
+        return parse(item_contents, author_fallback)
       end
     end
 
@@ -492,11 +489,11 @@ private module Parsers
       child = VideoRendererParser.process(item_contents, author_fallback)
       child ||= PlaylistRendererParser.process(item_contents, author_fallback)
 
-      return child
+      child
     end
 
     def self.parser_name
-      return {{@type.name}}
+      {{ @type.name }}
     end
   end
 
@@ -513,7 +510,7 @@ private module Parsers
 
     def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item.dig?("richItemRenderer", "content")
-        return self.parse(item_contents, author_fallback)
+        return parse(item_contents, author_fallback)
       end
     end
 
@@ -523,11 +520,11 @@ private module Parsers
       child ||= PlaylistRendererParser.process(item_contents, author_fallback)
       child ||= LockupViewModelParser.process(item_contents, author_fallback)
       child ||= ShortsLockupViewModelParser.process(item_contents, author_fallback)
-      return child
+      child
     end
 
     def self.parser_name
-      return {{@type.name}}
+      {{ @type.name }}
     end
   end
 
@@ -546,7 +543,7 @@ private module Parsers
 
     def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["reelItemRenderer"]?
-        return self.parse(item_contents, author_fallback)
+        return parse(item_contents, author_fallback)
       end
     end
 
@@ -626,7 +623,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{@type.name}}
+      {{ @type.name }}
     end
   end
 
@@ -643,7 +640,7 @@ private module Parsers
 
     def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["lockupViewModel"]?
-        return self.parse(item_contents, author_fallback)
+        return parse(item_contents, author_fallback)
       end
     end
 
@@ -674,9 +671,9 @@ private module Parsers
       video_count = thumbnail_view_model.dig("overlays").as_a
         .compact_map(&.dig?("thumbnailOverlayBadgeViewModel", "thumbnailBadges").try &.as_a)
         .flatten
-        .find(nil, &.dig?("thumbnailBadgeViewModel", "text").try { |node|
+        .find(nil, &.dig?("thumbnailBadgeViewModel", "text").try do |node|
           {"episodes", "videos"}.any? { |str| node.as_s.ends_with?(str) }
-        })
+        end)
         .try &.dig("thumbnailBadgeViewModel", "text").as_s.to_i(strict: false)
 
       metadata = item_contents.dig("metadata", "lockupMetadataViewModel")
@@ -691,7 +688,7 @@ private module Parsers
       # item_contents.dig("rendererContext", "commandContext", "onTap", "innertubeCommand", "watchEndpoint")
       # Available fields: "videoId", "playlistId", "params"
 
-      return SearchPlaylist.new({
+      SearchPlaylist.new({
         title:           title,
         id:              playlist_id,
         author:          author_fallback.name,
@@ -704,7 +701,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{@type.name}}
+      {{ @type.name }}
     end
   end
 
@@ -721,7 +718,7 @@ private module Parsers
 
     def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["shortsLockupViewModel"]?
-        return self.parse(item_contents, author_fallback)
+        return parse(item_contents, author_fallback)
       end
     end
 
@@ -762,7 +759,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{@type.name}}
+      {{ @type.name }}
     end
   end
 
@@ -778,7 +775,7 @@ private module Parsers
   module ContinuationItemRendererParser
     def self.process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["continuationItemRenderer"]?
-        return self.parse(item_contents)
+        return parse(item_contents)
       end
     end
 
@@ -791,7 +788,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{@type.name}}
+      {{ @type.name }}
     end
   end
 end
@@ -831,7 +828,7 @@ private module Extractors
   module YouTubeTabs
     def self.process(initial_data : InitialData)
       if target = initial_data["twoColumnBrowseResultsRenderer"]?
-        self.extract(target)
+        extract(target)
       end
     end
 
@@ -845,7 +842,7 @@ private module Extractors
         raw_items = rich_grid_contents.as_a
       end
 
-      return raw_items
+      raw_items
     end
 
     private def self.unpack_section_list(contents)
@@ -853,13 +850,13 @@ private module Extractors
 
       contents.as_a.each do |item|
         if item_section_content = item.dig?("itemSectionRenderer", "contents")
-          raw_items += self.unpack_item_section(item_section_content)
+          raw_items += unpack_item_section(item_section_content)
         else
           raw_items << item
         end
       end
 
-      return raw_items
+      raw_items
     end
 
     private def self.unpack_item_section(contents)
@@ -874,11 +871,11 @@ private module Extractors
         end
       end
 
-      return raw_items
+      raw_items
     end
 
     def self.extractor_name
-      return {{@type.name}}
+      {{ @type.name }}
     end
   end
 
@@ -902,7 +899,7 @@ private module Extractors
   module SearchResults
     def self.process(initial_data : InitialData)
       if target = initial_data["twoColumnSearchResultsRenderer"]?
-        self.extract(target)
+        extract(target)
       end
     end
 
@@ -915,11 +912,11 @@ private module Extractors
         end
       end
 
-      return raw_items.flatten
+      raw_items.flatten
     end
 
     def self.extractor_name
-      return {{@type.name}}
+      {{ @type.name }}
     end
   end
 
@@ -936,11 +933,11 @@ private module Extractors
   module ContinuationContent
     def self.process(initial_data : InitialData)
       if target = initial_data["continuationContents"]?
-        self.extract(target)
+        extract(target)
       elsif target = initial_data["appendContinuationItemsAction"]?
-        self.extract(target)
+        extract(target)
       elsif target = initial_data["reloadContinuationItemsCommand"]?
-        self.extract(target)
+        extract(target)
       end
     end
 
@@ -949,11 +946,11 @@ private module Extractors
       content ||= target.dig?("gridContinuation", "items")
       content ||= target.dig?("richGridContinuation", "contents")
 
-      return content.nil? ? [] of JSON::Any : content.as_a
+      content.nil? ? [] of JSON::Any : content.as_a
     end
 
     def self.extractor_name
-      return {{@type.name}}
+      {{ @type.name }}
     end
   end
 end
@@ -969,14 +966,14 @@ module HelperExtractors
   def self.get_video_count(container : JSON::Any) : Int32
     if box = container["videoCountText"]?
       if (extracted_text = extract_text(box)) && !extracted_text.includes? " subscriber"
-        return extracted_text.gsub(/\D/, "").to_i
+        extracted_text.gsub(/\D/, "").to_i
       else
-        return 0
+        0
       end
     elsif box = container["videoCount"]?
-      return box.as_s.to_i
+      box.as_s.to_i
     else
-      return 0
+      0
     end
   end
 
@@ -990,7 +987,7 @@ module HelperExtractors
 
     # Simpletext: "4M views"
     # runs: {"text": "1.1K"},{"text":" watching"}
-    return box["simpleText"]?.try &.as_s.sub(" views", "") ||
+    box["simpleText"]?.try &.as_s.sub(" views", "") ||
       box.dig?("runs", 0, "text").try &.as_s || "0"
   end
 
@@ -1000,7 +997,7 @@ module HelperExtractors
   #
   # Raises when it's unable to parse from the given JSON data.
   def self.get_thumbnails(container : JSON::Any) : String
-    return container.dig("thumbnail", "thumbnails", 0, "url").as_s
+    container.dig("thumbnail", "thumbnails", 0, "url").as_s
   end
 
   # ditto
@@ -1008,13 +1005,13 @@ module HelperExtractors
   # YouTube sometimes sends the thumbnail as:
   # {"thumbnails": [{"thumbnails": [{"url": "example.com"}, ...]}]}
   def self.get_thumbnails_plural(container : JSON::Any) : String
-    return container.dig("thumbnails", 0, "thumbnails", 0, "url").as_s
+    container.dig("thumbnails", 0, "thumbnails", 0, "url").as_s
   end
 
   # Retrieves the ID required for querying the InnerTube browse endpoint.
   # Returns an empty string when it's unable to do so
   def self.get_browse_id(container)
-    return container.dig?("navigationEndpoint", "browseEndpoint", "browseId").try &.as_s || ""
+    container.dig?("navigationEndpoint", "browseEndpoint", "browseId").try &.as_s || ""
   end
 end
 

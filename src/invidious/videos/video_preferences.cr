@@ -158,5 +158,5 @@ def process_video_params(query, preferences)
     save_player_pos:    save_player_pos,
   })
 
-  return params
+  params
 end

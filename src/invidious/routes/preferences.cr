@@ -347,7 +347,6 @@ module Invidious::Routes::PreferencesRoute
               response: error_template(415, "Uploaded file is too large")
             )
           end
-        else nil # Ignore
         end
       end
     end

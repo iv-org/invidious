@@ -26,21 +26,21 @@ struct ChannelVideo
     json.object do
       json.field "type", "shortVideo"
 
-      json.field "title", self.title
-      json.field "videoId", self.id
+      json.field "title", title
+      json.field "videoId", id
       json.field "videoThumbnails" do
-        Invidious::JSONify::APIv1.thumbnails(json, self.id)
+        Invidious::JSONify::APIv1.thumbnails(json, id)
       end
 
-      json.field "lengthSeconds", self.length_seconds
+      json.field "lengthSeconds", length_seconds
 
-      json.field "author", self.author
-      json.field "authorId", self.ucid
-      json.field "authorUrl", "/channel/#{self.ucid}"
-      json.field "published", self.published.to_unix
-      json.field "publishedText", translate(locale, "`x` ago", recode_date(self.published, locale))
+      json.field "author", author
+      json.field "authorId", ucid
+      json.field "authorUrl", "/channel/#{ucid}"
+      json.field "published", published.to_unix
+      json.field "publishedText", translate(locale, "`x` ago", recode_date(published, locale))
 
-      json.field "viewCount", self.views
+      json.field "viewCount", views
     end
   end
 
@@ -51,34 +51,34 @@ struct ChannelVideo
   end
 
   def to_xml(locale, query_params, xml : XML::Builder)
-    query_params["v"] = self.id
+    query_params["v"] = id
 
     xml.element("entry") do
-      xml.element("id") { xml.text "yt:video:#{self.id}" }
-      xml.element("yt:videoId") { xml.text self.id }
-      xml.element("yt:channelId") { xml.text self.ucid }
-      xml.element("title") { xml.text self.title }
+      xml.element("id") { xml.text "yt:video:#{id}" }
+      xml.element("yt:videoId") { xml.text id }
+      xml.element("yt:channelId") { xml.text ucid }
+      xml.element("title") { xml.text title }
       xml.element("link", rel: "alternate", href: "#{HOST_URL}/watch?#{query_params}")
 
       xml.element("author") do
-        xml.element("name") { xml.text self.author }
-        xml.element("uri") { xml.text "#{HOST_URL}/channel/#{self.ucid}" }
+        xml.element("name") { xml.text author }
+        xml.element("uri") { xml.text "#{HOST_URL}/channel/#{ucid}" }
       end
 
       xml.element("content", type: "xhtml") do
         xml.element("div", xmlns: "http://www.w3.org/1999/xhtml") do
           xml.element("a", href: "#{HOST_URL}/watch?#{query_params}") do
-            xml.element("img", src: "#{HOST_URL}/vi/#{self.id}/mqdefault.jpg")
+            xml.element("img", src: "#{HOST_URL}/vi/#{id}/mqdefault.jpg")
           end
         end
       end
 
-      xml.element("published") { xml.text self.published.to_s("%Y-%m-%dT%H:%M:%S%:z") }
-      xml.element("updated") { xml.text self.updated.to_s("%Y-%m-%dT%H:%M:%S%:z") }
+      xml.element("published") { xml.text published.to_s("%Y-%m-%dT%H:%M:%S%:z") }
+      xml.element("updated") { xml.text updated.to_s("%Y-%m-%dT%H:%M:%S%:z") }
 
       xml.element("media:group") do
-        xml.element("media:title") { xml.text self.title }
-        xml.element("media:thumbnail", url: "#{HOST_URL}/vi/#{self.id}/mqdefault.jpg",
+        xml.element("media:title") { xml.text title }
+        xml.element("media:thumbnail", url: "#{HOST_URL}/vi/#{id}/mqdefault.jpg",
           width: "320", height: "180")
       end
     end
@@ -93,7 +93,7 @@ struct ChannelVideo
   def to_tuple
     {% begin %}
       {
-        {{@type.instance_vars.map(&.name).splat}}
+        {{ @type.instance_vars.map(&.name).splat }}
       }
     {% end %}
   end
@@ -107,7 +107,7 @@ class ChannelRedirect < Exception
 end
 
 def get_batch_channels(channels)
-  finished_channel = Channel(String | Nil).new
+  finished_channel = Channel(String?).new
   max_threads = 10
 
   spawn do
@@ -141,7 +141,7 @@ def get_batch_channels(channels)
     end
   end
 
-  return final
+  final
 end
 
 def get_channel(id) : InvidiousChannel
@@ -152,7 +152,7 @@ def get_channel(id) : InvidiousChannel
     Invidious::Database::Channels.insert(channel, update_on_conflict: true)
   end
 
-  return channel
+  channel
 end
 
 def fetch_channel(ucid, pull_all_videos : Bool)
@@ -292,5 +292,5 @@ def fetch_channel(ucid, pull_all_videos : Bool)
   end
 
   channel.updated = Time.utc
-  return channel
+  channel
 end

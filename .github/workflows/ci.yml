@@ -26,7 +26,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     name: "build - crystal: ${{ matrix.crystal }}, stable: ${{ matrix.stable }}"
@@ -122,7 +121,6 @@ jobs:
         run: docker compose logs
 
   lint:
-
     runs-on: ubuntu-latest
 
     continue-on-error: true
@@ -159,6 +157,3 @@ jobs:
             git diff
             exit 1
           fi
-
-      - name: Run Ameba linter
-        run: bin/ameba

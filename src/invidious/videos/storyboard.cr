@@ -62,7 +62,7 @@ module Invidious::Videos
       # The base URL is the first chunk
       base_url = URI.parse(storyboards.shift)
 
-      return storyboards.map_with_index do |sb, i|
+      storyboards.map_with_index do |sb, i|
         # Separate the different storyboard parameters:
         # width/height: respective dimensions, in pixels, of a single thumbnail
         # count: how many thumbnails are displayed across the full video

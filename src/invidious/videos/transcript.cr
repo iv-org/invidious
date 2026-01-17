@@ -45,7 +45,7 @@ module Invidious::Videos
         .try { |i| Base64.urlsafe_encode(i) }
         .try { |i| URI.encode_www_form(i) }
 
-      return params
+      params
     end
 
     # Constructs a Transcripts struct from the initial YouTube response
@@ -92,7 +92,7 @@ module Invidious::Videos
         lines << line_type.new(start_ms, end_ms, text)
       end
 
-      return Transcript.new(
+      Transcript.new(
         lines: lines,
         language_code: language_code,
         auto_generated: auto_generated,
@@ -120,7 +120,7 @@ module Invidious::Videos
         end
       end
 
-      return vtt
+      vtt
     end
 
     def to_json(json : JSON::Builder)

@@ -322,7 +322,6 @@ module Invidious::Routes::Feeds
           request_target = URI.parse(node[attribute.name]).request_target
           query_string_opt = request_target.starts_with?("/watch?v=") ? "&#{params}" : ""
           node[attribute.name] = "#{HOST_URL}#{request_target}#{query_string_opt}"
-        else nil # Skip
         end
       end
     end

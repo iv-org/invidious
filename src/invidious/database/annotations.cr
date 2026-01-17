@@ -8,7 +8,7 @@ module Invidious::Database::Annotations
       INSERT INTO annotations
       VALUES ($1, $2)
       ON CONFLICT DO NOTHING
-    SQL
+      SQL
 
     PG_DB.exec(request, id, annotations)
   end
@@ -17,8 +17,8 @@ module Invidious::Database::Annotations
     request = <<-SQL
       SELECT * FROM annotations
       WHERE id = $1
-    SQL
+      SQL
 
-    return PG_DB.query_one?(request, id, as: Annotation)
+    PG_DB.query_one?(request, id, as: Annotation)
   end
 end

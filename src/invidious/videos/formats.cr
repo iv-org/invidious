@@ -1,6 +1,6 @@
 module Invidious::Videos::Formats
   def self.itag_to_metadata?(itag : JSON::Any)
-    return FORMATS[itag.to_s]?
+    FORMATS[itag.to_s]?
   end
 
   # See https://github.com/rg3/youtube-dl/blob/master/youtube_dl/extractor/youtube.py#L380-#L476

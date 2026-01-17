@@ -27,7 +27,7 @@ struct Invidious::User
         subscriptions << channel_id
       end
 
-      return subscriptions
+      subscriptions
     end
 
     def parse_playlist_export_csv(user : User, raw_input : String)
@@ -81,7 +81,7 @@ struct Invidious::User
         end
       end
 
-      return playlist
+      playlist
     end
 
     # -------------------
@@ -171,7 +171,7 @@ struct Invidious::User
 
       opml_extensions = ["xml", "opml"]
 
-      return opml_mimetypes.any?(&.== mimetype) || opml_extensions.any?(&.== extension)
+      opml_mimetypes.any?(&.== mimetype) || opml_extensions.any?(&.== extension)
     end
 
     # Import subscribed channels from Youtube
@@ -200,7 +200,7 @@ struct Invidious::User
       user.subscriptions = get_batch_channels(user.subscriptions)
 
       Invidious::Database::Users.update_subscriptions(user)
-      return true
+      true
     end
 
     def from_youtube_pl(user : User, body : String, filename : String, type : String) : Bool
@@ -209,12 +209,12 @@ struct Invidious::User
       if extension == "csv" || type == "text/csv"
         playlist = parse_playlist_export_csv(user, body)
         if playlist
-          return true
+          true
         else
-          return false
+          false
         end
       else
-        return false
+        false
       end
     end
 
@@ -232,9 +232,9 @@ struct Invidious::User
         user.watched += watched
         user.watched.uniq!
         Invidious::Database::Users.update_watch_history(user)
-        return true
+        true
       else
-        return false
+        false
       end
     end
 
@@ -328,7 +328,7 @@ struct Invidious::User
       end
 
       # Success!
-      return true
+      true
     end
   end # module
 end

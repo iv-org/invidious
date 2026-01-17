@@ -9,7 +9,7 @@ module Invidious::Channel::Tabs
   # an author name and ucid directly (e.g in RSS feeds).
   # TODO: figure out how to get rid of that
   def get_videos(channel : AboutChannel, *, continuation : String? = nil, sort_by = "newest")
-    return get_videos(
+    get_videos(
       channel.author, channel.ucid,
       continuation: continuation, sort_by: sort_by
     )
@@ -19,7 +19,7 @@ module Invidious::Channel::Tabs
   # an author name and ucid directly (e.g in RSS feeds).
   # TODO: figure out how to get rid of that
   def get_videos(channel : InvidiousChannel, *, continuation : String? = nil, sort_by = "newest")
-    return get_videos(
+    get_videos(
       channel.author, channel.id,
       continuation: continuation, sort_by: sort_by
     )
@@ -29,7 +29,7 @@ module Invidious::Channel::Tabs
     continuation ||= make_initial_videos_ctoken(ucid, sort_by)
     initial_data = YoutubeAPI.browse(continuation: continuation)
 
-    return extract_items(initial_data, author, ucid)
+    extract_items(initial_data, author, ucid)
   end
 
   def get_60_videos(channel : AboutChannel, *, continuation : String? = nil, sort_by = "newest")
@@ -59,7 +59,7 @@ module Invidious::Channel::Tabs
     continuation ||= make_initial_shorts_ctoken(channel.ucid, sort_by)
     initial_data = YoutubeAPI.browse(continuation: continuation)
 
-    return extract_items(initial_data, channel.author, channel.ucid)
+    extract_items(initial_data, channel.author, channel.ucid)
   end
 
   # -------------------
@@ -70,7 +70,7 @@ module Invidious::Channel::Tabs
     continuation ||= make_initial_livestreams_ctoken(channel.ucid, sort_by)
     initial_data = YoutubeAPI.browse(continuation: continuation)
 
-    return extract_items(initial_data, channel.author, channel.ucid)
+    extract_items(initial_data, channel.author, channel.ucid)
   end
 
   def get_60_livestreams(channel : AboutChannel, *, continuation : String? = nil, sort_by = "newest")
@@ -98,10 +98,10 @@ module Invidious::Channel::Tabs
 
   private def sort_options_videos_short(sort_by : String)
     case sort_by
-    when "newest"  then return 4_i64
-    when "popular" then return 2_i64
-    when "oldest"  then return 5_i64
-    else                return 4_i64 # Fallback to "newest"
+    when "newest"  then 4_i64
+    when "popular" then 2_i64
+    when "oldest"  then 5_i64
+    else                4_i64 # Fallback to "newest"
     end
   end
 
@@ -118,7 +118,7 @@ module Invidious::Channel::Tabs
       },
     }
 
-    return channel_ctoken_wrap(ucid, object)
+    channel_ctoken_wrap(ucid, object)
   end
 
   # Generate the initial "continuation token" to get the first page of the
@@ -134,7 +134,7 @@ module Invidious::Channel::Tabs
       },
     }
 
-    return channel_ctoken_wrap(ucid, object)
+    channel_ctoken_wrap(ucid, object)
   end
 
   # Generate the initial "continuation token" to get the first page of the
@@ -158,7 +158,7 @@ module Invidious::Channel::Tabs
       },
     }
 
-    return channel_ctoken_wrap(ucid, object)
+    channel_ctoken_wrap(ucid, object)
   end
 
   # The protobuf structure common between videos/shorts/livestreams
@@ -187,6 +187,6 @@ module Invidious::Channel::Tabs
       .try { |i| Base64.urlsafe_encode(i) }
       .try { |i| URI.encode_www_form(i) }
 
-    return continuation
+    continuation
   end
 end

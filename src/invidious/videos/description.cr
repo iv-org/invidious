@@ -26,7 +26,7 @@ private def copy_string(str : String::Builder, iter : Iterator, count : Int) : I
     copied += 1
   end
 
-  return copied
+  copied
 end
 
 def parse_description(desc, video_id : String) : String?
@@ -52,7 +52,7 @@ def parse_description(desc, video_id : String) : String?
 
   index = 0
 
-  return String.build do |str|
+  String.build do |str|
     commands.each do |command|
       cmd_start = command["startIndex"].as_i
       cmd_length = command["length"].as_i

@@ -32,7 +32,7 @@ def html_to_content(description_html : String)
     description = XML.parse_html(description).content.strip("\n ")
   end
 
-  return description
+  description
 end
 
 def cache_annotation(id, annotations)
@@ -165,7 +165,7 @@ def create_notification_stream(env, topics, connection_channel)
 end
 
 def extract_initial_data(body) : Hash(String, JSON::Any)
-  return JSON.parse(body.match(/(window\["ytInitialData"\]|var\s*ytInitialData)\s*=\s*(?<info>{.*?});<\/script>/mx).try &.["info"] || "{}").as_h
+  JSON.parse(body.match(/(window\["ytInitialData"\]|var\s*ytInitialData)\s*=\s*(?<info>{.*?});<\/script>/mx).try &.["info"] || "{}").as_h
 end
 
 def proxy_file(response, env)
@@ -196,5 +196,5 @@ def get_playback_statistic
     Invidious::Jobs::StatisticsRefreshJob::STATISTICS["playback"] = tracker
   end
 
-  return tracker.as(Hash(String, Int64 | Float64))
+  tracker.as(Hash(String, Int64 | Float64))
 end

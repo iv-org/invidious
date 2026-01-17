@@ -6,9 +6,9 @@ module Invidious::Frontend::Misc
 
     if preferences.automatic_instance_redirect
       current_page = env.get?("current_page").as(String)
-      return "/redirect?referer=#{current_page}"
+      "/redirect?referer=#{current_page}"
     else
-      return "https://redirect.invidious.io#{env.request.resource}"
+      "https://redirect.invidious.io#{env.request.resource}"
     end
   end
 end

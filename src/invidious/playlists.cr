@@ -13,30 +13,30 @@ struct PlaylistVideo
 
   def to_xml(xml : XML::Builder)
     xml.element("entry") do
-      xml.element("id") { xml.text "yt:video:#{self.id}" }
-      xml.element("yt:videoId") { xml.text self.id }
-      xml.element("yt:channelId") { xml.text self.ucid }
-      xml.element("title") { xml.text self.title }
-      xml.element("link", rel: "alternate", href: "#{HOST_URL}/watch?v=#{self.id}")
+      xml.element("id") { xml.text "yt:video:#{id}" }
+      xml.element("yt:videoId") { xml.text id }
+      xml.element("yt:channelId") { xml.text ucid }
+      xml.element("title") { xml.text title }
+      xml.element("link", rel: "alternate", href: "#{HOST_URL}/watch?v=#{id}")
 
       xml.element("author") do
-        xml.element("name") { xml.text self.author }
-        xml.element("uri") { xml.text "#{HOST_URL}/channel/#{self.ucid}" }
+        xml.element("name") { xml.text author }
+        xml.element("uri") { xml.text "#{HOST_URL}/channel/#{ucid}" }
       end
 
       xml.element("content", type: "xhtml") do
         xml.element("div", xmlns: "http://www.w3.org/1999/xhtml") do
-          xml.element("a", href: "#{HOST_URL}/watch?v=#{self.id}") do
-            xml.element("img", src: "#{HOST_URL}/vi/#{self.id}/mqdefault.jpg")
+          xml.element("a", href: "#{HOST_URL}/watch?v=#{id}") do
+            xml.element("img", src: "#{HOST_URL}/vi/#{id}/mqdefault.jpg")
           end
         end
       end
 
-      xml.element("published") { xml.text self.published.to_s("%Y-%m-%dT%H:%M:%S%:z") }
+      xml.element("published") { xml.text published.to_s("%Y-%m-%dT%H:%M:%S%:z") }
 
       xml.element("media:group") do
-        xml.element("media:title") { xml.text self.title }
-        xml.element("media:thumbnail", url: "#{HOST_URL}/vi/#{self.id}/mqdefault.jpg",
+        xml.element("media:title") { xml.text title }
+        xml.element("media:thumbnail", url: "#{HOST_URL}/vi/#{id}/mqdefault.jpg",
           width: "320", height: "180")
       end
     end
@@ -54,15 +54,15 @@ struct PlaylistVideo
     json.object do
       json.field "type", "video"
 
-      json.field "title", self.title
-      json.field "videoId", self.id
+      json.field "title", title
+      json.field "videoId", id
 
-      json.field "author", self.author
-      json.field "authorId", self.ucid
-      json.field "authorUrl", "/channel/#{self.ucid}"
+      json.field "author", author
+      json.field "authorId", ucid
+      json.field "authorUrl", "/channel/#{ucid}"
 
       json.field "videoThumbnails" do
-        Invidious::JSONify::APIv1.thumbnails(json, self.id)
+        Invidious::JSONify::APIv1.thumbnails(json, id)
       end
 
       if index
@@ -72,8 +72,8 @@ struct PlaylistVideo
         json.field "index", self.index
       end
 
-      json.field "lengthSeconds", self.length_seconds
-      json.field "liveNow", self.live_now
+      json.field "lengthSeconds", length_seconds
+      json.field "liveNow", live_now
     end
   end
 
@@ -101,14 +101,14 @@ struct Playlist
   def to_json(offset, json : JSON::Builder, video_id : String? = nil)
     json.object do
       json.field "type", "playlist"
-      json.field "title", self.title
-      json.field "playlistId", self.id
-      json.field "playlistThumbnail", self.thumbnail
+      json.field "title", title
+      json.field "playlistId", id
+      json.field "playlistThumbnail", thumbnail
 
-      json.field "author", self.author
-      json.field "authorId", self.ucid
-      json.field "authorUrl", "/channel/#{self.ucid}"
-      json.field "subtitle", self.subtitle
+      json.field "author", author
+      json.field "authorId", ucid
+      json.field "authorUrl", "/channel/#{ucid}"
+      json.field "subtitle", subtitle
 
       json.field "authorThumbnails" do
         json.array do
@@ -116,7 +116,7 @@ struct Playlist
 
           qualities.each do |quality|
             json.object do
-              json.field "url", self.author_thumbnail.not_nil!.gsub(/=\d+/, "=s#{quality}")
+              json.field "url", author_thumbnail.not_nil!.gsub(/=\d+/, "=s#{quality}")
               json.field "width", quality
               json.field "height", quality
             end
@@ -124,13 +124,13 @@ struct Playlist
         end
       end
 
-      json.field "description", self.description
-      json.field "descriptionHtml", self.description_html
-      json.field "videoCount", self.video_count
+      json.field "description", description
+      json.field "descriptionHtml", description_html
+      json.field "videoCount", video_count
 
-      json.field "viewCount", self.views
-      json.field "updated", self.updated.to_unix
-      json.field "isListed", self.privacy.public?
+      json.field "viewCount", views
+      json.field "updated", updated.to_unix
+      json.field "isListed", privacy.public?
 
       json.field "videos" do
         json.array do
@@ -180,33 +180,33 @@ struct InvidiousPlaylist
 
   module PlaylistPrivacyConverter
     def self.from_rs(rs)
-      return PlaylistPrivacy.parse(String.new(rs.read(Slice(UInt8))))
+      PlaylistPrivacy.parse(String.new(rs.read(Slice(UInt8))))
     end
   end
 
   def to_json(offset, json : JSON::Builder, video_id : String? = nil)
     json.object do
       json.field "type", "invidiousPlaylist"
-      json.field "title", self.title
-      json.field "playlistId", self.id
+      json.field "title", title
+      json.field "playlistId", id
 
-      json.field "author", self.author
-      json.field "authorId", self.ucid
+      json.field "author", author
+      json.field "authorId", ucid
       json.field "authorUrl", nil
       json.field "authorThumbnails", [] of String
 
-      json.field "description", html_to_content(self.description_html)
-      json.field "descriptionHtml", self.description_html
-      json.field "videoCount", self.video_count
+      json.field "description", html_to_content(description_html)
+      json.field "descriptionHtml", description_html
+      json.field "videoCount", video_count
 
-      json.field "viewCount", self.views
-      json.field "updated", self.updated.to_unix
-      json.field "isListed", self.privacy.public?
+      json.field "viewCount", views
+      json.field "updated", updated.to_unix
+      json.field "isListed", privacy.public?
 
       json.field "videos" do
         json.array do
           if (!offset || offset == 0) && !video_id.nil?
-            index = Invidious::Database::PlaylistVideos.select_index(self.id, video_id)
+            index = Invidious::Database::PlaylistVideos.select_index(id, video_id)
             offset = self.index.index(index) || 0
           end
 
@@ -227,7 +227,7 @@ struct InvidiousPlaylist
 
   def thumbnail
     # TODO: Get playlist thumbnail from playlist data rather than first video
-    @thumbnail_id ||= Invidious::Database::PlaylistVideos.select_one_id(self.id, self.index) || "-----------"
+    @thumbnail_id ||= Invidious::Database::PlaylistVideos.select_one_id(id, index) || "-----------"
     "/vi/#{@thumbnail_id}/mqdefault.jpg"
   end
 
@@ -244,7 +244,7 @@ struct InvidiousPlaylist
   end
 
   def description_html
-    HTML.escape(self.description)
+    HTML.escape(description)
   end
 end
 
@@ -265,7 +265,7 @@ def create_playlist(title, privacy, user)
 
   Invidious::Database::Playlists.insert(playlist)
 
-  return playlist
+  playlist
 end
 
 def subscribe_playlist(user, playlist)
@@ -283,7 +283,7 @@ def subscribe_playlist(user, playlist)
 
   Invidious::Database::Playlists.insert(playlist)
 
-  return playlist
+  playlist
 end
 
 def produce_playlist_continuation(id, index)
@@ -318,18 +318,18 @@ def produce_playlist_continuation(id, index)
     .try { |i| Base64.urlsafe_encode(i) }
     .try { |i| URI.encode_www_form(i) }
 
-  return continuation
+  continuation
 end
 
 def get_playlist(plid : String)
   if plid.starts_with? "IV"
     if playlist = Invidious::Database::Playlists.select(id: plid)
-      return playlist
+      playlist
     else
       raise NotFoundException.new("Playlist does not exist.")
     end
   else
-    return fetch_playlist(plid)
+    fetch_playlist(plid)
   end
 end
 
@@ -398,7 +398,7 @@ def fetch_playlist(plid : String)
     ucid = author_info.dig?("title", "runs", 0, "navigationEndpoint", "browseEndpoint", "browseId").try &.as_s || ""
   end
 
-  return Playlist.new({
+  Playlist.new({
     title:            title,
     id:               plid,
     author:           author,
@@ -443,7 +443,7 @@ def get_playlist_videos(playlist : InvidiousPlaylist | Playlist, offset : Int32,
       offset += 100
     end
 
-    return videos
+    videos
   end
 end
 
@@ -504,22 +504,22 @@ def extract_playlist_videos(initial_data : Hash(String, JSON::Any))
     videos << ProblematicTimelineItem.new(parse_exception: ex)
   end
 
-  return videos
+  videos
 end
 
 def template_playlist(playlist, listen)
-  html = <<-END_HTML
-  <h3>
-    <a href="/playlist?list=#{playlist["playlistId"]}">
-      #{playlist["title"]}
-    </a>
-  </h3>
-  <div class="pure-menu pure-menu-scrollable playlist-restricted">
-    <ol class="pure-menu-list">
-  END_HTML
+  html = <<-HTML
+    <h3>
+      <a href="/playlist?list=#{playlist["playlistId"]}">
+        #{playlist["title"]}
+      </a>
+    </h3>
+    <div class="pure-menu pure-menu-scrollable playlist-restricted">
+      <ol class="pure-menu-list">
+    HTML
 
   playlist["videos"].as_a.each do |video|
-    html += <<-END_HTML
+    html += <<-HTML
       <li class="pure-menu-item" id="#{video["videoId"]}">
         <a href="/watch?v=#{video["videoId"]}&list=#{playlist["playlistId"]}&index=#{video["index"]}#{listen ? "&listen=1" : ""}">
           <div class="thumbnail">
@@ -532,14 +532,14 @@ def template_playlist(playlist, listen)
           </p>
         </a>
       </li>
-    END_HTML
+      HTML
   end
 
-  html += <<-END_HTML
-    </ol>
-  </div>
-  <hr>
-  END_HTML
+  html += <<-HTML
+      </ol>
+    </div>
+    <hr>
+    HTML
 
   html
 end

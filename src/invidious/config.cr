@@ -58,7 +58,7 @@ struct ConfigPreferences
   def to_tuple
     {% begin %}
       {
-        {{(@type.instance_vars.map { |var| "#{var.name}: #{var.name}".id }).splat}}
+        {{ (@type.instance_vars.map { |var| "#{var.name}: #{var.name}".id }).splat }}
       }
     {% end %}
   end
@@ -183,15 +183,15 @@ class Config
   def disabled?(option)
     case disabled = CONFIG.disable_proxy
     when Bool
-      return disabled
+      disabled
     when Array
       if disabled.includes? option
-        return true
+        true
       else
-        return false
+        false
       end
     else
-      return false
+      false
     end
   end
 
@@ -212,14 +212,14 @@ class Config
     {% for ivar in Config.instance_vars %}
         {% env_id = "INVIDIOUS_#{ivar.id.upcase}" %}
 
-        if ENV.has_key?({{env_id}})
-            env_value = ENV.fetch({{env_id}})
+        if ENV.has_key?({{ env_id }})
+            env_value = ENV.fetch({{ env_id }})
             success = false
 
             # Use YAML converter if specified
             {% ann = ivar.annotation(::YAML::Field) %}
             {% if ann && ann[:converter] %}
-                config.{{ivar.id}} = {{ann[:converter]}}.from_yaml(YAML::ParseContext.new, YAML::Nodes.parse(ENV.fetch({{env_id}})).nodes[0])
+                config.{{ ivar.id }} = {{ ann[:converter] }}.from_yaml(YAML::ParseContext.new, YAML::Nodes.parse(ENV.fetch({{ env_id }})).nodes[0])
                 success = true
 
             # Use regular YAML parser otherwise
@@ -227,10 +227,10 @@ class Config
                 {% ivar_types = ivar.type.union? ? ivar.type.union_types : [ivar.type] %}
                 # Sort types to avoid parsing nulls and numbers as strings
                 {% ivar_types = ivar_types.sort_by { |ivar_type| ivar_type == Nil ? 0 : ivar_type == Int32 ? 1 : 2 } %}
-                {{ivar_types}}.each do |ivar_type|
+                {{ ivar_types }}.each do |ivar_type|
                     if !success
                         begin
-                            config.{{ivar.id}} = ivar_type.from_yaml(env_value)
+                            config.{{ ivar.id }} = ivar_type.from_yaml(env_value)
                             success = true
                         rescue
                             # nop
@@ -241,14 +241,14 @@ class Config
 
             # Exit on fail
             if !success
-                puts %(Config.{{ivar.id}} failed to parse #{env_value} as {{ivar.type}})
+                puts %(Config.{{ ivar.id }} failed to parse #{env_value} as {{ ivar.type }})
                 exit(1)
             end
         end
 
         # Warn when any config attribute is set to "CHANGE_ME!!"
-        if config.{{ivar.id}} == "CHANGE_ME!!"
-          puts "Config: The value of '#{ {{ivar.stringify}} }' needs to be changed!!"
+        if config.{{ ivar.id }} == "CHANGE_ME!!"
+          puts "Config: The value of '#{ {{ ivar.stringify }} }' needs to be changed!!"
           exit(1)
         end
     {% end %}
@@ -318,6 +318,6 @@ class Config
       end
     end
 
-    return config
+    config
   end
 end

@@ -11,7 +11,7 @@ module Invidious::Database::SessionIDs
     request = <<-SQL
       INSERT INTO session_ids
       VALUES ($1, $2, now())
-    SQL
+      SQL
 
     request += " ON CONFLICT (id) DO NOTHING" if handle_conflicts
 
@@ -26,7 +26,7 @@ module Invidious::Database::SessionIDs
     request = <<-SQL
       DELETE FROM session_ids *
       WHERE id = $1
-    SQL
+      SQL
 
     PG_DB.exec(request, sid)
   end
@@ -35,7 +35,7 @@ module Invidious::Database::SessionIDs
     request = <<-SQL
       DELETE FROM session_ids *
       WHERE email = $1
-    SQL
+      SQL
 
     PG_DB.exec(request, email)
   end
@@ -44,7 +44,7 @@ module Invidious::Database::SessionIDs
     request = <<-SQL
       DELETE FROM session_ids *
       WHERE id = $1 AND email = $2
-    SQL
+      SQL
 
     PG_DB.exec(request, sid, email)
   end
@@ -57,7 +57,7 @@ module Invidious::Database::SessionIDs
     request = <<-SQL
       SELECT email FROM session_ids
       WHERE id = $1
-    SQL
+      SQL
 
     PG_DB.query_one?(request, sid, as: String)
   end
@@ -67,7 +67,7 @@ module Invidious::Database::SessionIDs
       SELECT id, issued FROM session_ids
       WHERE email = $1
       ORDER BY issued DESC
-    SQL
+      SQL
 
     PG_DB.query_all(request, email, as: {session: String, issued: Time})
   end

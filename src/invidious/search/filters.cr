@@ -80,7 +80,7 @@ module Invidious::Search
     end
 
     def default? : Bool
-      return @date.none? && @type.all? && @duration.none? && \
+      @date.none? && @type.all? && @duration.none? && \
          @features.none? && @sort.relevance?
     end
 
@@ -110,7 +110,7 @@ module Invidious::Search
         end
       end
 
-      return features
+      features
     end
 
     def self.format_features(features : Features) : String
@@ -132,7 +132,7 @@ module Invidious::Search
       str << "location" if features.location?
       str << "purchased" if features.purchased?
 
-      return str.join(',')
+      str.join(',')
     end
 
     def self.from_legacy_filters(str : String) : {Filters, String, String, Bool}
@@ -230,7 +230,7 @@ module Invidious::Search
         params.delete("sort")
       end
 
-      return filters
+      filters
     end
 
     def to_iv_params : HTTP::Params
@@ -249,7 +249,7 @@ module Invidious::Search
         raw_params["features"] = [Filters.format_features(@features)]
       end
 
-      return HTTP::Params.new(raw_params)
+      HTTP::Params.new(raw_params)
     end
 
     # -------------------
@@ -304,7 +304,7 @@ module Invidious::Search
       # See https://github.com/iv-org/invidious/issues/4398
       object["30:varint"] = 1.to_i64
 
-      return object
+      object
         .try { |i| Protodec::Any.cast_json(i) }
         .try { |i| Protodec::Any.from_json(i) }
         .try { |i| Base64.urlsafe_encode(i) }
@@ -370,7 +370,7 @@ module Invidious::Search
 
       # Remove URL parameter and return result
       params.delete("sp")
-      return filters
+      filters
     end
   end
 end

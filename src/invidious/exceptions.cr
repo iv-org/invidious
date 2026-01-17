@@ -23,7 +23,7 @@ class BrokenTubeException < Exception
   end
 
   def message
-    return "Missing JSON element \"#{@element}\""
+    "Missing JSON element \"#{@element}\""
   end
 end
 

@@ -25,7 +25,6 @@
                         <% end %>
 
                         <% if captcha %>
-                            <% captcha = captcha.not_nil! %>
                             <img style="width:50%" src='<%= captcha[:question] %>'/>
                             <% captcha[:tokens].each_with_index do |token, i| %>
                                 <input type="hidden" name="token[<%= i %>]" value="<%= HTML.escape(token) %>">

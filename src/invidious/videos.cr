@@ -48,7 +48,7 @@ struct Video
     end
   end
 
-  def to_json(json : JSON::Builder | Nil = nil)
+  def to_json(json : JSON::Builder? = nil)
     to_json(nil, json)
   end
 
@@ -56,15 +56,15 @@ struct Video
 
   def video_type : VideoType
     video_type = info["videoType"]?.try &.as_s || "video"
-    return VideoType.parse?(video_type) || VideoType::Video
+    VideoType.parse?(video_type) || VideoType::Video
   end
 
   def schema_version : Int
-    return info["version"]?.try &.as_i || 1
+    info["version"]?.try &.as_i || 1
   end
 
   def published : Time
-    return info["published"]?
+    info["published"]?
       .try { |t| Time.parse(t.as_s, "%Y-%m-%d", Time::Location::UTC) } || Time.utc
   end
 
@@ -73,11 +73,11 @@ struct Video
   end
 
   def live_now
-    return (self.video_type == VideoType::Livestream)
+    (video_type == VideoType::Livestream)
   end
 
   def post_live_dvr
-    return info["isPostLiveDvr"].as_bool
+    info["isPostLiveDvr"].as_bool
   end
 
   def premiere_timestamp : Time?
@@ -94,21 +94,21 @@ struct Video
 
   def fmt_stream : Array(Hash(String, JSON::Any))
     if formats = info.dig?("streamingData", "formats")
-      return formats
+      formats
         .as_a.map(&.as_h)
         .sort_by! { |f| f["width"]?.try &.as_i || 0 }
     else
-      return [] of Hash(String, JSON::Any)
+      [] of Hash(String, JSON::Any)
     end
   end
 
   def adaptive_fmts : Array(Hash(String, JSON::Any))
     if formats = info.dig?("streamingData", "adaptiveFormats")
-      return formats
+      formats
         .as_a.map(&.as_h)
         .sort_by! { |f| f["width"]?.try &.as_i || f["audioTrack"]?.try { |a| a["audioIsDefault"]?.try { |v| v.as_bool ? -1 : 0 } } || 0 }
     else
-      return [] of Hash(String, JSON::Any)
+      [] of Hash(String, JSON::Any)
     end
   end
 
@@ -124,11 +124,11 @@ struct Video
 
   def storyboards
     container = info.dig?("storyboards") || JSON::Any.new("{}")
-    return IV::Videos::Storyboard.from_yt_json(container, self.length_seconds)
+    IV::Videos::Storyboard.from_yt_json(container, length_seconds)
   end
 
   def paid
-    return (self.reason || "").includes? "requires payment"
+    (reason || "").includes? "requires payment"
   end
 
   def premium
@@ -140,7 +140,7 @@ struct Video
       @captions = Invidious::Videos::Captions::Metadata.from_yt_json(info["captions"])
     end
 
-    return @captions
+    @captions
   end
 
   def hls_manifest_url : String?
@@ -149,7 +149,7 @@ struct Video
 
   def dash_manifest_url : String?
     raw_dash_url = info.dig?("streamingData", "dashManifestUrl").try &.as_s
-    return nil if raw_dash_url.nil?
+    return if raw_dash_url.nil?
 
     # Use manifest v5 parameter to reduce file size
     # See https://github.com/iv-org/invidious/issues/4186
@@ -162,7 +162,7 @@ struct Video
       dash_url.query = "#{dash_query}&mpd_version=5"
     end
 
-    return dash_url.to_s
+    dash_url.to_s
   end
 
   def genre_url : String?
@@ -170,11 +170,11 @@ struct Video
   end
 
   def vr? : Bool?
-    return {"EQUIRECTANGULAR", "MESH"}.includes? self.projection_type
+    {"EQUIRECTANGULAR", "MESH"}.includes? projection_type
   end
 
   def projection_type : String?
-    return info.dig?("streamingData", "adaptiveFormats", 0, "projectionType").try &.as_s
+    info.dig?("streamingData", "adaptiveFormats", 0, "projectionType").try &.as_s
   end
 
   def reason : String?
@@ -182,50 +182,50 @@ struct Video
   end
 
   def music : Array(VideoMusic)
-    info["music"].as_a.map { |music_json|
+    info["music"].as_a.map do |music_json|
       VideoMusic.new(
         music_json["song"].as_s,
         music_json["album"].as_s,
         music_json["artist"].as_s,
         music_json["license"].as_s
       )
-    }
+    end
   end
 
   # Macros defining getters/setters for various types of data
 
   private macro getset_string(name)
-    # Return {{name.stringify}} from `info`
-    def {{name.id.underscore}} : String
-      return info[{{name.stringify}}]?.try &.as_s || ""
+    # Return {{ name.stringify }} from `info`
+    def {{ name.id.underscore }} : String
+      info[{{ name.stringify }}]?.try &.as_s || ""
     end
 
-    # Update {{name.stringify}} into `info`
-    def {{name.id.underscore}}=(value : String)
-      info[{{name.stringify}}] = JSON::Any.new(value)
+    # Update {{ name.stringify }} into `info`
+    def {{ name.id.underscore }}=(value : String)
+      info[{{ name.stringify }}] = JSON::Any.new(value)
     end
 
-    {% if flag?(:debug_macros) %} {{debug}} {% end %}
+    {% if flag?(:debug_macros) %} {{ debug }} {% end %}
   end
 
   private macro getset_string_array(name)
-    # Return {{name.stringify}} from `info`
-    def {{name.id.underscore}} : Array(String)
-      return info[{{name.stringify}}]?.try &.as_a.map &.as_s || [] of String
+    # Return {{ name.stringify }} from `info`
+    def {{ name.id.underscore }} : Array(String)
+      info[{{ name.stringify }}]?.try &.as_a.map &.as_s || [] of String
     end
 
-    # Update {{name.stringify}} into `info`
-    def {{name.id.underscore}}=(value : Array(String))
-      info[{{name.stringify}}] = JSON::Any.new(value)
+    # Update {{ name.stringify }} into `info`
+    def {{ name.id.underscore }}=(value : Array(String))
+      info[{{ name.stringify }}] = JSON::Any.new(value)
     end
 
-    {% if flag?(:debug_macros) %} {{debug}} {% end %}
+    {% if flag?(:debug_macros) %} {{ debug }} {% end %}
   end
 
   {% for op, type in {i32: Int32, i64: Int64} %}
-    private macro getset_{{op}}(name)
-      def \{{name.id.underscore}} : {{type}}
-        return info[\{{name.stringify}}]?.try &.as_i64.to_{{op}} || 0_{{op}}
+    private macro getset_{{ op }}(name)
+      def \{{name.id.underscore}} : {{ type }}
+        info[\{{name.stringify}}]?.try &.as_i64.to_{{ op }} || 0_{{ op }}
       end
 
       def \{{name.id.underscore}}=(value : Int)
@@ -237,32 +237,32 @@ struct Video
   {% end %}
 
   private macro getset_bool(name)
-    # Return {{name.stringify}} from `info`
-    def {{name.id.underscore}} : Bool
-      return info[{{name.stringify}}]?.try &.as_bool || false
+    # Return {{ name.stringify }} from `info`
+    def {{ name.id.underscore }} : Bool
+      info[{{ name.stringify }}]?.try &.as_bool || false
     end
 
-    # Update {{name.stringify}} into `info`
-    def {{name.id.underscore}}=(value : Bool)
-      info[{{name.stringify}}] = JSON::Any.new(value)
+    # Update {{ name.stringify }} into `info`
+    def {{ name.id.underscore }}=(value : Bool)
+      info[{{ name.stringify }}] = JSON::Any.new(value)
     end
 
-    {% if flag?(:debug_macros) %} {{debug}} {% end %}
+    {% if flag?(:debug_macros) %} {{ debug }} {% end %}
   end
 
   # Macro to generate ? and = accessor methods for attributes in `info`
   private macro predicate_bool(method_name, name)
-    # Return {{name.stringify}} from `info`
-    def {{method_name.id.underscore}}? : Bool
-      return info[{{name.stringify}}]?.try &.as_bool || false
+    # Return {{ name.stringify }} from `info`
+    def {{ method_name.id.underscore }}? : Bool
+      info[{{ name.stringify }}]?.try &.as_bool || false
     end
 
-    # Update {{name.stringify}} into `info`
-    def {{method_name.id.underscore}}=(value : Bool)
-      info[{{name.stringify}}] = JSON::Any.new(value)
+    # Update {{ name.stringify }} into `info`
+    def {{ method_name.id.underscore }}=(value : Bool)
+      info[{{ name.stringify }}] = JSON::Any.new(value)
     end
 
-    {% if flag?(:debug_macros) %} {{debug}} {% end %}
+    {% if flag?(:debug_macros) %} {{ debug }} {% end %}
   end
 
   # Method definitions, using the macros above
@@ -316,11 +316,11 @@ def get_video(id, refresh = true, region = nil, force_refresh = false)
     Invidious::Database::Videos.insert(video) if !region
   end
 
-  return video
+  video
 rescue DB::Error
   # Avoid common `DB::PoolRetryAttemptsExceeded` error and friends
   # Note: All DB errors inherit from `DB::Error`
-  return fetch_video(id, region)
+  fetch_video(id, region)
 end
 
 def fetch_video(id, region)
@@ -350,7 +350,7 @@ def fetch_video(id, region)
     updated: Time.utc,
   })
 
-  return video
+  video
 end
 
 def process_continuation(query, plid, id)

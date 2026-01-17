@@ -16,7 +16,7 @@ def generate_token(email, scopes, expire, key)
 
   token["signature"] = sign_token(key, token)
 
-  return token.to_json
+  token.to_json
 end
 
 def generate_response(session, scopes, key, expire = 6.hours, use_nonce = false)
@@ -36,7 +36,7 @@ def generate_response(session, scopes, key, expire = 6.hours, use_nonce = false)
 
   token["signature"] = sign_token(key, token)
 
-  return token.to_json
+  token.to_json
 end
 
 def sign_token(key, hash)
@@ -45,6 +45,7 @@ def sign_token(key, hash)
   # TODO: figure out which "key" variable is used
   # Ameba reports a warning for "Lint/ShadowingOuterLocalVar" on this
   # variable, but it's preferable to not touch that (works fine atm).
+  # ameba:disable Lint/ShadowingOuterLocalVar
   hash.each do |key, value|
     next if key == "signature"
 
@@ -63,7 +64,7 @@ def sign_token(key, hash)
   end
 
   string_to_sign = string_to_sign.sort.join("\n")
-  return Base64.urlsafe_encode(OpenSSL::HMAC.digest(:sha256, key, string_to_sign)).strip
+  Base64.urlsafe_encode(OpenSSL::HMAC.digest(:sha256, key, string_to_sign)).strip
 end
 
 def validate_request(token, session, request, key, locale = nil)
@@ -116,7 +117,7 @@ def scope_includes_scope(scope, subset)
   subset_endpoint = subset_endpoint.downcase
 
   if methods.empty?
-    methods = %w(GET POST PUT HEAD DELETE PATCH OPTIONS)
+    methods = %w[GET POST PUT HEAD DELETE PATCH OPTIONS]
   end
 
   if methods & subset_methods != subset_methods
@@ -131,7 +132,7 @@ def scope_includes_scope(scope, subset)
     return false
   end
 
-  return true
+  true
 end
 
 def scopes_include_scope(scopes, subset)
@@ -141,5 +142,5 @@ def scopes_include_scope(scopes, subset)
     end
   end
 
-  return false
+  false
 end
