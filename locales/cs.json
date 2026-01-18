@@ -521,5 +521,7 @@
     "timeline_parse_error_placeholder_message": "Invidious narazil při pokusu o zpracování této položky na chybu. Další informace naleznete níže:",
     "timeline_parse_error_placeholder_heading": "Nepodařilo se zpracovat položku",
     "preferences_default_playlist": "Výchozí playlist: ",
-    "preferences_default_playlist_none": "Nenastaven žádný výchozí playlist"
+    "preferences_default_playlist_none": "Nenastaven žádný výchozí playlist",
+    "Livestreams": "Živé přenosy",
+    "dmca_content": "Toto video nelze na této instanci stáhnout z důvodu obdržení dopisu o porušení DMCA / autorského práva správcem této instance."
 }
