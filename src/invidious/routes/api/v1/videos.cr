@@ -181,6 +181,18 @@ module Invidious::Routes::API::V1::Videos
     id = env.params.url["id"]
     region = env.params.query["region"]?
 
+    if CONFIG.invidious_companion.present? && CONFIG.invidious_companion_verify_requests
+      invidious_companion_check_id = env.params.query["check"]?
+      if check_id = invidious_companion_check_id
+        video_id = invidious_companion_decrypt(check_id).try &.[1]
+        if id != video_id
+          haltf env, 401, "ID incorrect."
+        end
+      else
+        haltf env, 401, "No check ID."
+      end
+    end
+
     begin
       video = get_video(id, region: region)
     rescue ex : NotFoundException

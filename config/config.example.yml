@@ -89,6 +89,16 @@ db:
 ##
 #invidious_companion_key: "CHANGE_ME!!"
 
+##
+## API key for Invidious companion, used for securing the communication
+## between Invidious and Invidious companion.
+## The key needs to be exactly 16 characters long.
+##
+## Accepted values: true, false
+## Default: true
+##
+#invidious_companion_verify_requests: true
+
 #########################################
 #
 #  Server config
