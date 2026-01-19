@@ -118,23 +118,9 @@ function addCurrentTimeToURL(url, base) {
 }
 
 /**
- * Global variable to save the last timestamp (in full seconds) at which the external
- * links were updated by the 'timeupdate' callback below.
- *
- * It is initialized to 5s so that the video will always restart from the beginning
- * if the user hasn't really started watching before switching to the other website.
- */
-var timeupdate_last_ts = 5;
-
-/**
  * Callback that updates the timestamp on all external links
  */
 player.on('timeupdate', function () {
-    // Only update once every second
-    let current_ts = Math.floor(player.currentTime());
-    if (current_ts > timeupdate_last_ts) timeupdate_last_ts = current_ts;
-    else return;
-
     // YouTube links
 
     if (!video_data.live_now) {
