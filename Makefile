@@ -14,8 +14,10 @@ MT := 0
 
 
 FLAGS ?=
+CRYSTAL_BIN ?= crystal
+SHARDS_BIN ?= shards
 
-
+# Build flags configuration
 ifeq ($(RELEASE), 1)
   FLAGS += --release
 endif
@@ -28,7 +30,6 @@ ifeq ($(MT), 1)
   FLAGS += -Dpreview_mt
 endif
 
-
 ifeq ($(NO_DBG_SYMBOLS), 1)
   FLAGS += --no-debug
 else
@@ -39,59 +40,76 @@ ifeq ($(API_ONLY), 1)
   FLAGS += -Dapi_only
 endif
 
+# Development flags
+DEVFLAGS := --progress --stats --time
+
+# Output binary name
+BINARY_NAME := invidious
+BINARY_DEV := $(BINARY_NAME)-dev
 
 # -----------------------
 #  Main
 # -----------------------
 
-all: invidious
+.DEFAULT_GOAL := all
+
+all: $(BINARY_NAME)
 
 get-libs:
-	shards install --production
+	$(SHARDS_BIN) install --production
 
 # TODO: add support for ARM64 via cross-compilation
-invidious: get-libs
-	crystal build src/invidious.cr $(FLAGS) --progress --stats --error-trace
+$(BINARY_NAME): get-libs
+	$(CRYSTAL_BIN) build src/$(BINARY_NAME).cr $(FLAGS) --progress --stats --error-trace
 
-
-run: invidious
-	./invidious
+run: $(BINARY_NAME)
+	./$(BINARY_NAME)
 
 
 # -----------------------
 #  Development
 # -----------------------
 
-
 format:
-	crystal tool format
+	$(CRYSTAL_BIN) tool format --check
 
 test:
-	crystal spec
+	$(CRYSTAL_BIN) spec
 
 verify:
-	crystal build src/invidious.cr -Dskip_videojs_download \
+	$(CRYSTAL_BIN) build src/$(BINARY_NAME).cr -Dskip_videojs_download \
 	  --no-codegen --progress --stats --error-trace
 
+dev-build: get-libs
+	$(CRYSTAL_BIN) build src/$(BINARY_NAME).cr $(DEVFLAGS) -o $(BINARY_DEV)
+
+dev-run: dev-build
+	INVIDIOUS_CONFIG_FILE=config/config-dev.yml ./$(BINARY_DEV)
 
 # -----------------------
 #  (Un)Install
 # -----------------------
 
-# TODO
+PREFIX ?= /usr/local
+DESTDIR ?=
 
+install: $(BINARY_NAME)
+	install -d $(DESTDIR)$(PREFIX)/bin
+	install -m 755 $(BINARY_NAME) $(DESTDIR)$(PREFIX)/bin/
+
+uninstall:
+	rm -f $(DESTDIR)$(PREFIX)/bin/$(BINARY_NAME)
 
 # -----------------------
 #  Cleaning
 # -----------------------
 
 clean:
-	rm invidious
+	rm -f $(BINARY_NAME) $(BINARY_DEV)
 
 distclean: clean
 	rm -rf libs
 	rm -rf ~/.cache/{crystal,shards}
-
 
 # -----------------------
 #  Help page
@@ -101,13 +119,16 @@ help:
 	@echo "Targets available in this Makefile:"
 	@echo ""
 	@echo "  get-libs         Fetch Crystal libraries"
-	@echo "  invidious        Build Invidious"
+	@echo "  $(BINARY_NAME)   Build Invidious"
 	@echo "  run              Launch Invidious"
 	@echo ""
 	@echo "  format           Run the Crystal formatter"
 	@echo "  test             Run tests"
 	@echo "  verify           Just make sure that the code compiles, but without"
 	@echo "                   generating any binaries. Useful to search for errors"
+	@echo ""
+	@echo "  install          Install Invidious to system"
+	@echo "  uninstall        Remove Invidious from system"
 	@echo ""
 	@echo "  clean            Remove build artifacts"
 	@echo "  distclean        Remove build artifacts and libraries"
@@ -120,9 +141,12 @@ help:
 	@echo ""
 	@echo "  API_ONLY         Build invidious without a GUI   (Default: 0)"
 	@echo "  NO_DBG_SYMBOLS   Strip debug symbols             (Default: 0)"
-
-
+	@echo ""
+	@echo "Installation options:"
+	@echo "  PREFIX           Installation prefix             (Default: /usr/local)"
+	@echo "  DESTDIR          Destination directory           (Default: empty)"
 
 # No targets generates an output named after themselves
-.PHONY: all get-libs build amd64 run
-.PHONY: format test verify clean distclean help
+.PHONY: all get-libs build run
+.PHONY: format test verify dev-build dev-run
+.PHONY: install uninstall clean distclean help
