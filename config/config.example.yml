@@ -477,6 +477,16 @@ jobs:
 #banner:
 
 ##
+## Custom footer displayed on the bottom of every page.
+## Similar to the banner option but at the bottom of the page
+## Useful for putting contact info of a/the maintainer for example.
+##
+## Accepted values: any string. HTML is accepted.
+## Default: <none>
+##
+#footer:
+
+##
 ## Subscribe to channels using PubSubHub (Google PubSubHubbub service).
 ## PubSubHub allows Invidious to be instantly notified when a new video
 ## is published on any subscribed channels. When PubSubHub is not used,
