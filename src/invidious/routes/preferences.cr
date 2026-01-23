@@ -143,6 +143,10 @@ module Invidious::Routes::PreferencesRoute
     notifications_only ||= "off"
     notifications_only = notifications_only == "on"
 
+    hide_shorts_and_live = env.params.body["hide_shorts_and_live"]?.try &.as(String)
+    hide_shorts_and_live ||= "off"
+    hide_shorts_and_live = hide_shorts_and_live == "on"
+
     default_playlist = env.params.body["default_playlist"]?.try &.as(String)
 
     # Convert to JSON and back again to take advantage of converters used for compatibility
@@ -182,6 +186,7 @@ module Invidious::Routes::PreferencesRoute
       show_nick:                   show_nick,
       save_player_pos:             save_player_pos,
       default_playlist:            default_playlist,
+      hide_shorts_and_live:        hide_shorts_and_live,
     }.to_json)
 
     if user = env.get? "user"

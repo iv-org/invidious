@@ -939,6 +939,14 @@ default_user_preferences:
   ##
   #sort: published
 
+  ##
+  ## In the "Subscription" feed, Only show the videos, no shorts
+  ## or livestreams.
+  ##
+  ## Accepted values: true, false
+  ## Default: false
+  ##
+  #hide_shorts_and_live: false
 
   # -----------------------------
   #  Miscellaneous

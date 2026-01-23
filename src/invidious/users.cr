@@ -83,6 +83,10 @@ def get_subscription_feed(user, max_results = 40, page = 1)
       end
     end
 
+    if user.preferences.hide_shorts_and_live
+      videos = videos.select { |v| v.length_seconds > 0 }
+    end
+
     case user.preferences.sort
     when "published - reverse"
       videos.sort_by!(&.published)

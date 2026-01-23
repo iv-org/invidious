@@ -230,6 +230,11 @@
                 </div>
 
                 <div class="pure-control-group">
+                    <label for="hide_shorts_and_live"><%= translate(locale, "preferences_hide_shorts_and_live_label") %></label>
+                    <input name="hide_shorts_and_live" id="hide_shorts_and_live" type="checkbox" <% if preferences.hide_shorts_and_live %>checked<% end %>>
+                </div>
+
+                <div class="pure-control-group">
                     <label for="annotations_subscribed"><%= translate(locale, "preferences_annotations_subscribed_label") %></label>
                     <input name="annotations_subscribed" id="annotations_subscribed" type="checkbox" <% if preferences.annotations_subscribed %>checked<% end %>>
                 </div>
