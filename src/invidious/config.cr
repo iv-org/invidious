@@ -173,6 +173,9 @@ class Config
   # Invidious companion API key
   property invidious_companion_key : String = ""
 
+  # Verify requests on endpoints that use Invidious companion
+  property invidious_companion_verify_requests : Bool = true
+
   # Saved cookies in "name1=value1; name2=value2..." format
   @[YAML::Field(converter: Preferences::StringToCookies)]
   property cookies : HTTP::Cookies = HTTP::Cookies.new

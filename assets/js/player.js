@@ -434,7 +434,7 @@ if (!video_data.params.listen && video_data.params.quality === 'dash') {
 }
 
 player.vttThumbnails({
-    src: '/api/v1/storyboards/' + video_data.id + '?height=90',
+    src: '/api/v1/storyboards/' + video_data.id + '?height=90' + `${video_data.invidious_companion_check_id ? `&check=${video_data.invidious_companion_check_id}` : ""}`,
     showTimestamp: true
 });
 

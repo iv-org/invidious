@@ -384,9 +384,13 @@ def parse_link_endpoint(endpoint : JSON::Any, text : String, video_id : String)
   return text
 end
 
-def encrypt_ecb_without_salt(data, key)
+def ecb_without_salt(data, key, encrypt : Bool)
   cipher = OpenSSL::Cipher.new("aes-128-ecb")
-  cipher.encrypt
+  if encrypt
+    cipher.encrypt
+  else
+    cipher.decrypt
+  end
   cipher.key = key
 
   io = IO::Memory.new
@@ -394,11 +398,25 @@ def encrypt_ecb_without_salt(data, key)
   io.write(cipher.final)
   io.rewind
 
-  return io
+  if encrypt
+    return io
+  else
+    return io.gets_to_end
+  end
 end
 
 def invidious_companion_encrypt(data)
   timestamp = Time.utc.to_unix
-  encrypted_data = encrypt_ecb_without_salt("#{timestamp}|#{data}", CONFIG.invidious_companion_key)
+  encrypted_data = ecb_without_salt("#{timestamp}|#{data}", CONFIG.invidious_companion_key, encrypt: true)
   return Base64.urlsafe_encode(encrypted_data)
+end
+
+def invidious_companion_decrypt(check_id)
+  check_id_decoded = Base64.decode_string(check_id)
+  begin
+    decrypted_data = ecb_without_salt(check_id_decoded, CONFIG.invidious_companion_key, encrypt: false)
+  rescue
+    return nil
+  end
+  return decrypted_data.as(String).split("|")
 end

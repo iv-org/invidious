@@ -89,6 +89,15 @@ db:
 ##
 #invidious_companion_key: "CHANGE_ME!!"
 
+##
+## Verify requests for endpoints that use Invidious companion
+## to fetch data
+##
+## Accepted values: true, false
+## Default: true
+##
+#invidious_companion_verify_requests: true
+
 #########################################
 #
 #  Server config
