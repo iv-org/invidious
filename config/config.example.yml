@@ -940,7 +940,7 @@ default_user_preferences:
   #sort: published
 
   ##
-  ## In the "Subscription" feed, Only show the videos, no shorts
+  ## In the "Subscription" feed, only show the videos, no shorts
   ## or livestreams.
   ##
   ## Accepted values: true, false
