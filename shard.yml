@@ -5,6 +5,10 @@ authors:
   - Invidious team <contact@invidious.io>
   - Contributors!
 
+targets:
+  invidious:
+    main: src/invidious.cr
+
 description: |
    Invidious is an alternative front-end to YouTube 
 
