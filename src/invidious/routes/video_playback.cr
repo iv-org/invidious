@@ -1,4 +1,6 @@
 module Invidious::Routes::VideoPlayback
+  private HTTP_CHUNK_SIZE = 10485760 # ~10MB
+
   # /videoplayback
   def self.get_video_playback(env)
     locale = env.get("preferences").as(Preferences).locale

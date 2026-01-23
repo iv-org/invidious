@@ -1,5 +1,6 @@
 module Invidious::Comments
   extend self
+  private REDDIT_URL = URI.parse("https://www.reddit.com")
 
   def fetch_reddit(id, sort_by = "confidence")
     client = make_client(REDDIT_URL)
