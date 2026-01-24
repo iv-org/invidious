@@ -33,6 +33,8 @@ def get_subscription_feed(user, max_results = 40, page = 1)
   if user.preferences.hide_shorts
     types_to_fetch.delete(VideoType::Short)
   end
+  # Note: hide_livestreams also hides scheduled/premiere videos (VideoType::Scheduled),
+  # since they are typically upcoming livestreams.
   if user.preferences.hide_livestreams
     [VideoType::Livestream, VideoType::Scheduled].each { |v| types_to_fetch.delete(v) }
   end

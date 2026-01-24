@@ -228,15 +228,15 @@ def fetch_channel(ucid, pull_all_videos : Bool)
 
     # If there is no update for the video, only update the views
     if database_video.size > 0 && updated == database_video[0].updated
-        video = database_video[0]
-        video.views = views
+      video = database_video[0]
+      video.views = views
     else
       channel_video = videos
         .select(SearchVideo)
         .select(&.id.== video_id)[0]?
 
-      # Not a video, either a short of a livestream
-      # Fetch invididual for info
+      # Not a video, either a short or a livestream
+      # Fetch individual for info
       if channel_video.nil?
         short_or_live = fetch_video(video_id, "")
         video_type = short_or_live.video_type

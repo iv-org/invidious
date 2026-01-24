@@ -438,7 +438,7 @@ module Invidious::Routes::Feeds
           live_now:           video.live_now,
           premiere_timestamp: video.premiere_timestamp,
           views:              video.views,
-          video_type:         VideoType::Video
+          video_type:         video.video_type
         })
 
         was_insert = Invidious::Database::ChannelVideos.insert(video, with_premiere_timestamp: true)
