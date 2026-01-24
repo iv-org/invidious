@@ -71,10 +71,11 @@ def get_subscription_feed(user, max_results = 40, page = 1)
         else
           values = "VALUES #{user.watched.map { |id| %(('#{id}')) }.join(",")}"
         end
+
         videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} WHERE NOT id = ANY (#{values}) AND video_type IN (#{types_to_fetch}) ORDER BY ucid, published DESC", as: ChannelVideo)
       else
         # Show latest video from each channel
-          videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} WHERE video_type IN (#{types_to_fetch}) ORDER BY ucid, published DESC", as: ChannelVideo)
+        videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} WHERE video_type IN (#{types_to_fetch}) ORDER BY ucid, published DESC", as: ChannelVideo)
       end
 
       videos.sort_by!(&.published).reverse!
@@ -87,10 +88,11 @@ def get_subscription_feed(user, max_results = 40, page = 1)
         else
           values = "VALUES #{user.watched.map { |id| %(('#{id}')) }.join(",")}"
         end
-          videos = PG_DB.query_all("SELECT * FROM #{view_name} WHERE NOT id = ANY (#{values}) AND video_type IN (#{types_to_fetch}) ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
+
+        videos = PG_DB.query_all("SELECT * FROM #{view_name} WHERE NOT id = ANY (#{values}) AND video_type IN (#{types_to_fetch}) ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
       else
         # Sort subscriptions as normal
-          videos = PG_DB.query_all("SELECT * FROM #{view_name} WHERE video_type IN (#{types_to_fetch}) ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
+        videos = PG_DB.query_all("SELECT * FROM #{view_name} WHERE video_type IN (#{types_to_fetch}) ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
       end
     end
 
