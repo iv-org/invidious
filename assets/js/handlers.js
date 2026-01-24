@@ -146,4 +146,15 @@
             event.preventDefault();
         }
     });
+
+    // Handle the video watched state with JavaScript (if enabled)
+    const anchorElements = document.querySelectorAll('a[href^="/watch"]');
+
+    for (const anchorElement of anchorElements) {
+        const url = new URL(anchorElement.href);
+
+        url.searchParams.set("mark_watched", "0");
+        
+        anchorElement.href = url.href;
+    }
 })();
