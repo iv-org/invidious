@@ -218,7 +218,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
   post_live_dvr = video_details.dig?("isPostLiveDvr")
     .try &.as_bool || false
 
-  is_short = microformat["isShortsEligible"].try &.as_bool || false
+  is_short = microformat.dig?("isShortsEligible").try &.as_bool || false
 
   # Extra video infos
 
