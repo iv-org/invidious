@@ -218,6 +218,8 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
   post_live_dvr = video_details.dig?("isPostLiveDvr")
     .try &.as_bool || false
 
+  is_short = microformat.dig?("isShortsEligible").try &.as_bool || false
+
   # Extra video infos
 
   allowed_regions = microformat["availableCountries"]?
@@ -394,8 +396,9 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
   end
 
   # Return data
-
-  if live_now
+  if is_short
+    video_type = VideoType::Short
+  elsif live_now
     video_type = VideoType::Livestream
   elsif !premiere_timestamp.nil?
     video_type = VideoType::Scheduled
