@@ -5,33 +5,33 @@ module Invidious::Database::Migrations
     def up(conn : DB::Connection)
       if !privacy_type_exists?(conn)
         conn.exec <<-SQL
-        CREATE TYPE public.privacy AS ENUM
-        (
-          'Public',
-          'Unlisted',
-          'Private'
-        );
-        SQL
+          CREATE TYPE public.privacy AS ENUM
+          (
+            'Public',
+            'Unlisted',
+            'Private'
+          );
+          SQL
       end
 
       conn.exec <<-SQL
-      CREATE TABLE IF NOT EXISTS public.playlists
-      (
-        title text,
-        id text primary key,
-        author text,
-        description text,
-        video_count integer,
-        created timestamptz,
-        updated timestamptz,
-        privacy privacy,
-        index int8[]
-      );
-      SQL
+        CREATE TABLE IF NOT EXISTS public.playlists
+        (
+          title text,
+          id text primary key,
+          author text,
+          description text,
+          video_count integer,
+          created timestamptz,
+          updated timestamptz,
+          privacy privacy,
+          index int8[]
+        );
+        SQL
 
       conn.exec <<-SQL
-      GRANT ALL ON public.playlists TO current_user;
-      SQL
+        GRANT ALL ON public.playlists TO current_user;
+        SQL
     end
 
     private def privacy_type_exists?(conn : DB::Connection) : Bool
@@ -42,7 +42,7 @@ module Invidious::Database::Migrations
         WHERE pg_namespace.nspname = 'public'
           AND pg_type.typname = 'privacy'
         LIMIT 1;
-      SQL
+        SQL
 
       !conn.query_one?(request, as: Int32).nil?
     end

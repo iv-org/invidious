@@ -13,7 +13,7 @@ module Invidious::Comments
 
     client_config = YoutubeAPI::ClientConfig.new(region: region)
     response = YoutubeAPI.next(continuation: ctoken, client_config: client_config)
-    return parse_youtube(id, response, format, locale, thin_mode, sort_by)
+    parse_youtube(id, response, format, locale, thin_mode, sort_by)
   end
 
   def fetch_community_post_comments(ucid, post_id, sort_by = "top")
@@ -58,7 +58,7 @@ module Invidious::Comments
       .try { |i| URI.encode_www_form(i) }
 
     initial_data = YoutubeAPI.browse(continuation: continuation)
-    return initial_data
+    initial_data
   end
 
   def parse_youtube(id, response, format, locale, thin_mode, sort_by = "top", is_post = false)
@@ -320,7 +320,7 @@ module Invidious::Comments
       end
     end
 
-    return response
+    response
   end
 
   def produce_continuation(video_id, cursor = "", sort_by = "top")
@@ -364,6 +364,6 @@ module Invidious::Comments
       .try { |i| Base64.urlsafe_encode(i) }
       .try { |i| URI.encode_www_form(i) }
 
-    return continuation
+    continuation
   end
 end

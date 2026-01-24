@@ -37,7 +37,7 @@ def text_to_parsed_content(text : String) : JSON::Any
       nodes << (node)
     end
   end
-  return JSON.parse({"runs" => nodes}.to_json)
+  JSON.parse({"runs" => nodes}.to_json)
 end
 
 def parse_content(content : JSON::Any, video_id : String? = "") : String
@@ -85,5 +85,5 @@ def content_to_comment_html(content, video_id : String? = "")
     text
   end
 
-  return html_array.join("").delete('\ufeff')
+  html_array.join("").delete('\ufeff')
 end

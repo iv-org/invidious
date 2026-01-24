@@ -8,7 +8,7 @@ def ci_lower_bound(pos, n)
   z = 1.96
   phat = 1.0*pos/n
 
-  return (phat + z*z/(2*n) - z * Math.sqrt((phat*(1 - phat) + z*z/(4*n))/n))/(1 + z*z/n)
+  (phat + z*z/(2*n) - z * Math.sqrt((phat*(1 - phat) + z*z/(4*n))/n))/(1 + z*z/n)
 end
 
 def elapsed_text(elapsed)
@@ -31,12 +31,12 @@ def decode_length_seconds(string)
     seconds: length_seconds[2]
   ).total_seconds.to_i32
 
-  return length_seconds
+  length_seconds
 end
 
 def recode_length_seconds(time)
   if time <= 0
-    return ""
+    ""
   else
     time = time.seconds
     text = "#{time.minutes.to_s.rjust(2, '0')}:#{time.seconds.to_s.rjust(2, '0')}"
@@ -47,7 +47,7 @@ def recode_length_seconds(time)
 
     text = text.lchop('0')
 
-    return text
+    text
   end
 end
 
@@ -66,7 +66,7 @@ def decode_interval(string : String) : Time::Span
     time = Time::Span.new(minutes: raw_minutes)
   end
 
-  return time
+  time
 end
 
 def decode_time(string)
@@ -88,7 +88,7 @@ def decode_time(string)
     time = hours * 3600 + minutes * 60 + seconds + millis // 1000
   end
 
-  return time
+  time
 end
 
 def decode_date(string : String)
@@ -108,7 +108,6 @@ def decode_date(string : String)
     return Time.utc
   when "yesterday"
     return Time.utc - 1.day
-  else nil # Continue
   end
 
   # String matches format "20 hours ago", "4 months ago", "20s ago", "15min ago"...
@@ -137,26 +136,26 @@ def decode_date(string : String)
     raise "Could not parse #{string}"
   end
 
-  return Time.utc - delta
+  Time.utc - delta
 end
 
 def recode_date(time : Time, locale)
   span = Time.utc - time
 
   if span.total_days > 365.0
-    return translate_count(locale, "generic_count_years", span.total_days.to_i // 365)
+    translate_count(locale, "generic_count_years", span.total_days.to_i // 365)
   elsif span.total_days > 30.0
-    return translate_count(locale, "generic_count_months", span.total_days.to_i // 30)
+    translate_count(locale, "generic_count_months", span.total_days.to_i // 30)
   elsif span.total_days > 7.0
-    return translate_count(locale, "generic_count_weeks", span.total_days.to_i // 7)
+    translate_count(locale, "generic_count_weeks", span.total_days.to_i // 7)
   elsif span.total_hours > 24.0
-    return translate_count(locale, "generic_count_days", span.total_days.to_i)
+    translate_count(locale, "generic_count_days", span.total_days.to_i)
   elsif span.total_minutes > 60.0
-    return translate_count(locale, "generic_count_hours", span.total_hours.to_i)
+    translate_count(locale, "generic_count_hours", span.total_hours.to_i)
   elsif span.total_seconds > 60.0
-    return translate_count(locale, "generic_count_minutes", span.total_minutes.to_i)
+    translate_count(locale, "generic_count_minutes", span.total_minutes.to_i)
   else
-    return translate_count(locale, "generic_count_seconds", span.total_seconds.to_i)
+    translate_count(locale, "generic_count_seconds", span.total_seconds.to_i)
   end
 end
 
@@ -174,9 +173,9 @@ def short_text_to_number(short_text : String) : Int64
   when "b" then number *= 1_000_000_000
   end
 
-  return number.to_i64
+  number.to_i64
 rescue ex
-  return 0_i64
+  0_i64
 end
 
 def number_to_short_text(number)
@@ -209,7 +208,7 @@ def arg_array(array, start = 1)
     args = args.join(",")
   end
 
-  return args
+  args
 end
 
 def make_host_url(kemal_config)
@@ -235,7 +234,7 @@ def make_host_url(kemal_config)
 
   host = CONFIG.domain.not_nil!.lchop(".")
 
-  return "#{scheme}#{host}#{port}"
+  "#{scheme}#{host}#{port}"
 end
 
 def get_referer(env, fallback = "/", unroll = true)
@@ -268,13 +267,13 @@ def get_referer(env, fallback = "/", unroll = true)
     referer = fallback
   end
 
-  return referer
+  referer
 end
 
 def sha256(text)
   digest = OpenSSL::Digest.new("SHA256")
   digest << text
-  return digest.final.hexstring
+  digest.final.hexstring
 end
 
 def subscribe_pubsub(topic, key)
@@ -302,7 +301,7 @@ def subscribe_pubsub(topic, key)
     "hub.secret"        => key.to_s,
   }
 
-  return make_client(PUBSUB_URL, &.post("/subscribe", form: body))
+  make_client(PUBSUB_URL, &.post("/subscribe", form: body))
 end
 
 def parse_range(range)
@@ -328,7 +327,7 @@ def reduce_uri(uri : URI | String, max_length : Int32 = 50, suffix : String = "â
   if str.size > max_length
     str = "#{str[0, max_length]}#{suffix}"
   end
-  return str
+  str
 end
 
 # Get the html link from a NavigationEndpoint or an innertubeCommand
@@ -381,7 +380,7 @@ def parse_link_endpoint(endpoint : JSON::Any, text : String, video_id : String)
       text = %(<a href="#{url}">#{reduce_uri(text)}</a>)
     end
   end
-  return text
+  text
 end
 
 def encrypt_ecb_without_salt(data, key)
@@ -394,11 +393,11 @@ def encrypt_ecb_without_salt(data, key)
   io.write(cipher.final)
   io.rewind
 
-  return io
+  io
 end
 
 def invidious_companion_encrypt(data)
   timestamp = Time.utc.to_unix
   encrypted_data = encrypt_ecb_without_salt("#{timestamp}|#{data}", CONFIG.invidious_companion_key)
-  return Base64.urlsafe_encode(encrypted_data)
+  Base64.urlsafe_encode(encrypted_data)
 end

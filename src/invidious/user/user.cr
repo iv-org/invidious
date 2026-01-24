@@ -17,11 +17,9 @@ struct Invidious::User
 
   module PreferencesConverter
     def self.from_rs(rs)
-      begin
-        Preferences.from_json(rs.read(String))
-      rescue ex
-        Preferences.from_json("{}")
-      end
+      Preferences.from_json(rs.read(String))
+    rescue ex
+      Preferences.from_json("{}")
     end
   end
 end

@@ -55,10 +55,10 @@ class Invidious::LogHandler < Kemal::BaseLogHandler
     end
   end
 
-  {% for level in %w(trace debug info warn error fatal) %}
-    def {{level.id}}(message : String)
-      if LogLevel::{{level.id.capitalize}} >= @level
-        puts("#{Time.utc} [{{level.id}}] #{message}".colorize(color(LogLevel::{{level.id.capitalize}})))
+  {% for level in %w[trace debug info warn error fatal] %}
+    def {{ level.id }}(message : String)
+      if LogLevel::{{ level.id.capitalize }} >= @level
+        puts("#{Time.utc} [{{ level.id }}] #{message}".colorize(color(LogLevel::{{ level.id.capitalize }})))
       end
     end
   {% end %}

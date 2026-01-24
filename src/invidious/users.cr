@@ -45,7 +45,6 @@ def get_subscription_feed(user, max_results = 40, page = 1)
       notifications.sort_by!(&.author)
     when "channel name - reverse"
       notifications.sort_by!(&.author).reverse!
-    else nil # Ignore
     end
   else
     if user.preferences.latest_only
@@ -94,7 +93,6 @@ def get_subscription_feed(user, max_results = 40, page = 1)
       videos.sort_by!(&.author)
     when "channel name - reverse"
       videos.sort_by!(&.author).reverse!
-    else nil # Ignore
     end
 
     notifications = Invidious::Database::Users.select_notifications(user)

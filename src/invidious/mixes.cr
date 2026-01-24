@@ -74,7 +74,7 @@ def fetch_mix(rdid, video_id, cookies = nil, locale = nil)
 
   videos.uniq!(&.id)
   videos = videos.first(50)
-  return Mix.new({
+  Mix.new({
     title:  mix_title,
     id:     rdid,
     videos: videos,
@@ -82,18 +82,18 @@ def fetch_mix(rdid, video_id, cookies = nil, locale = nil)
 end
 
 def template_mix(mix, listen)
-  html = <<-END_HTML
-  <h3>
-    <a href="/mix?list=#{mix["mixId"]}">
-      #{mix["title"]}
-    </a>
-  </h3>
-  <div class="pure-menu pure-menu-scrollable playlist-restricted">
-    <ol class="pure-menu-list">
-  END_HTML
+  html = <<-HTML
+    <h3>
+      <a href="/mix?list=#{mix["mixId"]}">
+        #{mix["title"]}
+      </a>
+    </h3>
+    <div class="pure-menu pure-menu-scrollable playlist-restricted">
+      <ol class="pure-menu-list">
+    HTML
 
   mix["videos"].as_a.each do |video|
-    html += <<-END_HTML
+    html += <<-HTML
       <li class="pure-menu-item">
         <a href="/watch?v=#{video["videoId"]}&list=#{mix["mixId"]}#{listen ? "&listen=1" : ""}">
           <div class="thumbnail">
@@ -106,14 +106,14 @@ def template_mix(mix, listen)
           </p>
         </a>
       </li>
-    END_HTML
+      HTML
   end
 
-  html += <<-END_HTML
-    </ol>
-  </div>
-  <hr>
-  END_HTML
+  html += <<-HTML
+      </ol>
+    </div>
+    <hr>
+    HTML
 
   html
 end

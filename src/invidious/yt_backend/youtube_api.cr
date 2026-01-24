@@ -207,7 +207,7 @@ module YoutubeAPI
 
     # Region to provide to youtube, e.g to alter search results
     # (this is passed as the `gl` parameter).
-    property region : String | Nil
+    property region : String?
 
     # Initialization function
     def initialize(
@@ -267,8 +267,8 @@ module YoutubeAPI
 
     # Convert to string, for logging purposes
     def to_s
-      return {
-        client_type: self.name,
+      {
+        client_type: name,
         region:      @region,
       }.to_s
     end
@@ -283,7 +283,7 @@ module YoutubeAPI
   # Return, as a Hash, the "context" data required to request the
   # youtube API endpoints.
   #
-  private def make_context(client_config : ClientConfig | Nil, video_id = "dQw4w9WgXcQ") : Hash
+  private def make_context(client_config : ClientConfig?, video_id = "dQw4w9WgXcQ") : Hash
     # Use the default client config if nil is passed
     client_config ||= DEFAULT_CLIENT_CONFIG
 
@@ -331,7 +331,7 @@ module YoutubeAPI
       client_context["client"]["platform"] = platform
     end
 
-    return client_context
+    client_context
   end
 
   ####################################################################
@@ -353,14 +353,14 @@ module YoutubeAPI
   #
   #  - A playlist ID (parameters MUST be an empty string)
   #
-  def browse(continuation : String, client_config : ClientConfig | Nil = nil)
+  def browse(continuation : String, client_config : ClientConfig? = nil)
     # JSON Request data, required by the API
     data = {
-      "context"      => self.make_context(client_config),
+      "context"      => make_context(client_config),
       "continuation" => continuation,
     }
 
-    return self._post_json("/youtubei/v1/browse", data, client_config)
+    _post_json("/youtubei/v1/browse", data, client_config)
   end
 
   # :ditto:
@@ -368,12 +368,12 @@ module YoutubeAPI
     browse_id : String,
     *, # Force the following parameters to be passed by name
     params : String,
-    client_config : ClientConfig | Nil = nil,
+    client_config : ClientConfig? = nil,
   )
     # JSON Request data, required by the API
     data = {
       "browseId" => browse_id,
-      "context"  => self.make_context(client_config),
+      "context"  => make_context(client_config),
     }
 
     # Append the additional parameters if those were provided
@@ -382,7 +382,7 @@ module YoutubeAPI
       data["params"] = params
     end
 
-    return self._post_json("/youtubei/v1/browse", data, client_config)
+    _post_json("/youtubei/v1/browse", data, client_config)
   end
 
   ####################################################################
@@ -421,29 +421,29 @@ module YoutubeAPI
   #    })
   #    ```
   #
-  def next(continuation : String, *, client_config : ClientConfig | Nil = nil)
+  def next(continuation : String, *, client_config : ClientConfig? = nil)
     # JSON Request data, required by the API
     data = {
-      "context"      => self.make_context(client_config),
+      "context"      => make_context(client_config),
       "continuation" => continuation,
     }
 
-    return self._post_json("/youtubei/v1/next", data, client_config)
+    _post_json("/youtubei/v1/next", data, client_config)
   end
 
   # :ditto:
-  def next(data : Hash, *, client_config : ClientConfig | Nil = nil)
+  def next(data : Hash, *, client_config : ClientConfig? = nil)
     # JSON Request data, required by the API
     data2 = data.merge({
-      "context" => self.make_context(client_config),
+      "context" => make_context(client_config),
     })
 
-    return self._post_json("/youtubei/v1/next", data2, client_config)
+    _post_json("/youtubei/v1/next", data2, client_config)
   end
 
   # Allow a NamedTuple to be passed, too.
-  def next(data : NamedTuple, *, client_config : ClientConfig | Nil = nil)
-    return self.next(data.to_h, client_config: client_config)
+  def next(data : NamedTuple, *, client_config : ClientConfig? = nil)
+    self.next(data.to_h, client_config: client_config)
   end
 
   ####################################################################
@@ -461,9 +461,9 @@ module YoutubeAPI
     }
 
     if CONFIG.invidious_companion.present?
-      return self._post_invidious_companion("/youtubei/v1/player", data)
+      _post_invidious_companion("/youtubei/v1/player", data)
     else
-      return nil
+      return
     end
   end
 
@@ -495,13 +495,13 @@ module YoutubeAPI
   # channel_b = YoutubeAPI.resolve_url("https://youtube.com/c/invalid")
   # ```
   #
-  def resolve_url(url : String, client_config : ClientConfig | Nil = nil)
+  def resolve_url(url : String, client_config : ClientConfig? = nil)
     data = {
-      "context" => self.make_context(nil),
+      "context" => make_context(nil),
       "url"     => url,
     }
 
-    return self._post_json("/youtubei/v1/navigation/resolve_url", data, client_config)
+    _post_json("/youtubei/v1/navigation/resolve_url", data, client_config)
   end
 
   ####################################################################
@@ -521,16 +521,16 @@ module YoutubeAPI
   def search(
     search_query : String,
     params : String,
-    client_config : ClientConfig | Nil = nil,
+    client_config : ClientConfig? = nil,
   )
     # JSON Request data, required by the API
     data = {
       "query"   => search_query,
-      "context" => self.make_context(client_config),
+      "context" => make_context(client_config),
       "params"  => params,
     }
 
-    return self._post_json("/youtubei/v1/search", data, client_config)
+    _post_json("/youtubei/v1/search", data, client_config)
   end
 
   ####################################################################
@@ -547,14 +547,14 @@ module YoutubeAPI
 
   def get_transcript(
     params : String,
-    client_config : ClientConfig | Nil = nil,
+    client_config : ClientConfig? = nil,
   ) : Hash(String, JSON::Any)
     data = {
-      "context" => self.make_context(client_config),
+      "context" => make_context(client_config),
       "params"  => params,
     }
 
-    return self._post_json("/youtubei/v1/get_transcript", data, client_config)
+    _post_json("/youtubei/v1/get_transcript", data, client_config)
   end
 
   ####################################################################
@@ -569,7 +569,7 @@ module YoutubeAPI
   def _post_json(
     endpoint : String,
     data : Hash,
-    client_config : ClientConfig | Nil,
+    client_config : ClientConfig?,
   ) : Hash(String, JSON::Any)
     # Use the default client config if nil is passed
     client_config ||= DEFAULT_CLIENT_CONFIG
@@ -602,7 +602,7 @@ module YoutubeAPI
             status code #{response.status_code}. See <a href=\"https://docs.invidious.io/youtube-errors-explained/\"> \
             https://docs.invidious.io/youtube-errors-explained/</a> for troubleshooting.")
         end
-        self._decompress(response.body_io, response.headers["Content-Encoding"]?)
+        _decompress(response.body_io, response.headers["Content-Encoding"]?)
       end
     end
 
@@ -623,7 +623,7 @@ module YoutubeAPI
       error #{code} with message:<br>\"#{message}\"")
     end
 
-    return initial_data
+    initial_data
   end
 
   ####################################################################
@@ -661,7 +661,7 @@ module YoutubeAPI
         end
       end
 
-      return response_body
+      response_body
     rescue ex
       raise InfoException.new("Error while communicating with Invidious companion: " + (ex.message || "no extra info found"))
     end
@@ -685,7 +685,7 @@ module YoutubeAPI
       # Multiple encodings can be combined, and are listed in the order
       # in which they were applied. E.g: "deflate, gzip" means that the
       # content must be first "gunzipped", then "defated".
-      encodings.split(',').reverse.each do |enc|
+      encodings.split(',').reverse!.each do |enc|
         case enc.strip(' ')
         when "gzip"
           body_io = Compress::Gzip::Reader.new(body_io, sync_close: true)
@@ -695,6 +695,6 @@ module YoutubeAPI
       end
     end
 
-    return body_io.gets_to_end
+    body_io.gets_to_end
   end
 end # End of module

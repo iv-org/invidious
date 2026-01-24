@@ -28,5 +28,5 @@ def produce_channel_search_continuation(ucid, query, page)
     .try { |i| Base64.urlsafe_encode(i) }
     .try { |i| URI.encode_www_form(i) }
 
-  return continuation
+  continuation
 end

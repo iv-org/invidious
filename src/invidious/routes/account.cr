@@ -337,10 +337,10 @@ module Invidious::Routes::Account
     end
 
     if redirect
-      return env.redirect referer
+      env.redirect referer
     else
       env.response.content_type = "application/json"
-      return "{}"
+      "{}"
     end
   end
 end

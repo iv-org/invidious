@@ -44,6 +44,6 @@ class Invidious::Database::Migrator
         id bigserial PRIMARY KEY,
         version bigint NOT NULL
       )
-    SQL
+      SQL
   end
 end

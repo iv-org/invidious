@@ -14,12 +14,12 @@ module Invidious::Frontend::ChannelPage
   end
 
   def generate_tabs_links(locale : String, channel : AboutChannel, selected_tab : TabsAvailable)
-    return String.build(1500) do |str|
+    String.build(1500) do |str|
       base_url = "/channel/#{channel.ucid}"
 
       TabsAvailable.each do |tab|
         # Ignore playlists, as it is not supported for auto-generated channels yet
-        next if (tab.playlists? && channel.auto_generated)
+        next if tab.playlists? && channel.auto_generated
 
         tab_name = tab.to_s.downcase
 

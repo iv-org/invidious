@@ -26,7 +26,7 @@ def load_mock(file) : Hash(String, JSON::Any)
   file = File.join(__DIR__, "..", "mocks", file + ".json")
   content = File.read(file)
 
-  return JSON.parse(content).as_h
+  JSON.parse(content).as_h
 end
 
 Spectator.configure do |config|

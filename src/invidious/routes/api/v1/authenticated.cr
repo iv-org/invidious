@@ -17,6 +17,7 @@ module Invidious::Routes::API::V1::Authenticated
     user.preferences.to_json
   end
 
+  # ameba:disable Naming/AccessorMethodName
   def self.set_preferences(env)
     env.response.content_type = "application/json"
     user = env.get("user").as(User)
@@ -35,7 +36,7 @@ module Invidious::Routes::API::V1::Authenticated
     env.response.content_type = "application/json"
     user = env.get("user").as(User)
 
-    return Invidious::User::Export.to_invidious(user)
+    Invidious::User::Export.to_invidious(user)
   end
 
   def self.import_invidious(env)
@@ -71,7 +72,7 @@ module Invidious::Routes::API::V1::Authenticated
     end
     watched ||= [] of String
 
-    return watched.to_json
+    watched.to_json
   end
 
   def self.mark_watched(env)
@@ -423,7 +424,7 @@ module Invidious::Routes::API::V1::Authenticated
       env.response.content_type = "text/html"
 
       csrf_token = generate_response(sid, {":authorize_token"}, HMAC_KEY, use_nonce: true)
-      return templated "user/authorize_token"
+      templated "user/authorize_token"
     else
       env.response.content_type = "application/json"
 
@@ -482,7 +483,7 @@ module Invidious::Routes::API::V1::Authenticated
     env.response.content_type = "text/event-stream"
 
     raw_topics = env.params.body["topics"]? || env.params.query["topics"]?
-    topics = raw_topics.try &.split(",").uniq.first(1000)
+    topics = raw_topics.try &.split(",").uniq!.first(1000)
     topics ||= [] of String
 
     create_notification_stream(env, topics, CONNECTION_CHANNEL)

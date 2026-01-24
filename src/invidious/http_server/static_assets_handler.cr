@@ -68,7 +68,7 @@ module Invidious::HttpServer
         end
       end
 
-      return flush_io_to_cache(retrieve_bytes_from, file_path, file_info)
+      flush_io_to_cache(retrieve_bytes_from, file_path, file_info)
     end
 
     # Writes file data to the cache
@@ -106,7 +106,7 @@ module Invidious::HttpServer
     # Can be removed once https://github.com/crystal-lang/crystal/issues/15817 is fixed.
     private def serve_file_range(context : HTTP::Server::Context, file : IO, range_header : String, file_info)
       # Paste in the body of inherited serve_file_range
-      {{@type.superclass.methods.select(&.name.==("serve_file_range"))[0].body}}
+      {{ @type.superclass.methods.select(&.name.==("serve_file_range"))[0].body }}
     end
 
     # Clear cached files.
@@ -114,7 +114,7 @@ module Invidious::HttpServer
     # This is only used in the specs to clear the cache before each handler test
     def self.clear_cache
       @@current_cache_size = 0
-      return @@cached_files.clear
+      @@cached_files.clear
     end
   end
 end

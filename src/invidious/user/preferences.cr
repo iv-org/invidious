@@ -64,20 +64,18 @@ struct Preferences
     end
 
     def self.from_json(value : JSON::PullParser) : String
-      begin
-        result = value.read_string
+      result = value.read_string
 
-        if result.empty?
-          CONFIG.default_user_preferences.dark_mode
-        else
-          result
-        end
-      rescue ex
-        if value.read_bool
-          "dark"
-        else
-          "light"
-        end
+      if result.empty?
+        CONFIG.default_user_preferences.dark_mode
+      else
+        result
+      end
+    rescue ex
+      if value.read_bool
+        "dark"
+      else
+        "light"
       end
     end
 
@@ -262,12 +260,12 @@ struct Preferences
 
   module TimeSpanConverter
     def self.to_yaml(value : Time::Span, yaml : YAML::Nodes::Builder)
-      return yaml.scalar value.total_minutes.to_i32
+      yaml.scalar value.total_minutes.to_i32
     end
 
     def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : Time::Span
       if node.is_a?(YAML::Nodes::Scalar)
-        return decode_interval(node.value)
+        decode_interval(node.value)
       else
         node.raise "Expected scalar, not #{node.class}"
       end

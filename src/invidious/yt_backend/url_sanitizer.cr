@@ -30,7 +30,7 @@ module UrlSanitizer
       return false
     end
 
-    return true
+    true
   end
 
   # Return which kind of parameters are allowed based on the
@@ -38,15 +38,15 @@ module UrlSanitizer
   private def determine_allowed(path_root : String)
     case path_root
     when "watch", "w", "v", "embed", "e", "shorts", "clip"
-      return :watch
+      :watch
     when .starts_with?("@"), "c", "channel", "user", "profile", "attribution_link"
-      return :channel
+      :channel
     when "playlist", "mix"
-      return :playlist
+      :playlist
     when "results", "search"
-      return :search
+      :search
     else # hashtag, post, trending, brand URLs, etc..
-      return nil
+      return
     end
   end
 
@@ -61,7 +61,7 @@ module UrlSanitizer
       end
     end
 
-    return new_params
+    new_params
   end
 
   # Transform any user-supplied youtube URL into something we can trust
@@ -78,7 +78,7 @@ module UrlSanitizer
     new_uri = URI.new(path: "/")
 
     # Redirect to homepage for bogus URLs
-    return new_uri if (unsafe_host.nil? || unsafe_path.nil?)
+    return new_uri if unsafe_host.nil? || unsafe_path.nil?
 
     breadcrumbs = unsafe_path
       .split('/', remove_empty: true)
@@ -116,6 +116,6 @@ module UrlSanitizer
       new_uri.query_params = new_params
     end
 
-    return new_uri
+    new_uri
   end
 end

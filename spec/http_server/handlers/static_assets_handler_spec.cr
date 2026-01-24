@@ -14,7 +14,7 @@ require "spectator"
 require "../../../src/invidious/http_server/static_assets_handler.cr"
 
 private def get_static_assets_handler
-  return Invidious::HttpServer::StaticAssetsHandler.new "spec/http_server/handlers/static_assets_handler", directory_listing: false
+  Invidious::HttpServer::StaticAssetsHandler.new "spec/http_server/handlers/static_assets_handler", directory_listing: false
 end
 
 # Slightly modified version of `handle` function from
@@ -59,7 +59,7 @@ end
 
 # Get relative file path to a file within the static_assets_handler folder
 macro get_file_path(basename)
-  "spec/http_server/handlers/static_assets_handler/#{ {{basename}} }"
+  "spec/http_server/handlers/static_assets_handler/#{ {{ basename }} }"
 end
 
 Spectator.describe StaticAssetsHandler do
@@ -125,7 +125,7 @@ Spectator.describe StaticAssetsHandler do
         gzip.gets_to_end
       end
 
-      return expect(decompressed)
+      expect(decompressed)
     end
 
     it "For full file requests" do

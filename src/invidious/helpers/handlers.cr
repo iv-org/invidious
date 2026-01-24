@@ -2,10 +2,10 @@ module HTTP::Handler
   @@exclude_routes_tree = Radix::Tree(String).new
 
   macro exclude(paths, method = "GET")
-      class_name = {{@type.name}}
-      method_downcase = {{method.downcase}}
+      class_name = {{ @type.name }}
+      method_downcase = {{ method.downcase }}
       class_name_method = "#{class_name}/#{method_downcase}"
-      ({{paths}}).each do |path|
+      ({{ paths }}).each do |path|
         @@exclude_routes_tree.add class_name_method + path, '/' + method_downcase + path
       end
     end
@@ -20,8 +20,8 @@ module HTTP::Handler
 end
 
 class Kemal::RouteHandler
-  {% for method in %w(GET POST PUT HEAD DELETE PATCH OPTIONS) %}
-    exclude ["/api/v1/*"], {{method}}
+  {% for method in %w[GET POST PUT HEAD DELETE PATCH OPTIONS] %}
+    exclude ["/api/v1/*"], {{ method }}
   {% end %}
 
   # Processes the route if it's a match. Otherwise renders 404.
@@ -44,8 +44,8 @@ class Kemal::RouteHandler
 end
 
 class Kemal::ExceptionHandler
-  {% for method in %w(GET POST PUT HEAD DELETE PATCH OPTIONS) %}
-    exclude ["/api/v1/*"], {{method}}
+  {% for method in %w[GET POST PUT HEAD DELETE PATCH OPTIONS] %}
+    exclude ["/api/v1/*"], {{ method }}
   {% end %}
 
   private def call_exception_with_status_code(context : HTTP::Server::Context, exception : Exception, status_code : Int32)
@@ -72,8 +72,8 @@ class FilteredCompressHandler < HTTP::CompressHandler
 end
 
 class AuthHandler < Kemal::Handler
-  {% for method in %w(GET POST PUT HEAD DELETE PATCH OPTIONS) %}
-    only ["/api/v1/auth/*"], {{method}}
+  {% for method in %w[GET POST PUT HEAD DELETE PATCH OPTIONS] %}
+    only ["/api/v1/auth/*"], {{ method }}
   {% end %}
 
   def call(env)
@@ -121,8 +121,8 @@ class AuthHandler < Kemal::Handler
 end
 
 class APIHandler < Kemal::Handler
-  {% for method in %w(GET POST PUT HEAD DELETE PATCH OPTIONS) %}
-  only ["/api/v1/*"], {{method}}
+  {% for method in %w[GET POST PUT HEAD DELETE PATCH OPTIONS] %}
+  only ["/api/v1/*"], {{ method }}
   {% end %}
   exclude ["/api/v1/auth/notifications"], "GET"
   exclude ["/api/v1/auth/notifications"], "POST"

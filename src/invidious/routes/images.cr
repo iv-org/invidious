@@ -13,7 +13,7 @@ module Invidious::Routes::Images
 
     begin
       GGPHT_POOL.client &.get(url, headers) do |resp|
-        return self.proxy_image(env, resp)
+        return proxy_image(env, resp)
       end
     rescue ex
     end
@@ -44,7 +44,7 @@ module Invidious::Routes::Images
     begin
       get_ytimg_pool(authority).client &.get(url, headers) do |resp|
         env.response.headers["Connection"] = "close"
-        return self.proxy_image(env, resp)
+        return proxy_image(env, resp)
       end
     rescue ex
     end
@@ -66,7 +66,7 @@ module Invidious::Routes::Images
 
     begin
       get_ytimg_pool("i9").client &.get(url, headers) do |resp|
-        return self.proxy_image(env, resp)
+        return proxy_image(env, resp)
       end
     rescue ex
     end
@@ -128,7 +128,7 @@ module Invidious::Routes::Images
 
     begin
       get_ytimg_pool("i").client &.get(url, headers) do |resp|
-        return self.proxy_image(env, resp)
+        return proxy_image(env, resp)
       end
     rescue ex
     end
@@ -148,6 +148,6 @@ module Invidious::Routes::Images
       return env.response.headers.delete("Transfer-Encoding")
     end
 
-    return proxy_file(response, env)
+    proxy_file(response, env)
   end
 end
