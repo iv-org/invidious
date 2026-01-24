@@ -888,3 +888,10 @@ h1, h2, h3, h4, h5, p,
   padding: 20px;
   background: rgba(0, 0, 0, 0.12345);
 }
+
+.preference-description {
+  width: 250px;
+  padding-left: 10px;
+  display: inline-block;
+  vertical-align: top;
+}

@@ -221,6 +221,12 @@
                 <input name="automatic_instance_redirect" id="automatic_instance_redirect" type="checkbox" <% if preferences.automatic_instance_redirect %>checked<% end %>>
             </div>
 
+            <div class="pure-control-group">
+                <label for="search_privacy"><%= translate(locale, "preferences_search_privacy_label") %></label>
+                <input name="search_privacy" id="search_privacy" type="checkbox" <% if preferences.search_privacy %>checked<% end %>>
+                <span class="preference-description"><%= translate(locale, "preferences_search_privacy_description") %></span>
+            </div>
+
             <% if env.get? "user" %>
                 <legend><%= translate(locale, "preferences_category_subscription") %></legend>
 

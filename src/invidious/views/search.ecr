@@ -1,5 +1,10 @@
+<%
+    search_privacy = preferences.search_privacy
+    search_query = query.text.size > 30 ? HTML.escape(query.text[0,30].rstrip(".")) + "&hellip;" : HTML.escape(query.text)
+%>
+
 <% content_for "header" do %>
-<title><%= query.text.size > 30 ? HTML.escape(query.text[0,30].rstrip(".")) + "&hellip;" : HTML.escape(query.text) %> - Invidious</title>
+<title><%= search_privacy ? "Search" : search_query %> - Invidious</title>
 <link rel="stylesheet" href="/css/search.css?v=<%= ASSET_COMMIT %>">
 <% end %>
 
