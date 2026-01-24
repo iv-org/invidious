@@ -463,7 +463,7 @@
     "footer_documentation": "Documentação",
     "footer_source_code": "Código-fonte",
     "footer_original_source_code": "Código-fonte original",
-    "footer_modfied_source_code": "Código-fonte alterado",
+    "footer_modified_source_code": "Código-fonte alterado",
     "Chinese": "Chinês",
     "search_filters_date_label": "Data de publicação",
     "search_filters_date_option_none": "Qualquer data",

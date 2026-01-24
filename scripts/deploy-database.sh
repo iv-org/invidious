@@ -18,7 +18,7 @@ sudo systemctl start postgresql.service
 sudo systemctl enable postgresql.service
 
 #
-# Create databse and user
+# Create database and user
 #
 
 if [ "$interactive" = "true" ]; then
@@ -51,7 +51,7 @@ if [ "$interactive" = "true" ]; then
 	echo "   NOTICE    "
 	echo "-------------"
 	echo
-	echo "Make sure that your postgreSQL's pg_hba.conf file contains the follwong"
+	echo "Make sure that your postgreSQL's pg_hba.conf file contains the following"
 	echo "lines before previous 'host' configurations:"
 	echo
 	echo "host  invidious  kemal  127.0.0.1/32  md5"

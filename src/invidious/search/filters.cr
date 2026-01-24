@@ -317,7 +317,7 @@ module Invidious::Search
       # Initialize output variable
       filters = Filters.new
 
-      # Get parameter, and check emptyness
+      # Get parameter, and check emptiness
       search_params = params["sp"]?
 
       if search_params.nil? || search_params.empty?

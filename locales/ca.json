@@ -128,7 +128,7 @@
     "user_saved_playlists": "`x` llistes de reproducció guardades",
     "adminprefs_modified_source_code_url_label": "URL al repositori de codi font modificat",
     "none": "cap",
-    "footer_modfied_source_code": "Codi font modificat",
+    "footer_modified_source_code": "Codi font modificat",
     "videoinfo_invidious_embed_link": "Incrusta l'enllaç",
     "download_subtitles": "Subtítols - `x` (.vtt)",
     "user_created_playlists": "`x`llistes de reproducció creades",

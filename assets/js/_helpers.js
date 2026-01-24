@@ -220,7 +220,7 @@ window.helpers = window.helpers || {
         }
 
         // TODO: fire 'storage' event for cookies
-        console.info('Storage: localStorage is disabled or unaccessible. Cookies used as fallback');
+        console.info('Storage: localStorage is disabled or inaccessible. Cookies used as fallback');
         return {
             get: function (key) {
                 const cookiePrefix = key + '=';

@@ -35,6 +35,6 @@ class VideoNotAvailableException < Exception
 end
 
 # Exception used to indicate that the JSON response from YT is missing
-# some important informations, and that the query should be sent again.
+# some important information, and that the query should be sent again.
 class RetryOnceException < Exception
 end

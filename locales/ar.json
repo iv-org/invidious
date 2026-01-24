@@ -352,7 +352,7 @@
     "search_filters_duration_option_long": "طويل (> 20 دقيقة)",
     "footer_source_code": "الكود المصدر",
     "footer_original_source_code": "الكود المصدر الأصلي",
-    "footer_modfied_source_code": "الكود المصدر المعدل",
+    "footer_modified_source_code": "الكود المصدر المعدل",
     "adminprefs_modified_source_code_url_label": "URL إلى مستودع الكود المصدر المعدل",
     "footer_documentation": "التوثيق",
     "footer_donate_page": "تبرّع",

@@ -20,6 +20,10 @@ Lint/ShadowingOuterLocalVar:
   Excluded:
   - src/invidious/helpers/tokens.cr
 
+# CI has a separate job to check for typos
+Lint/Typos:
+  Enabled: false
+
 Lint/NotNil:
   Enabled: false
 

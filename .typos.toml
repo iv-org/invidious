@@ -1,0 +1,33 @@
+[default]
+    extend-ignore-re = [
+    # Exclude various hard-coded YouTube IDs
+    "\\b[0-9A-z+/\\-_]{100,}((=|%3D){1,2})?\\b",
+    "\\b4qm.*(%3D{1,2})?\\b",
+    "UC[A-z0-9\\-]*\\b",
+    "EgI[A-z0-9\\-]{7}(%3D{1,2})",
+
+    # Ignore gsub regex
+    "gsub\\(?/.*/,?",
+
+    # TEST_IDs constant def
+    "TEST_IDS *= *\\{.*\\}",
+
+    # Ignore two-letter region strings
+    "(\\b|\")[a-zA-Z]{2}(\\b|\"),",
+
+    # Github handles
+    "@[a-zA-z\\-]{1,39}"
+    ]
+
+[default.extend-identifiers]
+    clen = "clen"
+
+[files]
+    extend-exclude = [
+        "/assets/js/videojs-youtube-annotations.min.js",
+        "/assets/videojs/**/*",
+        "/assets/fonts/ionicons.svg",
+        "/mocks/**/*.json",
+        "locales/*.json",
+        "CHANGELOG_legacy.md",
+    ]

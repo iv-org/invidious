@@ -297,7 +297,7 @@ https_only: false
 #popular_enabled: true
 
 ##
-## Enable/Disable statstics (available at /api/v1/stats).
+## Enable/Disable statistics (available at /api/v1/stats).
 ## The following data is available:
 ##   - Software name ("invidious") and version+branch (same data as
 ##     displayed in the footer, e.g: "2021.05.13-75e5b49" / "master")

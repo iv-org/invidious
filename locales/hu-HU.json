@@ -383,7 +383,7 @@
     "next_steps_error_message_refresh": "Újratöltés",
     "footer_donate_page": "Adakozás",
     "footer_source_code": "Forráskód",
-    "footer_modfied_source_code": "Módosított forráskód",
+    "footer_modified_source_code": "Módosított forráskód",
     "adminprefs_modified_source_code_url_label": "A módosított forráskód repositoryjának URL-je:",
     "preferences_automatic_instance_redirect_label": "Váltáskor másik Invidious oldal automatikus betöltése (redirect.invidious.io töltődik, ha nem működne): ",
     "preferences_region_label": "Ország tartalmainak mutatása: ",
