@@ -2,6 +2,14 @@
 
 -- DROP TABLE public.channel_videos;
 
+CREATE TYPE public.video_type AS ENUM
+(
+    'Video',
+    'Short',
+    'Livestream',
+    'Scheduled'
+);
+
 CREATE TABLE IF NOT EXISTS public.channel_videos
 (
   id text NOT NULL,
@@ -14,6 +22,7 @@ CREATE TABLE IF NOT EXISTS public.channel_videos
   live_now boolean,
   premiere_timestamp timestamp with time zone,
   views bigint,
+  video_type video_type,
   CONSTRAINT channel_videos_id_key UNIQUE (id)
 );
 

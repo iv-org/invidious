@@ -29,6 +29,17 @@ def get_subscription_feed(user, max_results = 40, page = 1)
   notifications = Invidious::Database::Users.select_notifications(user)
   view_name = "subscriptions_#{sha256(user.email)}"
 
+  types_to_fetch = [VideoType::Video, VideoType::Short, VideoType::Livestream, VideoType::Scheduled]
+  if user.preferences.hide_shorts
+    types_to_fetch.delete(VideoType::Short)
+  end
+  if user.preferences.hide_livestreams
+    [VideoType::Livestream, VideoType::Scheduled].each { |v| types_to_fetch.delete(v) }
+  end
+
+  types_to_fetch = types_to_fetch.map { |type| "'#{type}'" }.join(", ")
+  LOGGER.trace("Types to fetch: #{types_to_fetch}")
+
   if user.preferences.notifications_only && !notifications.empty?
     # Only show notifications
     notifications = Invidious::Database::ChannelVideos.select(notifications)
@@ -58,18 +69,10 @@ def get_subscription_feed(user, max_results = 40, page = 1)
         else
           values = "VALUES #{user.watched.map { |id| %(('#{id}')) }.join(",")}"
         end
-        if user.preferences.hide_shorts_and_live
-          videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} WHERE NOT id = ANY (#{values}) AND length_seconds > 0 ORDER BY ucid, published DESC", as: ChannelVideo)
-        else
-          videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} WHERE NOT id = ANY (#{values}) ORDER BY ucid, published DESC", as: ChannelVideo)
-        end
+        videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} WHERE NOT id = ANY (#{values}) AND video_type IN (#{types_to_fetch}) ORDER BY ucid, published DESC", as: ChannelVideo)
       else
         # Show latest video from each channel
-        if user.preferences.hide_shorts_and_live
-          videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} WHERE length_seconds > 0 ORDER BY ucid, published DESC", as: ChannelVideo)
-        else
-          videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} ORDER BY ucid, published DESC", as: ChannelVideo)
-        end
+          videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} WHERE video_type IN (#{types_to_fetch}) ORDER BY ucid, published DESC", as: ChannelVideo)
       end
 
       videos.sort_by!(&.published).reverse!
@@ -82,18 +85,10 @@ def get_subscription_feed(user, max_results = 40, page = 1)
         else
           values = "VALUES #{user.watched.map { |id| %(('#{id}')) }.join(",")}"
         end
-        if user.preferences.hide_shorts_and_live
-          videos = PG_DB.query_all("SELECT * FROM #{view_name} WHERE NOT id = ANY (#{values}) AND length_seconds > 0 ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
-        else
-          videos = PG_DB.query_all("SELECT * FROM #{view_name} WHERE NOT id = ANY (#{values}) ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
-        end
+          videos = PG_DB.query_all("SELECT * FROM #{view_name} WHERE NOT id = ANY (#{values}) AND video_type IN (#{types_to_fetch}) ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
       else
         # Sort subscriptions as normal
-        if user.preferences.hide_shorts_and_live
-          videos = PG_DB.query_all("SELECT * FROM #{view_name} WHERE length_seconds > 0 ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
-        else
-          videos = PG_DB.query_all("SELECT * FROM #{view_name} ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
-        end
+          videos = PG_DB.query_all("SELECT * FROM #{view_name} WHERE video_type IN (#{types_to_fetch}) ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
       end
     end
 
