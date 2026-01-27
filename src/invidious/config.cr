@@ -6,6 +6,52 @@ struct DBConfig
   property host : String
   property port : Int32
   property dbname : String
+
+  # How many connections to construct on start-up, and keep it there.
+  property initial_pool_size : Int32 = 1
+  # The maximum size of the connection pool
+  property max_pool_size : Int32 = 100
+  # The maximum amount of idle connections within the pool
+  # idle connections are defined as created connections that are
+  # sitting around in the pool. Exceeding this number will cause new connections
+  # to be created on checkout and then simply dropped on release, till the maximum pool size
+  # from which there will be a checkout timeout.
+  property max_idle_pool_size : Int32 = 100
+  # The maximum amount of seconds to wait for a connection to become
+  # available when all connections can be checked out, and the pool has
+  # reached its maximum size.
+  property checkout_timeout : Float32 = 5.0
+  # The number of tries allowed to establish a connection, reconnect, or retry
+  # the command in case of any network errors.
+  property retry_attempts : Int32 = 5
+  # The number of seconds between each retry
+  property retry_delay : Float32 = 1.0
+
+  def to_url
+    URI.new(
+      scheme: "postgres",
+      user: user,
+      password: password,
+      host: host,
+      port: port,
+      path: dbname,
+      query: get_connection_pool_query_string
+    )
+  end
+
+  # Creates the query parameters for configuring the connection pool
+  private def get_connection_pool_query_string
+    {% begin %}
+      {% pool_vars = @type.instance_vars.reject { |v| {"user", "password", "host", "port", "dbname"}.includes?(v.name.stringify) } %}
+      {% raise "Error unable to isolate database connection pool properties" if pool_vars.size > 6 %}
+
+      URI::Params.build do | build |
+        {% for vars in pool_vars %}
+          build.add {{vars.name.stringify}}, {{vars.name}}.to_s
+        {% end %}
+      end
+    {% end %}
+  end
 end
 
 struct SocketBindingConfig
@@ -286,18 +332,23 @@ class Config
     # Build database_url from db.* if it's not set directly
     if config.database_url.to_s.empty?
       if db = config.db
-        config.database_url = URI.new(
-          scheme: "postgres",
-          user: db.user,
-          password: db.password,
-          host: db.host,
-          port: db.port,
-          path: db.dbname,
-        )
+        config.database_url = db.to_url
       else
         puts "Config: Either database_url or db.* is required"
         exit(1)
       end
+    else
+      # Add default connection pool settings as needed
+      db_url_query_params = config.database_url.query_params
+
+      {% begin %}
+        {% pool_vars = DBConfig.instance_vars.reject { |v| {"user", "password", "host", "port", "dbname"}.includes?(v.name.stringify) } %}
+        {% for vars in pool_vars %}
+          db_url_query_params[{{vars.name.stringify}}] = db_url_query_params[{{vars.name.stringify}}]? || {{vars.default_value}}.to_s
+        {% end %}
+      {% end %}
+
+      config.database_url.query_params = db_url_query_params
     end
 
     # Check if the socket configuration is valid
