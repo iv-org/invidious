@@ -261,7 +261,7 @@ module Invidious::Routes::Channels
 
   def self.post(env)
     # /post/{postId}
-    id = env.params.url["id"]
+    id = URI.encode_www_form(env.params.url["id"])
     ucid = env.params.query["ucid"]?
 
     preferences = env.get("preferences").as(Preferences)
@@ -277,7 +277,7 @@ module Invidious::Routes::Channels
     nojs = nojs == "1"
 
     if !ucid.nil?
-      ucid = ucid.to_s
+      ucid = URI.encode_www_form(ucid.to_s)
       post_response = fetch_channel_community_post(ucid, id, locale, "json", thin_mode)
     else
       # resolve the url to get the author's UCID
@@ -292,7 +292,7 @@ module Invidious::Routes::Channels
 
     if nojs
       comments = Comments.fetch_community_post_comments(ucid, id)
-      comment_html = JSON.parse(Comments.parse_youtube(id, comments, "html", locale, thin_mode, is_post: true))["contentHtml"]
+      comment_html = JSON.parse(Comments.parse_youtube(id, comments, "html", locale, thin_mode, type: "post", ucid: ucid))["contentHtml"]
     end
     templated "post"
   end

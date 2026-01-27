@@ -4,7 +4,7 @@
 
 <div>
     <div id="post" class="comments post-comments">
-        <%= IV::Frontend::Comments.template_youtube(post_response.not_nil!, locale, thin_mode) %>
+        <%= IV::Frontend::Comments.template_youtube(post_response.not_nil!, locale, thin_mode, id, "post") %>
     </div>
 
     <% if nojs %>
