@@ -371,6 +371,16 @@
             <div class="pure-controls">
                 <button type="submit" class="pure-button pure-button-primary"><%= translate(locale, "Save preferences") %></button>
             </div>
-        </fieldset>
+
+            </fieldset>
+
+            <legend><%= translate(locale, "preferences_category_cookies") %></legend>
+            <%
+                url = "#{HOST_URL}/preferences?preferences=#{encoded_preferences}"
+            %>
+            <p><%= translate(locale, "preferences_cookie_desccription") %></p>
+            <div class="cookie-url-box">
+                <a href="<%= url %>"><%= url %></a>
+            </div>
     </form>
 </div>
