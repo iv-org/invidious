@@ -9,6 +9,7 @@ var options = {
     windowOpacity: ['0', '0.5', '1'],
     textOpacity: ['0.5', '1'],
     persistTextTrackSettings: true,
+    enableSourceset: false,
     controlBar: {
         children: [
             'playToggle',
@@ -22,6 +23,7 @@ var options = {
             'captionsButton',
             'audioTrackButton',
             'qualitySelector',
+            'QualityMenuButton',
             'playbackRateMenuButton',
             'fullscreenToggle'
         ]
@@ -45,7 +47,7 @@ embed_url = location.origin + '/embed/' + video_data.id + embed_url.search;
 
 var save_player_pos_key = 'save_player_pos';
 
-videojs.Vhs.xhr.beforeRequest = function(options) {
+videojs.Vhs.xhr.onRequest = function(options) {
     // set local if requested not videoplayback
     if (!options.uri.includes('videoplayback')) {
         if (!options.uri.includes('local=true'))
@@ -237,8 +239,9 @@ if (isMobile()) {
         operations_bar_element.append(share_element);
 
         if (!video_data.params.listen && video_data.params.quality === 'dash') {
-            var http_source_selector = document.getElementsByClassName('vjs-http-source-selector vjs-menu-button')[0];
+            var http_source_selector = document.getElementsByClassName('vjs-quality-menu-button vjs-menu-button')[0];
             operations_bar_element.append(http_source_selector);
+
         }
     });
 }
@@ -402,7 +405,6 @@ if (video_data.params.autoplay) {
 }
 
 if (!video_data.params.listen && video_data.params.quality === 'dash') {
-    player.httpSourceSelector();
 
     if (video_data.params.quality_dash !== 'auto') {
         player.ready(function () {
@@ -425,8 +427,8 @@ if (!video_data.params.listen && video_data.params.quality === 'dash') {
                                 break;
                         }
                 }
-                qualityLevels.forEach(function (level, index) {
-                    level.enabled = (index === targetQualityLevel);
+                player.qualityMenu({
+                    defaultResolution: qualityLevels[targetQualityLevel].height
                 });
             });
         });
@@ -779,7 +781,7 @@ addEventListener('keydown', function (e) {
 }());
 
 // Since videojs-share can sometimes be blocked, we defer it until last
-if (player.share) player.share(shareOptions);
+if (player.shareMenu) player.shareMenu();
 
 // show the preferred caption by default
 if (player_data.preferred_caption_found) {
