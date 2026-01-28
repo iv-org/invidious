@@ -570,5 +570,9 @@
     "First page": "الصفحة الأولى",
     "timeline_parse_error_placeholder_heading": "غير قادر على تحليل العنصر",
     "timeline_parse_error_placeholder_message": "واجه Invidious خطأ أثناء محاولة تحليل هذا العنصر. لمزيد من المعلومات انظر أدناه:",
-    "timeline_parse_error_show_technical_details": "عرض التفاصيل التقنية"
+    "timeline_parse_error_show_technical_details": "عرض التفاصيل التقنية",
+    "preferences_default_playlist": "قائمة التشغيل الافتراضية: . ",
+    "preferences_default_playlist_none": "لم يتم تعيين قائمة تشغيل افتراضية",
+    "Livestreams": "البث المباشر",
+    "dmca_content": "لا يمكن تنزيل هذا الفيديو على هذا المثيل بسبب إرسال خطاب انتهاك قانون الألفية الجديدة لحقوق طبع ونشر المواد الرقمية/حقوق الطبع والنشر إلى مسؤول المثيل."
 }
