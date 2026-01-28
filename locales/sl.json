@@ -536,5 +536,9 @@
     "channel_tab_posts_label": "Objave",
     "timeline_parse_error_placeholder_heading": "Elementa ni mogoče razčleniti",
     "timeline_parse_error_placeholder_message": "Invidious je naletel na napako pri poskusu razčlenitve tega elementa. Za več informacij glej spodaj:",
-    "timeline_parse_error_show_technical_details": "Pokaži tehnične podrobnosti"
+    "timeline_parse_error_show_technical_details": "Pokaži tehnične podrobnosti",
+    "preferences_default_playlist": "Privzeti seznam predvajanja: ",
+    "preferences_default_playlist_none": "Ni nastavljenega privzetega seznama predvajanja",
+    "Livestreams": "Prenosi v živo",
+    "dmca_content": "Tega videoposnetka ni mogoče prenesti v ta primerek zaradi pisma o kršitvi DMCA/avtorskih pravic, poslanega skrbniku primerka."
 }
