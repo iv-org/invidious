@@ -521,5 +521,7 @@
     "timeline_parse_error_placeholder_heading": "Nie można przeanalizować elementu",
     "timeline_parse_error_show_technical_details": "Pokaż szczegóły techniczne",
     "preferences_default_playlist_none": "Brak domyślnej playlisty",
-    "preferences_default_playlist": "Domyślna playlista: "
+    "preferences_default_playlist": "Domyślna playlista: ",
+    "Livestreams": "Na żywo",
+    "dmca_content": "Tego filmu nie można pobrać na tej instancji z powodu listu DMCA/o naruszeniu praw autorskich wysłanego do administratora instancji."
 }

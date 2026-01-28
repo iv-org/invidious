@@ -499,5 +499,12 @@
     "carousel_skip": "Αποφυγή εμφάνισης εικόνων",
     "First page": "Πρώτη σελίδα",
     "channel_tab_courses_label": "Μαθήματα",
-    "channel_tab_posts_label": "Δημοσιεύσεις"
+    "channel_tab_posts_label": "Δημοσιεύσεις",
+    "preferences_default_playlist": "Προεπιλεγμένη λίστα αναπαραγωγής: ",
+    "preferences_default_playlist_none": "Δεν έχει οριστεί προεπιλεγμένη λίστα αναπαραγωγής",
+    "Livestreams": "Ζωντανές μεταδόσεις",
+    "timeline_parse_error_placeholder_heading": "Δεν είναι δυνατή η ανάλυση του στοιχείου",
+    "timeline_parse_error_placeholder_message": "Το Invidious αντιμετώπισε σφάλμα κατά την προσπάθεια ανάλυσης αυτού του στοιχείου. Για περισσότερες πληροφορίες, δείτε παρακάτω:",
+    "timeline_parse_error_show_technical_details": "Εμφάνιση τεχνικών λεπτομερειών",
+    "dmca_content": "Αυτό το βίντεο δεν μπορεί να μεταφορτωθεί σε αυτήν την περίπτωση λόγω επιστολής παραβίασης DMCA/πνευματικών δικαιωμάτων που αποστάλη στον διαχειριστή της περίπτωσης."
 }

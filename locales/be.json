@@ -1,1 +1,8 @@
-{}
+{
+    "generic_channels_count_0": "{{count}} канал",
+    "generic_channels_count_1": "{{count}} каналы",
+    "generic_channels_count_2": "{{count}} каналаў",
+    "generic_views_count_0": "{{count}} прагляд",
+    "generic_views_count_1": "{{count}} прагляды",
+    "generic_views_count_2": "{{count}} праглядаў"
+}

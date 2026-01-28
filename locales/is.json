@@ -502,5 +502,9 @@
     "channel_tab_courses_label": "Kennsluefni",
     "timeline_parse_error_placeholder_heading": "Tekst ekki að meðhöndla þetta atriði",
     "timeline_parse_error_placeholder_message": "Invidious rakst á villu við að reyna að meðhöndla þetta atriði. Skoðaðu nánari upplýsingar hér fyrir neðan:",
-    "timeline_parse_error_show_technical_details": "Sýna nánari tæknilegar upplýsingar"
+    "timeline_parse_error_show_technical_details": "Sýna nánari tæknilegar upplýsingar",
+    "preferences_default_playlist": "Sjálfgefinn spilunarlisti: ",
+    "preferences_default_playlist_none": "Enginn sjálfgefinn spilunarlisti stilltur",
+    "Livestreams": "Bein streymi",
+    "dmca_content": "Ekki er hægt að sækja þetta myndskeið vegna þess að stjórnendum netþjónsins hefur borist bréf varðandi DMCA/höfundarréttarbrot."
 }

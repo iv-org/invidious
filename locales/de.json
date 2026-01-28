@@ -494,13 +494,17 @@
     "Search for videos": "Nach Videos suchen",
     "toggle_theme": "Thema wechseln",
     "Add to playlist: ": "Einer Wiedergabeliste hinzufügen: ",
-    "carousel_go_to": "Zu Element `x` springen",
-    "carousel_slide": "Seite {{current}} von {{total}}",
+    "carousel_go_to": "Zu Dia `x` springen",
+    "carousel_slide": "Dia {{current}} von {{total}}",
     "carousel_skip": "Galerie überspringen",
     "Filipino (auto-generated)": "Philippinisch (automatisch generiert)",
     "channel_tab_courses_label": "Kurse",
     "channel_tab_posts_label": "Beiträge",
     "timeline_parse_error_show_technical_details": "Technische Details anzeigen",
     "timeline_parse_error_placeholder_heading": "Element kann nicht geparsed werden",
-    "timeline_parse_error_placeholder_message": "Invidious ist beim Parsen dieses Elements auf einen Fehler gestossen. Für weitere Informationen siehe unten:"
+    "timeline_parse_error_placeholder_message": "Invidious ist beim Parsen dieses Elements auf einen Fehler gestossen. Für weitere Informationen siehe unten:",
+    "preferences_default_playlist": "Standard-Wiedergabeliste: ",
+    "preferences_default_playlist_none": "Keine Standard-Wiedergabeliste gesetzt",
+    "Livestreams": "Livestreams",
+    "dmca_content": "Dieses Video kann auf dieser Instanz aufgrund einer DMCA-/Urheberrechtsverletzungsmitteilung, die an den Instanzadministrator gesendet wurde, nicht heruntergeladen werden."
 }

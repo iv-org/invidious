@@ -487,5 +487,7 @@
     "timeline_parse_error_placeholder_heading": "無法解析項目",
     "timeline_parse_error_placeholder_message": "Invidious 在嘗試解析此項目時遇到錯誤。要取得更多資訊，請見下方：",
     "preferences_default_playlist": "預設播放清單： ",
-    "preferences_default_playlist_none": "未設定預設播放清單"
+    "preferences_default_playlist_none": "未設定預設播放清單",
+    "Livestreams": "即時串流",
+    "dmca_content": "由於收到一封針對本伺服器的數位千禧年版權法案 (DMCA)/版權侵權通知函，此影片無法在本伺服器上進行下載。"
 }

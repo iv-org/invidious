@@ -519,5 +519,9 @@
     "channel_tab_posts_label": "Post",
     "timeline_parse_error_show_technical_details": "Mostra i dettagli tecnici",
     "timeline_parse_error_placeholder_message": "Invidious ha riscontrato un errore tentando di leggere questo elemento. Per altre informazioni vedi di seguito:",
-    "timeline_parse_error_placeholder_heading": "Lettura elemento non riuscita"
+    "timeline_parse_error_placeholder_heading": "Lettura elemento non riuscita",
+    "preferences_default_playlist": "Playlist predefinita: ",
+    "preferences_default_playlist_none": "Nessuna playlist predefinita impostata",
+    "Livestreams": "Dirette",
+    "dmca_content": "Questo video non può essere scaricato su questa istanza a causa di una lettera di violazione DMCA/copyright inviata all'amministratore dell'istanza."
 }
