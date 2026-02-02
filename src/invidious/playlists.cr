@@ -359,6 +359,9 @@ def fetch_playlist(plid : String)
   thumbnail = playlist_info.dig?(
     "thumbnailRenderer", "playlistVideoThumbnailRenderer",
     "thumbnail", "thumbnails", 0, "url"
+  ).try &.as_s || playlist_info.dig?(
+    "thumbnailRenderer", "playlistCustomThumbnailRenderer",
+    "thumbnail", "thumbnails", 0, "url"
   ).try &.as_s
 
   views = 0_i64
