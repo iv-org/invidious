@@ -12,7 +12,10 @@
     <div class="pure-u-1-2 flex-left flexible">
         <div class="channel-profile">
             <img src="/ggpht<%= channel_profile_pic %>" alt="" />
-            <span class="channel-name"><%= author %></span><% if !channel.verified.nil? && channel.verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %>
+            <div class="channel-name-pronouns">
+                <span class="channel-name"><%= author %></span><% if !channel.verified.nil? && channel.verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %>
+                <% if !channel.pronouns.nil? %><br /><span class="channel-pronouns"><%= channel.pronouns %></span><% end %>
+            </div>
         </div>
     </div>
 
