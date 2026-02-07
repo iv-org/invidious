@@ -16,7 +16,8 @@ Livestream navigation, playlists, and channel metadata also see overdue fixes: T
   - Users see clearer feedback with Erroneous CAPTCHA messages, DMCA controls restored, and a footer link pointing at the current release (#5508, #5228, #4702)
 
 #### For instance owners
-  - Companion integration is sturdier: CSP is generated once, check identifiers persist, unwanted headers are stripped, and the helper hyperlink is fixed (#5497, #5575, #5595, #5491)
+  - Companion integration is sturdier: CSP is generated once, check identifiers persist, and the helper hyperlink is fixed (#5497, #5575, #5491)
+  - Proxied images and videoplayback strip unwanted response headers (shared header-strip list) (#5595)
   - Runtime and packaging updates pin docker/OCI builds to Crystal 1.16.3, bring an optional Crystal 1.18.2 + Alpine 3.23 image, and compile OpenSSL from source to mitigate the memory leak seen with Alpine-provided OpenSSL (#5604, #5577, #5574, #5441)
   - Configuration docs saw polish with unix socket instructions, refreshed HTTP proxy comments, and corrected README commands (#5347, #5586, #5607)
   - Server stability improves via a larger `max_request_line_size` that is required to be able to access some next pages of Youtube channels videos and a rewritten static file handler (#5566, #5338)
