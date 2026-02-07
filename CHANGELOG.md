@@ -36,7 +36,7 @@ Livestream navigation, playlists, and channel metadata also see overdue fixes: T
 #### For instance owners
   - Companion downloads, CSP reuse, and check id generation behave predictably even under load (#5561, #5497, #5575)
   - Proxy responses drop stray headers and HTTP proxy examples in the config were clarified (#5595, #5586)
-  - Docker/OCI builds were pinned to stable Crystal releases with OpenSSL bundled to avoid runtime surprises (#5604, #5577, #5441)
+  - Docker/OCI builds were pinned to stable Crystal releases with OpenSSL bundled to avoid memory leaks (#5604, #5577, #5441)
 
 #### For developers
   - README commit instructions, shard targets, and unix socket docs were corrected (#5607, #5608, #5347)
