@@ -6,7 +6,7 @@
 
 This release hardens the Invidious companion pipeline and cleans up a long list of UI papercuts. Companion downloads now work end-to-end, CSP headers and check identifiers are generated once and reused, proxy responses strip stray headers, and the final traces of the legacy signature helper are gone so the helper can be rolled out safely.
 
-Livestream navigation, playlists, and channel metadata also see overdue fixes: Trending once again lists livestreams, "Watch on YouTube" buttons stop jumping to arbitrary timestamps, playlist imports/API calls handle missing data, and channel pages now display creator pronouns and playlist thumbnails. Deployments benefit from OpenSSL being compiled into docker images, Crystal pinned back to 1.16.3 for docker and OCI builds, a rewritten static file handler, clarified README/HTTP proxy/unix socket docs, and dozens of smaller cleanups.
+Livestream navigation, playlists, and channel metadata also see overdue fixes: Trending once again lists livestreams, "Watch on YouTube" buttons stop jumping to arbitrary timestamps, playlist imports/API calls handle missing data, and channel pages now display creator pronouns and playlist thumbnails. Deployments benefit from compiling OpenSSL into docker images to mitigate a long-standing memory leak observed with Alpine-provided OpenSSL, Crystal pinned back to 1.16.3 for docker and OCI builds, a rewritten static file handler, clarified README/HTTP proxy/unix socket docs, and dozens of smaller cleanups.
 
 ### New features & important changes
 #### For Users
@@ -17,7 +17,7 @@ Livestream navigation, playlists, and channel metadata also see overdue fixes: T
 
 #### For instance owners
   - Companion integration is sturdier: CSP is generated once, check identifiers persist, unwanted headers are stripped, and the helper hyperlink is fixed (#5497, #5575, #5595, #5491)
-  - Runtime and packaging updates pin docker/OCI builds to Crystal 1.16.3, bring an optional Crystal 1.8.2 + Alpine 3.23 image, and compile OpenSSL directly (#5604, #5577, #5574, #5441)
+  - Runtime and packaging updates pin docker/OCI builds to Crystal 1.16.3, bring an optional Crystal 1.18.2 + Alpine 3.23 image, and compile OpenSSL from source to mitigate the memory leak seen with Alpine-provided OpenSSL (#5604, #5577, #5574, #5441)
   - Configuration docs saw polish with unix socket instructions, refreshed HTTP proxy comments, and corrected README commands (#5347, #5586, #5607)
   - Server stability improves via a larger `max_request_line_size` and a rewritten static file handler (#5566, #5338)
 
