@@ -126,13 +126,37 @@ function addCurrentTimeToURL(url, base) {
  */
 var timeupdate_last_ts = 5;
 
+/** 
+ * Global variable to save the total video time watched (in seconds).
+ */
+let time_watched = 0;
+
 /**
- * Callback that updates the timestamp on all external links
+ * The duration of a short video (in seconds).
+ * This value is used to determine whether the video should be watched fully before
+ * being marked as watched.
+ * 
+ * @default 30
+ */
+const SHORT_VIDEO_DURATION = 30;
+
+/**
+ * The duration (in seconds) after which a video should be marked as watched.
+ * 
+ * @default 30
+ */
+const MARK_WATCHED_AFTER_DURATION = SHORT_VIDEO_DURATION;
+
+/**
+ * Callback that updates the timestamp on all external links and marks the video as watched after:
+ * - fully watching short videos (<=30 seconds)
+ * - time watched reaches 30 seconds for long videos (>30 seconds)
  */
 player.on('timeupdate', function () {
     // Only update once every second
     let current_ts = Math.floor(player.currentTime());
-    if (current_ts > timeupdate_last_ts) timeupdate_last_ts = current_ts;
+    const last_player_time = timeupdate_last_ts;
+    if (current_ts !== timeupdate_last_ts) timeupdate_last_ts = current_ts;
     else return;
 
     // YouTube links
@@ -166,6 +190,49 @@ player.on('timeupdate', function () {
         let base_url_iv_other = elem_iv_other.getAttribute('data-base-url');
         elem_iv_other.href = addCurrentTimeToURL(base_url_iv_other, domain);
     }
+
+    // Only increase time watched when the time difference is one second and the video has not been marked as watched
+    const isOneSecondDifference = current_ts - last_player_time === 1;
+    const exceedsMarkWatchedAfterDuration = time_watched > MARK_WATCHED_AFTER_DURATION;
+
+    if (!isOneSecondDifference || exceedsMarkWatchedAfterDuration) return;
+    
+    time_watched += 1;
+
+    // Check if time watched exceeds 30 seconds or the video is fully watched
+    const absolute_video_duration = Math.floor(player.duration());
+    const watched_at_timestamp = absolute_video_duration > SHORT_VIDEO_DURATION
+        ? MARK_WATCHED_AFTER_DURATION
+        : absolute_video_duration;
+
+    if (time_watched !== watched_at_timestamp) return;
+
+    const video_id = document.querySelector('[name="id"]').value;
+    const $csrfToken = document.querySelector('[name="csrf_token"]');
+
+    // User is not logged in
+    if ($csrfToken === null) return;
+
+    // Mark the video as watched
+    const csrf_token = $csrfToken.value;
+
+    const params = new URLSearchParams({
+        action: "mark_watched",
+        redirect: false,
+        id: video_id
+    });
+
+    const url = `/watch_ajax?${params}`;
+
+    helpers.xhr('POST', url, { payload: `csrf_token=${csrf_token}` }, {
+        on200: () => {
+            console.info(`Marked video ${video_id} as watched`);
+        },
+        onNon200: ({ response }) => {
+            console.error(`Something went wrong while marking video ${video_id} as watched:`, response);
+        }
+    });
+
 });
 
 

@@ -67,7 +67,7 @@ module Invidious::Routes::Watch
     end
     env.params.query.delete_all("iv_load_policy")
 
-    if watched && preferences.watch_history
+    if watched && (env.params.query["mark_watched"]? || "1") == "1"
       Invidious::Database::Users.mark_watched(user.as(User), id)
     end
 
