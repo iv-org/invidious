@@ -180,6 +180,9 @@ class Config
   # Playlist length limit
   property playlist_length_limit : Int32 = 500
 
+  # Disable easy to abuse API endpoints
+  property disable_api : Bool = false
+
   def disabled?(option)
     case disabled = CONFIG.disable_proxy
     when Bool
