@@ -118,9 +118,23 @@ function addCurrentTimeToURL(url, base) {
 }
 
 /**
+ * Global variable to save the last timestamp (in full seconds) at which the external
+ * links were updated by the 'timeupdate' callback below.
+ *
+ * It is initialized to 5s so that the video will always restart from the beginning
+ * if the user hasn't really started watching before switching to the other website.
+ */
+var timeupdate_last_ts = 5;
+
+/**
  * Callback that updates the timestamp on all external links
  */
 player.on('timeupdate', function () {
+    // Only update once every second
+    let current_ts = Math.floor(player.currentTime());
+    if (current_ts != timeupdate_last_ts) timeupdate_last_ts = current_ts;
+    else return;
+
     // YouTube links
 
     if (!video_data.live_now) {
@@ -129,7 +143,7 @@ player.on('timeupdate', function () {
             let base_url_yt_watch = elem_yt_watch.getAttribute('data-base-url');
             elem_yt_watch.href = addCurrentTimeToURL(base_url_yt_watch);
         }
-        
+
         let elem_yt_embed = document.getElementById('link-yt-embed');
         if (elem_yt_embed) {
             let base_url_yt_embed = elem_yt_embed.getAttribute('data-base-url');
@@ -146,7 +160,7 @@ player.on('timeupdate', function () {
         let base_url_iv_embed = elem_iv_embed.getAttribute('data-base-url');
         elem_iv_embed.href = addCurrentTimeToURL(base_url_iv_embed, domain);
     }
-    
+
     let elem_iv_other = document.getElementById('link-iv-other');
     if (elem_iv_other) {
         let base_url_iv_other = elem_iv_other.getAttribute('data-base-url');
@@ -614,7 +628,7 @@ function toggle_caption_window() {
     player.textTrackSettings.setValues({ windowOpacity: options.windowOpacity[newIndex] });
     update_captions();
 }
-  
+
 function toggle_caption_opacity() {
     const numOptions = options.textOpacity.length;
     const textOpacity = player.textTrackSettings.getValues().textOpacity || '1';
@@ -719,7 +733,7 @@ addEventListener('keydown', function (e) {
 
         case '>': action = increase_playback_rate.bind(this, 1); break;
         case '<': action = increase_playback_rate.bind(this, -1); break;
-        
+
         case '=': action = increase_caption_size.bind(this, 1); break;
         case '-': action = increase_caption_size.bind(this, -1); break;
 
