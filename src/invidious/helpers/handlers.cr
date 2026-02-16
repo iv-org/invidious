@@ -133,6 +133,29 @@ class APIHandler < Kemal::Handler
   end
 end
 
+class DisableAPIHandler < Kemal::Handler
+  # Blocks unauthenticated API endpoints when `enable_api` is false.
+  # Authenticated endpoints (/api/v1/auth/*) and stats are excluded.
+  {% for method in %w(GET POST PUT HEAD DELETE PATCH OPTIONS) %}
+  only ["/api/v1/*"], {{method}}
+  {% end %}
+  exclude ["/api/v1/auth/*"], "GET"
+  exclude ["/api/v1/auth/*"], "POST"
+  exclude ["/api/v1/auth/*"], "DELETE"
+  exclude ["/api/v1/auth/*"], "PATCH"
+  exclude ["/api/v1/auth/*"], "PUT"
+  exclude ["/api/v1/stats"], "GET"
+
+  def call(env)
+    if only_match?(env) && !exclude_match?(env) && !CONFIG.enable_api
+      env.response.content_type = "application/json"
+      env.response.status_code = 403
+      return {"error" => "The API has been disabled by the administrator."}.to_json
+    end
+    call_next env
+  end
+end
+
 class DenyFrame < Kemal::Handler
   exclude ["/embed/*"]
 

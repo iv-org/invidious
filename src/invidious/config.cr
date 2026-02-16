@@ -127,6 +127,10 @@ class Config
   property login_enabled : Bool = true
   property registration_enabled : Bool = true
   property statistics_enabled : Bool = false
+  # When set to false, disables the unauthenticated API endpoints
+  # (videos, channels, search, etc.) that can be abused by bots.
+  # Authenticated API endpoints (/api/v1/auth/*) are unaffected.
+  property enable_api : Bool = true
   property admins : Array(String) = [] of String
   property external_port : Int32? = nil
   property default_user_preferences : ConfigPreferences = ConfigPreferences.from_yaml("")
