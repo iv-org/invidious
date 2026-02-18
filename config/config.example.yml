@@ -53,7 +53,7 @@ db:
 ##
 ## When this setting is commented out, Invidious companion is not used.
 ## Otherwise, Invidious will proxy the requests to Invidious companion.
-## 
+##
 ## Note: multiple URL can be configured. In this case, Invidious will
 ## randomly pick one every time video data needs to be retrieved. This
 ## URL is then kept in the video metadata cache to allow video playback
@@ -63,7 +63,7 @@ db:
 ## The parameter private_url is required for the internal communication
 ## between Invidious companion and Invidious.
 ##
-## The optional parameter public_url is the public URL from which 
+## The optional parameter public_url is the public URL from which
 ## Invidious companion is listening to the requests from the user(s).
 ## When this setting is commented out, Invidious proxy all requests to
 ## Invidious companion. Useful for simple setups.
@@ -232,7 +232,7 @@ https_only: false
 ## Configuration for using a HTTP proxy
 ## If unset, then no HTTP proxy will be used.
 ## Proxy type supported: HTTP, HTTPS
-## 
+##
 ## This is not used for loading the video streams from YouTube servers (circumvent YouTube restrictions)
 ## Please instead configure the proxy in Invidious companion:
 ## https://github.com/iv-org/invidious-companion/blob/master/config/config.example.toml
@@ -885,7 +885,7 @@ default_user_preferences:
   ## Default: true
   ##
   #vr_mode: true
-  
+
   ##
   ## Save the playback position
   ## Allow to continue watching at the previous position when
