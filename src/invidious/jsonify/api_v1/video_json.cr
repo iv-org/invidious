@@ -22,7 +22,7 @@ module Invidious::JSONify::APIv1
       json.field "description", video.description
       json.field "descriptionHtml", video.description_html
       json.field "published", video.published.to_unix
-      json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published, locale))
+      json.field "publishedText", I18n.translate(locale, "`x` ago", recode_date(video.published, locale))
       json.field "keywords", video.keywords
 
       json.field "viewCount", video.views
@@ -268,7 +268,7 @@ module Invidious::JSONify::APIv1
                 json.field "viewCountText", rv["short_view_count"]?
                 json.field "published", rv["published"]?
                 if rv["published"]?.try &.presence
-                  json.field "publishedText", translate(locale, "`x` ago", recode_date(Time.parse_rfc3339(rv["published"].to_s), locale))
+                  json.field "publishedText", I18n.translate(locale, "`x` ago", recode_date(Time.parse_rfc3339(rv["published"].to_s), locale))
                 else
                   json.field "publishedText", ""
                 end
