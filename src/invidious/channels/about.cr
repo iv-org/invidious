@@ -185,7 +185,7 @@ def get_about_info(ucid, locale) : AboutChannel
       end
 
       # This is to prevent processing more metadata parts if we already have
-      # all the parts we care about, which are the ones bellow
+      # all the parts we care about, which are the ones below
       break if sub_count != 0 && !pronouns.nil? && !author_handle.nil?
     end
   end
