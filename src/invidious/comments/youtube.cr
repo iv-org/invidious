@@ -254,7 +254,7 @@ module Invidious::Comments
                 end
 
                 content_html = html_content || ""
-                json.field "content", html_to_content(content_html)
+                json.field "content", Helpers.html_to_content(content_html)
                 json.field "contentHtml", content_html
 
                 if published_text != nil

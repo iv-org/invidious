@@ -53,7 +53,7 @@ struct SearchVideo
             xml.element("img", src: "#{HOST_URL}/vi/#{self.id}/mqdefault.jpg")
           end
 
-          xml.element("p", style: "word-break:break-word;white-space:pre-wrap") { xml.text html_to_content(self.description_html) }
+          xml.element("p", style: "word-break:break-word;white-space:pre-wrap") { xml.text Helpers.html_to_content(self.description_html) }
         end
       end
 
@@ -63,7 +63,7 @@ struct SearchVideo
         xml.element("media:title") { xml.text self.title }
         xml.element("media:thumbnail", url: "#{HOST_URL}/vi/#{self.id}/mqdefault.jpg",
           width: "320", height: "180")
-        xml.element("media:description") { xml.text html_to_content(self.description_html) }
+        xml.element("media:description") { xml.text Helpers.html_to_content(self.description_html) }
       end
 
       xml.element("media:community") do
@@ -111,7 +111,7 @@ struct SearchVideo
         Invidious::JSONify::APIv1.thumbnails(json, self.id)
       end
 
-      json.field "description", html_to_content(self.description_html)
+      json.field "description", Helpers.html_to_content(self.description_html)
       json.field "descriptionHtml", self.description_html
 
       json.field "viewCount", self.views
@@ -255,7 +255,7 @@ struct SearchChannel
       json.field "videoCount", self.video_count
       json.field "channelHandle", self.channel_handle
 
-      json.field "description", html_to_content(self.description_html)
+      json.field "description", Helpers.html_to_content(self.description_html)
       json.field "descriptionHtml", self.description_html
     end
   end
