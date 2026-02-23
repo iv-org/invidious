@@ -18,9 +18,11 @@
                     <br/>
                     <% if !channel.channel_handle.nil? %>
                     <span class="channel-metadata-item"><b><%= channel.channel_handle %></b></span>
-                    <span>•</span>
                     <% end %>
-                    <% if !channel.pronouns.nil? %><span class="channel-metadata-item"><%= channel.pronouns %></span><% end %>
+                    <% if !channel.pronouns.nil? %>
+                    <span>•</span>
+                    <span class="channel-metadata-item"><%= channel.pronouns %></span>
+                    <% end %>
                 </span>
             </span>
         </div>
