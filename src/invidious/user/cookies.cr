@@ -14,7 +14,7 @@ struct Invidious::User
       # Not secure if it's being accessed from I2P
       # Browsers expect the domain to include https. On I2P there is no HTTPS
       # Tor browser works fine with secure being true
-      if domain.try &.split(".").last == "i2p"
+      if (domain.try &.split(".").last == "i2p") && @@secure
         @@secure = false
       end
 
@@ -35,7 +35,7 @@ struct Invidious::User
       # Not secure if it's being accessed from I2P
       # Browsers expect the domain to include https. On I2P there is no HTTPS
       # Tor browser works fine with secure being true
-      if domain.try &.split(".").last == "i2p"
+      if (domain.try &.split(".").last == "i2p") && @@secure
         @@secure = false
       end
 
