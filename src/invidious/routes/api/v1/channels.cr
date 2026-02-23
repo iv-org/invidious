@@ -48,7 +48,7 @@ module Invidious::Routes::API::V1::Channels
       # TODO: Refactor into `to_json` for InvidiousChannel
       json.object do
         json.field "author", channel.author
-        json.field "authorHandle", channel.author_handle
+        json.field "channelHandle", channel.channel_handle
         json.field "authorId", channel.ucid
         json.field "authorUrl", channel.author_url
 

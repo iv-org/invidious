@@ -16,8 +16,8 @@
                 <span class="channel-name"><%= author %></span><% if !channel.verified.nil? && channel.verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %>
                 <span class="channel-metadata">
                     <br/>
-                    <% if !channel.author_handle.nil? %>
-                    <span class="channel-metadata-item"><b><%= channel.author_handle %></b></span>
+                    <% if !channel.channel_handle.nil? %>
+                    <span class="channel-metadata-item"><b><%= channel.channel_handle %></b></span>
                     <span>•</span>
                     <% end %>
                     <% if !channel.pronouns.nil? %><span class="channel-metadata-item"><%= channel.pronouns %></span><% end %>
