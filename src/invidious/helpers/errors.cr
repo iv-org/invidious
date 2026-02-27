@@ -199,7 +199,7 @@ def error_redirect_helper(env : HTTP::Server::Context)
       if video_id.presence
         params.delete("v")
         if params.present?
-          embed_link = "https://youtube.com/embed/#{video_id}?#{params.to_s}"
+          embed_link = "https://youtube.com/embed/#{video_id}?#{params}"
         else
           embed_link = "https://youtube.com/embed/#{video_id}"
         end
