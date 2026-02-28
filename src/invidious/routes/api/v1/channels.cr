@@ -104,6 +104,7 @@ module Invidious::Routes::API::V1::Channels
         json.field "tabs", channel.tabs
         json.field "tags", channel.tags
         json.field "authorVerified", channel.verified
+        json.field "pronouns", channel.pronouns
 
         json.field "latestVideos" do
           json.array do

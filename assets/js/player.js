@@ -143,7 +143,7 @@ player.on('timeupdate', function () {
             let base_url_yt_watch = elem_yt_watch.getAttribute('data-base-url');
             elem_yt_watch.href = addCurrentTimeToURL(base_url_yt_watch);
         }
-        
+
         let elem_yt_embed = document.getElementById('link-yt-embed');
         if (elem_yt_embed) {
             let base_url_yt_embed = elem_yt_embed.getAttribute('data-base-url');
@@ -160,11 +160,17 @@ player.on('timeupdate', function () {
         let base_url_iv_embed = elem_iv_embed.getAttribute('data-base-url');
         elem_iv_embed.href = addCurrentTimeToURL(base_url_iv_embed, domain);
     }
-    
+
     let elem_iv_other = document.getElementById('link-iv-other');
     if (elem_iv_other) {
         let base_url_iv_other = elem_iv_other.getAttribute('data-base-url');
         elem_iv_other.href = addCurrentTimeToURL(base_url_iv_other, domain);
+    }
+
+    let elem_iv_listen = document.getElementById('link-iv-listen');
+    if (elem_iv_listen) {
+        let base_url_iv_listen = elem_iv_listen.getAttribute('data-base-url');
+        elem_iv_listen.href = addCurrentTimeToURL(base_url_iv_listen, domain);
     }
 });
 
@@ -628,7 +634,7 @@ function toggle_caption_window() {
     player.textTrackSettings.setValues({ windowOpacity: options.windowOpacity[newIndex] });
     update_captions();
 }
-  
+
 function toggle_caption_opacity() {
     const numOptions = options.textOpacity.length;
     const textOpacity = player.textTrackSettings.getValues().textOpacity || '1';
@@ -733,7 +739,7 @@ addEventListener('keydown', function (e) {
 
         case '>': action = increase_playback_rate.bind(this, 1); break;
         case '<': action = increase_playback_rate.bind(this, -1); break;
-        
+
         case '=': action = increase_caption_size.bind(this, 1); break;
         case '-': action = increase_caption_size.bind(this, -1); break;
 

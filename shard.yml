@@ -1,9 +1,13 @@
 name: invidious
-version: 2.20250913.0-dev
+version: 2.20260207.0-dev
 
 authors:
   - Invidious team <contact@invidious.io>
   - Contributors!
+
+targets:
+  invidious:
+    main: src/invidious.cr
 
 description: |
    Invidious is an alternative front-end to YouTube 
@@ -38,7 +42,7 @@ development_dependencies:
 
 crystal: ">= 1.10.0, < 2.0.0"
 
-license: AGPLv3
+license: AGPL-3.0-only
 
 repository: https://github.com/iv-org/invidious
 homepage: https://invidious.io

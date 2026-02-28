@@ -3,15 +3,28 @@
 # IPv6 addresses.
 #
 class TCPSocket
-  def initialize(host, port, dns_timeout = nil, connect_timeout = nil, blocking = false, family = Socket::Family::UNSPEC)
-    Addrinfo.tcp(host, port, timeout: dns_timeout, family: family) do |addrinfo|
-      super(addrinfo.family, addrinfo.type, addrinfo.protocol, blocking)
-      connect(addrinfo, timeout: connect_timeout) do |error|
-        close
-        error
+  {% if compare_versions(Crystal::VERSION, "1.18.0-dev") >= 0 %}
+    def initialize(host : String, port, dns_timeout = nil, connect_timeout = nil, blocking = false, family = Socket::Family::UNSPEC)
+      Addrinfo.tcp(host, port, timeout: dns_timeout, family: family) do |addrinfo|
+        super(family: addrinfo.family, type: addrinfo.type, protocol: addrinfo.protocol)
+        Socket.set_blocking(self.fd, blocking)
+        connect(addrinfo, timeout: connect_timeout) do |error|
+          close
+          error
+        end
       end
     end
-  end
+  {% else %}
+    def initialize(host : String, port, dns_timeout = nil, connect_timeout = nil, blocking = false, family = Socket::Family::UNSPEC)
+      Addrinfo.tcp(host, port, timeout: dns_timeout, family: family) do |addrinfo|
+        super(addrinfo.family, addrinfo.type, addrinfo.protocol, blocking)
+        connect(addrinfo, timeout: connect_timeout) do |error|
+          close
+          error
+        end
+      end
+    end
+  {% end %}
 end
 
 # :ditto:

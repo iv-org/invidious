@@ -107,7 +107,11 @@ struct Playlist
 
       json.field "author", self.author
       json.field "authorId", self.ucid
-      json.field "authorUrl", "/channel/#{self.ucid}"
+      if !self.ucid.empty?
+        json.field "authorUrl", "/channel/#{self.ucid}"
+      else
+        json.field "authorUrl", ""
+      end
       json.field "subtitle", self.subtitle
 
       json.field "authorThumbnails" do
@@ -358,6 +362,9 @@ def fetch_playlist(plid : String)
 
   thumbnail = playlist_info.dig?(
     "thumbnailRenderer", "playlistVideoThumbnailRenderer",
+    "thumbnail", "thumbnails", 0, "url"
+  ).try &.as_s || playlist_info.dig?(
+    "thumbnailRenderer", "playlistCustomThumbnailRenderer",
     "thumbnail", "thumbnails", 0, "url"
   ).try &.as_s
 

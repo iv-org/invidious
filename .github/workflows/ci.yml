@@ -38,17 +38,17 @@ jobs:
       matrix:
         stable: [true]
         crystal:
-          - 1.12.2
-          - 1.13.3
           - 1.14.1
           - 1.15.1
           - 1.16.3
+          - 1.17.1
+          - 1.18.2
         include:
           - crystal: nightly
             stable: false
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
 
@@ -63,7 +63,7 @@ jobs:
           crystal: ${{ matrix.crystal }}
 
       - name: Cache Shards
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ./lib
@@ -96,7 +96,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Use ARM64 Dockerfile if ARM64
         if: ${{ matrix.name == 'ARM64' }}
@@ -128,7 +128,7 @@ jobs:
     continue-on-error: true
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: true
 
@@ -139,7 +139,7 @@ jobs:
           crystal: latest
 
       - name: Cache Shards
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ./lib

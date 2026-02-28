@@ -67,23 +67,13 @@ rescue ex
   puts "Check your 'config.yml' database settings or PostgreSQL settings."
   exit(1)
 end
-ARCHIVE_URL = URI.parse("https://archive.org")
-PUBSUB_URL  = URI.parse("https://pubsubhubbub.appspot.com")
-REDDIT_URL  = URI.parse("https://www.reddit.com")
-YT_URL      = URI.parse("https://www.youtube.com")
-HOST_URL    = make_host_url(Kemal.config)
-
-CHARS_SAFE         = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
-TEST_IDS           = {"AgbeGFYluEA", "BaW_jenozKc", "a9LDPn-MO4I", "ddFvjfvPnqk", "iqKdEhx-dD4"}
+HOST_URL           = make_host_url(Kemal.config)
 MAX_ITEMS_PER_PAGE = 1500
-
-REQUEST_HEADERS_WHITELIST  = {"accept", "accept-encoding", "cache-control", "content-length", "if-none-match", "range"}
-RESPONSE_HEADERS_BLACKLIST = {"access-control-allow-origin", "alt-svc", "server"}
-HTTP_CHUNK_SIZE            = 10485760 # ~10MB
 
 CURRENT_BRANCH  = {{ "#{`git branch | sed -n '/* /s///p'`.strip}" }}
 CURRENT_COMMIT  = {{ "#{`git rev-list HEAD --max-count=1 --abbrev-commit`.strip}" }}
 CURRENT_VERSION = {{ "#{`git log -1 --format=%ci | awk '{print $1}' | sed s/-/./g`.strip}" }}
+CURRENT_TAG     = {{ "#{`git tag --points-at HEAD`.strip}" }}
 
 # This is used to determine the `?v=` on the end of file URLs (for cache busting). We
 # only need to expire modified assets, so we can use this to find the last commit that changes
@@ -96,7 +86,7 @@ SOFTWARE = {
   "branch"  => "#{CURRENT_BRANCH}",
 }
 
-YT_POOL = YoutubeConnectionPool.new(YT_URL, capacity: CONFIG.pool_size)
+YT_POOL = YoutubeConnectionPool.new(URI.parse("https://www.youtube.com"), capacity: CONFIG.pool_size)
 
 # Image request pool
 
@@ -170,15 +160,6 @@ Invidious::Database.check_integrity(CONFIG)
   {% puts "\nDone checking player dependencies, now compiling Invidious...\n" %}
 {% end %}
 
-# Misc
-
-DECRYPT_FUNCTION =
-  if sig_helper_address = CONFIG.signature_server.presence
-    IV::DecryptFunction.new(sig_helper_address)
-  else
-    nil
-  end
-
 # Start jobs
 
 if CONFIG.channel_threads > 0
@@ -231,19 +212,25 @@ error 500 do |env, exception|
   error_template(500, exception)
 end
 
-static_headers do |env|
-  env.response.headers.add("Cache-Control", "max-age=2629800")
-end
-
 # Init Kemal
-
-public_folder "assets"
 
 Kemal.config.powered_by_header = false
 add_handler FilteredCompressHandler.new
 add_handler APIHandler.new
 add_handler AuthHandler.new
 add_handler DenyFrame.new
+
+{% if compare_versions(Crystal::VERSION, "1.17.0-dev") >= 0 %}
+  Kemal.config.serve_static = false
+  add_handler Invidious::HttpServer::StaticAssetsHandler.new("assets", directory_listing: false)
+{% else %}
+  public_folder "assets"
+
+  static_headers do |env|
+    env.response.headers.add("Cache-Control", "max-age=2629800")
+  end
+{% end %}
+
 add_context_storage_type(Array(String))
 add_context_storage_type(Preferences)
 add_context_storage_type(Invidious::User)
@@ -258,6 +245,8 @@ Kemal.config.app_name = "Invidious"
 {% end %}
 
 Kemal.run do |config|
+  config.server.not_nil!.max_request_line_size = 16384
+
   if socket_binding = CONFIG.socket_binding
     File.delete?(socket_binding.path)
     # Create a socket and set its desired permissions

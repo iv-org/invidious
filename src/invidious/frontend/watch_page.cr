@@ -23,6 +23,10 @@ module Invidious::Frontend::WatchPage
       return "<p id=\"download\">#{translate(locale, "Download is disabled")}</p>"
     end
 
+    if CONFIG.dmca_content.includes?(video.id)
+      return "<p id=\"download\">#{translate(locale, "dmca_content")}</p>"
+    end
+
     url = "/download"
     if (CONFIG.invidious_companion.present?)
       invidious_companion = CONFIG.invidious_companion.sample
@@ -32,7 +36,7 @@ module Invidious::Frontend::WatchPage
     return String.build(4000) do |str|
       str << "<form"
       str << " class=\"pure-form pure-form-stacked\""
-      str << " action='#{url}'"
+      str << " action='" << HTML.escape(url) << "'"
       str << " method='post'"
       str << " rel='noopener noreferrer'"
       str << " target='_blank'>"

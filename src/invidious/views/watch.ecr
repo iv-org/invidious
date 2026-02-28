@@ -79,11 +79,11 @@ we're going to need to do it here in order to allow for translations.
     <h1>
         <%= title %>
         <% if params.listen %>
-            <a title="<%=translate(locale, "Video mode")%>" href="/watch?<%= env.params.query %>&listen=0">
+            <a title="<%=translate(locale, "Video mode")%>" id="link-iv-listen" data-base-url="/watch?<%= env.params.query %>&listen=0" href="/watch?<%= env.params.query %>&listen=0">
                 <i class="icon ion-ios-videocam"></i>
             </a>
         <% else %>
-            <a title="<%=translate(locale, "Audio mode")%>" href="/watch?<%= env.params.query %>&listen=1">
+            <a title="<%=translate(locale, "Audio mode")%>" id="link-iv-listen" data-base-url="/watch?<%= env.params.query %>&listen=1" href="/watch?<%= env.params.query %>&listen=1">
                 <i class="icon ion-md-headset"></i>
             </a>
         <% end %>
@@ -125,7 +125,7 @@ we're going to need to do it here in order to allow for translations.
                     end
                 -%>
                 <a id="link-yt-watch" rel="noreferrer noopener" data-base-url="<%= link_yt_watch %>" href="<%= link_yt_watch %>"><%= translate(locale, "videoinfo_watch_on_youTube") %></a>
-                (<a id="link-yt-embed" rel="noreferrer noopener" data-base-url="<%= link_yt_embed %>" href="<%= link_yt_embed %>"><%= translate(locale, "videoinfo_youTube_embed_link") %></a>)
+                (<a id="link-yt-embed" rel="noopener" referrerpolicy="origin-when-cross-origin" data-base-url="<%= link_yt_embed %>" href="<%= link_yt_embed %>"><%= translate(locale, "videoinfo_youTube_embed_link") %></a>)
             </span>
 
             <p id="watch-on-another-invidious-instance">
@@ -230,7 +230,7 @@ we're going to need to do it here in order to allow for translations.
                         <% if !video.author_thumbnail.empty? %>
                             <img src="/ggpht<%= URI.parse(video.author_thumbnail).request_target %>" alt="" />
                         <% end %>
-                        <span id="channel-name"><%= author %><% if !video.author_verified.nil? && video.author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></span>
+                        <span id="channel-name" class="channel-name"><%= author %><% if !video.author_verified.nil? && video.author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></span>
                     </div>
                 </a>
             </div>

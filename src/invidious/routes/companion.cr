@@ -1,5 +1,5 @@
 module Invidious::Routes::Companion
-  # /companion
+  # GET /companion
   def self.get_companion(env)
     url = env.request.path
     if env.request.query
@@ -9,6 +9,23 @@ module Invidious::Routes::Companion
     begin
       COMPANION_POOL.client do |wrapper|
         wrapper.client.get(url, env.request.headers) do |resp|
+          return self.proxy_companion(env, resp)
+        end
+      end
+    rescue ex
+    end
+  end
+
+  # POST /companion
+  def self.post_companion(env)
+    url = env.request.path
+    if env.request.query
+      url += "?#{env.request.query}"
+    end
+
+    begin
+      COMPANION_POOL.client do |wrapper|
+        wrapper.client.post(url, env.request.headers, env.request.body) do |resp|
           return self.proxy_companion(env, resp)
         end
       end

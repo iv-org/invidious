@@ -1,4 +1,16 @@
 module Invidious::Routes::BeforeAll
+  struct CompanionCSP
+    property companion_urls : String = ""
+
+    def initialize
+      self.companion_urls = CONFIG.invidious_companion.reject(&.builtin_proxy).map do |companion|
+        "#{companion.public_url.scheme}://#{companion.public_url.host}#{companion.public_url.port ? ":#{companion.public_url.port}" : ""}"
+      end.join(" ")
+    end
+  end
+
+  private COMPANION_CSP = CompanionCSP.new
+
   def self.handle(env)
     preferences = Preferences.from_json("{}")
 
@@ -35,9 +47,9 @@ module Invidious::Routes::BeforeAll
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data:",
       "font-src 'self' data:",
-      "connect-src 'self'",
+      "connect-src 'self' " + COMPANION_CSP.companion_urls,
       "manifest-src 'self'",
-      "media-src 'self' blob:",
+      "media-src 'self' blob: " + COMPANION_CSP.companion_urls,
       "child-src 'self' blob:",
       "frame-src 'self'",
       "frame-ancestors " + frame_ancestors,
@@ -94,8 +106,8 @@ module Invidious::Routes::BeforeAll
     end
 
     dark_mode = convert_theme(env.params.query["dark_mode"]?) || preferences.dark_mode.to_s
-    thin_mode = env.params.query["thin_mode"]? || preferences.thin_mode.to_s
-    thin_mode = thin_mode == "true"
+    thin_mode = env.params.query["thin_mode"]?
+    thin_mode = (thin_mode == "true") || preferences.thin_mode
     locale = env.params.query["hl"]? || preferences.locale
 
     preferences.dark_mode = dark_mode

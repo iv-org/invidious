@@ -2,6 +2,96 @@
 
 ## vX.Y.0 (future)
 
+## v2.20260207.0
+
+### Wrap-up
+
+This release hardens the Invidious companion pipeline and cleans up a long list of UI papercuts. Companion downloads now work end-to-end, CSP headers and check identifiers are generated once and reused, proxy responses strip stray headers, and the final traces of the legacy signature helper are gone so the helper can be rolled out safely.
+
+Livestream navigation, playlists, and channel metadata also see overdue fixes: Trending once again lists livestreams, "Watch on YouTube" buttons stop jumping to arbitrary timestamps, playlist imports/API calls handle missing data, and channel pages now display creator pronouns and playlist thumbnails. Deployments benefit from compiling OpenSSL into docker images to mitigate a long-standing memory leak observed with Alpine-provided OpenSSL, Crystal pinned back to 1.16.3 for docker and OCI builds, a rewritten static file handler, clarified README/HTTP proxy/unix socket docs, and dozens of smaller cleanups.
+
+### New features & important changes
+#### For Users
+  - Livestream experiences are restored: Trending shows livestreams again, the gaming feed remains accessible, and "Watch on YouTube" links stop carrying stale timestamps (#5480, #5555, #5481)
+  - Channel and playlist metadata is richer thanks to pronoun support, topic playlist thumbnails, and accurate related video counts (#5617, #5616, #5446)
+  - Downloads get smoother because download actions are URL-safe and downloads can flow through Invidious companion when available (#5367, #5561)
+  - Users see clearer feedback with Erroneous CAPTCHA messages, DMCA controls restored, and a footer link pointing at the current release (#5508, #5228, #4702)
+
+#### For instance owners
+  - Companion integration is sturdier: CSP is generated once, check identifiers persist, and the helper hyperlink is fixed (#5497, #5575, #5491)
+  - Proxied images and videoplayback strip unwanted response headers (shared header-strip list) (#5595)
+  - Runtime and packaging updates pin docker/OCI builds to Crystal 1.16.3, bring an optional Crystal 1.18.2 + Alpine 3.23 image, and compile OpenSSL from source to mitigate the memory leak seen with Alpine-provided OpenSSL (#5604, #5577, #5574, #5441)
+  - Configuration docs saw polish with unix socket instructions, refreshed HTTP proxy comments, and corrected README commands (#5347, #5586, #5607)
+  - Server stability improves via a larger `max_request_line_size` that is required to be able to access some next pages of Youtube channels videos and a rewritten static file handler (#5566, #5338)
+
+#### For developers
+  - Top-level constants moved into dedicated modules, preferences handling was cleaned up, and the legacy signature helper is finally removed (#5596, #5450, #5550)
+  - Crystal API updates replaced the deprecated `Socket#blocking` property and restored the shard target plus SPDX license metadata (#5538, #5608, #5552)
+  - CI/tooling stayed current with newer GitHub Actions, install-crystal releases, and cache/checkout bumps (#5569, #5544, #5530, #5499)
+
+### Bugs fixed
+#### User-side
+  - Playlist importer edge cases, playlist API author URLs, and channel continuation tokens now handle empty values without crashing (#4787, #5618, #5614)
+  - Thin mode community posts, posts that reference unavailable videos, and DMCA content toggles work again (#5567, #5549, #5228)
+  - UI cleanups prevent channel name/button overflow, show explicit Erroneous CAPTCHA errors, and keep livestream timestamps clean (#5553, #5452, #5508, #5481)
+  - Trending feeds and related video counts regained accuracy alongside livestream/gaming categories (#5555, #5480, #5446)
+
+#### For instance owners
+  - Companion downloads, CSP reuse, and check id generation behave predictably even under load (#5561, #5497, #5575)
+  - Proxy responses drop stray headers and HTTP proxy examples in the config were clarified (#5595, #5586)
+  - Docker/OCI builds were pinned to stable Crystal releases with OpenSSL bundled to avoid memory leaks (#5604, #5577, #5441)
+
+#### For developers
+  - README commit instructions, shard targets, and unix socket docs were corrected (#5607, #5608, #5347)
+  - Thin mode preference comparisons no longer convert unnecessary strings (#5568)
+  - URL encoding fixes in the download widget and socket API updates prevent regressions when upgrading Crystal (#5367, #5538)
+
+### Full list of pull requests merged since the last release (newest first)
+
+* refactor: Move top level constants to it's own modules (https://github.com/iv-org/invidious/pull/5596, by @Fijxu)
+* pages/watch: URL encode 'action' in download widget (https://github.com/iv-org/invidious/pull/5367, by @SamantazFox)
+* Document use of unix sockets for `db` (https://github.com/iv-org/invidious/pull/5347, by @Fijxu)
+* Generate companion CSP only once to reuse it (https://github.com/iv-org/invidious/pull/5497, by @Fijxu)
+* Fix youtube CSV playlist importer (https://github.com/iv-org/invidious/pull/4787, by @ThatMatrix)
+* Playlist API: return empty author url if ucid is empty (https://github.com/iv-org/invidious/pull/5618, by @radmorecameron)
+* Channels: parse pronouns and display them on channel page (https://github.com/iv-org/invidious/pull/5617, by @radmorecameron)
+* playlist: parse playlist thumbnails for topic autogenerated playlists (https://github.com/iv-org/invidious/pull/5616, by @radmorecameron)
+* fix: add missing embedded protobuf message in continuation token for channel videos (https://github.com/iv-org/invidious/pull/5614, by @Fijxu)
+* Update shard.yml to include target that was removed in commit 9d54cf9 (https://github.com/iv-org/invidious/pull/5608, by @Harm133)
+* chore: Do not convert thin_mode preference to string to compare it in before_all (https://github.com/iv-org/invidious/pull/5568, by @Fijxu)
+* Fix thin_mode preference for channel community page (https://github.com/iv-org/invidious/pull/5567, by @Fijxu)
+* Fix commit command in README instructions, as per #5606 (https://github.com/iv-org/invidious/pull/5607, by @kirisakow)
+* Revert "Bump crystallang/crystal from 1.16.3-alpine to 1.19.0-alpine in /docker" (https://github.com/iv-org/invidious/pull/5604, by @unixfox)
+* Bump crystallang/crystal from 1.16.3-alpine to 1.19.0-alpine in /docker (https://github.com/iv-org/invidious/pull/5603, by @dependabot[bot])
+* doc: Update HTTP proxy configuration comments (https://github.com/iv-org/invidious/pull/5586, by @unixfox)
+* Strip unwanted headers from response headers in images and videoplayback (https://github.com/iv-org/invidious/pull/5595, by @Fijxu)
+* Generate companion check id one time and add missing companion check id on captions (https://github.com/iv-org/invidious/pull/5575, by @Fijxu)
+* Downgrade Crystal to 1.16.3 in OCI (https://github.com/iv-org/invidious/pull/5577, by @Fijxu)
+* Allow downloading via companion (https://github.com/iv-org/invidious/pull/5561, by @JeroenBoersma)
+* chore: crystal 1.8.2 + alpine 3.23 (https://github.com/iv-org/invidious/pull/5574, by @unixfox)
+* Replace deprecated `blocking` property of `Socket` (https://github.com/iv-org/invidious/pull/5538, by @Fijxu)
+* Replace `Kemal::StaticFileHandler` with direct subclass of stdlib `HTTP::StaticFileHandler` on Crystal >= 1.17.0 (https://github.com/iv-org/invidious/pull/5338, by @syeopite)
+* dockerfile: compile openssl instead of using the one bundled on the crystal alpine image. (https://github.com/iv-org/invidious/pull/5441, by @Fijxu)
+* Bump actions/cache from 4 to 5 (https://github.com/iv-org/invidious/pull/5569, by @dependabot[bot])
+* Set Kemal `max_request_line_size` to 16384 for large channel continuation query parameters. (https://github.com/iv-org/invidious/pull/5566, by @Fijxu)
+* Add link to GitHub release/tag/commit in footer (https://github.com/iv-org/invidious/pull/4702, by @shaedrich)
+* Display "Erroneous CAPTCHA" for invalid captchas (https://github.com/iv-org/invidious/pull/5508, by @Fijxu)
+* Fix channel name overflow (https://github.com/iv-org/invidious/pull/5553, by @Fijxu)
+* Fix trending page by leaving livestream and gaming trending pages (https://github.com/iv-org/invidious/pull/5555, by @Fijxu)
+* fix: restore dmca_content functionality (https://github.com/iv-org/invidious/pull/5228, by @Fijxu)
+* Remove signature helper completely from Invidious (https://github.com/iv-org/invidious/pull/5550, by @Fijxu)
+* Fix community posts when there is a unavailable video in a post (https://github.com/iv-org/invidious/pull/5549, by @Fijxu)
+* chore: Update shard.yml to use SPDX license identifier (https://github.com/iv-org/invidious/pull/5552, by @Fijxu)
+* Store `preferences` in a variable when reused and rename `prefs` to `preferences` (https://github.com/iv-org/invidious/pull/5450, by @Fijxu)
+* Bump actions/checkout from 5 to 6 (https://github.com/iv-org/invidious/pull/5544, by @dependabot[bot])
+* Bump crystal-lang/install-crystal from 1.8.3 to 1.9.1 (https://github.com/iv-org/invidious/pull/5530, by @dependabot[bot])
+* Fix 0 view count on related videos section (https://github.com/iv-org/invidious/pull/5446, by @shiny-comic)
+* Prevent timestamp from being set for Livestreams on "Watch on Youtube" links (https://github.com/iv-org/invidious/pull/5481, by @Fijxu)
+* Add Livestreams to trending page (https://github.com/iv-org/invidious/pull/5480, by @Fijxu)
+* Fix button overflow (https://github.com/iv-org/invidious/pull/5452, by @Fijxu)
+* Bump crystal-lang/install-crystal from 1.8.2 to 1.8.3 (https://github.com/iv-org/invidious/pull/5499, by @dependabot[bot])
+* Fixed broken companion hyperlink (https://github.com/iv-org/invidious/pull/5491, by @ndsvw)
+
 ## v2.20250913.0
 
 ### Wrap-up

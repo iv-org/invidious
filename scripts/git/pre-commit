@@ -3,7 +3,7 @@
 
 # Crystal linter
 # This is a modified version of the pre-commit hook from the crystal repo. https://github.com/crystal-lang/crystal/blob/master/scripts/git/pre-commit
-# Please refer to that if you'd like an version that doesn't automatically format staged files. 
+# Please refer to that if you'd like an version that doesn't automatically format staged files.
 changed_cr_files=$(git diff --cached --name-only --diff-filter=ACM | grep '\.cr$')
 if [ ! -z "$changed_cr_files" ]; then
   if [ -x bin/crystal ]; then

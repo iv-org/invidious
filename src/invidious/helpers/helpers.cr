@@ -1,5 +1,7 @@
 require "./macros"
 
+TEST_IDS = {"AgbeGFYluEA", "BaW_jenozKc", "a9LDPn-MO4I", "ddFvjfvPnqk", "iqKdEhx-dD4"}
+
 struct Nonce
   include DB::Serializable
 
