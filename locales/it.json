@@ -440,7 +440,7 @@
     "crash_page_switch_instance": "provato a <a href=\"`x`\">usare un'altra istanza</a>",
     "crash_page_before_reporting": "Prima di segnalare un bug, assicurati di aver:",
     "crash_page_read_the_faq": "letto le <a href=\"`x`\">domande più frequenti (FAQ)</a>",
-    "crash_page_search_issue": "cercato tra <a href=\"`x`\"> i problemi esistenti su GitHub</a>",
+    "crash_page_search_issue": "cercato tra <a href=\"`x`\">i problemi esistenti su GitHub</a>",
     "crash_page_report_issue": "Se niente di tutto ciò ha aiutato, per favore <a href=\"`x`\">apri un nuovo problema su GitHub</a> (preferibilmente in inglese) e includi il seguente testo nel tuo messaggio (NON tradurre il testo):",
     "Popular enabled: ": "Popolare attivato: ",
     "English (United Kingdom)": "Inglese (Regno Unito)",
@@ -519,5 +519,9 @@
     "channel_tab_posts_label": "Post",
     "timeline_parse_error_show_technical_details": "Mostra i dettagli tecnici",
     "timeline_parse_error_placeholder_message": "Invidious ha riscontrato un errore tentando di leggere questo elemento. Per altre informazioni vedi di seguito:",
-    "timeline_parse_error_placeholder_heading": "Lettura elemento non riuscita"
+    "timeline_parse_error_placeholder_heading": "Lettura elemento non riuscita",
+    "preferences_default_playlist": "Playlist predefinita: ",
+    "preferences_default_playlist_none": "Nessuna playlist predefinita impostata",
+    "Livestreams": "Dirette",
+    "dmca_content": "Questo video non può essere scaricato su questa istanza a causa di una lettera di violazione DMCA/copyright inviata all'amministratore dell'istanza."
 }
