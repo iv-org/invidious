@@ -54,7 +54,7 @@ jobs:
             quay.expires-after=12w
 
       - name: Build and push Docker ${{ matrix.name }} image for Push Event
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file:  ${{ matrix.dockerfile }}
