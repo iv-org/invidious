@@ -8,7 +8,7 @@ module Invidious::Routes::API::V1::Authenticated
   #   topics = env.params.body["topics"]?.try &.split(",").uniq.first(1000)
   #   topics ||= [] of String
 
-  #   create_notification_stream(env, topics, connection_channel)
+  #   Helpers.create_notification_stream(env, topics, connection_channel)
   # end
 
   def self.get_preferences(env)
@@ -485,6 +485,6 @@ module Invidious::Routes::API::V1::Authenticated
     topics = raw_topics.try &.split(",").uniq.first(1000)
     topics ||= [] of String
 
-    create_notification_stream(env, topics, CONNECTION_CHANNEL)
+    Helpers.create_notification_stream(env, topics, CONNECTION_CHANNEL)
   end
 end

@@ -199,7 +199,7 @@ struct InvidiousPlaylist
       json.field "authorUrl", nil
       json.field "authorThumbnails", [] of String
 
-      json.field "description", html_to_content(self.description_html)
+      json.field "description", Helpers.html_to_content(self.description_html)
       json.field "descriptionHtml", self.description_html
       json.field "videoCount", self.video_count
 
