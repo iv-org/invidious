@@ -502,5 +502,9 @@
     "channel_tab_posts_label": "இடுகைகள்",
     "timeline_parse_error_placeholder_heading": "உருப்படியை அலச முடியவில்லை",
     "timeline_parse_error_placeholder_message": "இந்த உருப்படியை அலச முயற்சிக்கும் போது ஒரு பிழையை அடக்கமடைந்தது. மேலும் தகவலுக்கு கீழே காண்க:",
-    "timeline_parse_error_show_technical_details": "தொழில்நுட்ப விவரங்களைக் காட்டு"
+    "timeline_parse_error_show_technical_details": "தொழில்நுட்ப விவரங்களைக் காட்டு",
+    "preferences_default_playlist": "இயல்புநிலை பட்டியல்: ",
+    "preferences_default_playlist_none": "இயல்புநிலை பட்டியல் எதுவும் அமைக்கப்படவில்லை",
+    "Livestreams": "நேரடிஓடைகள்",
+    "dmca_content": "DMCA/பதிப்புரிமை மீறல் கடிதம் நேர்காணல் நிர்வாகிக்கு அனுப்பப்பட்டதால் இந்த நிகழ்வில் இந்த வீடியோவைப் பதிவிறக்க முடியாது."
 }

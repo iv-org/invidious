@@ -27,9 +27,9 @@
     "Import NewPipe data (.zip)": "Tuo NewPipe-tietoja (.zip)",
     "Export": "Vie",
     "Export subscriptions as OPML": "Vie tilaukset OPML-muodossa",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "Vie tilaukset OPML-muodossa (NewPipe & FreeTube)",
+    "Export subscriptions as OPML (for NewPipe & FreeTube)": "Vie tilaukset OPML-muodossa (NewPipe ja FreeTube)",
     "Export data as JSON": "Vie Invidiousin tiedot JSON-muodossa",
-    "Delete account?": "Poista tili?",
+    "Delete account?": "Poistetaanko tili?",
     "History": "Historia",
     "An alternative front-end to YouTube": "Vaihtoehtoinen front-end YouTubelle",
     "JavaScript license information": "JavaScript-lisenssitiedot",
@@ -497,5 +497,8 @@
     "toggle_theme": "Vaihda teemaa",
     "preferences_preload_label": "Esilataa video data. ",
     "timeline_parse_error_show_technical_details": "Näytä tekniset yksityiskohdat",
-    "First page": "Ensimmäinen sivu"
+    "First page": "Ensimmäinen sivu",
+    "channel_tab_posts_label": "Postaukset",
+    "preferences_default_playlist": "Oletussoittolista: ",
+    "preferences_default_playlist_none": "Oletussoittolistaa ei ole asetettu"
 }
