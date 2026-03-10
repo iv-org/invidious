@@ -133,6 +133,26 @@ class APIHandler < Kemal::Handler
   end
 end
 
+class DisableAbusableAPIHandler < Kemal::Handler
+  {% for method in %w(GET HEAD) %}
+    # This endpoints make a video request to Invidious companion.
+    {% for endpoint in %w(videos clips transcripts) %}
+      only ["/api/v1/{{ endpoint.id }}/:id"], {{ method }}
+    {% end %}
+  {% end %}
+
+  def call(env)
+    return call_next env unless only_match?(env) && CONFIG.disable_api
+
+    env.response.content_type = "application/json"
+    env.response.status_code = 403
+    message = {"error" => "This API endpoint has been disabled by the administrator."}.to_json
+    env.response.print message
+    env.response.close
+    return
+  end
+end
+
 class DenyFrame < Kemal::Handler
   exclude ["/embed/*"]
 
