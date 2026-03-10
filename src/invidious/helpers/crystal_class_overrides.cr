@@ -62,7 +62,7 @@ class HTTP::Client
 end
 
 # Mute the ClientError exception raised when a connection is flushed.
-# This happends when the connection is unexpectedly closed by the client.
+# This happens when the connection is unexpectedly closed by the client.
 #
 class HTTP::Server::Response
   class Output
