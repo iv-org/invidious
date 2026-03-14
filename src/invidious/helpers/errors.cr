@@ -197,11 +197,17 @@ def error_redirect_helper(env : HTTP::Server::Context)
       video_id = params.fetch("v", nil)
 
       if video_id.presence
-        params.delete("v")
         if params.present?
-          embed_link = "https://youtube.com/embed/#{video_id}?#{params}"
+          new_params = URI::Params.new
+          list = params["list"]?.presence
+          index = params["index"]?.presence
+          if list && index
+            new_params.add("list", list)
+            new_params.add("index", index)
+            embed_link = HTML.escape("https://youtube.com/embed/#{video_id}?#{new_params}")
+          end
         else
-          embed_link = "https://youtube.com/embed/#{video_id}"
+          embed_link = HTML.escape("https://youtube.com/embed/#{video_id}")
         end
         embed_html_element = "(<a rel=\"noopener\" referrerpolicy=\"origin-when-cross-origin\" href=\"#{embed_link}\">#{go_to_youtube_embed}</a>)"
       end
