@@ -202,9 +202,9 @@ module Invidious::Routes::PreferencesRoute
         CONFIG.default_user_preferences.feed_menu = admin_feed_menu
 
         CONFIG.pages_enabled = PagesEnabled.new(
-          popular: (env.params.body["popular_enabled"]?.try &.as(String) || "on") == "on",
-          trending: (env.params.body["trending_enabled"]?.try &.as(String) || "on") == "on",
-          search: (env.params.body["search_enabled"]?.try &.as(String) || "on") == "on",
+          popular: (env.params.body["popular_enabled"]?.try &.as(String) || "off") == "on",
+          trending: (env.params.body["trending_enabled"]?.try &.as(String) || "off") == "on",
+          search: (env.params.body["search_enabled"]?.try &.as(String) || "off") == "on",
         )
 
         captcha_enabled = env.params.body["captcha_enabled"]?.try &.as(String)
