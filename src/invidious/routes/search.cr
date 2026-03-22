@@ -40,6 +40,8 @@ module Invidious::Routes::Search
     preferences = env.get("preferences").as(Preferences)
     locale = preferences.locale
 
+    search_disabled = !CONFIG.page_enabled?("search")
+
     region = env.params.query["region"]? || preferences.region
 
     query = Invidious::Search::Query.new(env.params.query, :regular, region)
@@ -48,6 +50,35 @@ module Invidious::Routes::Search
     if query.empty?
       env.set "search", ""
       return templated "search_homepage", navbar_search: false
+    end
+
+    # When YouTube search is disabled, force subscription-only mode
+    if search_disabled
+      user = env.get?("user")
+      if !user
+        return error_template(403, translate(locale, "search_subscriptions_login_required"))
+      end
+
+      user = user.as(User)
+
+      begin
+        items = Invidious::Search::Processors.subscriptions_and_playlists(query, user)
+      rescue ex
+        return error_template 500, ex
+      end
+
+      redirect_url = Invidious::Frontend::Misc.redirect_url(env)
+
+      page_nav_html = Frontend::Pagination.nav_numeric(locale,
+        base_url: "/search?#{query.to_http_params}",
+        current_page: query.page,
+        show_next: (items.size >= 20)
+      )
+
+      env.set "search", query.text
+      env.set "subscription_only_search", true
+
+      return templated "search"
     end
 
     # non‐empty query → process it
@@ -59,7 +90,7 @@ module Invidious::Routes::Search
     begin
       items = user ? query.process(user.as(User)) : query.process
     rescue ex : ChannelSearchException
-      return error_template 404, "Unable to find channel with id “#{HTML.escape(ex.channel)}”…"
+      return error_template 404, "Unable to find channel with id "#{HTML.escape(ex.channel)}"…"
     rescue ex
       return error_template 500, ex
     end

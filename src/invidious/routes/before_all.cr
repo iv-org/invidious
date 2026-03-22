@@ -150,9 +150,14 @@ module Invidious::Routes::BeforeAll
                  "popular"
                when "/feed/trending", "/api/v1/trending"
                  "trending"
-               when "/search", "/api/v1/search", "/api/v1/search/suggestions", "/results"
+               when "/api/v1/search", "/api/v1/search/suggestions"
                  "search"
-               when .starts_with?("/hashtag/"), .starts_with?("/api/v1/hashtag/")
+               when .starts_with?("/api/v1/hashtag/")
+                 "search"
+               when "/search", "/results"
+                 # Handled by the search route (subscription-only mode when search disabled)
+                 nil
+               when .starts_with?("/hashtag/")
                  "search"
                else
                  nil
