@@ -150,7 +150,9 @@ module Invidious::Routes::BeforeAll
                  "popular"
                when "/feed/trending", "/api/v1/trending"
                  "trending"
-               when "/search", "/api/v1/search"
+               when "/search", "/api/v1/search", "/api/v1/search/suggestions", "/results"
+                 "search"
+               when .starts_with?("/hashtag/"), .starts_with?("/api/v1/hashtag/")
                  "search"
                else
                  nil
