@@ -313,6 +313,11 @@ module Invidious::Routes::API::V1::Authenticated
       return error_json(403, "Invalid videoId")
     end
 
+    # Prevent duplicate videos in the same playlist
+    if Invidious::Database::PlaylistVideos.select_index(plid, video_id)
+      return error_json(409, "Video already exists in this playlist")
+    end
+
     begin
       video = get_video(video_id)
     rescue ex : NotFoundException
