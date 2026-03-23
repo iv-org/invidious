@@ -164,13 +164,52 @@ module Invidious::Routes::BeforeAll
                end
 
     if page_key && !CONFIG.page_enabled?(page_key)
+      env.response.status_code = 403
+      env.set "halted", true
+
       if path.starts_with?("/api/")
-        error_message = {error: "Administrator has disabled this endpoint."}.to_json
-        haltf env, 403, error_message
+        env.response.content_type = "application/json"
+        env.response.print({error: "Administrator has disabled this endpoint."}.to_json)
       else
-        message = "#{page_key}_page_disabled"
-        return error_template(403, message)
+        preferences = env.get("preferences").as(Preferences)
+        locale = preferences.locale
+        dark_mode = preferences.dark_mode
+        theme_class = dark_mode.blank? ? "no" : dark_mode
+        error_message = translate(locale, "#{page_key}_page_disabled")
+
+        env.response.content_type = "text/html"
+        env.response.print <<-HTML
+        <!DOCTYPE html>
+        <html lang="#{locale}">
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <title>Error - Invidious</title>
+          <link rel="stylesheet" href="/css/pure-min.css">
+          <link rel="stylesheet" href="/css/grids-responsive-min.css">
+          <link rel="stylesheet" href="/css/ionicons.min.css">
+          <link rel="stylesheet" href="/css/default.css">
+        </head>
+        <body class="#{theme_class}-theme">
+          <div class="pure-g">
+            <div class="pure-u-1 pure-u-xl-20-24" id="contents">
+              <div class="pure-g navbar h-box">
+                <div class="pure-u-1 pure-u-md-16-24">
+                  <a href="/" class="index-link pure-menu-heading">Invidious</a>
+                </div>
+              </div>
+              <div class="h-box" style="margin-top: 2em;">
+                <p>#{error_message}</p>
+                <p><a href="/">← #{translate(locale, "Back")}</a></p>
+              </div>
+            </div>
+          </div>
+        </body>
+        </html>
+        HTML
       end
+
+      return
     end
   end
 end
