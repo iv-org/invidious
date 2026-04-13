@@ -487,5 +487,7 @@
     "timeline_parse_error_placeholder_heading": "この項目を解析できません",
     "timeline_parse_error_show_technical_details": "技術的詳細を表示",
     "preferences_default_playlist": "デフォルトのプレイリスト: ",
-    "preferences_default_playlist_none": "デフォルトのプレイリストは設定されていません"
+    "preferences_default_playlist_none": "デフォルトのプレイリストは設定されていません",
+    "Livestreams": "ライブ配信",
+    "dmca_content": "このインスタンスでは、DMCA/著作権侵害に関する通知がインスタンス管理者宛に送付されたため、この動画をダウンロードすることはできません。"
 }
