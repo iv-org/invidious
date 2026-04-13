@@ -496,5 +496,11 @@
     "toggle_theme": "Ndërroni Temë",
     "channel_tab_courses_label": "Kurse",
     "channel_tab_posts_label": "Postime",
-    "First page": "Faqja e parë"
+    "First page": "Faqja e parë",
+    "preferences_default_playlist": "Luajlistë parazgjedhje: ",
+    "preferences_default_playlist_none": "S’ka të caktuar luajlistë parazgjedhje",
+    "timeline_parse_error_placeholder_heading": "S’arrihet të analizohet objekti",
+    "timeline_parse_error_placeholder_message": "Invidious-i hasi një gabim teksa rrekej të analizonte këtë objekt. Për më tepër hollësi, shihni më poshtë:",
+    "timeline_parse_error_show_technical_details": "Shfaq hollësi teknike",
+    "Livestreams": "Transmetime të drejtpërdrejta"
 }
