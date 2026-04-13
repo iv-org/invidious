@@ -377,10 +377,10 @@
     "crash_page_you_found_a_bug": "你似乎找到了 Invidious 的一个 bug！",
     "crash_page_before_reporting": "报告 bug 之前，请确保你已经：",
     "crash_page_refresh": "试着 <a href=\"`x`\">刷新页面</a>",
-    "crash_page_switch_instance": "试着<a href=\"`x`\">使用另一个实例</a>",
-    "crash_page_read_the_faq": "阅读<a href=\"`x`\">常见问题</a>",
+    "crash_page_switch_instance": "试着 <a href=\"`x`\">使用另一个实例</a>",
+    "crash_page_read_the_faq": "阅读 <a href=\"`x`\">常见问题</a>",
     "crash_page_search_issue": "搜索过 <a href=\"`x`\">GitHub 上的现有 issue</a>",
-    "crash_page_report_issue": "如果以上这些都没用的话，请<a href=\"`x`\">在 Github 上新开一个 issue</a>（最好用英语撰写），并在你的消息中包含以下文本(不要翻译该文本)：",
+    "crash_page_report_issue": "如果以上这些都没用的话，请 <a href=\"`x`\">在 Github 上新开一个 issue</a>（最好用英语撰写），并在你的消息中包含以下文本(不要翻译该文本)：",
     "videoinfo_invidious_embed_link": "嵌入链接",
     "download_subtitles": "字幕 - `x` (.vtt)",
     "preferences_quality_dash_option_360p": "360p",
@@ -487,5 +487,7 @@
     "timeline_parse_error_placeholder_heading": "无法解析项目",
     "timeline_parse_error_placeholder_message": "Invidious 在尝试解析此项目时遇到一个错误。更多信息请见下方：",
     "preferences_default_playlist": "默认播放列表： ",
-    "preferences_default_playlist_none": "尚无默认播放列表"
+    "preferences_default_playlist_none": "尚无默认播放列表",
+    "Livestreams": "直播",
+    "dmca_content": "由于发送给实例管理员的 DMCA/侵犯版权信件，无法在这个实例上下载该视频。"
 }
