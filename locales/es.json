@@ -521,5 +521,7 @@
     "channel_tab_courses_label": "Cursos",
     "timeline_parse_error_show_technical_details": "Enseñar detalles técnicos",
     "timeline_parse_error_placeholder_message": "Invidious ha encontrado un error al tratar de procesar este elemento. Para más información ver abajo:",
-    "timeline_parse_error_placeholder_heading": "Imposible procesar este elemento"
+    "timeline_parse_error_placeholder_heading": "Imposible procesar este elemento",
+    "Livestreams": "Transmisiones en vivo",
+    "dmca_content": "Este video no se puede descargar en esta instancia debido a una carta de infracción de derechos de autor/DMCA enviada al administrador de la instancia."
 }
