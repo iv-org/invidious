@@ -9,7 +9,7 @@
     "Show more": "Mostrar mais",
     "Released under the AGPLv3 on Github.": "Disponibilizada sob a AGPLv3 no GitHub.",
     "preferences_show_nick_label": "Mostrar nome de utilizador em cima: ",
-    "preferences_automatic_instance_redirect_label": "Redirecionamento de instância automática (solução de último recurso para redirect.invidious.io): ",
+    "preferences_automatic_instance_redirect_label": "Redirecionamento de instância automática (solução de recurso para redirect.invidious.io): ",
     "preferences_category_misc": "Preferências diversas",
     "preferences_vr_mode_label": "Vídeos interativos de 360 graus (requer WebGL): ",
     "preferences_extend_desc_label": "Expandir automaticamente a descrição do vídeo: ",
@@ -516,5 +516,12 @@
     "Filipino (auto-generated)": "Filipino (gerado automaticamente)",
     "First page": "Primeira página",
     "channel_tab_courses_label": "Cursos",
-    "channel_tab_posts_label": "Publicações"
+    "channel_tab_posts_label": "Publicações",
+    "preferences_default_playlist": "Lista de reprodução padrão: ",
+    "preferences_default_playlist_none": "Nenhuma definida",
+    "Livestreams": "Emissões em direto",
+    "timeline_parse_error_placeholder_heading": "Não foi possível processar o item",
+    "timeline_parse_error_placeholder_message": "Indivious encontrou um erro ao processar o item. Para mais detalhes, consulte:",
+    "timeline_parse_error_show_technical_details": "Mostrar detalhes técnicos",
+    "dmca_content": "Este vídeo não pode ser descarregado nesta instância devido a uma notificação de violação de direitos de autor/DMCA enviada ao administrador da instância."
 }
