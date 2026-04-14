@@ -182,11 +182,20 @@
                 <input name="thin_mode" id="thin_mode" type="checkbox" <% if preferences.thin_mode %>checked<% end %>>
             </div>
 
-            <% if env.get?("user") %>
-                <% feed_options = {"", "Popular", "Trending", "Subscriptions", "Playlists"} %>
-            <% else %>
-                <% feed_options = {"", "Popular", "Trending"} %>
-            <% end %>
+            <%
+                # Build feed options based on enabled pages
+                feed_options = [] of String
+                # Empty string represents Search page
+                feed_options << "" if CONFIG.page_enabled?("search")
+                feed_options << "Popular" if CONFIG.page_enabled?("popular")
+                feed_options << "Trending" if CONFIG.page_enabled?("trending")
+                if env.get?("user")
+                    feed_options << "Subscriptions"
+                    feed_options << "Playlists"
+                end
+                # Always add "none" option as fallback
+                feed_options << "<none>" if !feed_options.includes?("<none>")
+            %>
 
             <div class="pure-control-group">
                 <label for="default_home"><%= translate(locale, "preferences_default_home_label") %></label>
@@ -302,9 +311,18 @@
 
                 <div class="pure-control-group">
                     <label for="popular_enabled"><%= translate(locale, "Popular enabled: ") %></label>
-                    <input name="popular_enabled" id="popular_enabled" type="checkbox" <% if CONFIG.popular_enabled %>checked<% end %>>
+                    <input name="popular_enabled" id="popular_enabled" type="checkbox" <% if CONFIG.page_enabled?("popular") %>checked<% end %>>
                 </div>
 
+                <div class="pure-control-group">
+                    <label for="trending_enabled"><%= translate(locale, "preferences_trending_enabled_label") %></label>
+                    <input name="trending_enabled" id="trending_enabled" type="checkbox" <% if CONFIG.page_enabled?("trending") %>checked<% end %>>
+                </div>
+
+                <div class="pure-control-group">
+                    <label for="search_enabled"><%= translate(locale, "preferences_search_enabled_label") %></label>
+                    <input name="search_enabled" id="search_enabled" type="checkbox" <% if CONFIG.page_enabled?("search") %>checked<% end %>>
+                </div>
 
                 <div class="pure-control-group">
                     <label for="captcha_enabled"><%= translate(locale, "CAPTCHA enabled: ") %></label>

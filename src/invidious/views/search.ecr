@@ -3,17 +3,31 @@
 <link rel="stylesheet" href="/css/search.css?v=<%= ASSET_COMMIT %>">
 <% end %>
 
+<% subscription_only = env.get?("subscription_only_search") %>
+
+<% if subscription_only %>
+<div class="h-box" style="margin-bottom: 0.5em;">
+    <p style="color: var(--text-color-muted, #888);"><i class="icon ion-ios-lock"></i> <%= translate(locale, "search_subscriptions_mode_notice") %></p>
+</div>
+<hr/>
+<% else %>
 <!-- Search redirection and filtering UI -->
 <%= Invidious::Frontend::SearchFilters.generate(query.filters, query.text, query.page, locale) %>
 <hr/>
+<% end %>
 
 
 <%- if items.empty? -%>
 <div class="h-box no-results-error">
     <div>
-        <%= translate(locale, "search_message_no_results") %><br/><br/>
-        <%= translate(locale, "search_message_change_filters_or_query") %><br/><br/>
-        <%= translate(locale, "search_message_use_another_instance", redirect_url) %>
+        <% if subscription_only %>
+            <%= translate(locale, "search_subscriptions_no_results") %><br/><br/>
+            <%= translate(locale, "search_subscriptions_no_results_hint") %>
+        <% else %>
+            <%= translate(locale, "search_message_no_results") %><br/><br/>
+            <%= translate(locale, "search_message_change_filters_or_query") %><br/><br/>
+            <%= translate(locale, "search_message_use_another_instance", redirect_url) %>
+        <% end %>
     </div>
 </div>
 <%- else -%>

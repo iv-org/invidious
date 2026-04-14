@@ -40,52 +40,78 @@ module Invidious::Routes::Search
     preferences = env.get("preferences").as(Preferences)
     locale = preferences.locale
 
+    search_disabled = !CONFIG.page_enabled?("search")
+
     region = env.params.query["region"]? || preferences.region
 
     query = Invidious::Search::Query.new(env.params.query, :regular, region)
 
+    # empty query → show homepage
     if query.empty?
-      # Display the full page search box implemented in #1977
       env.set "search", ""
-      templated "search_homepage", navbar_search: false
-    else
-      user = env.get? "user"
+      return templated "search_homepage", navbar_search: false
+    end
 
-      # An URL was copy/pasted in the search box.
-      # Redirect the user to the appropriate page.
-      if query.url?
-        return env.redirect UrlSanitizer.process(query.text).to_s
+    # When YouTube search is disabled, force subscription-only mode
+    if search_disabled
+      user = env.get?("user")
+      if !user
+        return error_template(403, translate(locale, "search_subscriptions_login_required"))
       end
 
+      user = user.as(User)
+
       begin
-        if user
-          items = query.process(user.as(User))
-        else
-          items = query.process
-        end
-      rescue ex : ChannelSearchException
-        return error_template(404, "Unable to find channel with id of '#{HTML.escape(ex.channel)}'. Are you sure that's an actual channel id? It should look like 'UC4QobU6STFB0P71PMvOGN5A'.")
+        items = Invidious::Search::Processors.subscriptions_and_playlists(query, user)
       rescue ex
-        return error_template(500, ex)
+        return error_template 500, ex
       end
 
       redirect_url = Invidious::Frontend::Misc.redirect_url(env)
 
-      # Pagination
       page_nav_html = Frontend::Pagination.nav_numeric(locale,
         base_url: "/search?#{query.to_http_params}",
         current_page: query.page,
         show_next: (items.size >= 20)
       )
 
-      if query.type == Invidious::Search::Query::Type::Channel
-        env.set "search", "channel:#{query.channel} #{query.text}"
-      else
-        env.set "search", query.text
-      end
+      env.set "search", query.text
+      env.set "subscription_only_search", true
 
-      templated "search"
+      return templated "search"
     end
+
+    # non‐empty query → process it
+    user = env.get?("user")
+    if query.url?
+      return env.redirect UrlSanitizer.process(query.text).to_s
+    end
+
+    begin
+      items = user ? query.process(user.as(User)) : query.process
+    rescue ex : ChannelSearchException
+      return error_template 404, "Unable to find channel with id "#{HTML.escape(ex.channel)}"…"
+    rescue ex
+      return error_template 500, ex
+    end
+
+    redirect_url = Invidious::Frontend::Misc.redirect_url(env)
+
+    # Pagination
+    page_nav_html = Frontend::Pagination.nav_numeric(locale,
+      base_url: "/search?#{query.to_http_params}",
+      current_page: query.page,
+      show_next: (items.size >= 20)
+    )
+
+    # If it's a channel search, prefix the box; otherwise just show the text
+    if query.type == Invidious::Search::Query::Type::Channel
+      env.set "search", "channel:#{query.channel} #{query.text}"
+    else
+      env.set "search", query.text
+    end
+
+    templated "search"
   end
 
   def self.hashtag(env : HTTP::Server::Context)

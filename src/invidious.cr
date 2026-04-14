@@ -178,7 +178,7 @@ if (CONFIG.use_pubsub_feeds.is_a?(Bool) && CONFIG.use_pubsub_feeds.as(Bool)) || 
   Invidious::Jobs.register Invidious::Jobs::SubscribeToFeedsJob.new(PG_DB, HMAC_KEY)
 end
 
-if CONFIG.popular_enabled
+if CONFIG.page_enabled?("popular")
   Invidious::Jobs.register Invidious::Jobs::PullPopularVideosJob.new(PG_DB)
 end
 
@@ -200,6 +200,12 @@ end
 
 before_all do |env|
   Invidious::Routes::BeforeAll.handle(env)
+
+  # If before_all flagged a halt (e.g. disabled page), stop the route handler.
+  # Use halt with the already-set status code to prevent the route handler from running.
+  if env.get?("halted")
+    halt env, status_code: env.response.status_code
+  end
 end
 
 Invidious::Routing.register_all
