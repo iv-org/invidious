@@ -43,7 +43,7 @@
     "Log in/register": "ログイン/登録",
     "User ID": "ユーザー ID",
     "Password": "パスワード",
-    "Time (h:mm:ss):": "時間 (時:分分:秒秒):",
+    "Time (hh:mm:ss):": "時間 (時時:分分:秒秒):",
     "Sign In": "サインイン",
     "Register": "登録",
     "E-mail": "メールアドレス",

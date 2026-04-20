@@ -340,7 +340,7 @@
     "Import Invidious data": "Importa dades JSON d'Invidious",
     "preferences_related_videos_label": "Mostra vídeos relacionats: ",
     "preferences_show_nick_label": "Mostra l'àlies a la part superior: ",
-    "Time (h:mm:ss):": "Temps (h:mm:ss):",
+    "Time (hh:mm:ss):": "Temps (hh:mm:ss):",
     "Could not fetch comments": "No s'han pogut obtenir els comentaris",
     "New password": "Nova contrasenya",
     "preferences_notifications_only_label": "Mostra només notificacions (si n'hi ha): ",
