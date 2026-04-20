@@ -133,7 +133,7 @@ module Invidious::Database::ChannelVideos
     return PG_DB.query_all(request, ids, as: ChannelVideo)
   end
 
-  def select_notfications(ucid : String, since : Time) : Array(ChannelVideo)
+  def select_notifications(ucid : String, since : Time) : Array(ChannelVideo)
     request = <<-SQL
       SELECT * FROM channel_videos
       WHERE ucid = $1 AND published > $2
