@@ -21,7 +21,7 @@ module Invidious::Search
       if response.status_code == 404
         response = YT_POOL.client &.get("/user/#{query.channel}")
         response = YT_POOL.client &.get("/c/#{query.channel}") if response.status_code == 404
-        initial_data = extract_initial_data(response.body)
+        initial_data = Helpers.extract_initial_data(response.body)
         ucid = initial_data.dig?("header", "c4TabbedHeaderRenderer", "channelId").try(&.as_s?)
         raise ChannelSearchException.new(query.channel) if !ucid
       else

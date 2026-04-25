@@ -127,7 +127,7 @@ def extract_channel_community(items, *, ucid, locale, format, thin_mode, is_sing
 
               reply_count = short_text_to_number(post.dig?("actionButtons", "commentActionButtonsRenderer", "replyButton", "buttonRenderer", "text", "simpleText").try &.as_s || "0")
 
-              json.field "content", html_to_content(content_html)
+              json.field "content", Helpers.html_to_content(content_html)
               json.field "contentHtml", content_html
 
               json.field "published", published.to_unix
