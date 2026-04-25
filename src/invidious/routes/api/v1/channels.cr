@@ -128,7 +128,6 @@ module Invidious::Routes::API::V1::Channels
             end
           end
         end # relatedChannels
-
       end
     end
   end
