@@ -131,7 +131,7 @@ def extract_channel_community(items, *, ucid, locale, format, thin_mode, is_sing
               json.field "contentHtml", content_html
 
               json.field "published", published.to_unix
-              json.field "publishedText", translate(locale, "`x` ago", recode_date(published, locale))
+              json.field "publishedText", I18n.translate(locale, "`x` ago", recode_date(published, locale))
 
               json.field "likeCount", like_count
               json.field "replyCount", reply_count

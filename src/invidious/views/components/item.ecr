@@ -27,8 +27,8 @@
             </div>
 
             <% if !item.channel_handle.nil? %><p class="channel-name" dir="auto"><%= item.channel_handle %></p><% end %>
-            <p><%= translate_count(locale, "generic_subscribers_count", item.subscriber_count, NumberFormatting::Separator) %></p>
-            <% if !item.auto_generated && item.channel_handle.nil? %><p><%= translate_count(locale, "generic_videos_count", item.video_count, NumberFormatting::Separator) %></p><% end %>
+            <p><%= I18n.translate_count(locale, "generic_subscribers_count", item.subscriber_count, I18n::NumberFormatting::Separator) %></p>
+            <% if !item.auto_generated && item.channel_handle.nil? %><p><%= I18n.translate_count(locale, "generic_videos_count", item.video_count, I18n::NumberFormatting::Separator) %></p><% end %>
             <h5><%= item.description_html %></h5>
         <% when SearchHashtag %>
             <% if !thin_mode %>
@@ -45,13 +45,13 @@
 
             <div class="video-card-row">
                 <%- if item.video_count != 0 -%>
-                    <p><%= translate_count(locale, "generic_videos_count", item.video_count, NumberFormatting::Separator) %></p>
+                    <p><%= I18n.translate_count(locale, "generic_videos_count", item.video_count, I18n::NumberFormatting::Separator) %></p>
                 <%- end -%>
             </div>
 
             <div class="video-card-row">
                 <%- if item.channel_count != 0 -%>
-                    <p><%= translate_count(locale, "generic_channels_count", item.channel_count, NumberFormatting::Separator) %></p>
+                    <p><%= I18n.translate_count(locale, "generic_channels_count", item.channel_count, I18n::NumberFormatting::Separator) %></p>
                 <%- end -%>
             </div>
         <% when SearchPlaylist, InvidiousPlaylist %>
@@ -73,7 +73,7 @@
                 <%- end -%>
 
                 <div class="bottom-right-overlay">
-                    <p class="length"><%= translate_count(locale, "generic_videos_count", item.video_count, NumberFormatting::Separator) %></p>
+                    <p class="length"><%= I18n.translate_count(locale, "generic_videos_count", item.video_count, I18n::NumberFormatting::Separator) %></p>
                 </div>
             </div>
 
@@ -101,11 +101,11 @@
             <div class="error-card">
                 <div class="explanation">
                     <i class="icon ion-ios-alert"></i>
-                    <h4><%=translate(locale, "timeline_parse_error_placeholder_heading")%></h4>
-                    <p><%=translate(locale, "timeline_parse_error_placeholder_message")%></p>
+                    <h4><%=I18n.translate(locale, "timeline_parse_error_placeholder_heading")%></h4>
+                    <p><%=I18n.translate(locale, "timeline_parse_error_placeholder_message")%></p>
                 </div>
                 <details>
-                    <summary class="pure-button pure-button-secondary"><%=translate(locale, "timeline_parse_error_show_technical_details")%></summary>
+                    <summary class="pure-button pure-button-secondary"><%=I18n.translate(locale, "timeline_parse_error_show_technical_details")%></summary>
                     <pre class="error-issue-template"><%=get_issue_template(env, item.parse_exception)[1]%></pre>
                 </details>
             </div>
@@ -168,7 +168,7 @@
 
                 <div class="bottom-right-overlay">
                     <%- if item.responds_to?(:live_now) && item.live_now -%>
-                        <p class="length" dir="auto"><i class="icon ion-ios-play-circle"></i>&nbsp;<%= translate(locale, "LIVE") %></p>
+                        <p class="length" dir="auto"><i class="icon ion-ios-play-circle"></i>&nbsp;<%= I18n.translate(locale, "LIVE") %></p>
                     <%- elsif item.length_seconds != 0 -%>
                         <p class="length"><%= recode_length_seconds(item.length_seconds) %></p>
                     <%- end -%>
@@ -200,15 +200,15 @@
             <div class="video-card-row flexible">
                 <div class="flex-left">
                     <% if item.responds_to?(:premiere_timestamp) && item.premiere_timestamp.try &.> Time.utc %>
-                        <p class="video-data" dir="auto"><%= translate(locale, "Premieres in `x`", recode_date((item.premiere_timestamp.as(Time) - Time.utc).ago, locale)) %></p>
+                        <p class="video-data" dir="auto"><%= I18n.translate(locale, "Premieres in `x`", recode_date((item.premiere_timestamp.as(Time) - Time.utc).ago, locale)) %></p>
                     <% elsif item.responds_to?(:published) && (Time.utc - item.published) > 1.minute %>
-                        <p class="video-data" dir="auto"><%= translate(locale, "Shared `x` ago", recode_date(item.published, locale)) %></p>
+                        <p class="video-data" dir="auto"><%= I18n.translate(locale, "Shared `x` ago", recode_date(item.published, locale)) %></p>
                     <% end %>
                 </div>
 
                 <% if item.responds_to?(:views) && item.views %>
                 <div class="flex-right">
-                    <p class="video-data" dir="auto"><%= translate_count(locale, "generic_views_count", item.views || 0, NumberFormatting::Short) %></p>
+                    <p class="video-data" dir="auto"><%= I18n.translate_count(locale, "generic_views_count", item.views || 0, I18n::NumberFormatting::Short) %></p>
                 </div>
                 <% end %>
             </div>
