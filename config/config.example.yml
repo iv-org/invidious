@@ -436,6 +436,19 @@ full_refresh: false
 ##
 feed_threads: 1
 
+##
+## Setting to disable easy to abuse API endpoints that can
+## be spammed and therefore blocking your Invidious instance.
+##
+## Notes: The following API endpoints will be disabled:
+##  - /api/v1/videos
+##  - /api/v1/clips
+##  - /api/v1/transcripts
+##
+## Accepted values: true, false
+## Default: false
+##
+disable_api: false
 
 jobs:
 
