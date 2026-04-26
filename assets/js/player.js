@@ -133,7 +133,7 @@ var timeupdate_last_ts = 5;
 player.on('timeupdate', function () {
     // Only update once every second
     let current_ts = Math.floor(player.currentTime());
-    if (current_ts > timeupdate_last_ts) timeupdate_last_ts = current_ts;
+    if (current_ts != timeupdate_last_ts) timeupdate_last_ts = current_ts;
     else return;
 
     // YouTube links
