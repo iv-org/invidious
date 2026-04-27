@@ -23,7 +23,8 @@ CREATE TABLE IF NOT EXISTS public.playlists
     created timestamptz,
     updated timestamptz,
     privacy privacy,
-    index int8[]
+    index int8[],
+    thumbnail_id text
 );
 
 GRANT ALL ON public.playlists TO current_user;
