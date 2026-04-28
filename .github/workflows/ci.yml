@@ -82,7 +82,7 @@ jobs:
         run: crystal spec
 
       - name: Build
-        run: crystal build --warnings all --error-on-warnings --error-trace src/invidious.cr
+        run: crystal build --warnings all --error-on-warnings --stats --time --progress --error-trace src/invidious.cr
 
   build-docker:
     strategy:
