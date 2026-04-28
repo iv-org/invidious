@@ -320,7 +320,7 @@ module Invidious::Routes::Feeds
         case attribute.name
         when "url", "href"
           request_target = URI.parse(node[attribute.name]).request_target
-          query_string_opt = request_target.starts_with?("/watch?v=") ? "&#{params}" : ""
+          query_string_opt = request_target.starts_with?("/watch?v=") ? ("&#{params}" if !params.empty?) : ""
           node[attribute.name] = "#{HOST_URL}#{request_target}#{query_string_opt}"
         else nil # Skip
         end
