@@ -91,5 +91,5 @@ jobs:
           push: true
           tags: quay.io/invidious/invidious:latest
           sources: |
-            quay.io/invidious/invidious:latest
-            quay.io/invidious/invidious:latest-arm64
+            quay.io/invidious/invidious:master
+            quay.io/invidious/invidious:master-arm64
