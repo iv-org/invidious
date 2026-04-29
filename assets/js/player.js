@@ -198,6 +198,9 @@ player.on('timeupdate', function () {
         elem_iv_listen.href = addCurrentTimeToURL(base_url_iv_listen, domain);
     }
 
+    // User has watch history disabled
+    if (!video_data.preferences.watch_history) return;
+
     // Only increase time watched when the time difference is one second and the video has not been marked as watched
     const isOneSecondDifference = current_ts - last_player_time === 1;
     const exceedsMarkWatchedAfterDuration = time_watched > MARK_WATCHED_AFTER_DURATION;
