@@ -107,6 +107,11 @@
             </div>
 
             <div class="pure-control-group">
+                <label for="filter_short_videos"><%= I18n.translate(locale, "preferences_filter_short_videos_label") %></label>
+                <input name="filter_short_videos" id="filter_short_videos" type="checkbox" <% if preferences.filter_short_videos %>checked<% end %>>
+            </div>
+
+            <div class="pure-control-group">
                 <label for="annotations"><%= I18n.translate(locale, "preferences_annotations_label") %></label>
                 <input name="annotations" id="annotations" type="checkbox" <% if preferences.annotations %>checked<% end %>>
             </div>
