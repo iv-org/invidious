@@ -179,7 +179,6 @@ struct InvidiousPlaylist
   property privacy : PlaylistPrivacy = PlaylistPrivacy::Private
   property index : Array(Int64)
 
-  @[DB::Field(ignore: true)]
   property thumbnail_id : String?
 
   module PlaylistPrivacyConverter
@@ -256,15 +255,16 @@ def create_playlist(title, privacy, user)
   plid = "IVPL#{Random::Secure.urlsafe_base64(24)[0, 31]}"
 
   playlist = InvidiousPlaylist.new({
-    title:       title.byte_slice(0, 150),
-    id:          plid,
-    author:      user.email,
-    description: "", # Max 5000 characters
-    video_count: 0,
-    created:     Time.utc,
-    updated:     Time.utc,
-    privacy:     privacy,
-    index:       [] of Int64,
+    title:        title.byte_slice(0, 150),
+    id:           plid,
+    author:       user.email,
+    description:  "", # Max 5000 characters
+    video_count:  0,
+    created:      Time.utc,
+    updated:      Time.utc,
+    privacy:      privacy,
+    index:        [] of Int64,
+    thumbnail_id: nil,
   })
 
   Invidious::Database::Playlists.insert(playlist)
@@ -273,16 +273,18 @@ def create_playlist(title, privacy, user)
 end
 
 def subscribe_playlist(user, playlist)
+  thumbnail_id = playlist.thumbnail.try &.match(/vi\/([a-zA-Z0-9_-]{11})/).try &.[1]
   playlist = InvidiousPlaylist.new({
-    title:       playlist.title[..150],
-    id:          playlist.id,
-    author:      user.email,
-    description: "", # Max 5000 characters
-    video_count: playlist.video_count,
-    created:     Time.utc,
-    updated:     playlist.updated,
-    privacy:     PlaylistPrivacy::Private,
-    index:       [] of Int64,
+    title:        playlist.title[..150],
+    id:           playlist.id,
+    author:       user.email,
+    description:  "", # Max 5000 characters
+    video_count:  playlist.video_count,
+    created:      Time.utc,
+    updated:      playlist.updated,
+    privacy:      PlaylistPrivacy::Private,
+    index:        [] of Int64,
+    thumbnail_id: thumbnail_id,
   })
 
   Invidious::Database::Playlists.insert(playlist)
