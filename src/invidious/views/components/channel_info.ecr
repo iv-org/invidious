@@ -12,10 +12,19 @@
     <div class="pure-u-1-2 flex-left flexible">
         <div class="channel-profile">
             <img src="/ggpht<%= channel_profile_pic %>" alt="" />
-            <div class="channel-name-pronouns">
+            <span class="channel-info">
                 <span class="channel-name"><%= author %></span><% if !channel.verified.nil? && channel.verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %>
-                <% if !channel.pronouns.nil? %><br /><span class="channel-pronouns"><%= channel.pronouns %></span><% end %>
-            </div>
+                <span class="channel-metadata">
+                    <br/>
+                    <% if !channel.channel_handle.nil? %>
+                    <span class="channel-metadata-item"><b><%= channel.channel_handle %></b></span>
+                    <% end %>
+                    <% if !channel.pronouns.nil? %>
+                    <span>•</span>
+                    <span class="channel-metadata-item"><%= channel.pronouns %></span>
+                    <% end %>
+                </span>
+            </span>
         </div>
     </div>
 
