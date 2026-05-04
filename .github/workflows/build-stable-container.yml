@@ -20,7 +20,7 @@ jobs:
           - os: ubuntu-24.04-arm
             platform: linux/arm64/v8
             name: "ARM64"
-            dockerfile: "docker/Dockerfile.arm64"
+            dockerfile: "docker/Dockerfile"
             tag_suffix: "-arm64"
 
     runs-on: ${{ matrix.os }}
@@ -57,10 +57,31 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: .
-          file:  ${{ matrix.dockerfile }}
+          file: ${{ matrix.dockerfile }}
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           build-args: |
             "release=1"
+
+  combine-multiarch-images:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to registry
+        uses: docker/login-action@v4
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
+
+      # https://github.com/marketplace/actions/docker-manifest-create-action
+      - name: Create and push manifest
+        uses: int128/docker-manifest-create-action@v2.19.0
+        with:
+          push: true
+          tags: quay.io/invidious/invidious:latest
+          sources: |
+            quay.io/invidious/invidious:latest
+            quay.io/invidious/invidious:latest-arm64
