@@ -102,5 +102,10 @@ def get_subscription_feed(user, max_results = 40, page = 1)
     videos = videos - notifications
   end
 
+  if user.preferences.filter_short_videos
+    videos = videos.reject { |v| v.length_seconds < 60 }
+    notifications = notifications.reject { |v| v.length_seconds < 60 }
+  end
+
   return videos, notifications
 end

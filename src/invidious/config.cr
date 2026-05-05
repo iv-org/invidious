@@ -48,6 +48,7 @@ struct ConfigPreferences
   property unseen_only : Bool = false
   property video_loop : Bool = false
   property extend_desc : Bool = false
+  property filter_short_videos : Bool = false
   property volume : Int32 = 100
   property vr_mode : Bool = true
   property show_nick : Bool = true

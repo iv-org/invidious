@@ -63,6 +63,10 @@ module Invidious::Routes::Search
         else
           items = query.process
         end
+
+        if preferences.filter_short_videos
+          items = items.reject { |item| item.is_a?(SearchVideo) && item.as(SearchVideo).length_seconds < 60 }
+        end
       rescue ex : ChannelSearchException
         return error_template(404, "Unable to find channel with id of '#{HTML.escape(ex.channel)}'. Are you sure that's an actual channel id? It should look like 'UC4QobU6STFB0P71PMvOGN5A'.")
       rescue ex
