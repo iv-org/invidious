@@ -78,7 +78,7 @@ jobs:
 
       # https://github.com/marketplace/actions/docker-manifest-create-action
       - name: Create and push manifest
-        uses: int128/docker-manifest-create-action@v2.19.0
+        uses: int128/docker-manifest-create-action@v2.20.0
         with:
           push: true
           tags: quay.io/invidious/invidious:latest
