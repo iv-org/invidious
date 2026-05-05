@@ -499,5 +499,12 @@
     "Filipino (auto-generated)": "Filippinska (auto-genererad)",
     "First page": "Första sidan",
     "channel_tab_courses_label": "Kurser",
-    "channel_tab_posts_label": "Inlägg"
+    "channel_tab_posts_label": "Inlägg",
+    "preferences_default_playlist": "Standardspellista: ",
+    "preferences_default_playlist_none": "Ingen standardspellista har angivits",
+    "timeline_parse_error_show_technical_details": "Visa tekniska detaljer",
+    "Livestreams": "Livesändningar",
+    "timeline_parse_error_placeholder_heading": "Kunde inte analysera objekt",
+    "timeline_parse_error_placeholder_message": "Invidious stötte på ett fel när det här objektet skulle analyseras. För mer information, se nedan:",
+    "dmca_content": "Den här videon kan inte laddas ner på den här instansen på grund av ett DMCA/upphovsrättsintrångsbrev som skickats till instansadministratören."
 }
