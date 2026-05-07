@@ -4,6 +4,21 @@ module Invidious::Routes::PreferencesRoute
   def self.show(env)
     preferences = env.get("preferences").as(Preferences)
     locale = preferences.locale
+    saved_preferences = env.params.query["preferences"]?
+
+    if saved_preferences
+      decoded_preferences = Base64.decode_string(saved_preferences)
+      preferences = Preferences.from_json(decoded_preferences)
+      if user = env.get? "user"
+        user = user.as(User)
+        user.preferences = preferences
+        Invidious::Database::Users.update_preferences(user)
+      else
+        env.response.cookies["PREFS"] = Invidious::User::Cookies.prefs(CONFIG.domain, preferences)
+      end
+    end
+
+    encoded_preferences = Base64.urlsafe_encode(preferences.to_json.to_s)
 
     referer = get_referer(env)
 
