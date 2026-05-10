@@ -115,6 +115,8 @@ module Invidious::Routes::BeforeAll
     preferences.locale = locale
     env.set "preferences", preferences
 
+    path = env.request.path
+
     # Allow media resources to be loaded from google servers
     # TODO: check if *.youtube.com can be removed
     #
@@ -130,7 +132,7 @@ module Invidious::Routes::BeforeAll
       env.response.headers["Content-Security-Policy"] = env.response.headers["Content-Security-Policy"].gsub("media-src", "media-src https://*.googlevideo.com:443 https://*.youtube.com:443")
     end
 
-    current_page = env.request.path
+    current_page = path
     if env.request.query
       query = HTTP::Params.parse(env.request.query.not_nil!)
 
@@ -142,5 +144,72 @@ module Invidious::Routes::BeforeAll
     end
 
     env.set "current_page", URI.encode_www_form(current_page)
+
+    page_key = case path
+               when "/feed/popular", "/api/v1/popular"
+                 "popular"
+               when "/feed/trending", "/api/v1/trending"
+                 "trending"
+               when "/api/v1/search", "/api/v1/search/suggestions"
+                 "search"
+               when .starts_with?("/api/v1/hashtag/")
+                 "search"
+               when "/search", "/results"
+                 # Handled by the search route (subscription-only mode when search disabled)
+                 nil
+               when .starts_with?("/hashtag/")
+                 "search"
+               else
+                 nil
+               end
+
+    if page_key && !CONFIG.page_enabled?(page_key)
+      env.response.status_code = 403
+      env.set "halted", true
+
+      if path.starts_with?("/api/")
+        env.response.content_type = "application/json"
+        env.response.print({error: "Administrator has disabled this endpoint."}.to_json)
+      else
+        preferences = env.get("preferences").as(Preferences)
+        locale = preferences.locale
+        dark_mode = preferences.dark_mode
+        theme_class = dark_mode.blank? ? "no" : dark_mode
+        error_message = translate(locale, "#{page_key}_page_disabled")
+
+        env.response.content_type = "text/html"
+        env.response.print <<-HTML
+        <!DOCTYPE html>
+        <html lang="#{locale}">
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <title>Error - Invidious</title>
+          <link rel="stylesheet" href="/css/pure-min.css">
+          <link rel="stylesheet" href="/css/grids-responsive-min.css">
+          <link rel="stylesheet" href="/css/ionicons.min.css">
+          <link rel="stylesheet" href="/css/default.css">
+        </head>
+        <body class="#{theme_class}-theme">
+          <div class="pure-g">
+            <div class="pure-u-1 pure-u-xl-20-24" id="contents">
+              <div class="pure-g navbar h-box">
+                <div class="pure-u-1 pure-u-md-16-24">
+                  <a href="/" class="index-link pure-menu-heading">Invidious</a>
+                </div>
+              </div>
+              <div class="h-box" style="margin-top: 2em;">
+                <p>#{error_message}</p>
+                <p><a href="/">← #{translate(locale, "Back")}</a></p>
+              </div>
+            </div>
+          </div>
+        </body>
+        </html>
+        HTML
+      end
+
+      return
+    end
   end
 end

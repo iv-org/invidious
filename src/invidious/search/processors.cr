@@ -52,5 +52,57 @@ module Invidious::Search
         as: ChannelVideo
       )
     end
+
+    # Search subscriptions AND saved playlists (used when YouTube search is disabled)
+    def subscriptions_and_playlists(query : Query, user : Invidious::User) : Array(ChannelVideo)
+      view_name = "subscriptions_#{sha256(user.email)}"
+      offset = (query.page - 1) * 20
+
+      # Search subscription videos via the materialized view
+      sub_results = PG_DB.query_all("
+        SELECT id, title, published, updated, ucid, author, length_seconds
+        FROM (
+          SELECT *,
+          to_tsvector(#{view_name}.title) ||
+          to_tsvector(#{view_name}.author)
+          as document
+          FROM #{view_name}
+        ) v_search WHERE v_search.document @@ plainto_tsquery($1)
+        ORDER BY published DESC
+        LIMIT 20 OFFSET $2;",
+        query.text, offset,
+        as: ChannelVideo
+      )
+
+      # Search playlist videos from user's playlists (both created and saved)
+      playlist_results = PG_DB.query_all("
+        SELECT pv.id, pv.title, pv.published, pv.published AS updated,
+               pv.ucid, pv.author, pv.length_seconds
+        FROM playlist_videos pv
+        INNER JOIN playlists p ON p.id = pv.plid
+        WHERE p.author = $1
+          AND (to_tsvector(pv.title) || to_tsvector(pv.author)) @@ plainto_tsquery($2)
+        ORDER BY pv.published DESC
+        LIMIT 20 OFFSET $3;",
+        user.email, query.text, offset,
+        as: ChannelVideo
+      )
+
+      # Merge, deduplicate by video ID, sort by published date, limit to 20
+      seen = Set(String).new
+      combined = [] of ChannelVideo
+
+      (sub_results + playlist_results)
+        .sort_by { |v| v.published }
+        .reverse!
+        .each do |video|
+          next if seen.includes?(video.id)
+          seen.add(video.id)
+          combined << video
+          break if combined.size >= 20
+        end
+
+      return combined
+    end
   end
 end

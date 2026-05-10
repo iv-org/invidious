@@ -17,4 +17,11 @@
         <% autofocus = true %><%= rendered "components/search_box" %>
     </div>
     <div class="pure-u-1-4"></div>
+    <% if !CONFIG.page_enabled?("search") %>
+    <div class="pure-u-1-4"></div>
+    <div class="pure-u-1 pure-u-md-12-24" style="text-align: center; margin-top: 0.5em;">
+        <p style="color: #888;"><%= translate(locale, "search_subscriptions_hint") %></p>
+    </div>
+    <div class="pure-u-1-4"></div>
+    <% end %>
 </div>

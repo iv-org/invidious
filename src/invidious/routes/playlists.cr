@@ -330,6 +330,15 @@ module Invidious::Routes::Playlists
 
       video_id = env.params.query["video_id"]
 
+      # Prevent duplicate videos in the same playlist
+      if Invidious::Database::PlaylistVideos.select_index(playlist_id, video_id)
+        if redirect
+          return env.redirect referer
+        else
+          return error_json(409, "Video already exists in this playlist")
+        end
+      end
+
       begin
         video = get_video(video_id)
       rescue ex : NotFoundException
