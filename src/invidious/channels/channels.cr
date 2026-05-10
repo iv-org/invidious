@@ -38,7 +38,7 @@ struct ChannelVideo
       json.field "authorId", self.ucid
       json.field "authorUrl", "/channel/#{self.ucid}"
       json.field "published", self.published.to_unix
-      json.field "publishedText", translate(locale, "`x` ago", recode_date(self.published, locale))
+      json.field "publishedText", I18n.translate(locale, "`x` ago", recode_date(self.published, locale))
 
       json.field "viewCount", self.views
     end

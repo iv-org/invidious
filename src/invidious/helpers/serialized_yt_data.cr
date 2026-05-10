@@ -53,7 +53,7 @@ struct SearchVideo
             xml.element("img", src: "#{HOST_URL}/vi/#{self.id}/mqdefault.jpg")
           end
 
-          xml.element("p", style: "word-break:break-word;white-space:pre-wrap") { xml.text html_to_content(self.description_html) }
+          xml.element("p", style: "word-break:break-word;white-space:pre-wrap") { xml.text Helpers.html_to_content(self.description_html) }
         end
       end
 
@@ -63,7 +63,7 @@ struct SearchVideo
         xml.element("media:title") { xml.text self.title }
         xml.element("media:thumbnail", url: "#{HOST_URL}/vi/#{self.id}/mqdefault.jpg",
           width: "320", height: "180")
-        xml.element("media:description") { xml.text html_to_content(self.description_html) }
+        xml.element("media:description") { xml.text Helpers.html_to_content(self.description_html) }
       end
 
       xml.element("media:community") do
@@ -111,13 +111,13 @@ struct SearchVideo
         Invidious::JSONify::APIv1.thumbnails(json, self.id)
       end
 
-      json.field "description", html_to_content(self.description_html)
+      json.field "description", Helpers.html_to_content(self.description_html)
       json.field "descriptionHtml", self.description_html
 
       json.field "viewCount", self.views
-      json.field "viewCountText", translate_count(locale, "generic_views_count", self.views, NumberFormatting::Short)
+      json.field "viewCountText", I18n.translate_count(locale, "generic_views_count", self.views, I18n::NumberFormatting::Short)
       json.field "published", self.published.to_unix
-      json.field "publishedText", translate(locale, "`x` ago", recode_date(self.published, locale))
+      json.field "publishedText", I18n.translate(locale, "`x` ago", recode_date(self.published, locale))
       json.field "lengthSeconds", self.length_seconds
       json.field "liveNow", self.badges.live_now?
       json.field "premium", self.badges.premium?
@@ -255,7 +255,7 @@ struct SearchChannel
       json.field "videoCount", self.video_count
       json.field "channelHandle", self.channel_handle
 
-      json.field "description", html_to_content(self.description_html)
+      json.field "description", Helpers.html_to_content(self.description_html)
       json.field "descriptionHtml", self.description_html
     end
   end
@@ -327,8 +327,8 @@ struct ProblematicTimelineItem
       xml.element("content", type: "xhtml") do
         xml.element("div", xmlns: "http://www.w3.org/1999/xhtml") do
           xml.element("div") do
-            xml.element("h4") { translate(locale, "timeline_parse_error_placeholder_heading") }
-            xml.element("p") { translate(locale, "timeline_parse_error_placeholder_message") }
+            xml.element("h4") { I18n.translate(locale, "timeline_parse_error_placeholder_heading") }
+            xml.element("p") { I18n.translate(locale, "timeline_parse_error_placeholder_message") }
           end
 
           xml.element("pre") do

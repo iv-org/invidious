@@ -43,6 +43,8 @@ jobs:
           - 1.16.3
           - 1.17.1
           - 1.18.2
+          - 1.19.2
+          - 1.20.1
         include:
           - crystal: nightly
             stable: false
@@ -58,7 +60,7 @@ jobs:
         shell: bash
 
       - name: Install Crystal
-        uses: crystal-lang/install-crystal@v1.9.1
+        uses: crystal-lang/install-crystal@v1.9.2
         with:
           crystal: ${{ matrix.crystal }}
 
@@ -80,7 +82,7 @@ jobs:
         run: crystal spec
 
       - name: Build
-        run: crystal build --warnings all --error-on-warnings --error-trace src/invidious.cr
+        run: crystal build --warnings all --error-on-warnings --stats --time --progress --error-trace src/invidious.cr
 
   build-docker:
     strategy:
@@ -97,10 +99,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
-
-      - name: Use ARM64 Dockerfile if ARM64
-        if: ${{ matrix.name == 'ARM64' }}
-        run: sed -i 's/Dockerfile/Dockerfile.arm64/' docker-compose.yml
 
       - name: Build Docker
         run: docker compose build
@@ -134,7 +132,7 @@ jobs:
 
       - name: Install Crystal
         id: lint_step_install_crystal
-        uses: crystal-lang/install-crystal@v1.9.1
+        uses: crystal-lang/install-crystal@v1.9.2
         with:
           crystal: latest
 

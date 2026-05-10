@@ -83,7 +83,7 @@ module Invidious::Routes::VideoPlayback
     # Remove the Range header added previously.
     headers.delete("Range") if range_header.nil?
 
-    playback_statistics = get_playback_statistic()
+    playback_statistics = Helpers.get_playback_statistic
     playback_statistics["totalRequests"] += 1
 
     if response.status_code >= 400
@@ -195,7 +195,7 @@ module Invidious::Routes::VideoPlayback
               end
             end
 
-            proxy_file(resp, env)
+            Helpers.proxy_file(resp, env)
           end
         rescue ex
           if ex.message != "Error reading socket: Connection reset by peer"

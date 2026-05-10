@@ -29,7 +29,7 @@ jobs:
           - os: ubuntu-24.04-arm
             platform: linux/arm64/v8
             name: "ARM64"
-            dockerfile: "docker/Dockerfile.arm64"
+            dockerfile: "docker/Dockerfile"
             tag_suffix: "-arm64"
 
     runs-on: ${{ matrix.os }}
@@ -39,10 +39,10 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Login to registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_USERNAME }}
@@ -50,7 +50,7 @@ jobs:
 
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: quay.io/invidious/invidious
           flavor: |
@@ -62,13 +62,34 @@ jobs:
             quay.expires-after=12w
 
       - name: Build and push Docker ${{ matrix.name }} image for Push Event
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
-          file:  ${{ matrix.dockerfile }}
+          file: ${{ matrix.dockerfile }}
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           build-args: |
             "release=1"
+
+  combine-multiarch-images:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to registry
+        uses: docker/login-action@v4
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
+
+      # https://github.com/marketplace/actions/docker-manifest-create-action
+      - name: Create and push manifest
+        uses: int128/docker-manifest-create-action@v2.20.0
+        with:
+          push: true
+          tags: quay.io/invidious/invidious:master
+          sources: |
+            quay.io/invidious/invidious:master
+            quay.io/invidious/invidious:master-arm64

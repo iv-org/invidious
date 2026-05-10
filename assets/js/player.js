@@ -104,14 +104,15 @@ if (video_data.params.quality === 'dash') {
  *
  * @param {String} url
  * @param {String} [base]
+ * @param {'t' | 'start'} param
  * @returns {URL} urlWithTimeArg
  */
-function addCurrentTimeToURL(url, base) {
+function addCurrentTimeToURL(url, base, param = 't') {
     var urlUsed = new URL(url, base);
     urlUsed.searchParams.delete('start');
     var currentTime = Math.ceil(player.currentTime());
     if (currentTime > 0)
-        urlUsed.searchParams.set('t', currentTime);
+        urlUsed.searchParams.set(param, currentTime);
     else if (urlUsed.searchParams.has('t'))
         urlUsed.searchParams.delete('t');
     return urlUsed;
@@ -147,7 +148,7 @@ player.on('timeupdate', function () {
         let elem_yt_embed = document.getElementById('link-yt-embed');
         if (elem_yt_embed) {
             let base_url_yt_embed = elem_yt_embed.getAttribute('data-base-url');
-            elem_yt_embed.href = addCurrentTimeToURL(base_url_yt_embed);
+            elem_yt_embed.href = addCurrentTimeToURL(base_url_yt_embed, undefined, 'start');
         }
     }
 

@@ -300,7 +300,7 @@ module Invidious::Routes::API::V1::Videos
 
         annotations = response.body
 
-        cache_annotation(id, annotations)
+        Helpers.cache_annotation(id, annotations)
       end
     else # "youtube"
       response = YT_POOL.client &.get("/annotations_invideo?video_id=#{id}")

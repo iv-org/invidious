@@ -3,11 +3,11 @@
 		<% search_placeholder = CONFIG.page_enabled?("search") ? translate(locale, "search") : translate(locale, "search_subscriptions_placeholder") %>
 		<input type="search" id="searchbox" autocorrect="off"
 		autocapitalize="none" spellcheck="false" <% if autofocus %>autofocus<% end %>
-		name="q" placeholder="<%= search_placeholder %>"
-		title="<%= search_placeholder %>"
+		name="q" placeholder="<%= I18n.translate(locale, "search") %>"
+		title="<%= I18n.translate(locale, "search") %>"
 		value="<%= env.get?("search").try {|x| HTML.escape(x.as(String)) } %>">
 	</fieldset>
-	<button type="submit" id="searchbutton" aria-label="<%= search_placeholder %>">
+	<button type="submit" id="searchbutton" aria-label="<%= I18n.translate(locale, "search") %>">
 		<i class="icon ion-ios-search"></i>
 	</button>
 </form>
