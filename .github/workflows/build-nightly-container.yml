@@ -17,22 +17,32 @@ on:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux/amd64
+            name: "AMD64"
+            dockerfile: "docker/Dockerfile"
+            tag_suffix: ""
+            # GitHub doesn't have a ubuntu-latest-arm runner
+          - os: ubuntu-24.04-arm
+            platform: linux/arm64/v8
+            name: "ARM64"
+            dockerfile: "docker/Dockerfile"
+            tag_suffix: "-arm64"
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: arm64
+        uses: actions/checkout@v6
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Login to registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_USERNAME }}
@@ -40,48 +50,46 @@ jobs:
 
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: quay.io/invidious/invidious
+          flavor: |
+            suffix=${{ matrix.tag_suffix }}
           tags: |
             type=sha,format=short,prefix={{date 'YYYY.MM.DD'}}-,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
             type=raw,value=master,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
           labels: |
             quay.expires-after=12w
 
-      - name: Build and push Docker AMD64 image for Push Event
-        uses: docker/build-push-action@v5
+      - name: Build and push Docker ${{ matrix.name }} image for Push Event
+        uses: docker/build-push-action@v7
         with:
           context: .
-          file: docker/Dockerfile
-          platforms: linux/amd64
+          file: ${{ matrix.dockerfile }}
+          platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           build-args: |
             "release=1"
 
-      - name: Docker meta
-        id: meta-arm64
-        uses: docker/metadata-action@v5
+  combine-multiarch-images:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to registry
+        uses: docker/login-action@v4
         with:
-          images: quay.io/invidious/invidious
-          flavor: |
-            suffix=-arm64
-          tags: |
-            type=sha,format=short,prefix={{date 'YYYY.MM.DD'}}-,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
-            type=raw,value=master,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
-          labels: |
-            quay.expires-after=12w
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
 
-      - name: Build and push Docker ARM64 image for Push Event
-        uses: docker/build-push-action@v5
+      # https://github.com/marketplace/actions/docker-manifest-create-action
+      - name: Create and push manifest
+        uses: int128/docker-manifest-create-action@v2.20.0
         with:
-          context: .
-          file: docker/Dockerfile.arm64
-          platforms: linux/arm64/v8
-          labels: ${{ steps.meta-arm64.outputs.labels }}
           push: true
-          tags: ${{ steps.meta-arm64.outputs.tags }}
-          build-args: |
-            "release=1"
+          tags: quay.io/invidious/invidious:master
+          sources: |
+            quay.io/invidious/invidious:master
+            quay.io/invidious/invidious:master-arm64

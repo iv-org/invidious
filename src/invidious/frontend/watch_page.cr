@@ -20,15 +20,25 @@ module Invidious::Frontend::WatchPage
 
   def download_widget(locale : String, video : Video, video_assets : VideoAssets) : String
     if CONFIG.disabled?("downloads")
-      return "<p id=\"download\">#{translate(locale, "Download is disabled")}</p>"
+      return "<p id=\"download\">#{I18n.translate(locale, "Download is disabled")}</p>"
+    end
+
+    if CONFIG.dmca_content.includes?(video.id)
+      return "<p id=\"download\">#{I18n.translate(locale, "dmca_content")}</p>"
+    end
+
+    url = "/download"
+    if (CONFIG.invidious_companion.present?)
+      invidious_companion = CONFIG.invidious_companion.sample
+      url = "#{invidious_companion.public_url}/download?check=#{invidious_companion_encrypt(video.id)}"
     end
 
     return String.build(4000) do |str|
       str << "<form"
       str << " class=\"pure-form pure-form-stacked\""
-      str << " action='/download'"
+      str << " action='" << HTML.escape(url) << "'"
       str << " method='post'"
-      str << " rel='noopener'"
+      str << " rel='noopener noreferrer'"
       str << " target='_blank'>"
       str << '\n'
 
@@ -39,7 +49,7 @@ module Invidious::Frontend::WatchPage
       str << "\t<div class=\"pure-control-group\">\n"
 
       str << "\t\t<label for='download_widget'>"
-      str << translate(locale, "Download as: ")
+      str << I18n.translate(locale, "Download as: ")
       str << "</label>\n"
 
       str << "\t\t<select name='download_widget' id='download_widget'>\n"
@@ -88,7 +98,7 @@ module Invidious::Frontend::WatchPage
         value = {"label": caption.name, "ext": "#{caption.language_code}.vtt"}.to_json
 
         str << "\t\t\t<option value='" << value << "'>"
-        str << translate(locale, "download_subtitles", translate(locale, caption.name))
+        str << I18n.translate(locale, "download_subtitles", I18n.translate(locale, caption.name))
         str << "</option>\n"
       end
 
@@ -98,7 +108,7 @@ module Invidious::Frontend::WatchPage
       str << "\t</div>\n"
 
       str << "\t<button type=\"submit\" class=\"pure-button pure-button-primary\">\n"
-      str << "\t\t<b>" << translate(locale, "Download") << "</b>\n"
+      str << "\t\t<b>" << I18n.translate(locale, "Download") << "</b>\n"
       str << "\t</button>\n"
 
       str << "</form>\n"

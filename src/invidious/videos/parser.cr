@@ -25,11 +25,6 @@ def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
 
   ucid = channel_info.try { |ci| HelperExtractors.get_browse_id(ci) }
 
-  # "4,088,033 views", only available on compact renderer
-  # and when video is not a livestream
-  view_count = related.dig?("viewCountText", "simpleText")
-    .try &.as_s.gsub(/\D/, "")
-
   short_view_count = related.try do |r|
     HelperExtractors.get_short_view_count(r).to_s
   end
@@ -51,7 +46,6 @@ def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
     "author"           => author || JSON::Any.new(""),
     "ucid"             => JSON::Any.new(ucid || ""),
     "length_seconds"   => JSON::Any.new(length || "0"),
-    "view_count"       => JSON::Any.new(view_count || "0"),
     "short_view_count" => JSON::Any.new(short_view_count || "0"),
     "author_verified"  => JSON::Any.new(author_verified),
     "published"        => JSON::Any.new(published || ""),
@@ -59,11 +53,12 @@ def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
 end
 
 def extract_video_info(video_id : String)
-  # Init client config for the API
-  client_config = YoutubeAPI::ClientConfig.new
-
   # Fetch data from the player endpoint
-  player_response = YoutubeAPI.player(video_id: video_id, params: "2AMB", client_config: client_config)
+  player_response = YoutubeAPI.player(video_id: video_id)
+
+  if player_response.nil?
+    return nil
+  end
 
   playability_status = player_response.dig?("playabilityStatus", "status").try &.as_s
 
@@ -82,14 +77,14 @@ def extract_video_info(video_id : String)
         "reason"  => JSON::Any.new(reason),
       }
     end
-  elsif video_id != player_response.dig("videoDetails", "videoId")
+  elsif video_id != player_response.dig?("videoDetails", "videoId")
     # YouTube may return a different video player response than expected.
     # See: https://github.com/TeamNewPipe/NewPipe/issues/8713
     # Line to be reverted if one day we solve the video not available issue.
 
     # Although technically not a call to /videoplayback the fact that YouTube is returning the
     # wrong video means that we should count it as a failure.
-    get_playback_statistic()["totalRequests"] += 1
+    Helpers.get_playback_statistic["totalRequests"] += 1
 
     return {
       "version" => JSON::Any.new(Video::SCHEMA_VERSION.to_i64),
@@ -102,36 +97,14 @@ def extract_video_info(video_id : String)
   # Don't fetch the next endpoint if the video is unavailable.
   if {"OK", "LIVE_STREAM_OFFLINE", "LOGIN_REQUIRED"}.any?(playability_status)
     next_response = YoutubeAPI.next({"videoId": video_id, "params": ""})
+    # Remove the microformat returned by the /next endpoint on some videos
+    # to prevent player_response microformat from being overwritten.
+    next_response.delete("microformat")
     player_response = player_response.merge(next_response)
   end
 
   params = parse_video_info(video_id, player_response)
   params["reason"] = JSON::Any.new(reason) if reason
-
-  if !CONFIG.invidious_companion.present?
-    new_player_response = nil
-
-    # Don't use Android test suite client if po_token is passed because po_token doesn't
-    # work for Android test suite client.
-    if reason.nil? && CONFIG.po_token.nil?
-      # Fetch the video streams using an Android client in order to get the
-      # decrypted URLs and maybe fix throttling issues (#2194). See the
-      # following issue for an explanation about decrypted URLs:
-      # https://github.com/TeamNewPipe/NewPipeExtractor/issues/562
-      client_config.client_type = YoutubeAPI::ClientType::AndroidTestSuite
-      new_player_response = try_fetch_streaming_data(video_id, client_config)
-    end
-
-    # Replace player response and reset reason
-    if !new_player_response.nil?
-      # Preserve captions & storyboard data before replacement
-      new_player_response["storyboards"] = player_response["storyboards"] if player_response["storyboards"]?
-      new_player_response["captions"] = player_response["captions"] if player_response["captions"]?
-
-      player_response = new_player_response
-      params.delete("reason")
-    end
-  end
 
   {"captions", "playabilityStatus", "playerConfig", "storyboards"}.each do |f|
     params[f] = player_response[f] if player_response[f]?
@@ -141,7 +114,11 @@ def extract_video_info(video_id : String)
   if streaming_data = player_response["streamingData"]?
     %w[formats adaptiveFormats].each do |key|
       streaming_data.as_h[key]?.try &.as_a.each do |format|
-        format.as_h["url"] = JSON::Any.new(convert_url(format))
+        format = format.as_h
+        if format["url"]?.nil?
+          format["url"] = format["signatureCipher"]
+        end
+        format["url"] = JSON::Any.new(convert_url(format))
       end
     end
 
@@ -156,12 +133,12 @@ end
 
 def try_fetch_streaming_data(id : String, client_config : YoutubeAPI::ClientConfig) : Hash(String, JSON::Any)?
   LOGGER.debug("try_fetch_streaming_data: [#{id}] Using #{client_config.client_type} client.")
-  response = YoutubeAPI.player(video_id: id, params: "2AMB", client_config: client_config)
+  response = YoutubeAPI.player(video_id: id)
 
   playability_status = response["playabilityStatus"]["status"]
   LOGGER.debug("try_fetch_streaming_data: [#{id}] Got playabilityStatus == #{playability_status}.")
 
-  if id != response.dig("videoDetails", "videoId")
+  if id != response.dig?("videoDetails", "videoId")
     # YouTube may return a different video player response than expected.
     # See: https://github.com/TeamNewPipe/NewPipe/issues/8713
     raise InfoException.new(
@@ -468,24 +445,13 @@ end
 
 private def convert_url(fmt)
   if cfr = fmt["signatureCipher"]?.try { |json| HTTP::Params.parse(json.as_s) }
-    sp = cfr["sp"]
     url = URI.parse(cfr["url"])
     params = url.query_params
 
     LOGGER.debug("convert_url: Decoding '#{cfr}'")
-
-    unsig = DECRYPT_FUNCTION.try &.decrypt_signature(cfr["s"])
-    params[sp] = unsig if unsig
   else
     url = URI.parse(fmt["url"].as_s)
     params = url.query_params
-  end
-
-  n = DECRYPT_FUNCTION.try &.decrypt_nsig(params["n"])
-  params["n"] = n if n
-
-  if token = CONFIG.po_token
-    params["pot"] = token
   end
 
   url.query_params = params

@@ -37,19 +37,20 @@ module Invidious::Routes::Feeds
     if CONFIG.popular_enabled
       templated "feeds/popular"
     else
-      message = translate(locale, "The Popular feed has been disabled by the administrator.")
+      message = I18n.translate(locale, "The Popular feed has been disabled by the administrator.")
       templated "message"
     end
   end
 
   def self.trending(env)
-    locale = env.get("preferences").as(Preferences).locale
+    preferences = env.get("preferences").as(Preferences)
+    locale = preferences.locale
 
     trending_type = env.params.query["type"]?
     trending_type ||= "Default"
 
     region = env.params.query["region"]?
-    region ||= env.get("preferences").as(Preferences).region
+    region ||= preferences.region
 
     begin
       trending, plid = fetch_trending(trending_type, region, locale)
@@ -202,7 +203,7 @@ module Invidious::Routes::Feeds
         xml.element("link", rel: "self", href: "#{HOST_URL}#{env.request.resource}")
         xml.element("id") { xml.text "yt:channel:#{ucid}" }
         xml.element("yt:channelId") { xml.text ucid }
-        xml.element("title") { author }
+        xml.element("title") { xml.text author }
         xml.element("link", rel: "alternate", href: "#{HOST_URL}/channel/#{ucid}")
 
         xml.element("author") do
@@ -258,7 +259,7 @@ module Invidious::Routes::Feeds
         xml.element("link", "type": "text/html", rel: "alternate", href: "#{HOST_URL}/feed/subscriptions")
         xml.element("link", "type": "application/atom+xml", rel: "self",
           href: "#{HOST_URL}#{env.request.resource}")
-        xml.element("title") { xml.text translate(locale, "Invidious Private Feed for `x`", user.email) }
+        xml.element("title") { xml.text I18n.translate(locale, "Invidious Private Feed for `x`", user.email) }
 
         (notifications + videos).each do |video|
           video.to_xml(locale, params, xml)
@@ -296,7 +297,13 @@ module Invidious::Routes::Feeds
               xml.element("name") { xml.text playlist.author }
             end
 
-            videos.each &.to_xml(xml)
+            videos.each do |video|
+              if video.is_a? PlaylistVideo
+                video.to_xml(xml)
+              else
+                video.to_xml(env, locale, xml)
+              end
+            end
           end
         end
       else

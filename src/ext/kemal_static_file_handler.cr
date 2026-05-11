@@ -1,3 +1,24 @@
+{% if compare_versions(Crystal::VERSION, "1.17.0-dev") >= 0 %}
+  # Strip StaticFileHandler from the binary
+  #
+  # This allows us to compile on 1.17.0 as the compiler won't try to
+  # semantically check the outdated upstream code.
+  class Kemal::Config
+    private def setup_static_file_handler
+    end
+  end
+
+  # Nullify `Kemal::StaticFileHandler`
+  #
+  # Needed until the next release of Kemal after 1.7
+  class Kemal::StaticFileHandler < HTTP::StaticFileHandler
+    def call(context : HTTP::Server::Context)
+    end
+  end
+
+  {% skip_file %}
+{% end %}
+
 # Since systems have a limit on number of open files (`ulimit -a`),
 # we serve them from memory to avoid 'Too many open files' without needing
 # to modify ulimit.
@@ -71,7 +92,7 @@ def send_file(env : HTTP::Server::Context, file_path : String, data : Slice(UInt
   filesize = data.bytesize
   attachment(env, filename, disposition)
 
-  Kemal.config.static_headers.try(&.call(env.response, file_path, filestat))
+  Kemal.config.static_headers.try(&.call(env, file_path, filestat))
 
   file = IO::Memory.new(data)
   if env.request.method == "GET" && env.request.headers.has_key?("Range")

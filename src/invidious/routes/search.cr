@@ -37,10 +37,10 @@ module Invidious::Routes::Search
   end
 
   def self.search(env)
-    prefs = env.get("preferences").as(Preferences)
-    locale = prefs.locale
+    preferences = env.get("preferences").as(Preferences)
+    locale = preferences.locale
 
-    region = env.params.query["region"]? || prefs.region
+    region = env.params.query["region"]? || preferences.region
 
     query = Invidious::Search::Query.new(env.params.query, :regular, region)
 
@@ -58,7 +58,11 @@ module Invidious::Routes::Search
       end
 
       begin
-        items = query.process
+        if user
+          items = query.process(user.as(User))
+        else
+          items = query.process
+        end
       rescue ex : ChannelSearchException
         return error_template(404, "Unable to find channel with id of '#{HTML.escape(ex.channel)}'. Are you sure that's an actual channel id? It should look like 'UC4QobU6STFB0P71PMvOGN5A'.")
       rescue ex

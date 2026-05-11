@@ -2,7 +2,8 @@
 
 module Invidious::Routes::Watch
   def self.handle(env)
-    locale = env.get("preferences").as(Preferences).locale
+    preferences = env.get("preferences").as(Preferences)
+    locale = preferences.locale
     region = env.params.query["region"]?
 
     if env.params.query.to_s.includes?("%20") || env.params.query.to_s.includes?("+")
@@ -37,8 +38,6 @@ module Invidious::Routes::Watch
 
     nojs ||= "0"
     nojs = nojs == "1"
-
-    preferences = env.get("preferences").as(Preferences)
 
     user = env.get?("user").try &.as(User)
     if user
@@ -194,10 +193,6 @@ module Invidious::Routes::Watch
 
     if CONFIG.invidious_companion.present?
       invidious_companion = CONFIG.invidious_companion.sample
-      env.response.headers["Content-Security-Policy"] =
-        env.response.headers["Content-Security-Policy"]
-          .gsub("media-src", "media-src #{invidious_companion.public_url}")
-          .gsub("connect-src", "connect-src #{invidious_companion.public_url}")
     end
 
     templated "watch"
@@ -293,6 +288,9 @@ module Invidious::Routes::Watch
     if CONFIG.disabled?("downloads")
       return error_template(403, "Administrator has disabled this endpoint.")
     end
+    if CONFIG.invidious_companion.present?
+      return error_template(403, "Downloads should be routed through Companion when present")
+    end
 
     title = env.params.body["title"]? || ""
     video_id = env.params.body["id"]? || ""
@@ -328,13 +326,7 @@ module Invidious::Routes::Watch
       env.params.query["title"] = filename
       env.params.query["local"] = "true"
 
-      if (CONFIG.invidious_companion.present?)
-        video = get_video(video_id)
-        invidious_companion = CONFIG.invidious_companion.sample
-        return env.redirect "#{invidious_companion.public_url}/latest_version?#{env.params.query}"
-      else
-        return Invidious::Routes::VideoPlayback.latest_version(env)
-      end
+      return Invidious::Routes::VideoPlayback.latest_version(env)
     else
       return error_template(400, "Invalid label or itag")
     end

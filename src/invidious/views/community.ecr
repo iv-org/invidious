@@ -35,11 +35,11 @@
 <%=
 {
     "ucid" => ucid,
-    "youtube_comments_text" => HTML.escape(translate(locale, "View YouTube comments")),
-    "comments_text" => HTML.escape(translate(locale, "View `x` comments", "{commentCount}")),
-    "hide_replies_text" => HTML.escape(translate(locale, "Hide replies")),
-    "show_replies_text" => HTML.escape(translate(locale, "Show replies")),
-    "replies_loaded_text" => HTML.escape(translate(locale, "Replies loaded")),
+    "replies_loaded_text" => HTML.escape(I18n.translate(locale, "Replies loaded")),
+    "youtube_comments_text" => HTML.escape(I18n.translate(locale, "View YouTube comments")),
+    "comments_text" => HTML.escape(I18n.translate(locale, "View `x` comments", "{commentCount}")),
+    "hide_replies_text" => HTML.escape(I18n.translate(locale, "Hide replies")),
+    "show_replies_text" => HTML.escape(I18n.translate(locale, "Show replies")),
     "preferences" => env.get("preferences").as(Preferences)
 }.to_pretty_json
 %>

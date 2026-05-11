@@ -231,8 +231,10 @@ module Invidious::Routes::Channels
       env.redirect "/post/#{URI.encode_www_form(lb)}?ucid=#{URI.encode_www_form(ucid)}"
     end
 
-    thin_mode = env.params.query["thin_mode"]? || env.get("preferences").as(Preferences).thin_mode
-    thin_mode = thin_mode == "true"
+    preferences = env.get("preferences").as(Preferences)
+
+    thin_mode = env.params.query["thin_mode"]?
+    thin_mode = (thin_mode == "true") || preferences.thin_mode
 
     continuation = env.params.query["continuation"]?
 
@@ -264,11 +266,11 @@ module Invidious::Routes::Channels
     id = env.params.url["id"]
     ucid = env.params.query["ucid"]?
 
-    prefs = env.get("preferences").as(Preferences)
+    preferences = env.get("preferences").as(Preferences)
 
-    locale = prefs.locale
+    locale = preferences.locale
 
-    thin_mode = env.params.query["thin_mode"]? || prefs.thin_mode
+    thin_mode = env.params.query["thin_mode"]? || preferences.thin_mode
     thin_mode = thin_mode == "true"
 
     nojs = env.params.query["nojs"]?
@@ -284,7 +286,7 @@ module Invidious::Routes::Channels
       response = YoutubeAPI.resolve_url("https://www.youtube.com/post/#{id}")
       return error_template(400, "Invalid post ID") if response["error"]?
 
-      ucid = response.dig("endpoint", "browseEndpoint", "browseId").as_s
+      ucid = decode_ucid_from_post_protobuf(response.dig("endpoint", "browseEndpoint", "params").as_s)
       post_response = fetch_channel_community_post(ucid, id, locale, "json", thin_mode)
     end
 
@@ -352,7 +354,7 @@ module Invidious::Routes::Channels
       resolved_url = YoutubeAPI.resolve_url("https://youtube.com#{env.request.path}#{yt_url_params.size > 0 ? "?#{yt_url_params}" : ""}")
       ucid = resolved_url["endpoint"]["browseEndpoint"]["browseId"]
     rescue ex : InfoException | KeyError
-      return error_template(404, translate(locale, "This channel does not exist."))
+      return error_template(404, I18n.translate(locale, "This channel does not exist."))
     end
 
     selected_tab = env.params.url["tab"]?

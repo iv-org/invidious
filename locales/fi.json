@@ -39,8 +39,6 @@
     "User ID": "Käyttäjätunnus",
     "Password": "Salasana",
     "Time (h:mm:ss):": "Aika (h:mm:ss):",
-    "Text CAPTCHA": "Teksti-CAPTCHA",
-    "Image CAPTCHA": "Kuva-CAPTCHA",
     "Sign In": "Kirjaudu sisään",
     "Register": "Rekisteröidy",
     "E-mail": "Sähköposti",
@@ -497,5 +495,7 @@
     "The Popular feed has been disabled by the administrator.": "Järjestelmänvalvoja on poistanut Suositut-syötteen.",
     "Import YouTube watch history (.json)": "Tuo Youtube-katseluhistoria (.json)",
     "toggle_theme": "Vaihda teemaa",
-    "preferences_preload_label": "Esilataa video data. "
+    "preferences_preload_label": "Esilataa video data. ",
+    "timeline_parse_error_show_technical_details": "Näytä tekniset yksityiskohdat",
+    "First page": "Ensimmäinen sivu"
 }

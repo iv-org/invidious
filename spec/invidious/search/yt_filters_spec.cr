@@ -48,9 +48,7 @@ FEATURE_FILTERS = {
 
 SORT_FILTERS = {
   Invidious::Search::Filters::Sort::Relevance => "8AEB",
-  Invidious::Search::Filters::Sort::Date      => "CALwAQE%3D",
   Invidious::Search::Filters::Sort::Views     => "CAPwAQE%3D",
-  Invidious::Search::Filters::Sort::Rating    => "CAHwAQE%3D",
 }
 
 Spectator.describe Invidious::Search::Filters do

@@ -5,6 +5,10 @@ var video_data = JSON.parse(document.getElementById('video_data').textContent);
 var options = {
     liveui: true,
     playbackRates: [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0],
+    fontPercent: [0.5, 0.75, 1.25, 1.5, 1.75, 2, 3, 4],
+    windowOpacity: ['0', '0.5', '1'],
+    textOpacity: ['0.5', '1'],
+    persistTextTrackSettings: true,
     controlBar: {
         children: [
             'playToggle',
@@ -100,14 +104,15 @@ if (video_data.params.quality === 'dash') {
  *
  * @param {String} url
  * @param {String} [base]
+ * @param {'t' | 'start'} param
  * @returns {URL} urlWithTimeArg
  */
-function addCurrentTimeToURL(url, base) {
+function addCurrentTimeToURL(url, base, param = 't') {
     var urlUsed = new URL(url, base);
     urlUsed.searchParams.delete('start');
     var currentTime = Math.ceil(player.currentTime());
     if (currentTime > 0)
-        urlUsed.searchParams.set('t', currentTime);
+        urlUsed.searchParams.set(param, currentTime);
     else if (urlUsed.searchParams.has('t'))
         urlUsed.searchParams.delete('t');
     return urlUsed;
@@ -133,16 +138,18 @@ player.on('timeupdate', function () {
 
     // YouTube links
 
-    let elem_yt_watch = document.getElementById('link-yt-watch');
-    if (elem_yt_watch) {
-        let base_url_yt_watch = elem_yt_watch.getAttribute('data-base-url');
-        elem_yt_watch.href = addCurrentTimeToURL(base_url_yt_watch);
-    }
-    
-    let elem_yt_embed = document.getElementById('link-yt-embed');
-    if (elem_yt_embed) {
-        let base_url_yt_embed = elem_yt_embed.getAttribute('data-base-url');
-        elem_yt_embed.href = addCurrentTimeToURL(base_url_yt_embed);
+    if (!video_data.live_now) {
+        let elem_yt_watch = document.getElementById('link-yt-watch');
+        if (elem_yt_watch) {
+            let base_url_yt_watch = elem_yt_watch.getAttribute('data-base-url');
+            elem_yt_watch.href = addCurrentTimeToURL(base_url_yt_watch);
+        }
+
+        let elem_yt_embed = document.getElementById('link-yt-embed');
+        if (elem_yt_embed) {
+            let base_url_yt_embed = elem_yt_embed.getAttribute('data-base-url');
+            elem_yt_embed.href = addCurrentTimeToURL(base_url_yt_embed, undefined, 'start');
+        }
     }
 
     // Invidious links
@@ -154,11 +161,17 @@ player.on('timeupdate', function () {
         let base_url_iv_embed = elem_iv_embed.getAttribute('data-base-url');
         elem_iv_embed.href = addCurrentTimeToURL(base_url_iv_embed, domain);
     }
-    
+
     let elem_iv_other = document.getElementById('link-iv-other');
     if (elem_iv_other) {
         let base_url_iv_other = elem_iv_other.getAttribute('data-base-url');
         elem_iv_other.href = addCurrentTimeToURL(base_url_iv_other, domain);
+    }
+
+    let elem_iv_listen = document.getElementById('link-iv-listen');
+    if (elem_iv_listen) {
+        let base_url_iv_listen = elem_iv_listen.getAttribute('data-base-url');
+        elem_iv_listen.href = addCurrentTimeToURL(base_url_iv_listen, domain);
     }
 });
 
@@ -180,7 +193,7 @@ var shareOptions = {
 };
 
 if (location.pathname.startsWith('/embed/')) {
-    var overlay_content = '<h1><a rel="noopener" target="_blank" href="' + location.origin + '/watch?v=' + video_data.id + '">' + player_data.title + '</a></h1>';
+    var overlay_content = '<h1><a rel="noopener noreferrer" target="_blank" href="' + location.origin + '/watch?v=' + video_data.id + '">' + player_data.title + '</a></h1>';
     player.overlay({
         overlays: [
             { start: 'loadstart', content: overlay_content, end: 'playing', align: 'top'},
@@ -450,7 +463,7 @@ if (!video_data.params.listen && video_data.params.annotations) {
             if (target === 'current') {
                 location.href = path;
             } else if (target === 'new') {
-                open(path, '_blank');
+                open(path, '_blank', 'noopener,noreferrer');
             }
         });
 
@@ -585,6 +598,13 @@ const toggle_captions = (function () {
     };
 })();
 
+// For real-time updates to captions (if currently showing)
+function update_captions() {
+    if (document.body.querySelector('.vjs-text-track-cue')) {
+        toggle_captions(); toggle_captions();
+    }
+}
+
 function toggle_fullscreen() {
     player.isFullscreen() ? player.exitFullscreen() : player.requestFullscreen();
 }
@@ -595,6 +615,34 @@ function increase_playback_rate(steps) {
     let newIndex = curIndex + steps;
     newIndex = helpers.clamp(newIndex, 0, maxIndex);
     player.playbackRate(options.playbackRates[newIndex]);
+}
+
+function increase_caption_size(steps) {
+    const maxIndex = options.fontPercent.length - 1;
+    const fontPercent = player.textTrackSettings.getValues().fontPercent || 1.25;
+    const curIndex = options.fontPercent.indexOf(fontPercent);
+    let newIndex = curIndex + steps;
+    newIndex = helpers.clamp(newIndex, 0, maxIndex);
+    player.textTrackSettings.setValues({ fontPercent: options.fontPercent[newIndex] });
+    update_captions();
+}
+
+function toggle_caption_window() {
+    const numOptions = options.windowOpacity.length;
+    const windowOpacity = player.textTrackSettings.getValues().windowOpacity || '0';
+    const curIndex = options.windowOpacity.indexOf(windowOpacity);
+    const newIndex = (curIndex + 1) % numOptions;
+    player.textTrackSettings.setValues({ windowOpacity: options.windowOpacity[newIndex] });
+    update_captions();
+}
+
+function toggle_caption_opacity() {
+    const numOptions = options.textOpacity.length;
+    const textOpacity = player.textTrackSettings.getValues().textOpacity || '1';
+    const curIndex = options.textOpacity.indexOf(textOpacity);
+    const newIndex = (curIndex + 1) % numOptions;
+    player.textTrackSettings.setValues({ textOpacity: options.textOpacity[newIndex] });
+    update_captions();
 }
 
 addEventListener('keydown', function (e) {
@@ -692,6 +740,12 @@ addEventListener('keydown', function (e) {
 
         case '>': action = increase_playback_rate.bind(this, 1); break;
         case '<': action = increase_playback_rate.bind(this, -1); break;
+
+        case '=': action = increase_caption_size.bind(this, 1); break;
+        case '-': action = increase_caption_size.bind(this, -1); break;
+
+        case 'w': action = toggle_caption_window; break;
+        case 'o': action = toggle_caption_opacity; break;
 
         default:
             console.info('Unhandled key down event: %s:', decoratedKey, e);

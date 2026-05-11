@@ -75,7 +75,6 @@ Spectator.describe "parse_video_info" do
     expect(info["relatedVideos"][0]["id"]).to eq("j7jPzzjbVuk")
     expect(info["relatedVideos"][0]["author"]).to eq("Democracy Now!")
     expect(info["relatedVideos"][0]["ucid"]).to eq("UCzuqE7-t13O4NIDYJfakrhw")
-    expect(info["relatedVideos"][0]["view_count"]).to eq("7576")
     expect(info["relatedVideos"][0]["short_view_count"]).to eq("7.5K")
     expect(info["relatedVideos"][0]["author_verified"]).to eq("true")
 

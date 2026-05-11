@@ -6,10 +6,10 @@ module YoutubeAPI
   extend self
 
   # For Android versions, see https://en.wikipedia.org/wiki/Android_version_history
-  private ANDROID_APP_VERSION = "19.32.34"
-  private ANDROID_VERSION     = "12"
-  private ANDROID_USER_AGENT  = "com.google.android.youtube/#{ANDROID_APP_VERSION} (Linux; U; Android #{ANDROID_VERSION}; US) gzip"
-  private ANDROID_SDK_VERSION = 31_i64
+  private ANDROID_APP_VERSION = "19.35.36"
+  private ANDROID_VERSION     = "13"
+  private ANDROID_USER_AGENT  = "com.google.android.youtube/#{ANDROID_APP_VERSION} (Linux; U; Android #{ANDROID_VERSION}; en_US; SM-S908E Build/TP1A.220624.014) gzip"
+  private ANDROID_SDK_VERSION = 33_i64
 
   private ANDROID_TS_APP_VERSION = "1.9"
   private ANDROID_TS_USER_AGENT  = "com.google.android.youtube/1.9 (Linux; U; Android 12; US) gzip"
@@ -17,9 +17,9 @@ module YoutubeAPI
   # For Apple device names, see https://gist.github.com/adamawolf/3048717
   # For iOS versions, see https://en.wikipedia.org/wiki/IOS_version_history#Releases,
   # then go to the dedicated article of the major version you want.
-  private IOS_APP_VERSION = "19.32.8"
-  private IOS_USER_AGENT  = "com.google.ios.youtube/#{IOS_APP_VERSION} (iPhone14,5; U; CPU iOS 17_6 like Mac OS X;)"
-  private IOS_VERSION     = "17.6.1.21G93" # Major.Minor.Patch.Build
+  private IOS_APP_VERSION = "20.11.6"
+  private IOS_USER_AGENT  = "com.google.ios.youtube/#{IOS_APP_VERSION} (iPhone14,5; U; CPU iOS 18_5 like Mac OS X;)"
+  private IOS_VERSION     = "18.5.0.22F76" # Major.Minor.Patch.Build
 
   private WINDOWS_VERSION = "10.0"
 
@@ -42,6 +42,7 @@ module YoutubeAPI
 
     TvHtml5
     TvHtml5ScreenEmbed
+    TvSimply
   end
 
   # List of hard-coded values used by the different clients
@@ -49,7 +50,7 @@ module YoutubeAPI
     ClientType::Web => {
       name:       "WEB",
       name_proto: "1",
-      version:    "2.20240814.00.00",
+      version:    "2.20250222.10.00",
       screen:     "WATCH_FULL_SCREEN",
       os_name:    "Windows",
       os_version: WINDOWS_VERSION,
@@ -58,7 +59,7 @@ module YoutubeAPI
     ClientType::WebEmbeddedPlayer => {
       name:       "WEB_EMBEDDED_PLAYER",
       name_proto: "56",
-      version:    "1.20240812.01.00",
+      version:    "1.20250219.01.00",
       screen:     "EMBED",
       os_name:    "Windows",
       os_version: WINDOWS_VERSION,
@@ -67,7 +68,7 @@ module YoutubeAPI
     ClientType::WebMobile => {
       name:       "MWEB",
       name_proto: "2",
-      version:    "2.20240813.02.00",
+      version:    "2.20250224.01.00",
       os_name:    "Android",
       os_version: ANDROID_VERSION,
       platform:   "MOBILE",
@@ -75,7 +76,7 @@ module YoutubeAPI
     ClientType::WebScreenEmbed => {
       name:       "WEB",
       name_proto: "1",
-      version:    "2.20240814.00.00",
+      version:    "2.20250222.10.00",
       screen:     "EMBED",
       os_name:    "Windows",
       os_version: WINDOWS_VERSION,
@@ -84,7 +85,7 @@ module YoutubeAPI
     ClientType::WebCreator => {
       name:       "WEB_CREATOR",
       name_proto: "62",
-      version:    "1.20240918.03.00",
+      version:    "1.20241203.01.00",
       os_name:    "Windows",
       os_version: WINDOWS_VERSION,
       platform:   "DESKTOP",
@@ -170,13 +171,18 @@ module YoutubeAPI
     ClientType::TvHtml5 => {
       name:       "TVHTML5",
       name_proto: "7",
-      version:    "7.20240813.07.00",
+      version:    "7.20250219.14.00",
     },
     ClientType::TvHtml5ScreenEmbed => {
       name:       "TVHTML5_SIMPLY_EMBEDDED_PLAYER",
       name_proto: "85",
       version:    "2.0",
       screen:     "EMBED",
+    },
+    ClientType::TvSimply => {
+      name:       "TVHTML5_SIMPLY",
+      name_proto: "74",
+      version:    "1.0",
     },
   }
 
@@ -192,10 +198,6 @@ module YoutubeAPI
   # # Get Norwegian search results
   # conf_1 = ClientConfig.new(region: "NO")
   # YoutubeAPI::search("Kollektivet", params: "", client_config: conf_1)
-  #
-  # # Use the Android client to request video streams URLs
-  # conf_2 = ClientConfig.new(client_type: ClientType::Android)
-  # YoutubeAPI::player(video_id: "dQw4w9WgXcQ", client_config: conf_2)
   #
   #
   struct ClientConfig
@@ -329,10 +331,6 @@ module YoutubeAPI
       client_context["client"]["platform"] = platform
     end
 
-    if CONFIG.visitor_data.is_a?(String)
-      client_context["client"]["visitorData"] = CONFIG.visitor_data.as(String)
-    end
-
     return client_context
   end
 
@@ -449,61 +447,23 @@ module YoutubeAPI
   end
 
   ####################################################################
-  # player(video_id, params, client_config?)
+  # player(video_id)
   #
-  # Requests the youtubei/v1/player endpoint with the required headers
-  # and POST data in order to get a JSON reply.
+  # Requests the youtubei/v1/player Invidious Companion endpoint with
+  # the requested video ID.
   #
-  # The requested data is a video ID (`v=` parameter), with some
-  # additional parameters, formatted as a base64 string.
+  # The requested data is a video ID (`v=` parameter).
   #
-  # An optional ClientConfig parameter can be passed, too (see
-  # `struct ClientConfig` above for more details).
-  #
-  def player(
-    video_id : String,
-    *, # Force the following parameters to be passed by name
-    params : String,
-    client_config : ClientConfig | Nil = nil,
-  )
-    # Playback context, separate because it can be different between clients
-    playback_ctx = {
-      "html5Preference" => "HTML5_PREF_WANTS",
-      "referer"         => "https://www.youtube.com/watch?v=#{video_id}",
-    } of String => String | Int64
-
-    if {"WEB", "TVHTML5"}.any? { |s| client_config.name.starts_with? s }
-      if sts = DECRYPT_FUNCTION.try &.get_sts
-        playback_ctx["signatureTimestamp"] = sts.to_i64
-      end
-    end
-
-    # JSON Request data, required by the API
+  def player(video_id : String)
+    # JSON Request data, required by Invidious Companion
     data = {
-      "contentCheckOk" => true,
-      "videoId"        => video_id,
-      "context"        => self.make_context(client_config, video_id),
-      "racyCheckOk"    => true,
-      "user"           => {
-        "lockedSafetyMode" => false,
-      },
-      "playbackContext" => {
-        "contentPlaybackContext" => playback_ctx,
-      },
-      "serviceIntegrityDimensions" => {
-        "poToken" => CONFIG.po_token,
-      },
+      "videoId" => video_id,
     }
-
-    # Append the additional parameters if those were provided
-    if params != ""
-      data["params"] = params
-    end
 
     if CONFIG.invidious_companion.present?
       return self._post_invidious_companion("/youtubei/v1/player", data)
     else
-      return self._post_json("/youtubei/v1/player", data, client_config)
+      return nil
     end
   end
 
@@ -629,10 +589,6 @@ module YoutubeAPI
       headers["User-Agent"] = user_agent
     end
 
-    if CONFIG.visitor_data.is_a?(String)
-      headers["X-Goog-Visitor-Id"] = CONFIG.visitor_data.as(String)
-    end
-
     # Logging
     LOGGER.debug("YoutubeAPI: Using endpoint: \"#{endpoint}\"")
     LOGGER.trace("YoutubeAPI: ClientConfig: #{client_config}")
@@ -695,22 +651,20 @@ module YoutubeAPI
     # Send the POST request
 
     begin
-      response = COMPANION_POOL.client &.post(endpoint, headers: headers, body: data.to_json)
-      body = response.body
-      if (response.status_code != 200)
-        raise Exception.new(
-          "Error while communicating with Invidious companion: \
-          status code: #{response.status_code} and body: #{body.dump}"
-        )
+      response_body = Hash(String, JSON::Any).new
+
+      COMPANION_POOL.client do |wrapper|
+        companion_base_url = wrapper.companion.private_url.path
+
+        wrapper.client.post("#{companion_base_url}#{endpoint}", headers: headers, body: data.to_json) do |response|
+          response_body = JSON.parse(response.body_io).as_h
+        end
       end
+
+      return response_body
     rescue ex
       raise InfoException.new("Error while communicating with Invidious companion: " + (ex.message || "no extra info found"))
     end
-
-    # Convert result to Hash
-    initial_data = JSON.parse(body).as_h
-
-    return initial_data
   end
 
   ####################################################################

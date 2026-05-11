@@ -6,10 +6,10 @@ module Invidious::Frontend::Comments
       root = comments["comments"].as_a
       root.each do |child|
         if child["replies"]?
-          replies_count_text = translate_count(locale,
+          replies_count_text = I18n.translate_count(locale,
             "comments_view_x_replies",
             child["replies"]["replyCount"].as_i64 || 0,
-            NumberFormatting::Separator
+            I18n::NumberFormatting::Separator
           )
 
           replies_html = <<-END_HTML
@@ -25,10 +25,10 @@ module Invidious::Frontend::Comments
           END_HTML
         elsif comments["authorId"]? && !comments["singlePost"]?
           # for posts we should display a link to the post
-          replies_count_text = translate_count(locale,
+          replies_count_text = I18n.translate_count(locale,
             "comments_view_x_replies",
             child["replyCount"].as_i64 || 0,
-            NumberFormatting::Separator
+            I18n::NumberFormatting::Separator
           )
 
           replies_html = <<-END_HTML
@@ -61,7 +61,7 @@ module Invidious::Frontend::Comments
           sponsor_icon = String.build do |str|
             str << %(<img alt="" )
             str << %(src="/ggpht) << URI.parse(child["sponsorIconUrl"].as_s).request_target << "\" "
-            str << %(title=") << translate(locale, "Channel Sponsor") << "\" "
+            str << %(title=") << I18n.translate(locale, "Channel Sponsor") << "\" "
             str << %(width="16" height="16" />)
           end
         end
@@ -110,14 +110,14 @@ module Invidious::Frontend::Comments
           when "multiImage"
             html << <<-END_HTML
               <section class="carousel">
-              <a class="skip-link" href="#skip-#{child["commentId"]}">#{translate(locale, "carousel_skip")}</a>
+              <a class="skip-link" href="#skip-#{child["commentId"]}">#{I18n.translate(locale, "carousel_skip")}</a>
               <div class="slides">
               END_HTML
             image_array = attachment["images"].as_a
 
             image_array.each_index do |i|
               html << <<-END_HTML
-                  <div class="slides-item slide-#{i + 1}" id="#{child["commentId"]}-slide-#{i + 1}" aria-label="#{translate(locale, "carousel_slide", {"current" => (i + 1).to_s, "total" => image_array.size.to_s})}" tabindex="0">
+                  <div class="slides-item slide-#{i + 1}" id="#{child["commentId"]}-slide-#{i + 1}" aria-label="#{I18n.translate(locale, "carousel_slide", {"current" => (i + 1).to_s, "total" => image_array.size.to_s})}" tabindex="0">
                     <img loading="lazy" src="/ggpht#{URI.parse(image_array[i][1]["url"].as_s).request_target}" alt="" />
                   </div>
                 END_HTML
@@ -129,7 +129,7 @@ module Invidious::Frontend::Comments
               END_HTML
             attachment["images"].as_a.each_index do |i|
               html << <<-END_HTML
-                  <a class="slider-nav" href="##{child["commentId"]}-slide-#{i + 1}" aria-label="#{translate(locale, "carousel_go_to", (i + 1).to_s)}" tabindex="-1" aria-hidden="true">#{i + 1}</a>
+                  <a class="slider-nav" href="##{child["commentId"]}-slide-#{i + 1}" aria-label="#{I18n.translate(locale, "carousel_go_to", (i + 1).to_s)}" tabindex="-1" aria-hidden="true">#{i + 1}</a>
                 END_HTML
             end
             html << <<-END_HTML
@@ -143,18 +143,18 @@ module Invidious::Frontend::Comments
 
         html << <<-END_HTML
         <p>
-          <span title="#{Time.unix(child["published"].as_i64).to_s(translate(locale, "%A %B %-d, %Y"))}">#{translate(locale, "`x` ago", recode_date(Time.unix(child["published"].as_i64), locale))} #{child["isEdited"] == true ? translate(locale, "(edited)") : ""}</span>
+          <span title="#{Time.unix(child["published"].as_i64).to_s(I18n.translate(locale, "%A %B %-d, %Y"))}">#{I18n.translate(locale, "`x` ago", recode_date(Time.unix(child["published"].as_i64), locale))} #{child["isEdited"] == true ? I18n.translate(locale, "(edited)") : ""}</span>
           |
         END_HTML
 
         if comments["videoId"]?
           html << <<-END_HTML
-            <a rel="noreferrer noopener" href="https://www.youtube.com/watch?v=#{comments["videoId"]}&lc=#{child["commentId"]}" title="#{translate(locale, "YouTube comment permalink")}">[YT]</a>
+            <a rel="noreferrer noopener" href="https://www.youtube.com/watch?v=#{comments["videoId"]}&lc=#{child["commentId"]}" title="#{I18n.translate(locale, "YouTube comment permalink")}">[YT]</a>
             |
           END_HTML
         elsif comments["authorId"]?
           html << <<-END_HTML
-            <a rel="noreferrer noopener" href="https://www.youtube.com/channel/#{comments["authorId"]}/community?lb=#{child["commentId"]}" title="#{translate(locale, "YouTube comment permalink")}">[YT]</a>
+            <a rel="noreferrer noopener" href="https://www.youtube.com/channel/#{comments["authorId"]}/community?lb=#{child["commentId"]}" title="#{I18n.translate(locale, "YouTube comment permalink")}">[YT]</a>
             |
           END_HTML
         end
@@ -172,7 +172,7 @@ module Invidious::Frontend::Comments
 
           html << <<-END_HTML
             &nbsp;
-            <span class="creator-heart-container" title="#{translate(locale, "`x` marked it with a ❤", child["creatorHeart"]["creatorName"].as_s)}">
+            <span class="creator-heart-container" title="#{I18n.translate(locale, "`x` marked it with a ❤", child["creatorHeart"]["creatorName"].as_s)}">
                 <span class="creator-heart">
                     <img loading="lazy" class="creator-heart-background-hearted" src="#{creator_thumbnail}" alt="" />
                     <span class="creator-heart-small-hearted">
@@ -197,7 +197,7 @@ module Invidious::Frontend::Comments
           <div class="pure-u-1">
             <p>
               <a href="javascript:void(0)" data-continuation="#{comments["continuation"]}"
-                data-onclick="get_youtube_replies" data-load-more #{"data-load-replies" if is_replies}>#{translate(locale, "Load more")}</a>
+                data-onclick="get_youtube_replies" data-load-more #{"data-load-replies" if is_replies}>#{I18n.translate(locale, "Load more")}</a>
             </p>
           </div>
         </div>

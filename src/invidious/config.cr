@@ -52,6 +52,8 @@ struct ConfigPreferences
   property vr_mode : Bool = true
   property show_nick : Bool = true
   property save_player_pos : Bool = false
+  @[YAML::Field(ignore: true)]
+  property default_playlist : String? = nil
 
   def to_tuple
     {% begin %}
@@ -82,6 +84,9 @@ class Config
 
     @[YAML::Field(converter: Preferences::URIConverter)]
     property public_url : URI = URI.parse("")
+
+    # Indicates if this companion instance uses the built-in proxy
+    property builtin_proxy : Bool = false
   end
 
   # Number of threads to use for crawling videos from channels (for updating subscriptions)
@@ -148,9 +153,6 @@ class Config
   @[YAML::Field(converter: Preferences::FamilyConverter)]
   property force_resolve : Socket::Family = Socket::Family::UNSPEC
 
-  # External signature solver server socket (either a path to a UNIX domain socket or "<IP>:<Port>")
-  property signature_server : String? = nil
-
   # Port to listen for connections (overridden by command line argument)
   property port : Int32 = 3000
   # Host to bind (overridden by command line argument)
@@ -164,11 +166,6 @@ class Config
 
   # Use Innertube's transcripts API instead of timedtext for closed captions
   property use_innertube_for_captions : Bool = false
-
-  # visitor data ID for Google session
-  property visitor_data : String? = nil
-  # poToken for passing bot attestation
-  property po_token : String? = nil
 
   # Invidious companion
   property invidious_companion : Array(CompanionConfig) = [] of CompanionConfig
@@ -257,11 +254,7 @@ class Config
     {% end %}
 
     if config.invidious_companion.present?
-      # invidious_companion and signature_server can't work together
-      if config.signature_server
-        puts "Config: You can not run inv_sig_helper and invidious_companion at the same time."
-        exit(1)
-      elsif config.invidious_companion_key.empty?
+      if config.invidious_companion_key.empty?
         puts "Config: Please configure a key if you are using invidious companion."
         exit(1)
       elsif config.invidious_companion_key == "CHANGE_ME!!"
@@ -271,10 +264,16 @@ class Config
         puts "Config: The value of 'invidious_companion_key' needs to be a size of 16 characters."
         exit(1)
       end
-    elsif config.signature_server
-      puts("WARNING: inv-sig-helper is deprecated. Please switch to Invidious companion: https://docs.invidious.io/companion-installation/")
+
+      # Set public_url to built-in proxy path when omitted
+      config.invidious_companion.each do |companion|
+        if companion.public_url.to_s.empty?
+          companion.public_url = URI.parse("/companion")
+          companion.builtin_proxy = true
+        end
+      end
     else
-      puts("WARNING: Invidious companion is required to view and playback videos. For more information see https://docs.invidious.io/companion-installation/")
+      puts("WARNING: Invidious companion is required to view and playback videos. For more information see https://docs.invidious.io/installation/")
     end
 
     # HMAC_key is mandatory

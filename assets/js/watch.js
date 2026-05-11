@@ -141,7 +141,7 @@ function get_reddit_comments() {
                     </b> \
                 </p> \
                 <b> \
-                    <a rel="noopener" target="_blank" href="https://reddit.com{permalink}">{redditPermalinkText}</a> \
+                    <a rel="noopener noreferrer" target="_blank" href="https://reddit.com{permalink}">{redditPermalinkText}</a> \
                 </b> \
             </div> \
             <div>{contentHtml}</div> \

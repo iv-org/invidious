@@ -53,7 +53,7 @@ struct SearchVideo
             xml.element("img", src: "#{HOST_URL}/vi/#{self.id}/mqdefault.jpg")
           end
 
-          xml.element("p", style: "word-break:break-word;white-space:pre-wrap") { xml.text html_to_content(self.description_html) }
+          xml.element("p", style: "word-break:break-word;white-space:pre-wrap") { xml.text Helpers.html_to_content(self.description_html) }
         end
       end
 
@@ -63,7 +63,7 @@ struct SearchVideo
         xml.element("media:title") { xml.text self.title }
         xml.element("media:thumbnail", url: "#{HOST_URL}/vi/#{self.id}/mqdefault.jpg",
           width: "320", height: "180")
-        xml.element("media:description") { xml.text html_to_content(self.description_html) }
+        xml.element("media:description") { xml.text Helpers.html_to_content(self.description_html) }
       end
 
       xml.element("media:community") do
@@ -111,13 +111,13 @@ struct SearchVideo
         Invidious::JSONify::APIv1.thumbnails(json, self.id)
       end
 
-      json.field "description", html_to_content(self.description_html)
+      json.field "description", Helpers.html_to_content(self.description_html)
       json.field "descriptionHtml", self.description_html
 
       json.field "viewCount", self.views
-      json.field "viewCountText", translate_count(locale, "generic_views_count", self.views, NumberFormatting::Short)
+      json.field "viewCountText", I18n.translate_count(locale, "generic_views_count", self.views, I18n::NumberFormatting::Short)
       json.field "published", self.published.to_unix
-      json.field "publishedText", translate(locale, "`x` ago", recode_date(self.published, locale))
+      json.field "publishedText", I18n.translate(locale, "`x` ago", recode_date(self.published, locale))
       json.field "lengthSeconds", self.length_seconds
       json.field "liveNow", self.badges.live_now?
       json.field "premium", self.badges.premium?
@@ -255,7 +255,7 @@ struct SearchChannel
       json.field "videoCount", self.video_count
       json.field "channelHandle", self.channel_handle
 
-      json.field "description", html_to_content(self.description_html)
+      json.field "description", Helpers.html_to_content(self.description_html)
       json.field "descriptionHtml", self.description_html
     end
   end
@@ -287,6 +287,55 @@ struct SearchHashtag
       json.field "url", self.url
       json.field "videoCount", self.video_count
       json.field "channelCount", self.channel_count
+    end
+  end
+end
+
+# A `ProblematicTimelineItem` is a `SearchItem` created by Invidious that
+# represents an item that caused an exception during parsing.
+#
+# This is not a parsed object from YouTube but rather an Invidious-only type
+# created to gracefully communicate parse errors without throwing away
+# the rest of the (hopefully) successfully parsed item on a page.
+struct ProblematicTimelineItem
+  property parse_exception : Exception
+  property id : String
+
+  def initialize(@parse_exception)
+    @id = Random.new.hex(8)
+  end
+
+  def to_json(locale : String?, json : JSON::Builder)
+    json.object do
+      json.field "type", "parse-error"
+      json.field "errorMessage", @parse_exception.message
+      json.field "errorBacktrace", @parse_exception.inspect_with_backtrace
+    end
+  end
+
+  # Provides compatibility with PlaylistVideo
+  def to_json(json : JSON::Builder, *args, **kwargs)
+    return to_json("", json)
+  end
+
+  def to_xml(env, locale, xml : XML::Builder)
+    xml.element("entry") do
+      xml.element("id") { xml.text "iv-err-#{@id}" }
+      xml.element("title") { xml.text "Parse Error: This item has failed to parse" }
+      xml.element("updated") { xml.text Time.utc.to_rfc3339 }
+
+      xml.element("content", type: "xhtml") do
+        xml.element("div", xmlns: "http://www.w3.org/1999/xhtml") do
+          xml.element("div") do
+            xml.element("h4") { I18n.translate(locale, "timeline_parse_error_placeholder_heading") }
+            xml.element("p") { I18n.translate(locale, "timeline_parse_error_placeholder_message") }
+          end
+
+          xml.element("pre") do
+            get_issue_template(env, @parse_exception)
+          end
+        end
+      end
     end
   end
 end
@@ -333,4 +382,4 @@ struct Continuation
   end
 end
 
-alias SearchItem = SearchVideo | SearchChannel | SearchPlaylist | SearchHashtag | Category
+alias SearchItem = SearchVideo | SearchChannel | SearchPlaylist | SearchHashtag | Category | ProblematicTimelineItem

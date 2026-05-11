@@ -81,9 +81,9 @@
 - [Available in many languages](locales/), thanks to [our translators](#contribute)
 
 **Data import/export**
-- Import subscriptions from YouTube, NewPipe and Freetube
+- Import subscriptions from YouTube, NewPipe and FreeTube
 - Import watch history from YouTube and NewPipe
-- Export subscriptions to NewPipe and Freetube
+- Export subscriptions to NewPipe and FreeTube
 - Import/Export Invidious user data
 
 **Technical features**
@@ -95,11 +95,11 @@
 
 ## Quick start
 
-**Using invidious:**
+**Using Invidious:**
 
 - [Select a public instance from the list](https://instances.invidious.io) and start watching videos right now!
 
-**Hosting invidious:**
+**Hosting Invidious:**
 
 - [Follow the installation instructions](https://docs.invidious.io/installation/)
 
@@ -114,8 +114,8 @@ https://github.com/iv-org/documentation
 ### Extensions
 
 We highly recommend the use of [Privacy Redirect](https://github.com/SimonBrazell/privacy-redirect#get),
-a browser extension that automatically redirects Youtube URLs to any Invidious instance and replaces
-embedded youtube videos on other websites with invidious.
+a browser extension that automatically redirects YouTube URLs to any Invidious instance and replaces
+embedded YouTube videos on other websites with Invidious.
 
 The documentation contains a list of browser extensions that we recommended to use along with Invidious.
 
@@ -129,7 +129,7 @@ You can read more here: https://docs.invidious.io/applications/
 1.  Fork it ( https://github.com/iv-org/invidious/fork ).
 1.  Create your feature branch (`git checkout -b my-new-feature`).
 1.  Stage your files (`git add .`).
-1.  Commit your changes (`git commit -am 'Add some feature'`).
+1.  Commit your changes (`git commit -m 'Add some feature'`).
 1.  Push to the branch (`git push origin my-new-feature`).
 1.  Create a new pull request ( https://github.com/iv-org/invidious/compare ).
 
@@ -140,7 +140,7 @@ We use [Weblate](https://weblate.org) to manage Invidious translations.
 You can suggest new translations and/or correction here: https://hosted.weblate.org/engage/invidious/.
 
 Creating an account is not required, but recommended, especially if you want to contribute regularly.
-Weblate also allows you to log-in with major SSO providers like Github, Gitlab, BitBucket, Google, ...
+Weblate also allows you to log-in with major SSO providers like GitHub, GitLab, BitBucket, Google, ...
 
 
 ## Projects using Invidious

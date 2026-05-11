@@ -39,8 +39,6 @@
     "User ID": "Användar-ID",
     "Password": "Lösenord",
     "Time (h:mm:ss):": "Tid (h:mm:ss):",
-    "Text CAPTCHA": "Text-CAPTCHA",
-    "Image CAPTCHA": "Bild-CAPTCHA",
     "Sign In": "Inloggning",
     "Register": "Registrera",
     "E-mail": "E-post",
@@ -498,5 +496,8 @@
     "carousel_skip": "Hoppa över karusellen",
     "carousel_go_to": "Gå till bildspel `x`",
     "preferences_preload_label": "Förladda video data: ",
-    "Filipino (auto-generated)": "Filippinska (auto-genererad)"
+    "Filipino (auto-generated)": "Filippinska (auto-genererad)",
+    "First page": "Första sidan",
+    "channel_tab_courses_label": "Kurser",
+    "channel_tab_posts_label": "Inlägg"
 }

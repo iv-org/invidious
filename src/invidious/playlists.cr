@@ -107,7 +107,11 @@ struct Playlist
 
       json.field "author", self.author
       json.field "authorId", self.ucid
-      json.field "authorUrl", "/channel/#{self.ucid}"
+      if !self.ucid.empty?
+        json.field "authorUrl", "/channel/#{self.ucid}"
+      else
+        json.field "authorUrl", ""
+      end
       json.field "subtitle", self.subtitle
 
       json.field "authorThumbnails" do
@@ -195,7 +199,7 @@ struct InvidiousPlaylist
       json.field "authorUrl", nil
       json.field "authorThumbnails", [] of String
 
-      json.field "description", html_to_content(self.description_html)
+      json.field "description", Helpers.html_to_content(self.description_html)
       json.field "descriptionHtml", self.description_html
       json.field "videoCount", self.video_count
 
@@ -359,6 +363,9 @@ def fetch_playlist(plid : String)
   thumbnail = playlist_info.dig?(
     "thumbnailRenderer", "playlistVideoThumbnailRenderer",
     "thumbnail", "thumbnails", 0, "url"
+  ).try &.as_s || playlist_info.dig?(
+    "thumbnailRenderer", "playlistCustomThumbnailRenderer",
+    "thumbnail", "thumbnails", 0, "url"
   ).try &.as_s
 
   views = 0_i64
@@ -377,7 +384,7 @@ def fetch_playlist(plid : String)
       video_count = text.gsub(/\D/, "").to_i? || 0
     elsif text.includes? "view"
       views = text.gsub(/\D/, "").to_i64? || 0_i64
-    else
+    elsif !text.includes? "Pay to watch"
       updated = decode_date(text.lchop("Last updated on ").lchop("Updated "))
     end
   end
@@ -432,13 +439,13 @@ def get_playlist_videos(playlist : InvidiousPlaylist | Playlist, offset : Int32,
       offset = initial_data.dig?("contents", "twoColumnWatchNextResults", "playlist", "playlist", "currentIndex").try &.as_i || offset
     end
 
-    videos = [] of PlaylistVideo
+    videos = [] of PlaylistVideo | ProblematicTimelineItem
 
     until videos.size >= 200 || videos.size == playlist.video_count || offset >= playlist.video_count
       # 100 videos per request
       ctoken = produce_playlist_continuation(playlist.id, offset)
       initial_data = YoutubeAPI.browse(ctoken)
-      videos += extract_playlist_videos(initial_data)
+      videos += extract_playlist_videos(playlist.id, initial_data)
 
       offset += 100
     end
@@ -447,8 +454,8 @@ def get_playlist_videos(playlist : InvidiousPlaylist | Playlist, offset : Int32,
   end
 end
 
-def extract_playlist_videos(initial_data : Hash(String, JSON::Any))
-  videos = [] of PlaylistVideo
+def extract_playlist_videos(playlist_id : String, initial_data : Hash(String, JSON::Any))
+  videos = [] of PlaylistVideo | ProblematicTimelineItem
 
   if initial_data["contents"]?
     tabs = initial_data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"]
@@ -473,9 +480,9 @@ def extract_playlist_videos(initial_data : Hash(String, JSON::Any))
 
   contents.try &.each do |item|
     if i = item["playlistVideoRenderer"]?
-      video_id = i["navigationEndpoint"]["watchEndpoint"]["videoId"].as_s
-      plid = i["navigationEndpoint"]["watchEndpoint"]["playlistId"].as_s
-      index = i["navigationEndpoint"]["watchEndpoint"]["index"].as_i64
+      video_id = i.dig?("navigationEndpoint", "watchEndpoint", "videoId").try &.as_s || i.dig("videoId").as_s
+      plid = i.dig?("navigationEndpoint", "watchEndpoint", "playlistId").try &.as_s || playlist_id
+      index = i.dig?("navigationEndpoint", "watchEndpoint", "index").try &.as_i64 || i.dig("index", "simpleText").as_s.to_i64
 
       title = i["title"].try { |t| t["simpleText"]? || t["runs"]?.try &.[0]["text"]? }.try &.as_s || ""
       author = i["shortBylineText"]?.try &.["runs"][0]["text"].as_s || ""
@@ -500,6 +507,8 @@ def extract_playlist_videos(initial_data : Hash(String, JSON::Any))
         index:          index,
       })
     end
+  rescue ex
+    videos << ProblematicTimelineItem.new(parse_exception: ex)
   end
 
   return videos

@@ -1,4 +1,16 @@
 module Invidious::Routes::BeforeAll
+  struct CompanionCSP
+    property companion_urls : String = ""
+
+    def initialize
+      self.companion_urls = CONFIG.invidious_companion.reject(&.builtin_proxy).map do |companion|
+        "#{companion.public_url.scheme}://#{companion.public_url.host}#{companion.public_url.port ? ":#{companion.public_url.port}" : ""}"
+      end.join(" ")
+    end
+  end
+
+  private COMPANION_CSP = CompanionCSP.new
+
   def self.handle(env)
     preferences = Preferences.from_json("{}")
 
@@ -7,7 +19,7 @@ module Invidious::Routes::BeforeAll
         preferences = Preferences.from_json(URI.decode_www_form(prefs_cookie.value))
       else
         if language_header = env.request.headers["Accept-Language"]?
-          if language = ANG.language_negotiator.best(language_header, LOCALES.keys)
+          if language = ANG.language_negotiator.best(language_header, I18n::LOCALES.keys)
             preferences.locale = language.header
           end
         end
@@ -19,14 +31,6 @@ module Invidious::Routes::BeforeAll
     env.set "preferences", preferences
     env.response.headers["X-XSS-Protection"] = "1; mode=block"
     env.response.headers["X-Content-Type-Options"] = "nosniff"
-
-    # Allow media resources to be loaded from google servers
-    # TODO: check if *.youtube.com can be removed
-    if CONFIG.disabled?("local") || !preferences.local
-      extra_media_csp = " https://*.googlevideo.com:443 https://*.youtube.com:443"
-    else
-      extra_media_csp = ""
-    end
 
     # Only allow the pages at /embed/* to be embedded
     if env.request.resource.starts_with?("/embed")
@@ -43,9 +47,9 @@ module Invidious::Routes::BeforeAll
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data:",
       "font-src 'self' data:",
-      "connect-src 'self'",
+      "connect-src 'self' " + COMPANION_CSP.companion_urls,
       "manifest-src 'self'",
-      "media-src 'self' blob:" + extra_media_csp,
+      "media-src 'self' blob: " + COMPANION_CSP.companion_urls,
       "child-src 'self' blob:",
       "frame-src 'self'",
       "frame-ancestors " + frame_ancestors,
@@ -71,6 +75,7 @@ module Invidious::Routes::BeforeAll
                 "/videoplayback",
                 "/latest_version",
                 "/download",
+                "/companion/",
               }.any? { |r| env.request.resource.starts_with? r }
 
     if env.request.cookies.has_key? "SID"
@@ -101,14 +106,29 @@ module Invidious::Routes::BeforeAll
     end
 
     dark_mode = convert_theme(env.params.query["dark_mode"]?) || preferences.dark_mode.to_s
-    thin_mode = env.params.query["thin_mode"]? || preferences.thin_mode.to_s
-    thin_mode = thin_mode == "true"
+    thin_mode = env.params.query["thin_mode"]?
+    thin_mode = (thin_mode == "true") || preferences.thin_mode
     locale = env.params.query["hl"]? || preferences.locale
 
     preferences.dark_mode = dark_mode
     preferences.thin_mode = thin_mode
     preferences.locale = locale
     env.set "preferences", preferences
+
+    # Allow media resources to be loaded from google servers
+    # TODO: check if *.youtube.com can be removed
+    #
+    # `!preferences.local` has to be checked after setting and
+    # reading `preferences` from the "PREFS" cookie and
+    # saved user preferences from the database, otherwise
+    # `https://*.googlevideo.com:443 https://*.youtube.com:443`
+    # will not be set in the CSP header if
+    # `default_user_preferences.local` is set to true on the
+    # configuration file, causing preference “Proxy Videos”
+    # not to work while having it disabled and using medium quality.
+    if CONFIG.disabled?("local") || !preferences.local
+      env.response.headers["Content-Security-Policy"] = env.response.headers["Content-Security-Policy"].gsub("media-src", "media-src https://*.googlevideo.com:443 https://*.youtube.com:443")
+    end
 
     current_page = env.request.path
     if env.request.query

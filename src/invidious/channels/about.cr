@@ -12,6 +12,7 @@ record AboutChannel,
   sub_count : Int32,
   joined : Time,
   is_family_friendly : Bool,
+  pronouns : String?,
   allowed_regions : Array(String),
   tabs : Array(String),
   tags : Array(String),
@@ -160,14 +161,21 @@ def get_about_info(ucid, locale) : AboutChannel
   end
 
   sub_count = 0
+  pronouns = nil
 
   if (metadata_rows = initdata.dig?("header", "pageHeaderRenderer", "content", "pageHeaderViewModel", "metadata", "contentMetadataViewModel", "metadataRows").try &.as_a)
     metadata_rows.each do |row|
-      metadata_part = row.dig?("metadataParts").try &.as_a.find { |i| i.dig?("text", "content").try &.as_s.includes?("subscribers") }
-      if !metadata_part.nil?
-        sub_count = short_text_to_number(metadata_part.dig("text", "content").as_s.split(" ")[0]).to_i32
+      subscribe_metadata_part = row.dig?("metadataParts").try &.as_a.find { |i| i.dig?("text", "content").try &.as_s.includes?("subscribers") }
+      if !subscribe_metadata_part.nil?
+        sub_count = short_text_to_number(subscribe_metadata_part.dig("text", "content").as_s.split(" ")[0]).to_i32
       end
-      break if sub_count != 0
+
+      pronoun_metadata_part = row.dig?("metadataParts").try &.as_a.find { |i| i.dig?("tooltip").try &.as_s.includes?("Pronouns") }
+      if !pronoun_metadata_part.nil?
+        pronouns = pronoun_metadata_part.dig("text", "content").as_s
+      end
+
+      break if sub_count != 0 && !pronouns.nil?
     end
   end
 
@@ -184,6 +192,7 @@ def get_about_info(ucid, locale) : AboutChannel
     sub_count: sub_count,
     joined: joined,
     is_family_friendly: is_family_friendly,
+    pronouns: pronouns,
     allowed_regions: allowed_regions,
     tabs: tab_names,
     tags: tags,

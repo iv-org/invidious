@@ -52,7 +52,6 @@ Spectator.describe "parse_video_info" do
     expect(info["relatedVideos"][0]["title"]).to eq("$1 vs $250,000,000 Private Island!")
     expect(info["relatedVideos"][0]["author"]).to eq("MrBeast")
     expect(info["relatedVideos"][0]["ucid"]).to eq("UCX6OQ3DkcsbYNE6H8uQQuVA")
-    expect(info["relatedVideos"][0]["view_count"]).to eq("230617484")
     expect(info["relatedVideos"][0]["short_view_count"]).to eq("230M")
     expect(info["relatedVideos"][0]["author_verified"]).to eq("true")
 
@@ -138,7 +137,6 @@ Spectator.describe "parse_video_info" do
     expect(info["relatedVideos"][0]["title"]).to eq("Chris Rea - The Road To Hell 1989 Full Version")
     expect(info["relatedVideos"][0]["author"]).to eq("NEA ZIXNH")
     expect(info["relatedVideos"][0]["ucid"]).to eq("UCYMEOGcvav3gCgImK2J07CQ")
-    expect(info["relatedVideos"][0]["view_count"]).to eq("53298661")
     expect(info["relatedVideos"][0]["short_view_count"]).to eq("53M")
     expect(info["relatedVideos"][0]["author_verified"]).to eq("false")
 

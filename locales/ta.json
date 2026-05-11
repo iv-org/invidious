@@ -282,8 +282,6 @@
     "Import": "இறக்குமதி",
     "Import NewPipe subscriptions (.json)": "நியூபிப்பிப் சந்தாக்களை இறக்குமதி செய்யுங்கள் (.json)",
     "Export": "ஏற்றுமதி",
-    "Text CAPTCHA": "உரை கேப்ட்சா",
-    "Image CAPTCHA": "பட கேப்ட்சா",
     "preferences_category_player": "பிளேயர் விருப்பத்தேர்வுகள்",
     "preferences_video_loop_label": "எப்போதும் லூப்: ",
     "preferences_continue_autoplay_label": "தன்னியக்க அடுத்த வீடியோ: ",
@@ -498,5 +496,11 @@
     "channel_tab_channels_label": "சேனல்கள்",
     "toggle_theme": "கருப்பொருளை மாற்றவும்",
     "carousel_slide": "{{total}} இன் ச்லைடு {{current}}",
-    "carousel_skip": "கொணர்வி தவிர்க்கவும்"
+    "carousel_skip": "கொணர்வி தவிர்க்கவும்",
+    "First page": "முதல் பக்கம்",
+    "channel_tab_courses_label": "படிப்புகள்",
+    "channel_tab_posts_label": "இடுகைகள்",
+    "timeline_parse_error_placeholder_heading": "உருப்படியை அலச முடியவில்லை",
+    "timeline_parse_error_placeholder_message": "இந்த உருப்படியை அலச முயற்சிக்கும் போது ஒரு பிழையை அடக்கமடைந்தது. மேலும் தகவலுக்கு கீழே காண்க:",
+    "timeline_parse_error_show_technical_details": "தொழில்நுட்ப விவரங்களைக் காட்டு"
 }

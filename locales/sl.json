@@ -24,9 +24,7 @@
     "User ID": "ID uporabnika",
     "Password": "Geslo",
     "Time (h:mm:ss):": "Čas (h:mm:ss):",
-    "Text CAPTCHA": "Besedilo CAPTCHA",
     "source": "izvorna koda",
-    "Image CAPTCHA": "Slika CAPTCHA",
     "Sign In": "Prijavi se",
     "Register": "Registriraj se",
     "E-mail": "E-pošta",
@@ -532,5 +530,11 @@
     "carousel_slide": "Diapozitiv {{current}} od {{total}}",
     "carousel_skip": "Preskoči galerijo",
     "carousel_go_to": "Pojdi na diapozitiv `x`",
-    "preferences_preload_label": "Predhodno naloži video podatke: "
+    "preferences_preload_label": "Predhodno naloži video podatke: ",
+    "First page": "Prva stran",
+    "channel_tab_courses_label": "Tečaji",
+    "channel_tab_posts_label": "Objave",
+    "timeline_parse_error_placeholder_heading": "Elementa ni mogoče razčleniti",
+    "timeline_parse_error_placeholder_message": "Invidious je naletel na napako pri poskusu razčlenitve tega elementa. Za več informacij glej spodaj:",
+    "timeline_parse_error_show_technical_details": "Pokaži tehnične podrobnosti"
 }

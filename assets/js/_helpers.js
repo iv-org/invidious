@@ -211,9 +211,9 @@ window.helpers = window.helpers || {
                         helpers.storage.remove(key);
                     }
                 },
-                set: function (key, value) { 
+                set: function (key, value) {
                     let encoded_value = encodeURIComponent(JSON.stringify(value))
-                    localStorage.setItem(key, encoded_value); 
+                    localStorage.setItem(key, encoded_value);
                 },
                 remove: function (key) { localStorage.removeItem(key); }
             };

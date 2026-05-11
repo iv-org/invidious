@@ -39,8 +39,6 @@
     "User ID": "Kullanıcı Kimliği",
     "Password": "Parola",
     "Time (h:mm:ss):": "Zaman (h:mm:ss):",
-    "Text CAPTCHA": "Metin CAPTCHA",
-    "Image CAPTCHA": "Resim CAPTCHA",
     "Sign In": "Oturum Aç",
     "Register": "Kayıt Ol",
     "E-mail": "E-Posta",
@@ -497,5 +495,12 @@
     "carousel_skip": "Kayar menüyü atla",
     "carousel_go_to": "`x` sunumuna git",
     "The Popular feed has been disabled by the administrator.": "Popüler akışı yönetici tarafından devre dışı bırakıldı.",
-    "preferences_preload_label": "Video verilerini önceden yükle: "
+    "preferences_preload_label": "Video verilerini önceden yükle: ",
+    "First page": "İlk sayfa",
+    "Filipino (auto-generated)": "Filipince (oto-oluşturuldu)",
+    "channel_tab_courses_label": "Kurslar",
+    "channel_tab_posts_label": "Yazılar",
+    "timeline_parse_error_placeholder_heading": "Öge ayrıştıramıyor",
+    "timeline_parse_error_placeholder_message": "Invidious, bu ögeyi ayrıştırmaya çalışırken bir hatayla karşılaştı. Daha fazla bilgi için aşağıya bakın:",
+    "timeline_parse_error_show_technical_details": "Teknik ayrıntıları göster"
 }

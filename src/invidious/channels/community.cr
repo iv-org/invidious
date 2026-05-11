@@ -3,8 +3,8 @@ private IMAGE_QUALITIES = {320, 560, 640, 1280, 2000}
 # TODO: Add "sort_by"
 def fetch_channel_community(ucid, cursor, locale, format, thin_mode)
   if cursor.nil?
-    # Egljb21tdW5pdHk%3D is the protobuf object to load "community"
-    initial_data = YoutubeAPI.browse(ucid, params: "Egljb21tdW5pdHk%3D")
+    # EgVwb3N0c_IGBAoCSgA%3D is the protobuf object to load "posts"
+    initial_data = YoutubeAPI.browse(ucid, params: "EgVwb3N0c_IGBAoCSgA%3D")
 
     items = [] of JSON::Any
     extract_items(initial_data) do |item|
@@ -24,15 +24,21 @@ def fetch_channel_community(ucid, cursor, locale, format, thin_mode)
   return extract_channel_community(items, ucid: ucid, locale: locale, format: format, thin_mode: thin_mode)
 end
 
+def decode_ucid_from_post_protobuf(params)
+  decoded_protobuf = params.try { |i| URI.decode_www_form(i) }
+    .try { |i| Base64.decode(i) }
+    .try { |i| IO::Memory.new(i) }
+    .try { |i| Protodec::Any.parse(i) }
+
+  return decoded_protobuf.try(&.["56:0:embedded"]["2:0:string"].as_s)
+end
+
 def fetch_channel_community_post(ucid, post_id, locale, format, thin_mode)
   object = {
-    "2:string"    => "community",
-    "25:embedded" => {
-      "22:string" => post_id.to_s,
-    },
-    "45:embedded" => {
-      "2:varint" => 1_i64,
-      "3:varint" => 1_i64,
+    "56:embedded" => {
+      "2:string"  => ucid,
+      "3:string"  => post_id.to_s,
+      "11:string" => ucid,
     },
   }
   params = object.try { |i| Protodec::Any.cast_json(i) }
@@ -40,7 +46,7 @@ def fetch_channel_community_post(ucid, post_id, locale, format, thin_mode)
     .try { |i| Base64.urlsafe_encode(i) }
     .try { |i| URI.encode_www_form(i) }
 
-  initial_data = YoutubeAPI.browse(ucid, params: params)
+  initial_data = YoutubeAPI.browse("FEpost_detail", params: params)
 
   items = [] of JSON::Any
   extract_items(initial_data) do |item|
@@ -121,11 +127,11 @@ def extract_channel_community(items, *, ucid, locale, format, thin_mode, is_sing
 
               reply_count = short_text_to_number(post.dig?("actionButtons", "commentActionButtonsRenderer", "replyButton", "buttonRenderer", "text", "simpleText").try &.as_s || "0")
 
-              json.field "content", html_to_content(content_html)
+              json.field "content", Helpers.html_to_content(content_html)
               json.field "contentHtml", content_html
 
               json.field "published", published.to_unix
-              json.field "publishedText", translate(locale, "`x` ago", recode_date(published, locale))
+              json.field "publishedText", I18n.translate(locale, "`x` ago", recode_date(published, locale))
 
               json.field "likeCount", like_count
               json.field "replyCount", reply_count
@@ -137,7 +143,7 @@ def extract_channel_community(items, *, ucid, locale, format, thin_mode, is_sing
                   case attachment.as_h
                   when .has_key?("videoRenderer")
                     parse_item(attachment)
-                      .as(SearchVideo)
+                      .as(SearchVideo | ProblematicTimelineItem)
                       .to_json(locale, json)
                   when .has_key?("backstageImageRenderer")
                     json.object do
