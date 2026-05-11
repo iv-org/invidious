@@ -273,6 +273,15 @@ def get_referer(env, fallback = "/", unroll = true)
   return referer
 end
 
+def add_video_query_params(request_target : String, params : HTTP::Params) : String
+  params = params.to_s
+
+  return request_target unless request_target.starts_with?("/watch?v=")
+  return request_target if params.empty?
+
+  "#{request_target}&#{params}"
+end
+
 def sha256(text)
   digest = OpenSSL::Digest.new("SHA256")
   digest << text
