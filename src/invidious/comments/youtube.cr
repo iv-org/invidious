@@ -94,9 +94,13 @@ module Invidious::Comments
 
     if !contents
       if format == "json"
-        return {"comments" => [] of String}.to_json
+        return {
+          "comments"         => [] of String,
+          "commentsDisabled" => true,
+        }.to_json
       else
-        return {"contentHtml" => "", "commentCount" => 0}.to_json
+        message = HTML.escape(I18n.translate(locale, "Comments are turned off."))
+        return {"contentHtml" => "<p>#{message}</p>", "commentCount" => 0}.to_json
       end
     end
 

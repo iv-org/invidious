@@ -236,6 +236,7 @@
     "This channel does not exist.": "This channel does not exist.",
     "Could not get channel info.": "Could not get channel info.",
     "Could not fetch comments": "Could not fetch comments",
+    "Comments are turned off.": "Comments are turned off.",
     "comments_view_x_replies": "View {{count}} reply",
     "comments_view_x_replies_plural": "View {{count}} replies",
     "`x` ago": "`x` ago",
