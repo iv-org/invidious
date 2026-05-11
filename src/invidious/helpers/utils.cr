@@ -202,6 +202,12 @@ def number_to_short_text(number)
   text
 end
 
+def user_agent_lacks_dash_support?(user_agent : String?) : Bool
+  return false if user_agent.nil?
+
+  user_agent.includes?("iPhone") || user_agent.includes?("iPod")
+end
+
 def arg_array(array, start = 1)
   if array.size == 0
     args = "NULL"

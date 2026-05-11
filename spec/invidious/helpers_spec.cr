@@ -53,4 +53,30 @@ Spectator.describe "Helper" do
       expect(sign_token("SECRET_KEY", token)).to eq(token["signature"])
     end
   end
+
+  describe "#user_agent_lacks_dash_support?" do
+    it "detects iPhone Safari" do
+      user_agent = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1"
+
+      expect(user_agent_lacks_dash_support?(user_agent)).to be_true
+    end
+
+    it "detects iPod Safari" do
+      user_agent = "Mozilla/5.0 (iPod touch; CPU iPhone OS 15_8 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.8 Mobile/15E148 Safari/604.1"
+
+      expect(user_agent_lacks_dash_support?(user_agent)).to be_true
+    end
+
+    it "does not force the fallback on iPad or desktop Safari" do
+      ipad_user_agent = "Mozilla/5.0 (iPad; CPU OS 17_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Mobile/15E148 Safari/604.1"
+      mac_user_agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15"
+
+      expect(user_agent_lacks_dash_support?(ipad_user_agent)).to be_false
+      expect(user_agent_lacks_dash_support?(mac_user_agent)).to be_false
+    end
+
+    it "does not force the fallback without a user agent" do
+      expect(user_agent_lacks_dash_support?(nil)).to be_false
+    end
+  end
 end

@@ -123,6 +123,9 @@ module Invidious::Routes::Embed
     end
 
     params = process_video_params(env.params.query, preferences)
+    if params.quality == "dash" && user_agent_lacks_dash_support?(env.request.headers["User-Agent"]?)
+      params.quality = "hd720"
+    end
 
     user = env.get?("user").try &.as(User)
     if user
