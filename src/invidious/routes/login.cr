@@ -57,7 +57,8 @@ module Invidious::Routes::Login
           sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
           Invidious::Database::SessionIDs.insert(sid, email)
 
-          env.response.cookies["SID"] = Invidious::User::Cookies.sid(CONFIG.domain, sid)
+          cookie_domain = Invidious::User::Cookies.domain_for_request(env)
+          env.response.cookies["SID"] = Invidious::User::Cookies.sid(cookie_domain, sid)
         else
           return error_template(401, "Wrong username or password")
         end
@@ -123,7 +124,8 @@ module Invidious::Routes::Login
         view_name = "subscriptions_#{sha256(user.email)}"
         PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(user.email)}")
 
-        env.response.cookies["SID"] = Invidious::User::Cookies.sid(CONFIG.domain, sid)
+        cookie_domain = Invidious::User::Cookies.domain_for_request(env)
+        env.response.cookies["SID"] = Invidious::User::Cookies.sid(cookie_domain, sid)
 
         if env.request.cookies["PREFS"]?
           user.preferences = env.get("preferences").as(Preferences)

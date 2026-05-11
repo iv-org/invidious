@@ -1,8 +1,36 @@
 require "../spec_helper"
 
 CONFIG = Config.from_yaml(File.open("config/config.example.yml"))
+require "../../src/invidious/user/cookies"
 
 Spectator.describe "Helper" do
+  describe "Invidious::User::Cookies.domain_for_host" do
+    it "keeps the configured cookie domain for matching hosts" do
+      original_domain = CONFIG.domain
+      CONFIG.domain = "example.com"
+
+      begin
+        expect(Invidious::User::Cookies.domain_for_host("example.com")).to eq("example.com")
+        expect(Invidious::User::Cookies.domain_for_host("www.example.com:443")).to eq("example.com")
+        expect(Invidious::User::Cookies.domain_for_host("www.example.com, proxy")).to eq("example.com")
+      ensure
+        CONFIG.domain = original_domain
+      end
+    end
+
+    it "uses host-only cookies for unrelated hosts" do
+      original_domain = CONFIG.domain
+      CONFIG.domain = "example.com"
+
+      begin
+        expect(Invidious::User::Cookies.domain_for_host("example.onion")).to be_nil
+        expect(Invidious::User::Cookies.domain_for_host("example.com.evil.test")).to be_nil
+      ensure
+        CONFIG.domain = original_domain
+      end
+    end
+  end
+
   describe "#produce_channel_search_continuation" do
     it "correctly produces token for searching a specific channel" do
       expect(produce_channel_search_continuation("UCXuqSBlHAE6Xw-yeJA0Tunw", "", 100)).to eq("4qmFsgJqEhhVQ1h1cVNCbEhBRTZYdy15ZUpBMFR1bncaIEVnWnpaV0Z5WTJnd0FUZ0JZQUY2QkVkS2IxaTRBUUE9WgCaAilicm93c2UtZmVlZFVDWHVxU0JsSEFFNlh3LXllSkEwVHVud3NlYXJjaA%3D%3D")
