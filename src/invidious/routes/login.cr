@@ -57,16 +57,14 @@ module Invidious::Routes::Login
           sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
           Invidious::Database::SessionIDs.insert(sid, email)
 
-          env.response.cookies["SID"] = Invidious::User::Cookies.sid(CONFIG.domain, sid)
+          env.response.cookies["SID"] = Invidious::User::Cookies.sid(cookie_domain(env), sid)
         else
           return error_template(401, "Wrong username or password")
         end
 
         # Since this user has already registered, we don't want to overwrite their preferences
         if env.request.cookies["PREFS"]?
-          cookie = env.request.cookies["PREFS"]
-          cookie.expires = Time.utc(1990, 1, 1)
-          env.response.cookies << cookie
+          env.response.cookies["PREFS"] = Invidious::User::Cookies.clear_prefs(cookie_domain(env))
         end
       else
         if !CONFIG.registration_enabled
@@ -123,15 +121,13 @@ module Invidious::Routes::Login
         view_name = "subscriptions_#{sha256(user.email)}"
         PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(user.email)}")
 
-        env.response.cookies["SID"] = Invidious::User::Cookies.sid(CONFIG.domain, sid)
+        env.response.cookies["SID"] = Invidious::User::Cookies.sid(cookie_domain(env), sid)
 
         if env.request.cookies["PREFS"]?
           user.preferences = env.get("preferences").as(Preferences)
           Invidious::Database::Users.update_preferences(user)
 
-          cookie = env.request.cookies["PREFS"]
-          cookie.expires = Time.utc(1990, 1, 1)
-          env.response.cookies << cookie
+          env.response.cookies["PREFS"] = Invidious::User::Cookies.clear_prefs(cookie_domain(env))
         end
       end
 
@@ -164,10 +160,9 @@ module Invidious::Routes::Login
 
     Invidious::Database::SessionIDs.delete(sid: sid)
 
-    env.request.cookies.each do |cookie|
-      cookie.expires = Time.utc(1990, 1, 1)
-      env.response.cookies << cookie
-    end
+    domain = cookie_domain(env)
+    env.response.cookies["SID"] = Invidious::User::Cookies.clear_sid(domain)
+    env.response.cookies["PREFS"] = Invidious::User::Cookies.clear_prefs(domain)
 
     env.redirect referer
   end

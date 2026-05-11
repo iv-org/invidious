@@ -3,6 +3,24 @@ require "../spec_helper"
 CONFIG = Config.from_yaml(File.open("config/config.example.yml"))
 
 Spectator.describe "Helper" do
+  describe "#cookie_domain" do
+    it "keeps the configured cookie domain for the matching host" do
+      expect(cookie_domain("example.com", "example.com")).to eq("example.com")
+      expect(cookie_domain("example.com", "example.com:3000")).to eq("example.com")
+    end
+
+    it "falls back to host-only cookies for unrelated hosts such as onion mirrors" do
+      expect(cookie_domain("example.com", "exampleonionaddress.onion")).to be_nil
+      expect(cookie_domain("example.com", "other.example")).to be_nil
+    end
+
+    it "preserves shared-subdomain deployments when the configured domain starts with a dot" do
+      expect(cookie_domain(".example.com", "example.com")).to eq(".example.com")
+      expect(cookie_domain(".example.com", "www.example.com")).to eq(".example.com")
+      expect(cookie_domain(".example.com", "deep.www.example.com")).to eq(".example.com")
+    end
+  end
+
   describe "#produce_channel_search_continuation" do
     it "correctly produces token for searching a specific channel" do
       expect(produce_channel_search_continuation("UCXuqSBlHAE6Xw-yeJA0Tunw", "", 100)).to eq("4qmFsgJqEhhVQ1h1cVNCbEhBRTZYdy15ZUpBMFR1bncaIEVnWnpaV0Z5WTJnd0FUZ0JZQUY2QkVkS2IxaTRBUUE9WgCaAilicm93c2UtZmVlZFVDWHVxU0JsSEFFNlh3LXllSkEwVHVud3NlYXJjaA%3D%3D")

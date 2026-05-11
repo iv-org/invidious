@@ -279,6 +279,26 @@ def sha256(text)
   return digest.final.hexstring
 end
 
+def cookie_domain(configured_domain : String?, request_host : String?) : String?
+  return nil unless configured_domain
+  return nil unless request_host
+
+  normalized_domain = configured_domain.downcase.lchop(".")
+  normalized_host = request_host.downcase.sub(/:\d+\z/, "")
+
+  return configured_domain if normalized_host == normalized_domain
+
+  if configured_domain.starts_with?(".") && normalized_host.ends_with?(".#{normalized_domain}")
+    return configured_domain
+  end
+
+  nil
+end
+
+def cookie_domain(env : HTTP::Server::Context) : String?
+  cookie_domain(CONFIG.domain, env.request.headers["Host"]?)
+end
+
 def subscribe_pubsub(topic, key)
   case topic
   when .match(/^UC[A-Za-z0-9_-]{22}$/)

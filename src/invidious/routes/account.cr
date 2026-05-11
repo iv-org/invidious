@@ -128,10 +128,9 @@ module Invidious::Routes::Account
     Invidious::Database::SessionIDs.delete(email: user.email)
     PG_DB.exec("DROP MATERIALIZED VIEW #{view_name}")
 
-    env.request.cookies.each do |cookie|
-      cookie.expires = Time.utc(1990, 1, 1)
-      env.response.cookies << cookie
-    end
+    domain = cookie_domain(env)
+    env.response.cookies["SID"] = Invidious::User::Cookies.clear_sid(domain)
+    env.response.cookies["PREFS"] = Invidious::User::Cookies.clear_prefs(domain)
 
     env.redirect referer
   end
