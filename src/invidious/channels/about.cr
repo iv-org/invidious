@@ -2,6 +2,7 @@
 record AboutChannel,
   ucid : String,
   author : String,
+  channel_handle : String?,
   auto_generated : Bool,
   author_url : String,
   author_thumbnail : String,
@@ -162,26 +163,37 @@ def get_about_info(ucid, locale) : AboutChannel
 
   sub_count = 0
   pronouns = nil
+  channel_handle = nil
 
   if (metadata_rows = initdata.dig?("header", "pageHeaderRenderer", "content", "pageHeaderViewModel", "metadata", "contentMetadataViewModel", "metadataRows").try &.as_a)
     metadata_rows.each do |row|
-      subscribe_metadata_part = row.dig?("metadataParts").try &.as_a.find { |i| i.dig?("text", "content").try &.as_s.includes?("subscribers") }
+      metadata_parts = row.dig?("metadataParts")
+
+      subscribe_metadata_part = metadata_parts.try &.as_a.find { |i| i.dig?("text", "content").try &.as_s.includes?("subscribers") }
       if !subscribe_metadata_part.nil?
         sub_count = short_text_to_number(subscribe_metadata_part.dig("text", "content").as_s.split(" ")[0]).to_i32
       end
 
-      pronoun_metadata_part = row.dig?("metadataParts").try &.as_a.find { |i| i.dig?("tooltip").try &.as_s.includes?("Pronouns") }
+      channel_handle_part = metadata_parts.try &.as_a.find { |i| i.dig?("text", "content").try &.as_s.includes?("@") }
+      if !channel_handle_part.nil?
+        channel_handle = channel_handle_part.dig("text", "content").as_s
+      end
+
+      pronoun_metadata_part = metadata_parts.try &.as_a.find { |i| i.dig?("tooltip").try &.as_s.includes?("Pronouns") }
       if !pronoun_metadata_part.nil?
         pronouns = pronoun_metadata_part.dig("text", "content").as_s
       end
 
-      break if sub_count != 0 && !pronouns.nil?
+      # This is to prevent processing more metadata parts if we already have
+      # all the parts we care about, which are the ones below
+      break if sub_count != 0 && !pronouns.nil? && !channel_handle.nil?
     end
   end
 
   AboutChannel.new(
     ucid: ucid,
     author: author,
+    channel_handle: channel_handle,
     auto_generated: auto_generated,
     author_url: author_url,
     author_thumbnail: author_thumbnail,
