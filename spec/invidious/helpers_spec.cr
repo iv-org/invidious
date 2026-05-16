@@ -31,6 +31,13 @@ Spectator.describe "Helper" do
     end
   end
 
+  describe "#format_audio_quality_label" do
+    it "formats audio bitrates as readable kilobit labels" do
+      expect(Helpers.format_audio_quality_label(128000)).to eq("128k")
+      expect(Helpers.format_audio_quality_label(50000)).to eq("50k")
+    end
+  end
+
   describe "#sign_token" do
     it "correctly signs a given hash" do
       token = {

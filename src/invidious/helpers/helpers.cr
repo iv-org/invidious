@@ -40,6 +40,10 @@ module Helpers
     return description
   end
 
+  def format_audio_quality_label(bitrate : Int) : String
+    "#{(bitrate / 1000).round.to_i}k"
+  end
+
   def cache_annotation(id, annotations)
     if !CONFIG.cache_annotations
       return
