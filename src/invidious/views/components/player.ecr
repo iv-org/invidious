@@ -33,7 +33,7 @@
 
                 selected = (i == best_m4a_stream_index)
             %>
-                <source src="<%= src_url %>" type='<%= mimetype %>' label="<%= bitrate %>k" selected="<%= selected %>">
+                <source src="<%= src_url %>" type='<%= mimetype %>' label="<%= bitrate %>kbps" selected="<%= selected %>">
                 <% if !params.local && !CONFIG.disabled?("local") %>
                 <source src="<%= src_url %>&local=true" type='<%= mimetype %>' hidequalityoption="true">
                 <% end %>
