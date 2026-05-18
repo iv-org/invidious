@@ -40,9 +40,16 @@ module Invidious::Routes::Search
     preferences = env.get("preferences").as(Preferences)
     locale = preferences.locale
 
-    region = env.params.query["region"]? || preferences.region
+    uri_params = URI::Params.new
+    if env.request.method == "GET"
+      uri_params = env.params.query
+    else
+      uri_params = env.params.body
+    end
 
-    query = Invidious::Search::Query.new(env.params.query, :regular, region)
+    region = uri_params["region"]? || preferences.region
+
+    query = Invidious::Search::Query.new(uri_params, :regular, region)
 
     if query.empty?
       # Display the full page search box implemented in #1977
