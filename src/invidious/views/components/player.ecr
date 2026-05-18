@@ -28,7 +28,7 @@
                 src_url = invidious_companion.public_url.to_s + src_url +
                             "&check=#{invidious_companion_check_id}" if (invidious_companion)
 
-                bitrate = fmt["bitrate"]
+                bitrate = fmt["bitrate"].as_i // 1000
                 mimetype = HTML.escape(fmt["mimeType"].as_s)
 
                 selected = (i == best_m4a_stream_index)
