@@ -152,6 +152,20 @@ db:
 domain:
 
 ##
+## List of alternative domains where the invidious instance is being served.
+## This needs to be set in order to be able to login and update user preferences
+## when using a domain that is not the same as the `domain` configuration,
+## like a .`onion` address, `.i2p` address, `.b32.i2p` address, etc.
+##
+## It will detect the alternative domain trough the `X-Forwarded-Host` header.
+## https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/X-Forwarded-Host
+##
+## Accepted values: a list of fully qualified domain names (FQDN)
+## Default: <none>
+##
+alternative_domains:
+
+##
 ## Tell Invidious that it is behind a proxy that provides only
 ## HTTPS, so all links must use the https:// scheme. This
 ## setting MUST be set to true if invidious is behind a

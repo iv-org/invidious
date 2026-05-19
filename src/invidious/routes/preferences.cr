@@ -226,7 +226,12 @@ module Invidious::Routes::PreferencesRoute
         File.write("config/config.yml", CONFIG.to_yaml)
       end
     else
-      env.response.cookies["PREFS"] = Invidious::User::Cookies.prefs(CONFIG.domain, preferences)
+      host = env.get("header_x-forwarded-host")
+      if alt = CONFIG.alternative_domains.index(host)
+        env.response.cookies["PREFS"] = Invidious::User::Cookies.prefs(CONFIG.alternative_domains[alt], preferences)
+      else
+        env.response.cookies["PREFS"] = Invidious::User::Cookies.prefs(CONFIG.domain, preferences)
+      end
     end
 
     env.redirect referer
@@ -261,7 +266,12 @@ module Invidious::Routes::PreferencesRoute
         preferences.dark_mode = "dark"
       end
 
-      env.response.cookies["PREFS"] = Invidious::User::Cookies.prefs(CONFIG.domain, preferences)
+      host = env.get("header_x-forwarded-host")
+      if alt = CONFIG.alternative_domains.index(host)
+        env.response.cookies["PREFS"] = Invidious::User::Cookies.prefs(CONFIG.alternative_domains[alt], preferences)
+      else
+        env.response.cookies["PREFS"] = Invidious::User::Cookies.prefs(CONFIG.domain, preferences)
+      end
     end
 
     if redirect
