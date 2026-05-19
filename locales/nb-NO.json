@@ -167,7 +167,7 @@
     "Wrong username or password": "Ugyldig brukernavn eller passord",
     "Password cannot be empty": "Passordet kan ikke være tomt",
     "Password cannot be longer than 55 characters": "Passordet kan ikke være lengre enn 55 tegn",
-    "Please log in": "Logg inn",
+    "Please log in": "Vennligst logg inn",
     "Invidious Private Feed for `x`": "Invidious personlig kilde for `x`",
     "channel:`x`": "kanal `x`",
     "Deleted or invalid channel": "Slettet eller ugyldig kanal",
@@ -495,5 +495,16 @@
     "Add to playlist: ": "Legg til i spilleliste: ",
     "The Popular feed has been disabled by the administrator.": "Populært-kilden er koblet ut av administratoren.",
     "toggle_theme": "Endre utseende",
-    "preferences_preload_label": "Last videodata på forhånd: "
+    "preferences_preload_label": "Last videodata på forhånd: ",
+    "First page": "Første side",
+    "preferences_default_playlist": "Standardspilleliste: ",
+    "preferences_default_playlist_none": "Ingen standardspilleliste satt",
+    "Filipino (auto-generated)": "Filippinsk (automatisk generert)",
+    "channel_tab_courses_label": "Kurs",
+    "channel_tab_posts_label": "Innlegg",
+    "timeline_parse_error_placeholder_heading": "Kunne ikke parse element",
+    "timeline_parse_error_placeholder_message": "Invidious traff på en feil under parsingen av dette elementet. For mer informasjon, se under:",
+    "timeline_parse_error_show_technical_details": "Vis tekniske detaljer",
+    "Livestreams": "Direktesendinger",
+    "dmca_content": "Denne siden kan ikke lastes ned fra denne instansen på grunn av et DMCA/brev om opphavsrettsbrudd sendt til instansadministratoren."
 }
