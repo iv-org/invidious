@@ -39,7 +39,7 @@ module Invidious::Search
     def subscriptions(query : Query, user : Invidious::User) : Array(ChannelVideo)
       view_name = "subscriptions_#{sha256(user.email)}"
 
-      return PG_DB.query_all("
+      videos = PG_DB.query_all("
         SELECT id,title,published,updated,ucid,author,length_seconds
         FROM (
           SELECT *,
@@ -51,6 +51,12 @@ module Invidious::Search
         query.text, (query.page - 1) * 20,
         as: ChannelVideo
       )
+
+      if user.preferences.filter_short_videos
+        videos = videos.reject { |v| v.length_seconds < 60 }
+      end
+
+      return videos
     end
   end
 end
