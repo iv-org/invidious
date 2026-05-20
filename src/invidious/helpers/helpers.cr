@@ -203,4 +203,9 @@ module Helpers
 
     return tracker.as(Hash(String, Int64 | Float64))
   end
+
+  def format_audio_quality_label(bitrate : JSON::Any) : String
+    val = bitrate.as_i? || bitrate.as_s?.try(&.to_i?) || 0
+    "#{(val / 1000).round.to_i}k"
+  end
 end
