@@ -202,6 +202,23 @@ def number_to_short_text(number)
   text
 end
 
+def audio_bitrate_kbps(bitrate)
+  ((bitrate + 500) // 1000).to_i
+end
+
+def audio_bitrate_label(bitrate)
+  "#{audio_bitrate_kbps(bitrate)}k"
+end
+
+def audio_quality_param_matches?(quality : String, bitrate)
+  return false unless quality.ends_with?("k")
+
+  requested_bitrate = quality.rchop("k").to_i?
+  return false if requested_bitrate.nil?
+
+  bitrate == requested_bitrate || audio_bitrate_kbps(bitrate) == requested_bitrate
+end
+
 def arg_array(array, start = 1)
   if array.size == 0
     args = "NULL"

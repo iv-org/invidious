@@ -43,4 +43,27 @@ Spectator.describe "Utils" do
       expect(decode_date("8 years ago")).to be_close(Time.utc - 8.years, 500.milliseconds)
     end
   end
+
+  describe "audio_bitrate_label" do
+    it "formats audio bitrates in kbps" do
+      expect(audio_bitrate_label(100_000)).to eq("100k")
+      expect(audio_bitrate_label(128_000)).to eq("128k")
+      expect(audio_bitrate_label(129_600)).to eq("130k")
+    end
+  end
+
+  describe "audio_quality_param_matches?" do
+    it "matches legacy raw-bitrate quality params" do
+      expect(audio_quality_param_matches?("128000k", 128_000)).to be_true
+    end
+
+    it "matches kbps quality params from the player label" do
+      expect(audio_quality_param_matches?("128k", 128_000)).to be_true
+    end
+
+    it "ignores non-audio quality params" do
+      expect(audio_quality_param_matches?("hd720", 128_000)).to be_false
+      expect(audio_quality_param_matches?("invalidk", 128_000)).to be_false
+    end
+  end
 end
