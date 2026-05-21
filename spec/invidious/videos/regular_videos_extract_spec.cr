@@ -40,6 +40,7 @@ Spectator.describe "parse_video_info" do
     expect(info["keywords"].as_a).to be_empty
 
     expect(info["allowRatings"].as_bool).to be_true
+    expect(info["commentsEnabled"].as_bool).to be_true
     expect(info["isFamilyFriendly"].as_bool).to be_true
     expect(info["isListed"].as_bool).to be_true
     expect(info["isUpcoming"].as_bool).to be_false
@@ -125,6 +126,7 @@ Spectator.describe "parse_video_info" do
     ).in_any_order
 
     expect(info["allowRatings"].as_bool).to be_true
+    expect(info["commentsEnabled"].as_bool).to be_true
     expect(info["isFamilyFriendly"].as_bool).to be_true
     expect(info["isListed"].as_bool).to be_true
     expect(info["isUpcoming"].as_bool).to be_false
@@ -162,5 +164,24 @@ Spectator.describe "parse_video_info" do
     )
     expect(info["authorVerified"].as_bool).to be_false
     expect(info["subCountText"].as_s).to eq("3.11K")
+  end
+
+  it "detects disabled YouTube comments" do
+    _player = load_mock("video/regular_no-description.player")
+    _next = load_mock("video/regular_no-description.next")
+
+    raw_data = _player.merge!(_next)
+    comments_section = raw_data.dig(
+      "contents", "twoColumnWatchNextResults",
+      "results", "results", "contents"
+    ).as_a[3]["itemSectionRenderer"].as_h
+
+    comments_section["contents"] = JSON.parse(%([
+      {"messageRenderer":{"text":{"simpleText":"Comments are turned off."}}}
+    ]))
+
+    info = parse_video_info("iuevw6218F0", raw_data)
+
+    expect(info["commentsEnabled"].as_bool).to be_false
   end
 end

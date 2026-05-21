@@ -15,7 +15,7 @@ struct Video
   # NOTE: don't forget to bump this number if any change is made to
   # the `params` structure in videos/parser.cr!!!
   #
-  SCHEMA_VERSION = 3
+  SCHEMA_VERSION = 4
 
   property id : String
 
@@ -190,6 +190,10 @@ struct Video
         music_json["license"].as_s
       )
     }
+  end
+
+  def comments_enabled? : Bool
+    info["commentsEnabled"]?.try &.as_bool || true
   end
 
   # Macros defining getters/setters for various types of data

@@ -182,6 +182,11 @@ addEventListener('load', function (e) {
     if (video_data.plid)
         get_playlist(video_data.plid);
 
+    var first_comments_source = video_data.params.comments[0] || video_data.params.comments[1];
+    if (!video_data.comments_enabled && first_comments_source === 'youtube') {
+        return;
+    }
+
     if (video_data.params.comments[0] === 'youtube') {
         get_youtube_comments();
     } else if (video_data.params.comments[0] === 'reddit') {

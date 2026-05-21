@@ -84,7 +84,9 @@ module Invidious::Routes::Watch
           source = preferences.comments[1]
         end
 
-        if source == "youtube"
+        if source == "youtube" && !video.comments_enabled?
+          comment_html = ""
+        elsif source == "youtube"
           begin
             comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
           rescue ex
@@ -110,7 +112,9 @@ module Invidious::Routes::Watch
           end
         end
       else
-        comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
+        if video.comments_enabled?
+          comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
+        end
       end
 
       comment_html ||= ""

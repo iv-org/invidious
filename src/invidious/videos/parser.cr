@@ -52,6 +52,18 @@ def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
   }
 end
 
+private def detect_comments_enabled(primary_results : JSON::Any?) : Bool
+  primary_results.try &.as_a.each do |section|
+    item_section = section["itemSectionRenderer"]?
+    next if !item_section
+    next if item_section["sectionIdentifier"]?.try &.as_s != "comment-item-section"
+
+    return false if item_section["contents"]?.try &.as_a.any?(&.["messageRenderer"]?)
+  end
+
+  return true
+end
+
 def extract_video_info(video_id : String)
   # Fetch data from the player endpoint
   player_response = YoutubeAPI.player(video_id: video_id)
@@ -160,7 +172,9 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
 
   # Primary results are not available on Music videos
   # See: https://github.com/iv-org/invidious/pull/3238#issuecomment-1207193725
-  if primary_results = main_results.dig?("results", "results", "contents")
+  primary_results = main_results.dig?("results", "results", "contents")
+
+  if primary_results
     video_primary_renderer = primary_results
       .as_a.find(&.["videoPrimaryInfoRenderer"]?)
       .try &.["videoPrimaryInfoRenderer"]
@@ -230,6 +244,8 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
 
   keywords = video_details["keywords"]?
     .try &.as_a.map &.as_s || [] of String
+
+  comments_enabled = detect_comments_enabled(primary_results)
 
   # Related videos
 
@@ -418,6 +434,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     "isFamilyFriendly" => JSON::Any.new(family_friendly || false),
     "isListed"         => JSON::Any.new(is_listed || false),
     "isUpcoming"       => JSON::Any.new(is_upcoming || false),
+    "commentsEnabled"  => JSON::Any.new(comments_enabled),
     "keywords"         => JSON::Any.new(keywords.map { |v| JSON::Any.new(v) }),
     "isPostLiveDvr"    => JSON::Any.new(post_live_dvr),
     # Related videos

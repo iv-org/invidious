@@ -52,7 +52,22 @@ function show_youtube_replies(event) {
     target.setAttribute('data-sub-text', sub_text);
 }
 
+function show_youtube_comments_disabled_message() {
+    var comments = document.getElementById('comments');
+    comments.innerHTML = ' \
+    <div id="youtube-comments-disabled-message" class="h-box v-box"> \
+        <p><b>{message}</b></p> \
+    </div>'.supplant({
+        message: video_data.youtube_comments_disabled_text
+    });
+}
+
 function get_youtube_comments() {
+    if (!video_data.comments_enabled) {
+        show_youtube_comments_disabled_message();
+        return;
+    }
+
     var comments = document.getElementById('comments');
 
     var fallback = comments.innerHTML;

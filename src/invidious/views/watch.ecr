@@ -57,12 +57,14 @@ we're going to need to do it here in order to allow for translations.
     "reddit_comments_text" => HTML.escape(I18n.translate(locale, "View Reddit comments")),
     "reddit_permalink_text" => HTML.escape(I18n.translate(locale, "View more comments on Reddit")),
     "comments_text" => HTML.escape(I18n.translate(locale, "View `x` comments", "{commentCount}")),
+    "youtube_comments_disabled_text" => HTML.escape(I18n.translate(locale, "youtube_comments_disabled_text")),
     "hide_replies_text" => HTML.escape(I18n.translate(locale, "Hide replies")),
     "show_replies_text" => HTML.escape(I18n.translate(locale, "Show replies")),
     "params" => params,
     "preferences" => preferences,
     "premiere_timestamp" => video.premiere_timestamp.try &.to_unix,
     "vr" => video.vr?,
+    "comments_enabled" => video.comments_enabled?,
     "projection_type" => video.projection_type,
     "local_disabled" => CONFIG.disabled?("local"),
     "support_reddit" => true,
@@ -288,8 +290,14 @@ we're going to need to do it here in order to allow for translations.
             <hr>
 
             <% end %>
+            <% first_comments_source = params.comments[0]? || "" %>
+            <% first_comments_source = params.comments[1]? || "" if first_comments_source.empty? %>
             <div id="comments" class="comments">
-                <% if nojs %>
+                <% if !video.comments_enabled? && first_comments_source == "youtube" %>
+                    <div id="youtube-comments-disabled-message" class="h-box v-box">
+                        <p><b><%= I18n.translate(locale, "youtube_comments_disabled_text") %></b></p>
+                    </div>
+                <% elsif nojs %>
                     <%= comment_html %>
                 <% else %>
                     <noscript>
