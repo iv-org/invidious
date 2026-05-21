@@ -651,8 +651,7 @@ private module Parsers
       playlist_id = item_contents["contentId"].as_s
 
       thumbnail_view_model = item_contents.dig(
-        "contentImage", "collectionThumbnailViewModel",
-        "primaryThumbnail", "thumbnailViewModel"
+        "contentImage", "thumbnailViewModel"
       )
 
       thumbnail = thumbnail_view_model.dig("image", "sources", 0, "url").as_s
