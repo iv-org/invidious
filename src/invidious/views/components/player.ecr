@@ -14,11 +14,17 @@
             <% # default to 128k m4a stream
                best_m4a_stream_index = 0
                best_m4a_stream_bitrate = 0
+               requested_audio_bitrate = params.quality.ends_with?("k") ? params.quality.rchop("k").to_i? : nil
                audio_streams.each_with_index do |fmt, i|
                  bandwidth = fmt["bitrate"].as_i
                  if (fmt["mimeType"].as_s.starts_with?("audio/mp4") && bandwidth > best_m4a_stream_bitrate)
                    best_m4a_stream_bitrate = bandwidth
                    best_m4a_stream_index = i
+                 end
+                 if requested_audio_bitrate
+                   if (bandwidth / 1000).round.to_i == requested_audio_bitrate || bandwidth == requested_audio_bitrate
+                     best_m4a_stream_index = i
+                   end
                  end
                end
 
@@ -28,7 +34,7 @@
                 src_url = invidious_companion.public_url.to_s + src_url +
                             "&check=#{invidious_companion_check_id}" if (invidious_companion)
 
-                bitrate = fmt["bitrate"]
+                bitrate = (fmt["bitrate"].as_i / 1000).round.to_i
                 mimetype = HTML.escape(fmt["mimeType"].as_s)
 
                 selected = (i == best_m4a_stream_index)
