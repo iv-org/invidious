@@ -668,8 +668,6 @@ private module Parsers
         view_count = short_text_to_number(view_count_text || "0")
         published = metadata_parts.dig?(1, "text", "content").try { |t| decode_date(t.as_s) } || Time.local
 
-        author_verified = has_verified_badge?(item_contents["ownerBadges"]?)
-
         return SearchVideo.new({
           title:              title,
           id:                 video_id,
