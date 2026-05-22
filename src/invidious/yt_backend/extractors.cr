@@ -630,13 +630,14 @@ private module Parsers
     end
   end
 
-  # Parses an InnerTube lockupViewModel into a SearchPlaylist.
+  # Parses an InnerTube lockupViewModel into a SearchPlaylist or a SearchVideo
   # Returns nil when the given object is not a lockupViewModel.
   #
   # This structure is present since November 2024 on the "podcasts" and
   # "playlists" tabs of the channel page. It is usually encapsulated in either
   # a richItemRenderer or a richGridRenderer.
   #
+  # Since 2026-05-21, now channel videos are encapsulated in a lockupViewModel.
   module LockupViewModelParser
     extend self
     include BaseParser
@@ -648,58 +649,108 @@ private module Parsers
     end
 
     private def parse_internal(item_contents, author_fallback)
-      playlist_id = item_contents["contentId"].as_s
+      content_type = item_contents["contentType"].as_s
 
-      thumbnail_view_model = item_contents.dig(
-        "contentImage", "thumbnailViewModel"
-      )
+      if content_type == "LOCKUP_CONTENT_TYPE_VIDEO"
+        thumbnail_view_model = item_contents.dig(
+          "contentImage", "thumbnailViewModel"
+        )
+        thumbnail = thumbnail_view_model.dig("image", "sources", 0, "url").as_s
 
-      thumbnail = thumbnail_view_model.dig("image", "sources", 0, "url").as_s
+        video_id = item_contents["contentId"].as_s
 
-      # This complicated sequences tries to extract the following data structure:
-      # "overlays": [{
-      #   "thumbnailOverlayBadgeViewModel": {
-      #     "thumbnailBadges": [{
-      #       "thumbnailBadgeViewModel": {
-      #         "text": "430 episodes",
-      #         "badgeStyle": "THUMBNAIL_OVERLAY_BADGE_STYLE_DEFAULT"
-      #       }
-      #     }]
-      #   }
-      # }]
-      #
-      # NOTE: this simplistic `.to_i` conversion might not work on larger
-      # playlists and hasn't been tested.
-      video_count = thumbnail_view_model.dig("overlays").as_a
-        .compact_map(&.dig?("thumbnailOverlayBadgeViewModel", "thumbnailBadges").try &.as_a)
-        .flatten
-        .find(nil, &.dig?("thumbnailBadgeViewModel", "text").try { |node|
-          {"episodes", "videos"}.any? { |str| node.as_s.ends_with?(str) }
+        metadata = item_contents.dig("metadata", "lockupMetadataViewModel")
+        title = metadata.dig("title", "content").as_s
+        # Contains the views of the video and the published time of the video.
+        metadata_parts = metadata.dig("metadata", "contentMetadataViewModel", "metadataRows", 0, "metadataParts")
+
+        view_count_text = metadata_parts.dig(0, "text", "content").as_s
+        view_count = short_text_to_number(view_count_text || "0")
+        published = metadata_parts.dig?(1, "text", "content").try { |t| decode_date(t.as_s) } || Time.local
+
+        author_verified = has_verified_badge?(item_contents["ownerBadges"]?)
+
+        return SearchVideo.new({
+          title:              title,
+          id:                 video_id,
+          author:             author_fallback.name,
+          ucid:               author_fallback.id,
+          published:          published,
+          views:              view_count,
+          description_html:   "",
+          length_seconds:     0,
+          premiere_timestamp: Time.unix(0),
+          author_verified:    false,
+          author_thumbnail:   nil,
+          badges:             VideoBadges::None,
         })
-        .try &.dig("thumbnailBadgeViewModel", "text").as_s.to_i(strict: false)
+      elsif content_type == "LOCKUP_CONTENT_TYPE_PODCAST"
+        # TODO
+      else # If it's a podcast, it's content_type would be "LOCKUP_CONTENT_TYPE_PODCAST"
+        thumbnail_view_model = item_contents.dig(
+          "contentImage", "collectionThumbnailViewModel",
+          "primaryThumbnail", "thumbnailViewModel"
+        )
+        thumbnail = thumbnail_view_model.dig("image", "sources", 0, "url").as_s
 
-      metadata = item_contents.dig("metadata", "lockupMetadataViewModel")
-      title = metadata.dig("title", "content").as_s
+        playlist_id = item_contents["contentId"].as_s
 
-      # TODO: Retrieve "updated" info from metadata parts
-      # rows = metadata.dig("metadata", "contentMetadataViewModel", "metadataRows").as_a
-      # parts_text = rows.map(&.dig?("metadataParts", "text", "content").try &.as_s)
-      # One of these parts should contain a string like: "Updated 2 days ago"
+        # This complicated sequences tries to extract the following data structure:
+        # "overlays": [{
+        #   "thumbnailOverlayBadgeViewModel": {
+        #     "thumbnailBadges": [{
+        #       "thumbnailBadgeViewModel": {
+        #         "text": "430 episodes",
+        #         "badgeStyle": "THUMBNAIL_OVERLAY_BADGE_STYLE_DEFAULT"
+        #       }
+        #     }]
+        #   }
+        # }]
+        #
+        # NOTE: this simplistic `.to_i` conversion might not work on larger
+        # playlists and hasn't been tested.
+        video_count = thumbnail_view_model.dig("overlays").as_a
+          .compact_map(&.dig?("thumbnailOverlayBadgeViewModel", "thumbnailBadges").try &.as_a)
+          .flatten
+          .find(nil, &.dig?("thumbnailBadgeViewModel", "text").try { |node|
+            {"episodes", "videos"}.any? { |str| node.as_s.ends_with?(str) }
+          })
+          .try &.dig("thumbnailBadgeViewModel", "text").as_s.to_i(strict: false)
 
-      # TODO: Maybe add a button to access the first video of the playlist?
-      # item_contents.dig("rendererContext", "commandContext", "onTap", "innertubeCommand", "watchEndpoint")
-      # Available fields: "videoId", "playlistId", "params"
+        metadata = item_contents.dig("metadata", "lockupMetadataViewModel")
+        title = metadata.dig("title", "content").as_s
 
-      return SearchPlaylist.new({
-        title:           title,
-        id:              playlist_id,
-        author:          author_fallback.name,
-        ucid:            author_fallback.id,
-        video_count:     video_count || -1,
-        videos:          [] of SearchPlaylistVideo,
-        thumbnail:       thumbnail,
-        author_verified: false,
-      })
+        metadata_parts = metadata.dig("metadata", "contentMetadataViewModel", "metadataRows", 0, "metadataParts", 0)
+
+        if author_info = metadata_parts["text"]?
+          author = author_info["content"].as_s
+          author_id = author_info.dig?("commandRuns", 0, "onTap", "innertubeCommand", "browseEndpoint", "browseId")
+            .try &.as_s || author_fallback.id
+        else
+          author = author_fallback.name
+          author_id = author_fallback.id
+        end
+
+        # TODO: Retrieve "updated" info from metadata parts
+        # rows = metadata.dig("metadata", "contentMetadataViewModel", "metadataRows").as_a
+        # parts_text = rows.map(&.dig?("metadataParts", "text", "content").try &.as_s)
+        # One of these parts should contain a string like: "Updated 2 days ago"
+
+        # TODO: Maybe add a button to access the first video of the playlist?
+        # item_contents.dig("rendererContext", "commandContext", "onTap", "innertubeCommand", "watchEndpoint")
+        # Available fields: "videoId", "playlistId", "params"
+
+        return SearchPlaylist.new({
+          title:           title,
+          id:              playlist_id,
+          author:          author,
+          ucid:            author_id,
+          video_count:     video_count || -1,
+          videos:          [] of SearchPlaylistVideo,
+          thumbnail:       thumbnail,
+          author_verified: false,
+        })
+      end
     end
 
     def self.parser_name
