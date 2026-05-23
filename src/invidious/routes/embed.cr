@@ -122,7 +122,7 @@ module Invidious::Routes::Embed
     else nil # Continue
     end
 
-    params = process_video_params(env.params.query, preferences)
+    params = Invidious::Videos.process_video_params(env.params.query, preferences)
 
     user = env.get?("user").try &.as(User)
     if user

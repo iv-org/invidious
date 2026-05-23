@@ -324,7 +324,7 @@ rescue DB::Error
 end
 
 def fetch_video(id, region)
-  info = extract_video_info(video_id: id)
+  info = Invidious::Videos::Parser.extract_video_info(video_id: id)
 
   if info.nil?
     raise InfoException.new("Invidious companion is not available. \
