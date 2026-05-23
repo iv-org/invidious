@@ -668,6 +668,10 @@ private module Parsers
         view_count = short_text_to_number(view_count_text || "0")
         published = metadata_parts.dig?(1, "text", "content").try { |t| decode_date(t.as_s) } || Time.local
 
+        length = thumbnail_view_model.dig("overlays", 0, "thumbnailBottomOverlayViewModel", "badges", 0, "thumbnailBadgeViewModel", "text").try &.as_s
+
+        length_seconds = decode_length_seconds(length) if length
+
         return SearchVideo.new({
           title:              title,
           id:                 video_id,
@@ -676,7 +680,7 @@ private module Parsers
           published:          published,
           views:              view_count,
           description_html:   "",
-          length_seconds:     0,
+          length_seconds:     length_seconds || 0,
           premiere_timestamp: Time.unix(0),
           author_verified:    false,
           author_thumbnail:   nil,
