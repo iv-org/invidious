@@ -1,6 +1,6 @@
 <form class="pure-form" action="/search" method="get">
 	<fieldset>
-		<% search_placeholder = CONFIG.page_enabled?("search") ? translate(locale, "search") : translate(locale, "search_subscriptions_placeholder") %>
+		<% search_placeholder = CONFIG.page_enabled?("search") ? I18n.translate(locale, "search") : I18n.translate(locale, "search_subscriptions_placeholder") %>
 		<input type="search" id="searchbox" autocorrect="off"
 		autocapitalize="none" spellcheck="false" <% if autofocus %>autofocus<% end %>
 		name="q" placeholder="<%= I18n.translate(locale, "search") %>"
