@@ -164,12 +164,9 @@ module Invidious::Routes::BeforeAll
                end
 
     if page_key && !CONFIG.page_enabled?(page_key)
-      env.response.status_code = 403
-      env.set "halted", true
-
       if path.starts_with?("/api/")
         env.response.content_type = "application/json"
-        env.response.print({error: "Administrator has disabled this endpoint."}.to_json)
+        env.set "halted_body", {error: "Administrator has disabled this endpoint."}.to_json
       else
         preferences = env.get("preferences").as(Preferences)
         locale = preferences.locale
@@ -178,7 +175,7 @@ module Invidious::Routes::BeforeAll
         error_message = I18n.translate(locale, "#{page_key}_page_disabled")
 
         env.response.content_type = "text/html"
-        env.response.print <<-HTML
+        env.set "halted_body", <<-HTML
         <!DOCTYPE html>
         <html lang="#{locale}">
         <head>
@@ -209,6 +206,7 @@ module Invidious::Routes::BeforeAll
         HTML
       end
 
+      env.set "halted_status", 403
       return
     end
   end

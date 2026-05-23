@@ -202,9 +202,9 @@ before_all do |env|
   Invidious::Routes::BeforeAll.handle(env)
 
   # If before_all flagged a halt (e.g. disabled page), stop the route handler.
-  # Use halt with the already-set status code to prevent the route handler from running.
-  if env.get?("halted")
-    halt env, status_code: env.response.status_code
+  if halted_status = env.get?("halted_status")
+    body = env.get?("halted_body").try(&.as(String)) || ""
+    halt env, status_code: halted_status.as(Int32), response: body
   end
 end
 
