@@ -758,11 +758,45 @@ private module Parsers
         #       "metadataParts": [ ... ] <-- metadataParts with the information we are searching for.
         #     }
         # ]
-        metadata_parts = metadata.dig?("metadata", "contentMetadataViewModel", "metadataRows").try &.as_a
-          .find { |row| row["metadataParts"]? }
-          .try &.dig("metadataParts", 0)
+        #
+        # Playlist on channels also contain metadataRows, but not with the type of data we are searching
+        # for which are the channel name and channel ID, instead they have two fields depending of the playlist
+        # updated date:
+        #
+        # It looks like this:
+        # "metadataRows": [
+        #     {
+        #         "metadataParts": [
+        #             {
+        #                 "text": {
+        #                     "content": "Updated 4 days ago"
+        #                 }
+        #             } <-- This object is missing if the playlist has not been updated in around 7
+        #                   days
+        #         ]
+        #     },
+        #     {
+        #         "metadataParts": [
+        #             {
+        #                 "text": {
+        #                     "content": "View full playlist",
+        #                     "commandRuns": [ ... ],
+        #                     "styleRuns": [ ... ].
+        #                 }
+        #             } <-- This object is always present, so we use this to determine if the
+        #                   metadataParts can be used or not.
+        #         ]
+        #     }
+        # ]
+        #
+        metadata_rows = metadata.dig?("metadata", "contentMetadataViewModel", "metadataRows").try &.as_a
+        metadata_parts = metadata_rows.try &.find { |row|
+          parts = row["metadataParts"]?.try &.as_a
+          parts && !parts.any? { |item| item.dig?("text", "content").try &.as_s == "View full playlist" }
+        }.try &.["metadataParts"].as_a
 
-        if author_info = metadata_parts.try &.["text"]?
+        if author_info = metadata_parts.try &.find { |item| item.dig?("text", "commandRuns") }
+             .try &.["text"]
           author = author_info["content"].as_s
           author_id = author_info.dig?("commandRuns", 0, "onTap", "innertubeCommand", "browseEndpoint", "browseId")
             .try &.as_s || author_fallback.id
