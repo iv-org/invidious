@@ -175,7 +175,7 @@ module Invidious::Routes::BeforeAll
         locale = preferences.locale
         dark_mode = preferences.dark_mode
         theme_class = dark_mode.blank? ? "no" : dark_mode
-        error_message = translate(locale, "#{page_key}_page_disabled")
+        error_message = I18n.translate(locale, "#{page_key}_page_disabled")
 
         env.response.content_type = "text/html"
         env.response.print <<-HTML
@@ -200,7 +200,7 @@ module Invidious::Routes::BeforeAll
               </div>
               <div class="h-box" style="margin-top: 2em;">
                 <p>#{error_message}</p>
-                <p><a href="/">← #{translate(locale, "Back")}</a></p>
+                <p><a href="/">← #{I18n.translate(locale, "Back")}</a></p>
               </div>
             </div>
           </div>
