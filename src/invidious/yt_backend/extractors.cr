@@ -664,9 +664,7 @@ private module Parsers
         # Contains the views of the video and the published time of the video.
         metadata_parts = metadata.dig("metadata", "contentMetadataViewModel", "metadataRows", 0, "metadataParts")
 
-        view_count_text = metadata_parts.dig(0, "text", "content").as_s
         view_count = short_text_to_number(view_count_text || "0")
-        published = metadata_parts.dig?(1, "text", "content").try { |t| decode_date(t.as_s) } || Time.local
 
         length = thumbnail_view_model.dig("overlays", 0, "thumbnailBottomOverlayViewModel", "badges", 0, "thumbnailBadgeViewModel", "text").try &.as_s
 
@@ -763,9 +761,12 @@ private module Parsers
           author = author_info["content"].as_s
           author_id = author_info.dig?("commandRuns", 0, "onTap", "innertubeCommand", "browseEndpoint", "browseId")
             .try &.as_s || author_fallback.id
+          author_verified = (author_info.dig?("attachmentRuns", 0, "element", "type", "imageType", "image", "sources", 0, "clientResource", "imageName")
+            .try &.as_s) == "CHECK_CIRCLE_FILLED" || false
         else
           author = author_fallback.name
           author_id = author_fallback.id
+          author_verified = false
         end
 
         # TODO: Retrieve "updated" info from metadata parts
@@ -785,7 +786,7 @@ private module Parsers
           video_count:     video_count || -1,
           videos:          [] of SearchPlaylistVideo,
           thumbnail:       thumbnail,
-          author_verified: false,
+          author_verified: author_verified,
         })
       end
     end
