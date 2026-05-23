@@ -56,7 +56,7 @@ module Invidious::Routes::Search
     if search_disabled
       user = env.get?("user")
       if !user
-        return error_template(403, translate(locale, "search_subscriptions_login_required"))
+        return error_template(403, I18n.translate(locale, "search_subscriptions_login_required"))
       end
 
       user = user.as(User)

@@ -315,7 +315,7 @@
                 </div>
 
                 <div class="pure-control-group">
-                    <label for="search_enabled"><%= translate(locale, "preferences_search_enabled_label") %></label>
+                    <label for="search_enabled"><%= I18n.translate(locale, "preferences_search_enabled_label") %></label>
                     <input name="search_enabled" id="search_enabled" type="checkbox" <% if CONFIG.page_enabled?("search") %>checked<% end %>>
                 </div>
 
