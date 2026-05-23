@@ -755,8 +755,8 @@ private module Parsers
         #       "metadataParts": [ ... ] <-- metadataParts with the information we are searching for.
         #     }
         # ]
-        metadata_parts = metadata.dig("metadata", "contentMetadataViewModel", "metadataRows")
-          .as_a.find { |row| row["metadataParts"]? }
+        metadata_parts = metadata.dig?("metadata", "contentMetadataViewModel", "metadataRows").try &.as_a
+          .find { |row| row["metadataParts"]? }
           .try &.dig("metadataParts", 0)
 
         if author_info = metadata_parts.try &.["text"]?
