@@ -134,6 +134,27 @@ module Invidious::Routes::Images
     end
   end
 
+  def self.pl_c_image(env)
+    id = env.params.url["id"]
+    name = env.params.url["name"]
+    url = env.request.resource
+
+    headers = HTTP::Headers.new
+
+    REQUEST_HEADERS_WHITELIST.each do |header|
+      if env.request.headers[header]?
+        headers[header] = env.request.headers[header]
+      end
+    end
+
+    begin
+      get_ytimg_pool("i").client &.get(url, headers) do |resp|
+        return self.proxy_image(env, resp)
+      end
+    rescue ex
+    end
+  end
+
   private def self.proxy_image(env, response)
     env.response.status_code = response.status_code
     response.headers.each do |key, value|

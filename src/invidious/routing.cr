@@ -222,6 +222,7 @@ module Invidious::Routing
     get "/s_p/:id/:name", Routes::Images, :s_p_image
     get "/yts/img/:name", Routes::Images, :yts_image
     get "/vi/:id/:name", Routes::Images, :thumbnails
+    get "/pl_c/:id/:name", Routes::Images, :pl_c_image
   end
 
   def register_companion_routes
