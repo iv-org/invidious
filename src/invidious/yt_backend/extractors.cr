@@ -795,7 +795,7 @@ private module Parsers
           parts && !parts.any? { |item| item.dig?("text", "content").try &.as_s == "View full playlist" }
         }.try &.["metadataParts"].as_a
 
-        if author_info = metadata_parts.try &.find { |item| item.dig?("text", "commandRuns") }
+        if author_info = metadata_parts.try &.find(&.dig?("text", "commandRuns"))
              .try &.["text"]
           author = author_info["content"].as_s
           author_id = author_info.dig?("commandRuns", 0, "onTap", "innertubeCommand", "browseEndpoint", "browseId")
