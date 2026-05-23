@@ -682,9 +682,11 @@ private module Parsers
           author_thumbnail:   nil,
           badges:             VideoBadges::None,
         })
-      elsif content_type == "LOCKUP_CONTENT_TYPE_PODCAST"
-        # TODO
-      else # If it's a podcast, it's content_type would be "LOCKUP_CONTENT_TYPE_PODCAST"
+        # If it's a playlist, it's content_type would be "LOCKUP_CONTENT_TYPE_PLAYLIST"
+        # If it's a podcast, it's content_type would be "LOCKUP_CONTENT_TYPE_PODCAST"
+        # Playlist and Podcasts structures are quite similar, so we can use the same logic
+        # we use to parse Playlists data, for Podcasts.
+      else
         thumbnail_view_model = item_contents.dig(
           "contentImage", "collectionThumbnailViewModel",
           "primaryThumbnail", "thumbnailViewModel"
@@ -694,16 +696,36 @@ private module Parsers
         playlist_id = item_contents["contentId"].as_s
 
         # This complicated sequences tries to extract the following data structure:
-        # "overlays": [{
-        #   "thumbnailOverlayBadgeViewModel": {
-        #     "thumbnailBadges": [{
-        #       "thumbnailBadgeViewModel": {
-        #         "text": "430 episodes",
-        #         "badgeStyle": "THUMBNAIL_OVERLAY_BADGE_STYLE_DEFAULT"
-        #       }
-        #     }]
-        #   }
-        # }]
+        #
+        # "overlays": [
+        #   {
+        #     "thumbnailOverlayBadgeViewModel": {
+        #       "thumbnailBadges": [
+        #         {
+        #           "thumbnailBadgeViewModel": {
+        #             "icon": {
+        #               "sources": [
+        #                 {
+        #                   "clientResource": {
+        #                     "imageName": "BROADCAST"
+        #                   }
+        #                 }
+        #               ]
+        #             },
+        #             "text": "5 episodes",
+        #             "badgeStyle": "THUMBNAIL_OVERLAY_BADGE_STYLE_DEFAULT",
+        #             "backgroundColor": {
+        #               "lightTheme": 991526,
+        #               "darkTheme": 991526
+        #             }
+        #           }
+        #         }
+        #       ],
+        #       "position": "THUMBNAIL_OVERLAY_BADGE_POSITION_BOTTOM_END"
+        #     }
+        #   },
+        #   ... <-- There is another item bellow the Object we use to extract episodes/videos
+        # ]
         #
         # NOTE: this simplistic `.to_i` conversion might not work on larger
         # playlists and hasn't been tested.
@@ -718,9 +740,22 @@ private module Parsers
         metadata = item_contents.dig("metadata", "lockupMetadataViewModel")
         title = metadata.dig("title", "content").as_s
 
-        metadata_parts = metadata.dig("metadata", "contentMetadataViewModel", "metadataRows", 0, "metadataParts", 0)
+        # metadataParts is not always in the first place of the metadataRows array, therefore,
+        # we search for it iterating the array. We have only seen metadataRows with at least
+        # 2 items inside it.
+        #
+        # It looks like this:
+        # "metadataRows": [
+        #     {}, <-- empty Object
+        #     {
+        #       "metadataParts": [ ... ] <-- metadataParts with the information we are searching for.
+        #     }
+        # ]
+        metadata_parts = metadata.dig("metadata", "contentMetadataViewModel", "metadataRows")
+          .as_a.find { |row| row["metadataParts"]? }
+          .try &.dig("metadataParts", 0)
 
-        if author_info = metadata_parts["text"]?
+        if author_info = metadata_parts.try &.["text"]?
           author = author_info["content"].as_s
           author_id = author_info.dig?("commandRuns", 0, "onTap", "innertubeCommand", "browseEndpoint", "browseId")
             .try &.as_s || author_fallback.id
