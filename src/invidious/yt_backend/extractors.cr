@@ -630,11 +630,11 @@ private module Parsers
     end
   end
 
-  # Parses an InnerTube lockupViewModel into a SearchPlaylist.
+  # Parses an InnerTube lockupViewModel into a SearchPlaylist or SearchVideo.
   # Returns nil when the given object is not a lockupViewModel.
   #
-  # This structure is present since November 2024 on the "podcasts" and
-  # "playlists" tabs of the channel page. It is usually encapsulated in either
+  # This structure is present since November 2024 on the "podcasts", "playlists",
+  # and "videos" tabs of the channel page. It is usually encapsulated in either
   # a richItemRenderer or a richGridRenderer.
   #
   module LockupViewModelParser
@@ -648,11 +648,25 @@ private module Parsers
     end
 
     private def parse_internal(item_contents, author_fallback)
-      playlist_id = item_contents["contentId"].as_s
+      content_id = item_contents["contentId"].as_s
 
-      thumbnail_view_model = item_contents.dig(
+      # A watchEndpoint with a playlistId means this item is a playlist.
+      # If it only has a videoId (no playlistId), it's a regular video.
+      # Fall back to content_id length: video IDs are always exactly 11 chars.
+      watch_endpoint = item_contents.dig?(
+        "rendererContext", "commandContext", "onTap",
+        "innertubeCommand", "watchEndpoint"
+      )
+      is_playlist = watch_endpoint.try(&.["playlistId"]?) || content_id.size != 11
+
+      thumbnail_view_model = item_contents.dig?(
+        "contentImage", "collectionThumbnailViewModel",
+        "primaryThumbnail", "thumbnailViewModel"
+      ) || item_contents.dig?(
         "contentImage", "thumbnailViewModel"
       )
+
+      return nil if thumbnail_view_model.nil?
 
       thumbnail = thumbnail_view_model.dig("image", "sources", 0, "url").as_s
 
@@ -667,16 +681,10 @@ private module Parsers
       #     }]
       #   }
       # }]
-      #
-      # NOTE: this simplistic `.to_i` conversion might not work on larger
-      # playlists and hasn't been tested.
-      video_count = thumbnail_view_model.dig("overlays").as_a
+      all_badge_texts = thumbnail_view_model.dig("overlays").as_a
         .compact_map(&.dig?("thumbnailOverlayBadgeViewModel", "thumbnailBadges").try &.as_a)
         .flatten
-        .find(nil, &.dig?("thumbnailBadgeViewModel", "text").try { |node|
-          {"episodes", "videos"}.any? { |str| node.as_s.ends_with?(str) }
-        })
-        .try &.dig("thumbnailBadgeViewModel", "text").as_s.to_i(strict: false)
+        .compact_map(&.dig?("thumbnailBadgeViewModel", "text").try &.as_s)
 
       metadata = item_contents.dig("metadata", "lockupMetadataViewModel")
       title = metadata.dig("title", "content").as_s
@@ -686,20 +694,51 @@ private module Parsers
       # parts_text = rows.map(&.dig?("metadataParts", "text", "content").try &.as_s)
       # One of these parts should contain a string like: "Updated 2 days ago"
 
-      # TODO: Maybe add a button to access the first video of the playlist?
-      # item_contents.dig("rendererContext", "commandContext", "onTap", "innertubeCommand", "watchEndpoint")
-      # Available fields: "videoId", "playlistId", "params"
+      if is_playlist
+        # NOTE: this simplistic `.to_i` conversion might not work on larger
+        # playlists and hasn't been tested.
 
-      return SearchPlaylist.new({
-        title:           title,
-        id:              playlist_id,
-        author:          author_fallback.name,
-        ucid:            author_fallback.id,
-        video_count:     video_count || -1,
-        videos:          [] of SearchPlaylistVideo,
-        thumbnail:       thumbnail,
-        author_verified: false,
-      })
+        # Prefer badges explicitly labeled "videos" or "episodes" (case-insensitive)
+        video_count = all_badge_texts
+          .find { |t| {"episodes", "videos"}.any? { |s| t.downcase.ends_with?(s) } }
+          .try &.to_i(strict: false)
+
+        # Fallback: any badge whose text starts with a digit
+        video_count ||= all_badge_texts
+          .find { |t| t[0]?.try &.ascii_number? }
+          .try &.to_i(strict: false)
+
+        return SearchPlaylist.new({
+          title:           title,
+          id:              content_id,
+          author:          author_fallback.name,
+          ucid:            author_fallback.id,
+          video_count:     video_count || -1,
+          videos:          [] of SearchPlaylistVideo,
+          thumbnail:       thumbnail,
+          author_verified: false,
+        })
+      else
+        # Extract duration from a time-format badge (e.g. "5:30", "1:23:45")
+        length_seconds = all_badge_texts
+          .find { |t| /^\d+:\d+/.match(t) }
+          .try { |t| decode_length_seconds(t) } || 0
+
+        return SearchVideo.new({
+          title:              title,
+          id:                 content_id,
+          author:             author_fallback.name,
+          ucid:               author_fallback.id,
+          published:          Time.unix(0),
+          views:              0_i64,
+          description_html:   "",
+          length_seconds:     length_seconds,
+          premiere_timestamp: Time.unix(0),
+          author_verified:    false,
+          author_thumbnail:   nil,
+          badges:             VideoBadges::None,
+        })
+      end
     end
 
     def self.parser_name

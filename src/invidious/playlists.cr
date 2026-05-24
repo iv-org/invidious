@@ -345,36 +345,20 @@ def fetch_playlist(plid : String)
   initial_data = YoutubeAPI.browse("VL" + plid, params: "")
 
   playlist_sidebar_renderer = initial_data.dig?("sidebar", "playlistSidebarRenderer", "items")
-  raise InfoException.new("Could not extract playlistSidebarRenderer.") if !playlist_sidebar_renderer
+  header_renderer = initial_data.dig?("header", "playlistHeaderRenderer")
 
-  playlist_info = playlist_sidebar_renderer.dig?(0, "playlistSidebarPrimaryInfoRenderer")
-  raise InfoException.new("Could not extract playlist info") if !playlist_info
-
-  title = playlist_info.dig?("title", "runs", 0, "text").try &.as_s || ""
-
-  desc_item = playlist_info["description"]?
-
-  description_txt = desc_item.try &.["runs"]?.try &.as_a
-    .map(&.["text"].as_s).join("") || desc_item.try &.["simpleText"]?.try &.as_s || ""
-
-  description_html = desc_item.try &.["runs"]?.try &.as_a
-    .try { |run| content_to_comment_html(run).try &.to_s } || "<p></p>"
-
-  thumbnail = playlist_info.dig?(
-    "thumbnailRenderer", "playlistVideoThumbnailRenderer",
-    "thumbnail", "thumbnails", 0, "url"
-  ).try &.as_s || playlist_info.dig?(
-    "thumbnailRenderer", "playlistCustomThumbnailRenderer",
-    "thumbnail", "thumbnails", 0, "url"
-  ).try &.as_s
+  raise InfoException.new("Could not extract playlist data.") if playlist_sidebar_renderer.nil? && header_renderer.nil?
 
   views = 0_i64
   updated = Time.utc
   video_count = 0
+  subtitle = extract_text(header_renderer.try &.["subtitle"]?)
 
-  subtitle = extract_text(initial_data.dig?("header", "playlistHeaderRenderer", "subtitle"))
+  # stats parsing is the same format in both sidebar and header renderers
+  stats_source = playlist_sidebar_renderer.try(&.dig?(0, "playlistSidebarPrimaryInfoRenderer", "stats")) ||
+                 header_renderer.try(&.["stats"]?)
 
-  playlist_info["stats"]?.try &.as_a.each do |stat|
+  stats_source.try &.as_a.each do |stat|
     text = stat["runs"]?.try &.as_a.map(&.["text"].as_s).join("") || stat["simpleText"]?.try &.as_s
     next if !text
 
@@ -389,20 +373,63 @@ def fetch_playlist(plid : String)
     end
   end
 
-  if playlist_sidebar_renderer.size < 2
-    author = ""
-    author_thumbnail = ""
-    ucid = ""
+  if playlist_sidebar_renderer
+    playlist_info = playlist_sidebar_renderer.dig?(0, "playlistSidebarPrimaryInfoRenderer")
+    raise InfoException.new("Could not extract playlist info") if !playlist_info
+
+    title = playlist_info.dig?("title", "runs", 0, "text").try &.as_s || ""
+
+    desc_item = playlist_info["description"]?
+
+    description_txt = desc_item.try &.["runs"]?.try &.as_a
+      .map(&.["text"].as_s).join("") || desc_item.try &.["simpleText"]?.try &.as_s || ""
+
+    description_html = desc_item.try &.["runs"]?.try &.as_a
+      .try { |run| content_to_comment_html(run).try &.to_s } || "<p></p>"
+
+    thumbnail = playlist_info.dig?(
+      "thumbnailRenderer", "playlistVideoThumbnailRenderer",
+      "thumbnail", "thumbnails", 0, "url"
+    ).try &.as_s || playlist_info.dig?(
+      "thumbnailRenderer", "playlistCustomThumbnailRenderer",
+      "thumbnail", "thumbnails", 0, "url"
+    ).try &.as_s
+
+    if playlist_sidebar_renderer.size < 2
+      author = ""
+      author_thumbnail = ""
+      ucid = ""
+    else
+      author_info = playlist_sidebar_renderer[1].dig?(
+        "playlistSidebarSecondaryInfoRenderer", "videoOwner", "videoOwnerRenderer"
+      )
+
+      raise InfoException.new("Could not extract author info") if !author_info
+
+      author = author_info.dig?("title", "runs", 0, "text").try &.as_s || ""
+      author_thumbnail = author_info.dig?("thumbnail", "thumbnails", 0, "url").try &.as_s || ""
+      ucid = author_info.dig?("title", "runs", 0, "navigationEndpoint", "browseEndpoint", "browseId").try &.as_s || ""
+    end
   else
-    author_info = playlist_sidebar_renderer[1].dig?(
-      "playlistSidebarSecondaryInfoRenderer", "videoOwner", "videoOwnerRenderer"
-    )
+    # Sidebar gone — fall back to playlistHeaderRenderer (YouTube changed response format)
+    hr = header_renderer.not_nil!
 
-    raise InfoException.new("Could not extract author info") if !author_info
+    title = extract_text(hr["title"]?) || ""
 
-    author = author_info.dig?("title", "runs", 0, "text").try &.as_s || ""
-    author_thumbnail = author_info.dig?("thumbnail", "thumbnails", 0, "url").try &.as_s || ""
-    ucid = author_info.dig?("title", "runs", 0, "navigationEndpoint", "browseEndpoint", "browseId").try &.as_s || ""
+    desc_item = hr["descriptionText"]? || hr["description"]?
+    description_txt = desc_item.try &.["runs"]?.try &.as_a
+      .map(&.["text"].as_s).join("") || desc_item.try &.["simpleText"]?.try &.as_s || ""
+    description_html = desc_item.try &.["runs"]?.try &.as_a
+      .try { |run| content_to_comment_html(run).try &.to_s } || "<p></p>"
+
+    thumbnail = hr.dig?("thumbnail", "thumbnails", 0, "url").try &.as_s
+
+    owner_run = hr.dig?("ownerText", "runs", 0)
+    author = owner_run.try &.["text"]?.try &.as_s || ""
+    ucid = owner_run.try &.dig?("navigationEndpoint", "browseEndpoint", "browseId").try &.as_s || ""
+    author_thumbnail = hr.dig?("channelAvatar", "decoratedAvatarViewModel", "avatar",
+      "avatarViewModel", "image", "sources", 0, "url").try &.as_s ||
+      hr.dig?("avatar", "thumbnails", 0, "url").try &.as_s || ""
   end
 
   return Playlist.new({
