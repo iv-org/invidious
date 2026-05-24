@@ -650,7 +650,10 @@ private module Parsers
     private def parse_internal(item_contents, author_fallback)
       playlist_id = item_contents["contentId"].as_s
 
-      thumbnail_view_model = item_contents.dig(
+      thumbnail_view_model = item_contents.dig?(
+        "contentImage", "collectionThumbnailViewModel",
+        "primaryThumbnail", "thumbnailViewModel"
+      ) || item_contents.dig?(
         "contentImage", "thumbnailViewModel"
       )
 
