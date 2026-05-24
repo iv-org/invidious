@@ -740,7 +740,7 @@ private module Parsers
           .compact_map(&.dig?("thumbnailOverlayBadgeViewModel", "thumbnailBadges").try &.as_a)
           .flatten
           .find(nil, &.dig?("thumbnailBadgeViewModel", "text").try { |node|
-            {"episodes", "videos"}.any? { |str| node.as_s.ends_with?(str) }
+            {"episodes", "videos", "lessons"}.any? { |str| node.as_s.ends_with?(str) }
           })
           .try &.dig("thumbnailBadgeViewModel", "text").as_s.to_i(strict: false)
 
