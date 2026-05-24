@@ -675,13 +675,20 @@ private module Parsers
       #
       # NOTE: this simplistic `.to_i` conversion might not work on larger
       # playlists and hasn't been tested.
-      video_count = thumbnail_view_model.dig("overlays").as_a
+      all_badge_texts = thumbnail_view_model.dig("overlays").as_a
         .compact_map(&.dig?("thumbnailOverlayBadgeViewModel", "thumbnailBadges").try &.as_a)
         .flatten
-        .find(nil, &.dig?("thumbnailBadgeViewModel", "text").try { |node|
-          {"episodes", "videos"}.any? { |str| node.as_s.ends_with?(str) }
-        })
-        .try &.dig("thumbnailBadgeViewModel", "text").as_s.to_i(strict: false)
+        .compact_map(&.dig?("thumbnailBadgeViewModel", "text").try &.as_s)
+
+      # Prefer badges explicitly labeled "videos" or "episodes" (case-insensitive)
+      video_count = all_badge_texts
+        .find { |t| {"episodes", "videos"}.any? { |s| t.downcase.ends_with?(s) } }
+        .try &.to_i(strict: false)
+
+      # Fallback: any badge whose text starts with a digit
+      video_count ||= all_badge_texts
+        .find { |t| t[0]?.try &.ascii_number? }
+        .try &.to_i(strict: false)
 
       metadata = item_contents.dig("metadata", "lockupMetadataViewModel")
       title = metadata.dig("title", "content").as_s
