@@ -222,7 +222,6 @@ module Invidious::Routing
     get "/s_p/:id/:name", Routes::Images, :s_p_image
     get "/yts/img/:name", Routes::Images, :yts_image
     get "/vi/:id/:name", Routes::Images, :thumbnails
-    # Both pl_c and tvfilm_banner use the same logic used in s_p_image(env)
     get "/pl_c/:id/:name", Routes::Images, :pl_c_image
     get "/tvfilm_banner/:id/:name", Routes::Images, :tvfilm_banner_image
   end
