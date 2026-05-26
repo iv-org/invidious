@@ -53,4 +53,12 @@ Spectator.describe "Helper" do
       expect(sign_token("SECRET_KEY", token)).to eq(token["signature"])
     end
   end
+
+  describe "#format_audio_quality_label" do
+    it "formats audio bitrates as readable kilobit labels" do
+      expect(Helpers.format_audio_quality_label(128000)).to eq("128k")
+      expect(Helpers.format_audio_quality_label(50000)).to eq("50k")
+      expect(Helpers.format_audio_quality_label(64000)).to eq("64k")
+    end
+  end
 end
