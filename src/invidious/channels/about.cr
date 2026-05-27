@@ -83,11 +83,13 @@ def get_about_info(ucid, locale) : AboutChannel
       author = initdata["metadata"]["channelMetadataRenderer"]["title"].as_s
       author_url = initdata["metadata"]["channelMetadataRenderer"]["channelUrl"].as_s
       author_thumbnail = initdata["metadata"]["channelMetadataRenderer"]["avatar"]["thumbnails"][0]["url"].as_s
-      author_verified = has_verified_badge?(initdata.dig?("header", "c4TabbedHeaderRenderer", "badges"))
+      author_verified = (initdata.dig?("header", "pageHeaderRenderer", "content", "pageHeaderViewModel", "title", "dynamicTextViewModel", "text", "attachmentRuns", 0, "element", "type", "imageType", "image", "sources", 0, "clientResource", "imageName")
+        .try &.as_s) == "CHECK_CIRCLE_FILLED" || false
 
       ucid = initdata["metadata"]["channelMetadataRenderer"]["externalId"].as_s
 
       # Raises a KeyError on failure.
+      # TODO: Check if `c4TabbedHeaderRenderer` still exists on some channels.
       banners = initdata["header"]["c4TabbedHeaderRenderer"]?.try &.["banner"]?.try &.["thumbnails"]?
       banners ||= initdata.dig?("header", "pageHeaderRenderer", "content", "pageHeaderViewModel", "banner", "imageBannerViewModel", "image", "sources")
       banner = banners.try &.[-1]?.try &.["url"].as_s?
