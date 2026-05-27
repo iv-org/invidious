@@ -142,7 +142,7 @@ class DisableAbusableAPIHandler < Kemal::Handler
   {% end %}
 
   def call(env)
-    return call_next env unless only_match?(env) && CONFIG.disable_api
+    return call_next env unless only_match?(env) && CONFIG.disable_abusable_api
 
     env.response.content_type = "application/json"
     env.response.status_code = 403
