@@ -83,9 +83,12 @@ def get_about_info(ucid, locale) : AboutChannel
       author = initdata["metadata"]["channelMetadataRenderer"]["title"].as_s
       author_url = initdata["metadata"]["channelMetadataRenderer"]["channelUrl"].as_s
       author_thumbnail = initdata["metadata"]["channelMetadataRenderer"]["avatar"]["thumbnails"][0]["url"].as_s
-      author_verified = (initdata.dig?("header", "pageHeaderRenderer", "content", "pageHeaderViewModel", "title", "dynamicTextViewModel", "text", "attachmentRuns", 0, "element", "type", "imageType", "image", "sources", 0, "clientResource", "imageName")
-        .try &.as_s) == "CHECK_CIRCLE_FILLED" || false
-
+      author_badge = initdata.dig?("header", "pageHeaderRenderer", "content", "pageHeaderViewModel", "title", "dynamicTextViewModel", "text", "attachmentRuns", 0, "element", "type", "imageType", "image", "sources", 0, "clientResource", "imageName")
+        .try &.as_s
+      # CHECK_CIRCLE_FILLED is used for normal channels and AUDIO_BADGE if used For
+      # music/artist channels
+      # TODO: Maybe separate verified author from verified artist?
+      author_verified = author_badge.try { |badge| badge == "CHECK_CIRCLE_FILLED" || badge == "AUDIO_BADGE" } || false
       ucid = initdata["metadata"]["channelMetadataRenderer"]["externalId"].as_s
 
       # Raises a KeyError on failure.
