@@ -410,7 +410,7 @@ module Invidious::Routes::API::V1::Videos
     clip_title = nil
 
     if params = response.dig?("endpoint", "watchEndpoint", "params").try &.as_s
-      start_time, end_time, clip_title = parse_clip_parameters(params)
+      start_time, end_time, clip_title = Invidious::Videos::Clip.parse_clip_parameters(params)
     end
 
     begin
