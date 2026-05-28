@@ -75,12 +75,11 @@ body {
   height: auto;
 }
 
-.channel-profile > .channel-name-pronouns {
+.channel-profile > .channel-info {
     display: inline-block;
 }
 
-.channel-profile > .channel-name-pronouns > .channel-pronouns {
-  font-style: italic;
+.channel-profile > .channel-info > .channel-metadata > .channel-metadata-item {
   font-size: .8em;
   font-weight: lighter;
 }
@@ -417,8 +416,8 @@ input[type="search"]::-webkit-search-cancel-button {
 p.channel-name { margin: 0; overflow-wrap: anywhere;}
 p.video-data   { margin: 0; font-weight: bold; font-size: 80%; }
 
-.channel-profile > .channel-name,
-.channel-profile > .channel-name-pronouns >  .channel-name 
+.channel-profile > .channel-info > .channel-name,
+.channel-profile > .channel-info > .channel-metadata > .channel-metadata-item
 {
   overflow-wrap: anywhere;
 }
