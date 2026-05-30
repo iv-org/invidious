@@ -124,6 +124,8 @@
     "preferences_sort_label": "Sort videos by: ",
     "preferences_default_playlist": "Default playlist: ",
     "preferences_default_playlist_none": "No default playlist set",
+    "preferences_search_privacy_label": "Search privacy: ",
+    "preferences_search_privacy_description": "Enabling this preference will prevent your search queries from being saved in your browser history.",
     "published": "published",
     "published - reverse": "published - reverse",
     "alphabetically": "alphabetically",
