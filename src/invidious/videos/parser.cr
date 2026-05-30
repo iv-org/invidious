@@ -109,7 +109,7 @@ module Invidious::Videos::Parser
     params = self.parse_video_info(video_id, player_response)
     params["reason"] = JSON::Any.new(reason) if reason
 
-    {"captions", "playabilityStatus", "playerConfig", "storyboards", "microformat"}.each do |f|
+    {"captions", "playabilityStatus", "playerConfig", "storyboards"}.each do |f|
       params[f] = player_response[f] if player_response[f]?
     end
 
