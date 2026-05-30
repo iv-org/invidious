@@ -129,17 +129,20 @@ module Invidious::Routes::Watch
     video_streams = video.video_streams
     audio_streams = video.audio_streams
 
-    # Older videos may not have audio sources available.
-    # We redirect here so they're not unplayable
-    if audio_streams.empty? && !video.live_now
-      if params.quality == "dash"
-        env.params.query.delete_all("quality")
-        env.params.query["quality"] = "medium"
-        return env.redirect "/watch?#{env.params.query}"
-      elsif params.listen
-        env.params.query.delete_all("listen")
-        env.params.query["listen"] = "0"
-        return env.redirect "/watch?#{env.params.query}"
+    # Videos that are a premiere do not have audio streams.
+    if !video.premiere_timestamp.nil?
+      # Older videos may not have audio sources available.
+      # We redirect here so they're not unplayable
+      if audio_streams.empty? && !video.live_now
+        if params.quality == "dash"
+          env.params.query.delete_all("quality")
+          env.params.query["quality"] = "medium"
+          return env.redirect "/watch?#{env.params.query}"
+        elsif params.listen
+          env.params.query.delete_all("listen")
+          env.params.query["listen"] = "0"
+          return env.redirect "/watch?#{env.params.query}"
+        end
       end
     end
 
