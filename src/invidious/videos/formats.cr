@@ -3,6 +3,16 @@ module Invidious::Videos::Formats
     return FORMATS[itag.to_s]?
   end
 
+  def self.audio_quality_label(fmt : Hash(String, JSON::Any)) : String
+    if metadata = itag_to_metadata?(fmt["itag"])
+      if abr = metadata["abr"]?
+        return "#{abr} kbps"
+      end
+    end
+
+    "#{(fmt["bitrate"].as_i + 500) // 1000} kbps"
+  end
+
   # See https://github.com/rg3/youtube-dl/blob/master/youtube_dl/extractor/youtube.py#L380-#L476
   private FORMATS = {
     "5"  => {"ext" => "flv", "width" => 400, "height" => 240, "acodec" => "mp3", "abr" => 64, "vcodec" => "h263"},
