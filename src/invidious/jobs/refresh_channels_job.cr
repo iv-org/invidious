@@ -39,7 +39,7 @@ class Invidious::Jobs::RefreshChannelsJob < Invidious::Jobs::BaseJob
 
               if backoff > 2.minutes
                 backoff /= 2
-                LOGGER.info("RefreshChannelsJob: #{id} fiber : decreasing backoff to #{backoff}s")
+                LOGGER.debug("RefreshChannelsJob: #{id} fiber : decreasing backoff to #{backoff}s")
               end
             rescue ex
               LOGGER.error("RefreshChannelsJob: #{id} : #{ex.message}")
