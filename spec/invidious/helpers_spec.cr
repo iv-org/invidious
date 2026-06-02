@@ -53,4 +53,12 @@ Spectator.describe "Helper" do
       expect(sign_token("SECRET_KEY", token)).to eq(token["signature"])
     end
   end
+
+  describe "#audio_bitrate_label" do
+    it "formats bitrates as kilobit labels" do
+      expect(audio_bitrate_label(128000)).to eq("128k")
+      expect(audio_bitrate_label(50000)).to eq("50k")
+      expect(audio_bitrate_label(JSON::Any.new(160000_i64))).to eq("160k")
+    end
+  end
 end

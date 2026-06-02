@@ -88,7 +88,7 @@ module Invidious::Frontend::WatchPage
         value = {"itag": option["itag"], "ext": mimetype.split("/")[1]}.to_json
 
         str << "\t\t\t<option value='" << value << "'>"
-        str << mimetype << " @ " << (option["bitrate"]?.try &.as_i./ 1000) << "k - audio only"
+        str << mimetype << " @ " << audio_bitrate_label(option["bitrate"]) << " - audio only"
         str << "</option>\n"
       end
 

@@ -202,6 +202,14 @@ def number_to_short_text(number)
   text
 end
 
+def audio_bitrate_label(bitrate : Int) : String
+  "#{bitrate // 1000}k"
+end
+
+def audio_bitrate_label(bitrate : JSON::Any) : String
+  audio_bitrate_label(bitrate.as_i)
+end
+
 def arg_array(array, start = 1)
   if array.size == 0
     args = "NULL"
