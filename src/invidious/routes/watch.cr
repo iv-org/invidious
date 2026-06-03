@@ -167,8 +167,11 @@ module Invidious::Routes::Watch
         url = audio_streams[0]["url"].as_s
 
         if params.quality.ends_with? "k"
+          bitrate = params.quality.rchop("k").to_i
+          bitrate *= 1000 if bitrate < 1000
+
           audio_streams.each do |fmt|
-            if fmt["bitrate"].as_i == params.quality.rchop("k").to_i
+            if fmt["bitrate"].as_i == bitrate
               url = fmt["url"].as_s
             end
           end
