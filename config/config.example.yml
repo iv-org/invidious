@@ -163,6 +163,12 @@ domain:
 ## Accepted values: a list of fully qualified domain names (FQDN)
 ## Default: <none>
 ##
+## Example:
+## alternative_domains:
+##   - invidious.example.com
+##   - inv.example.com
+##   - videos.example.com
+##
 alternative_domains:
 
 ##
