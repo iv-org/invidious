@@ -1,6 +1,29 @@
 require "../spec_helper"
 
 Spectator.describe "Utils" do
+  describe "audio_bitrate_label" do
+    it "formats audio bitrates as kbps labels" do
+      expect(audio_bitrate_label(128000)).to eq("128 kbps")
+      expect(audio_bitrate_label(129003)).to eq("129 kbps")
+    end
+  end
+
+  describe "audio_quality_label_to_bitrate" do
+    it "parses the current kbps label format" do
+      expect(audio_quality_label_to_bitrate("128 kbps")).to eq(128000)
+    end
+
+    it "keeps legacy k-suffixed labels compatible" do
+      expect(audio_quality_label_to_bitrate("128k")).to eq(128000)
+      expect(audio_quality_label_to_bitrate("128000k")).to eq(128000)
+    end
+
+    it "ignores unrelated quality labels" do
+      expect(audio_quality_label_to_bitrate("medium")).to be_nil
+      expect(audio_quality_label_to_bitrate("dash")).to be_nil
+    end
+  end
+
   describe "decode_date" do
     it "parses short dates (en-US)" do
       expect(decode_date("1s ago")).to be_close(Time.utc - 1.second, 500.milliseconds)

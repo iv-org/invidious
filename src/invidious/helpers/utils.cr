@@ -20,6 +20,24 @@ def elapsed_text(elapsed)
   "#{(millis * 1000).round(2)}µs"
 end
 
+def audio_bitrate_kbps(bitrate : Int) : Int32
+  (bitrate.to_f / 1000).round.to_i
+end
+
+def audio_bitrate_label(bitrate : Int) : String
+  "#{audio_bitrate_kbps(bitrate)} kbps"
+end
+
+def audio_quality_label_to_bitrate(quality : String) : Int32?
+  match = quality.strip.downcase.match(/^(\d+)\s*(?:k|kbps)$/)
+  return nil unless match
+
+  bitrate = match[1].to_i
+  bitrate *= 1000 if bitrate < 1000
+
+  bitrate
+end
+
 def decode_length_seconds(string)
   length_seconds = string.gsub(/[^0-9:]/, "")
   return 0_i32 if length_seconds.empty?
