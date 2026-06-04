@@ -32,6 +32,8 @@ module Invidious::Routes::BeforeAll
     env.response.headers["X-XSS-Protection"] = "1; mode=block"
     env.response.headers["X-Content-Type-Options"] = "nosniff"
 
+    env.set "header_x-forwarded-host", env.request.headers["X-Forwarded-Host"]?
+
     # Only allow the pages at /embed/* to be embedded
     if env.request.resource.starts_with?("/embed")
       frame_ancestors = "'self' file: http: https:"
