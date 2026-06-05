@@ -205,6 +205,7 @@ https_only: false
 #  path: /tmp/invidious.sock
 #  permissions: 777
 
+
 # -----------------------------
 #  Network (outbound)
 # -----------------------------
@@ -226,6 +227,7 @@ https_only: false
 ## Default: 100
 ##
 #pool_size: 100
+
 
 ##
 ## Additional cookies to be sent when requesting the youtube API.
@@ -260,6 +262,7 @@ https_only: false
 #  password:
 #  host:
 #  port:
+
 
 ##
 ## Use Innertube's transcripts API instead of timedtext for closed captions
@@ -340,6 +343,7 @@ https_only: false
 ## Default: false
 ##
 #statistics_enabled: false
+
 
 # -----------------------------
 #  Users and accounts
@@ -452,21 +456,6 @@ full_refresh: false
 ##
 feed_threads: 1
 
-##
-## Setting to disable easy to abuse API endpoints that can
-## be spammed and therefore blocking your Invidious instance.
-##
-## Useful for public instance maintainers.
-##
-## Notes: The following API endpoints will be disabled:
-##  - /api/v1/videos
-##  - /api/v1/clips
-##  - /api/v1/transcripts
-##
-## Accepted values: true, false
-## Default: false
-##
-disable_abusable_api: false
 
 jobs:
 
@@ -499,6 +488,7 @@ jobs:
     ## Default: true
     ##
     enable: true
+
 
 # -----------------------------
 #  Miscellaneous
@@ -698,6 +688,7 @@ default_user_preferences:
   ##
   #captions: ["", "", ""]
 
+
   # -----------------------------
   #  Interface
   # -----------------------------
@@ -799,6 +790,7 @@ default_user_preferences:
   ##
   #related_videos: true
 
+
   # -----------------------------
   #  Video player behavior
   # -----------------------------
@@ -861,6 +853,7 @@ default_user_preferences:
   ## Default: false
   ##
   #video_loop: false
+
 
   # -----------------------------
   #  Video playback settings
@@ -973,6 +966,7 @@ default_user_preferences:
   ##
   #sort: published
 
+
   # -----------------------------
   #  Miscellaneous
   # -----------------------------
@@ -1008,12 +1002,14 @@ default_user_preferences:
   ## Accepted values: true, false
   ## Default: false
   ##
-  #redirect_feed: false
+  #automatic_instance_redirect: false
 
   ##
-  ## Show Youtube links in the top menu bar.
+  ## Show the entire video description by default (when set to 'false',
+  ## only the first few lines of the description are shown and a
+  ## "show more" button allows to expand it).
   ##
   ## Accepted values: true, false
   ## Default: false
   ##
-  #youtube_trending: false
+  #extend_desc: false
