@@ -38,6 +38,17 @@ if (player_data.aspect_ratio) {
     options.aspectRatio = player_data.aspect_ratio;
 }
 
+function isAppleMobileDevice() {
+    return /iP(ad|hone|od)/.test(navigator.platform) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
+var shouldUseProgressiveQualitySelector = (
+    !video_data.params.listen &&
+    video_data.params.quality === 'dash' &&
+    isAppleMobileDevice()
+);
+
 var embed_url = new URL(location);
 embed_url.searchParams.delete('v');
 var short_url = location.origin + '/' + video_data.id + embed_url.search;
@@ -57,7 +68,7 @@ videojs.Vhs.xhr.beforeRequest = function(options) {
 var player = videojs('player', options);
 
 player.on('error', function () {
-    if (video_data.params.quality === 'dash') return;
+    if (video_data.params.quality === 'dash' && !shouldUseProgressiveQualitySelector) return;
 
     var localNotDisabled = (
         !player.currentSrc().includes('local=true') && !video_data.local_disabled
@@ -93,7 +104,7 @@ player.on('error', function () {
     }
 });
 
-if (video_data.params.quality === 'dash') {
+if (video_data.params.quality === 'dash' && !shouldUseProgressiveQualitySelector) {
     player.reloadSourceOnError({
         errorInterval: 10
     });
@@ -215,8 +226,12 @@ if (isMobile()) {
 
     var buttons = ['playToggle', 'volumePanel', 'captionsButton'];
 
-    if (!video_data.params.listen && video_data.params.quality === 'dash') buttons.push('audioTrackButton');
-    if (video_data.params.listen || video_data.params.quality !== 'dash') buttons.push('qualitySelector');
+    if (!video_data.params.listen && video_data.params.quality === 'dash' && !shouldUseProgressiveQualitySelector) {
+        buttons.push('audioTrackButton');
+    }
+    if (video_data.params.listen || video_data.params.quality !== 'dash' || shouldUseProgressiveQualitySelector) {
+        buttons.push('qualitySelector');
+    }
 
     // Create new control bar object for operation buttons
     const ControlBar = videojs.getComponent('controlBar');
@@ -243,7 +258,7 @@ if (isMobile()) {
         var share_element = document.getElementsByClassName('vjs-share-control')[0];
         operations_bar_element.append(share_element);
 
-        if (!video_data.params.listen && video_data.params.quality === 'dash') {
+        if (!video_data.params.listen && video_data.params.quality === 'dash' && !shouldUseProgressiveQualitySelector) {
             var http_source_selector = document.getElementsByClassName('vjs-http-source-selector vjs-menu-button')[0];
             operations_bar_element.append(http_source_selector);
         }
@@ -408,7 +423,7 @@ if (video_data.params.autoplay) {
     });
 }
 
-if (!video_data.params.listen && video_data.params.quality === 'dash') {
+if (!video_data.params.listen && video_data.params.quality === 'dash' && !shouldUseProgressiveQualitySelector) {
     player.httpSourceSelector();
 
     if (video_data.params.quality_dash !== 'auto') {
@@ -791,7 +806,7 @@ if (player.share) player.share(shareOptions);
 // show the preferred caption by default
 if (player_data.preferred_caption_found) {
     player.ready(function () {
-        if (!video_data.params.listen && video_data.params.quality === 'dash') {
+        if (!video_data.params.listen && video_data.params.quality === 'dash' && !shouldUseProgressiveQualitySelector) {
             // play.textTracks()[0] on DASH mode is showing some debug messages
             player.textTracks()[1].mode = 'showing';
         } else {
