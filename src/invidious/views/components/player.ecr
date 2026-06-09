@@ -44,7 +44,7 @@
                src_url = invidious_companion.public_url.to_s + src_url +
                             "&check=#{invidious_companion_check_id}" if (invidious_companion)
             %>
-                <source src="<%= src_url %>" type='application/dash+xml' label="dash">
+                <source src="<%= src_url %>" type='application/dash+xml' label="dash" hidequalityoption="true">
             <% end %>
 
             <%
