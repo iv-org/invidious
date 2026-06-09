@@ -480,7 +480,7 @@ module YoutubeAPI
   #
   # ```
   # # Valid channel "brand URL" gives the related UCID and browse ID
-  # channel_a = YoutubeAPI.resolve_url("https://youtube.com/c/google")
+  # channel_a = YoutubeAPI.resolve_url("https://www.youtube.com/c/google")
   # channel_a # => {
   #   "endpoint": {
   #     "browseEndpoint": {
@@ -492,7 +492,7 @@ module YoutubeAPI
   # }
   #
   # # Invalid URL returns throws an InfoException
-  # channel_b = YoutubeAPI.resolve_url("https://youtube.com/c/invalid")
+  # channel_b = YoutubeAPI.resolve_url("https://www.youtube.com/c/invalid")
   # ```
   #
   def resolve_url(url : String, client_config : ClientConfig | Nil = nil)
