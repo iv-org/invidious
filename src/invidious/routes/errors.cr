@@ -8,7 +8,7 @@ module Invidious::Routes::ErrorRoutes
     if md = env.request.path.match(/^\/(?<id>([a-zA-Z0-9_-]{11})|(\w+))$/)
       item = md["id"]
 
-      # Check if item is branding URL e.g. https://youtube.com/gaming
+      # Check if item is branding URL e.g. https://www.youtube.com/gaming
       response = YT_POOL.client &.get("/#{item}")
 
       if response.status_code == 301

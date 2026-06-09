@@ -351,7 +351,7 @@ module Invidious::Routes::Channels
     invidious_url_params.delete_all("user")
 
     begin
-      resolved_url = YoutubeAPI.resolve_url("https://youtube.com#{env.request.path}#{yt_url_params.size > 0 ? "?#{yt_url_params}" : ""}")
+      resolved_url = YoutubeAPI.resolve_url("https://www.youtube.com#{env.request.path}#{yt_url_params.size > 0 ? "?#{yt_url_params}" : ""}")
       ucid = resolved_url["endpoint"]["browseEndpoint"]["browseId"]
     rescue ex : InfoException | KeyError
       return error_template(404, I18n.translate(locale, "This channel does not exist."))
