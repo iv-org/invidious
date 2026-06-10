@@ -82,7 +82,7 @@ module Invidious::HttpServer
     private def dispatch_serve(context, file, file_info, range_header)
       if range_header
         # an IO is needed for `serve_file_range`
-        file = file.is_a?(Bytes) ? IO::Memory.new(file, writeable: false) : file
+        file = file.is_a?(Bytes) ? IO::Memory.new(file, writable: false) : file
         serve_file_range(context, file, range_header, file_info)
       else
         context.response.headers["Accept-Ranges"] = "bytes"
