@@ -1,5 +1,6 @@
 class Invidious::Database::Migrator
-  MIGRATIONS_TABLE = "public.invidious_migrations"
+  MIGRATIONS_TABLE    = "public.invidious_migrations"
+  MIGRATE_INSTRUCTION = "Run `invidious --migrate` to apply the migration(s)."
 
   class_getter migrations = [] of Invidious::Database::Migration.class
 
@@ -22,11 +23,20 @@ class Invidious::Database::Migrator
     puts "No migrations to run." unless ran_migration
   end
 
-  def pending_migrations? : Bool
+  def check_pending_migrations
     versions = load_versions
 
-    load_migrations.sort_by(&.version)
-      .any? { |migration| !versions.includes?(migration.version) }
+    pending_migrations = load_migrations.sort_by(&.version)
+      .select { |migration| !versions.includes?(migration.version) }
+
+    return if pending_migrations.empty?
+
+    if pending_migrations.any?(&.required?)
+      LOGGER.error("There are pending migrations and the application is unable to continue. #{MIGRATE_INSTRUCTION}")
+      exit 1
+    else
+      LOGGER.warn("There are pending migrations. #{MIGRATE_INSTRUCTION}")
+    end
   end
 
   private def load_migrations : Array(Invidious::Database::Migration)
