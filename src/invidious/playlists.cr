@@ -467,8 +467,7 @@ def extract_playlist_videos(playlist_id : String, initial_data : Hash(String, JS
       tabs_contents = tabs_renderer.["contents"]? || tabs_renderer.["content"]
 
       list_renderer = tabs_contents.["sectionListRenderer"]["contents"][0]
-      item_renderer = list_renderer.["itemSectionRenderer"]["contents"][0]
-      contents = item_renderer.["playlistVideoListRenderer"]["contents"].as_a
+      contents = list_renderer.["itemSectionRenderer"]["contents"].as_a
     else
       # Continuation data
       contents = initial_data["onResponseReceivedActions"][0]?
@@ -479,12 +478,16 @@ def extract_playlist_videos(playlist_id : String, initial_data : Hash(String, JS
   end
 
   contents.try &.each do |item|
-    if i = item["playlistVideoRenderer"]?
-      video_id = i.dig?("navigationEndpoint", "watchEndpoint", "videoId").try &.as_s || i.dig("videoId").as_s
-      plid = i.dig?("navigationEndpoint", "watchEndpoint", "playlistId").try &.as_s || playlist_id
-      index = i.dig?("navigationEndpoint", "watchEndpoint", "index").try &.as_i64 || i.dig("index", "simpleText").as_s.to_i64
+    if i = item["lockupViewModel"]?
+      watch_endpoint = i.dig?("rendererContext", "commandContext", "onTap", "innertubeCommand", "watchEndpoint")
+      video_id = watch_endpoint.try &.["videoId"]?.try &.as_s
+      plid = watch_endpoint.try &.["playlistId"]?.try &.as_s || playlist_id
+      index = watch_endpoint.try &.["index"]?.try &.as_i64
 
-      title = i["title"].try { |t| t["simpleText"]? || t["runs"]?.try &.[0]["text"]? }.try &.as_s || ""
+      metadata = i["metadata"]?
+      lockup_metadata_view_model = metadata["lockupMetadataViewModel"]?
+      title = lookup_metadata_view_model.dig?("title", "content").try &.as_s
+      # Bellow is broken xd
       author = i["shortBylineText"]?.try &.["runs"][0]["text"].as_s || ""
       ucid = i["shortBylineText"]?.try &.["runs"][0]["navigationEndpoint"]["browseEndpoint"]["browseId"].as_s || ""
       length_seconds = i["lengthSeconds"]?.try &.as_s.to_i
