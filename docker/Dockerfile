@@ -61,7 +61,7 @@ RUN --mount=type=cache,target=/root/.cache/crystal if [[ "${release}" == 1 ]] ; 
         --link-flags "-lxml2 -llzma"; \
     fi
 
-FROM alpine:3.23
+FROM alpine:3.24
 RUN apk add --no-cache rsvg-convert ttf-opensans tini tzdata
 WORKDIR /invidious
 RUN addgroup -g 1000 -S invidious && \
