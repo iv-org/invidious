@@ -502,5 +502,8 @@
     "Xhosa": "Xhosa",
     "Yiddish": "Jiddisch",
     "Yoruba": "Joruba",
-    "Zulu": "Zulu"
+    "Zulu": "Zulu",
+    "preferences_default_playlist": "Standard-Widergabelischte: ",
+    "preferences_default_playlist_none": "Kei Standard-Widergabelischte gsetzt",
+    "Livestreams": "Livestreams"
 }
