@@ -501,5 +501,9 @@
     "channel_tab_posts_label": "فرسته‌ها",
     "timeline_parse_error_placeholder_heading": "ناتوانی در تجزیهٔ مورد",
     "timeline_parse_error_placeholder_message": "اینویدیوس هنگام کوشش برای تجزیهٔ این مورد به خطایی برخورد. برای اطلاعات بیشتر زیر را ببینید:",
-    "timeline_parse_error_show_technical_details": "نمایش جزئیات فنی"
+    "timeline_parse_error_show_technical_details": "نمایش جزئیات فنی",
+    "Livestreams": "جریان‌های زنده",
+    "preferences_default_playlist": "سیاههٔ پخش پیش‌گزیده: ",
+    "preferences_default_playlist_none": "هیج سیاههٔ پخشی پیش‌گزیده نشده",
+    "channel_tab_courses_label": "دوره‌ها"
 }
