@@ -630,7 +630,7 @@ private module Parsers
     end
   end
 
-  # Parses an InnerTube lockupViewModel into a SearchPlaylist, SearchVideo.
+  # Parses an InnerTube lockupViewModel into a SearchPlaylist or a SearchVideo
   # Returns nil when the given object is not a lockupViewModel.
   #
   # This structure is present since November 2024 on the "podcasts" and
