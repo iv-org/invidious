@@ -454,6 +454,10 @@ def get_playlist_videos(playlist : InvidiousPlaylist | Playlist, offset : Int32,
   end
 end
 
+# TODO (2026-06-24): Migrate this function to use parsers instead, as it uses,
+# the same LockupViewModel used in Channel videos and Youtube playlists that
+# appears on searches (Invidious /search endpoint).
+# Related to https://github.com/iv-org/invidious/pull/5736
 def extract_playlist_videos(playlist_id : String, initial_data : Hash(String, JSON::Any))
   videos = [] of PlaylistVideo | ProblematicTimelineItem
 
@@ -479,18 +483,38 @@ def extract_playlist_videos(playlist_id : String, initial_data : Hash(String, JS
 
   contents.try &.each do |item|
     if i = item["lockupViewModel"]?
+      thumbnail_view_model = i.dig?(
+        "contentImage", "thumbnailViewModel"
+      )
+
       watch_endpoint = i.dig?("rendererContext", "commandContext", "onTap", "innertubeCommand", "watchEndpoint")
       video_id = watch_endpoint.try &.["videoId"]?.try &.as_s
       plid = watch_endpoint.try &.["playlistId"]?.try &.as_s || playlist_id
       index = watch_endpoint.try &.["index"]?.try &.as_i64
 
       metadata = i["metadata"]?
-      lockup_metadata_view_model = metadata["lockupMetadataViewModel"]?
-      title = lookup_metadata_view_model.dig?("title", "content").try &.as_s
-      # Bellow is broken xd
-      author = i["shortBylineText"]?.try &.["runs"][0]["text"].as_s || ""
-      ucid = i["shortBylineText"]?.try &.["runs"][0]["navigationEndpoint"]["browseEndpoint"]["browseId"].as_s || ""
-      length_seconds = i["lengthSeconds"]?.try &.as_s.to_i
+      lockup_metadata_view_model = metadata.try &.dig?("lockupMetadataViewModel")
+      title = lockup_metadata_view_model.try &.dig?("title", "content").try &.as_s
+      lockup_metadata = lockup_metadata_view_model.try &.dig?("metadata")
+      metadata_rows = lockup_metadata.try &.dig?("contentMetadataViewModel", "metadataRows").try &.as_a
+
+      # Find the metadataParts with commandRuns inside, which contains author
+      # information.
+      metadata_parts = metadata_rows.try &.find { |row|
+        parts = row["metadataParts"]?.try &.as_a
+        parts && parts.any? { |item| item.dig?("text", "commandRuns").try &.as_a }
+      }.try &.["metadataParts"].as_a
+
+      if author_info = metadata_parts.try &.find(&.dig?("text", "commandRuns"))
+           .try &.["text"]
+        author = author_info["content"].as_s
+        ucid = author_info.dig?("commandRuns", 0, "onTap", "innertubeCommand", "browseEndpoint", "browseId")
+          .try &.as_s
+      end
+
+      length = thumbnail_view_model.try &.dig?("overlays", 0, "thumbnailBottomOverlayViewModel", "badges", 0, "thumbnailBadgeViewModel", "text").try &.as_s
+      length_seconds = decode_length_seconds(length) if length
+
       live = false
 
       if !length_seconds
@@ -499,15 +523,15 @@ def extract_playlist_videos(playlist_id : String, initial_data : Hash(String, JS
       end
 
       videos << PlaylistVideo.new({
-        title:          title,
-        id:             video_id,
-        author:         author,
-        ucid:           ucid,
+        title:          title || "",
+        id:             video_id || "",
+        author:         author || "",
+        ucid:           ucid || "",
         length_seconds: length_seconds,
         published:      Time.utc,
         plid:           plid,
         live_now:       live,
-        index:          index,
+        index:          index || -1_i64,
       })
     end
   rescue ex

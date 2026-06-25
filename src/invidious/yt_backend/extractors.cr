@@ -630,8 +630,7 @@ private module Parsers
     end
   end
 
-  # Parses an InnerTube lockupViewModel into a SearchPlaylist, SearchVideo
-  # or a PlaylistVideo.
+  # Parses an InnerTube lockupViewModel into a SearchPlaylist, SearchVideo.
   # Returns nil when the given object is not a lockupViewModel.
   #
   # This structure is present since November 2024 on the "podcasts" and
@@ -639,7 +638,6 @@ private module Parsers
   # a richItemRenderer or a richGridRenderer.
   #
   # Since 2026-05-21, now channel videos are encapsulated in a lockupViewModel.
-  # Since 2026-06-12, now videos inside a playlist are encapsulated in a lockupViewModel.
   module LockupViewModelParser
     extend self
     include BaseParser
