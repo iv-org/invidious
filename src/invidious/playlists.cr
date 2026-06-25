@@ -502,7 +502,7 @@ def extract_playlist_videos(playlist_id : String, initial_data : Hash(String, JS
       # information.
       metadata_parts = metadata_rows.try &.find { |row|
         parts = row["metadataParts"]?.try &.as_a
-        parts && parts.any? { |item| item.dig?("text", "commandRuns").try &.as_a }
+        parts && parts.any? { |item2| item2.dig?("text", "commandRuns").try &.as_a }
       }.try &.["metadataParts"].as_a
 
       if author_info = metadata_parts.try &.find(&.dig?("text", "commandRuns"))
