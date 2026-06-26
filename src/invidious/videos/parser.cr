@@ -76,7 +76,9 @@ module Invidious::Videos::Parser
         params = self.parse_video_info(video_id, player_response)
         params["version"] = JSON::Any.new(Video::SCHEMA_VERSION.to_i64)
         params["reason"] = JSON::Any.new("Video unavailable")
-        params["subreason"] = JSON::Any.new("Invidious Companion is not available. Video playback is not possible.")
+        params["subreason"] = JSON::Any.new("Invidious Companion is not available. Video playback is not possible. \
+If you are the administrator, install Invidious Companion: \
+<a href=\"https://docs.invidious.io/installation/\">https://docs.invidious.io/installation/</a>")
         return params
       rescue ex
         LOGGER.debug("extract_video_info: parse from /next failed for #{video_id}: #{ex.message}")

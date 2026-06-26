@@ -318,7 +318,7 @@ def get_video(id, refresh = true, region = nil, force_refresh = false)
     end
   else
     video = fetch_video(id, region)
-    Invidious::Database::Videos.insert(video) if !region && video.reason.nil?
+    Invidious::Database::Videos.insert(video) if !region
   end
 
   return video
