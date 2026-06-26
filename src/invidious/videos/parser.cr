@@ -57,10 +57,31 @@ module Invidious::Videos::Parser
 
   def extract_video_info(video_id : String)
     # Fetch data from the player endpoint
-    player_response = YoutubeAPI.player(video_id: video_id)
+    player_response = nil
+    begin
+      player_response = YoutubeAPI.player(video_id: video_id)
+    rescue ex
+      LOGGER.debug("extract_video_info: player endpoint failed for #{video_id}: #{ex.message}")
+    end
 
     if player_response.nil?
-      return nil
+      # Player endpoint failed (e.g. no companion). Try to get data from /next only.
+      begin
+        player_response = YoutubeAPI.next({"videoId": video_id, "params": ""})
+      rescue ex
+        LOGGER.debug("extract_video_info: /next also failed for #{video_id}: #{ex.message}")
+        raise NotFoundException.new("Video unavailable")
+      end
+      begin
+        params = self.parse_video_info(video_id, player_response)
+        params["version"] = JSON::Any.new(Video::SCHEMA_VERSION.to_i64)
+        params["reason"] = JSON::Any.new("Video unavailable")
+        params["subreason"] = JSON::Any.new("Invidious Companion is not available. Video playback is not possible.")
+        return params
+      rescue ex
+        LOGGER.debug("extract_video_info: parse from /next failed for #{video_id}: #{ex.message}")
+        raise NotFoundException.new("Video unavailable")
+      end
     end
 
     playability_status = player_response.dig?("playabilityStatus", "status").try &.as_s
