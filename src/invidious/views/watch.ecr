@@ -108,12 +108,6 @@ we're going to need to do it here in order to allow for translations.
     <% end %>
 
     <% if video.reason %>
-        <h3>
-            <%= I18n.translate(locale, "error_from_youtube_unplayable") %> <%= video.reason %>
-        </h3>
-        <% if video.subreason %>
-        <p><%= video.subreason %></p>
-        <% end %>
         <%= error_redirect_helper(env) %>
     <% elsif video.premiere_timestamp.try &.> Time.utc %>
         <h3>
