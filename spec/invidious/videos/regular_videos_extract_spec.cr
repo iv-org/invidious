@@ -205,3 +205,19 @@ Spectator.describe "parse_video_info" do
     expect(info["relatedVideos"].as_a.size).to eq(20)
   end
 end
+
+Spectator.describe "Video error accessors" do
+  it "returns nil for a subreason stored as JSON null" do
+    # Some error paths store `subreason` as a JSON `null`; the accessor must
+    # not raise a TypeCastError on it.
+    info = {
+      "reason"    => JSON::Any.new("Video unavailable"),
+      "subreason" => JSON::Any.new(nil),
+    } of String => JSON::Any
+
+    video = Video.new({id: "dQw4w9WgXcQ", info: info, updated: Time.utc})
+
+    expect(video.reason).to eq("Video unavailable")
+    expect(video.subreason).to be_nil
+  end
+end

@@ -55,6 +55,18 @@ module Invidious::Videos::Parser
     }
   end
 
+  # Builds the minimal "error" info hash returned when a video can't be
+  # played but we still want to render the watch page. `subreason` is only
+  # included when present, so it never gets stored as a JSON `null`.
+  private def self.error_video_info(reason : String?, subreason : String?) : Hash(String, JSON::Any)
+    params = {
+      "version" => JSON::Any.new(Video::SCHEMA_VERSION.to_i64),
+    } of String => JSON::Any
+    params["reason"] = JSON::Any.new(reason) if reason
+    params["subreason"] = JSON::Any.new(subreason) if subreason
+    params
+  end
+
   def extract_video_info(video_id : String)
     # Fetch data from the player endpoint
     player_response = nil
@@ -93,18 +105,21 @@ If you are the administrator, install Invidious Companion: \
       reason ||= player_response.dig?("playabilityStatus", "errorScreen", "playerErrorMessageRenderer", "reason", "simpleText").try &.as_s
 
       subreason_main = player_response.dig?("playabilityStatus", "errorScreen", "playerErrorMessageRenderer", "subreason")
-      subreason = subreason_main.try &.[]?("simpleText").try &.as_s
-      subreason ||= subreason_main.try &.[]("runs").as_a.map(&.[]("text")).join("")
+      subreason = subreason_main.try &.["simpleText"]?.try &.as_s
+      subreason ||= subreason_main.try &.["runs"]?.try &.as_a.map(&.["text"]).join("")
 
-      # Stop here if video is not found, or private with no further data.
-      # For other statuses (UNPLAYABLE, etc.), continue to extract as much
-      # data as possible from the /next endpoint.
-      if reason == "Video unavailable" && playability_status != "UNPLAYABLE"
-        return {
-          "version"   => JSON::Any.new(Video::SCHEMA_VERSION.to_i64),
-          "reason"    => JSON::Any.new(reason),
-          "subreason" => JSON::Any.new(subreason),
-        }
+      # These strings come straight from YouTube and are rendered as raw HTML
+      # on the watch/embed pages, so escape them to avoid HTML injection.
+      reason = HTML.escape(reason) if reason
+      subreason = HTML.escape(subreason) if subreason
+
+      # Stop here if the video is genuinely unavailable (deleted, removed or
+      # nonexistent): YouTube returns status "ERROR" for these regardless of
+      # the (localized) reason text, and there is nothing to extract from the
+      # /next endpoint. For other statuses (UNPLAYABLE, LOGIN_REQUIRED,
+      # LIVE_STREAM_OFFLINE, ...) we continue and extract as much as possible.
+      if playability_status == "ERROR"
+        raise NotFoundException.new(reason || "Video unavailable")
       end
     elsif video_id != player_response.dig?("videoDetails", "videoId")
       # YouTube may return a different video player response than expected.
@@ -115,10 +130,7 @@ If you are the administrator, install Invidious Companion: \
       # wrong video means that we should count it as a failure.
       Helpers.get_playback_statistic["totalRequests"] += 1
 
-      return {
-        "version" => JSON::Any.new(Video::SCHEMA_VERSION.to_i64),
-        "reason"  => JSON::Any.new("Can't load the video on this Invidious instance. YouTube is currently trying to block Invidious instances. <a href=\"https://github.com/iv-org/invidious/issues/3822\">Click here for more info about the issue.</a>"),
-      }
+      return error_video_info("Can't load the video on this Invidious instance. YouTube is currently trying to block Invidious instances. <a href=\"https://github.com/iv-org/invidious/issues/3822\">Click here for more info about the issue.</a>", nil)
     else
       reason = nil
     end
@@ -134,11 +146,7 @@ If you are the administrator, install Invidious Companion: \
       # If we're in an error state and /next fails, return what we have
       if reason
         LOGGER.debug("extract_video_info: /next failed for #{video_id}: #{ex.message}")
-        return {
-          "version"   => JSON::Any.new(Video::SCHEMA_VERSION.to_i64),
-          "reason"    => JSON::Any.new(reason),
-          "subreason" => JSON::Any.new(subreason),
-        }
+        return error_video_info(reason, subreason)
       end
       raise ex
     end
@@ -147,11 +155,7 @@ If you are the administrator, install Invidious Companion: \
       params = self.parse_video_info(video_id, player_response)
     rescue ex : BrokenTubeException
       if reason
-        return {
-          "version"   => JSON::Any.new(Video::SCHEMA_VERSION.to_i64),
-          "reason"    => JSON::Any.new(reason),
-          "subreason" => JSON::Any.new(subreason),
-        }
+        return error_video_info(reason, subreason)
       end
       raise ex
     end
@@ -257,16 +261,23 @@ If you are the administrator, install Invidious Companion: \
       .try { |t| Time.parse(t.as_s, "%Y-%m-%d", Time::Location::UTC) }
 
     if published.nil?
+      # Fall back to the human-readable date shown on the watch page (e.g.
+      # "Started streaming 3 hours ago" or "Premiered Jan 1, 2024").
       published_txt = video_primary_renderer
-        .try &.dig?("dateText", "simpleText")
+        .try &.dig?("dateText", "simpleText").try &.as_s
 
-      if published_txt.try &.as_s.includes?("ago") && !published_txt.nil?
-        published = decode_date(published_txt.as_s.lchop("Started streaming "))
-      elsif published_txt && published_txt.try &.as_s.matches?(/(\w{3} \d{1,2}, \d{4})$/)
-        published = Time.parse(published_txt.as_s.match!(/(\w{3} \d{1,2}, \d{4})$/)[0], "%b %-d, %Y", Time::Location::UTC)
-      else
-        published = Time.utc
-      end
+      date_regex = /(\w{3} \d{1,2}, \d{4})$/
+
+      published =
+        if published_txt.nil?
+          Time.utc
+        elsif published_txt.includes?("ago")
+          decode_date(published_txt.lchop("Started streaming "))
+        elsif match = published_txt.match(date_regex)
+          Time.parse(match[0], "%b %-d, %Y", Time::Location::UTC)
+        else
+          Time.utc
+        end
     end
 
     premiere_timestamp = microformat.dig?("liveBroadcastDetails", "startTimestamp")
@@ -295,12 +306,13 @@ If you are the administrator, install Invidious Companion: \
       .try &.as_a.map &.as_s || [] of String
 
     allow_ratings = video_details["allowRatings"]?.try &.as_bool
+    # When the microformat is missing (e.g. /next-only data) we can't know for
+    # sure, so optimistically assume the video is family safe.
     family_friendly = microformat["isFamilySafe"]?.try &.as_bool
-    if family_friendly.nil?
-      family_friendly = true
-    end
+    family_friendly = true if family_friendly.nil?
     is_listed = video_details["isCrawlable"]?.try &.as_bool
     if is_listed.nil?
+      # Without videoDetails, infer from the "Unlisted" badge if present.
       if video_badges = video_primary_renderer.try &.dig?("badges")
         is_listed = !has_unlisted_badge?(video_badges)
       else

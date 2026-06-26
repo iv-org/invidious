@@ -463,7 +463,9 @@ module YoutubeAPI
     if CONFIG.invidious_companion.present?
       return self._post_invidious_companion("/youtubei/v1/player", data)
     else
-      return self._post_json("/youtubei/v1/player", data, nil)
+      # Without Invidious Companion the player endpoint is unavailable.
+      # Returning nil lets the caller fall back to the /next endpoint.
+      return nil
     end
   end
 
