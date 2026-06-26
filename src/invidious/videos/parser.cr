@@ -282,8 +282,9 @@ If you are the administrator, install Invidious Companion: \
 
     live_now = microformat.dig?("liveBroadcastDetails", "isLiveNow")
       .try &.as_bool
-    live_now ||= video_details.dig?("isLive").try &.as_bool
-    live_now ||= video_primary_renderer.try &.dig?("viewCount", "videoViewCountRenderer", "isLive").try &.as_bool || false
+    live_now = video_details.dig?("isLive").try &.as_bool if live_now.nil?
+    live_now = video_primary_renderer.try &.dig?("viewCount", "videoViewCountRenderer", "isLive").try &.as_bool if live_now.nil?
+    live_now ||= false
 
     post_live_dvr = video_details.dig?("isPostLiveDvr")
       .try &.as_bool || false
