@@ -310,7 +310,8 @@ def get_video(id, refresh = true, region = nil, force_refresh = false)
        video.schema_version != Video::SCHEMA_VERSION # cache control
       begin
         video = fetch_video(id, region)
-        Invidious::Database::Videos.update(video)
+        Invidious::Database::Videos.update(video) if CONFIG.invidious_companion.present?
+>>>>>>> 465a2cc6 (Skip caching entirely when Invidious Companion is not configured)
       rescue ex
         Invidious::Database::Videos.delete(id)
         raise ex
@@ -318,7 +319,8 @@ def get_video(id, refresh = true, region = nil, force_refresh = false)
     end
   else
     video = fetch_video(id, region)
-    Invidious::Database::Videos.insert(video) if !region
+    Invidious::Database::Videos.insert(video) if !region && CONFIG.invidious_companion.present?
+>>>>>>> 465a2cc6 (Skip caching entirely when Invidious Companion is not configured)
   end
 
   return video
