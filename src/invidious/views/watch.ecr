@@ -75,19 +75,18 @@ we're going to need to do it here in order to allow for translations.
 <div id="player-container" class="h-box">
     <%= rendered "components/player" %>
 </div>
-<% else %>
-<div class="h-box">
-    <div style="display:flex;align-items:center;justify-content:center;background-color:#000;width:100%;aspect-ratio:16/9">
-        <p style="color:#fff;font-size:1.2em;text-align:center">
-            <%= I18n.translate(locale, "error_from_youtube_unplayable") %><br/>
-            <strong><%= video.reason %></strong>
-            <% if video.subreason %><br/><%= video.subreason %><% end %>
-        </p>
-    </div>
-</div>
 <% end %>
 
 <div class="h-box">
+    <% if video.reason %>
+        <h3>
+            <%= I18n.translate(locale, "error_from_youtube_unplayable") %> <%= video.reason %>
+        </h3>
+        <% if video.subreason %>
+        <p><%= video.subreason %></p>
+        <% end %>
+        <%= error_redirect_helper(env) %>
+    <% end %>
     <h1>
         <%= title %>
         <% if params.listen %>
@@ -107,9 +106,7 @@ we're going to need to do it here in order to allow for translations.
         </h3>
     <% end %>
 
-    <% if video.reason %>
-        <%= error_redirect_helper(env) %>
-    <% elsif video.premiere_timestamp.try &.> Time.utc %>
+    <% if video.premiere_timestamp.try &.> Time.utc %>
         <h3>
             <%= video.premiere_timestamp.try { |t| I18n.translate(locale, "Premieres in `x`", recode_date((t - Time.utc).ago, locale)) } %>
         </h3>
