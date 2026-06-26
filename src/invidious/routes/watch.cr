@@ -130,7 +130,7 @@ module Invidious::Routes::Watch
     audio_streams = video.audio_streams
 
     # Videos that are a premiere do not have audio streams.
-    if video.premiere_timestamp.nil?
+    if video.premiere_timestamp.nil? && video.reason.nil?
       # Older videos may not have audio sources available.
       # We redirect here so they're not unplayable
       if audio_streams.empty? && !video.live_now
@@ -162,7 +162,7 @@ module Invidious::Routes::Watch
 
     thumbnail = "/vi/#{video.id}/maxres.jpg"
 
-    if params.raw
+    if params.raw && video.reason.nil?
       if params.listen
         url = audio_streams[0]["url"].as_s
 

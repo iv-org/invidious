@@ -31,7 +31,19 @@
 %>
 </script>
 
+<% if video.reason.nil? %>
 <%= rendered "components/player" %>
+<% else %>
+<div id="player-container" class="h-box">
+    <div style="display:flex;align-items:center;justify-content:center;background-color:#000;width:100%;aspect-ratio:16/9">
+        <p style="color:#fff;font-size:1.2em;text-align:center">
+            <%= I18n.translate(preferences.locale, "error_from_youtube_unplayable") %><br/>
+            <strong><%= video.reason %></strong>
+            <% if video.subreason %><br/><%= video.subreason %><% end %>
+        </p>
+    </div>
+</div>
+<% end %>
 <script src="/js/embed.js?v=<%= ASSET_COMMIT %>"></script>
 </body>
 </html>

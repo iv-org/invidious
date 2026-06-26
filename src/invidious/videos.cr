@@ -15,7 +15,7 @@ struct Video
   # NOTE: don't forget to bump this number if any change is made to
   # the `params` structure in videos/parser.cr!!!
   #
-  SCHEMA_VERSION = 3
+  SCHEMA_VERSION = 4
 
   property id : String
 
@@ -182,6 +182,10 @@ struct Video
     info["reason"]?.try &.as_s
   end
 
+  def subreason : String?
+    info["subreason"]?.try &.as_s
+  end
+
   def music : Array(VideoMusic)
     info["music"].as_a.map { |music_json|
       VideoMusic.new(
@@ -314,7 +318,7 @@ def get_video(id, refresh = true, region = nil, force_refresh = false)
     end
   else
     video = fetch_video(id, region)
-    Invidious::Database::Videos.insert(video) if !region
+    Invidious::Database::Videos.insert(video) if !region && video.reason.nil?
   end
 
   return video
@@ -336,12 +340,8 @@ def fetch_video(id, region)
   end
 
   if reason = info["reason"]?
-    if reason == "Video unavailable"
+    if reason == "Video unavailable" && !info["title"]?
       raise NotFoundException.new(reason.as_s || "")
-    elsif !reason.as_s.starts_with? "Premieres"
-      # dont error when it's a premiere.
-      # we already parsed most of the data and display the premiere date
-      raise InfoException.new(reason.as_s || "")
     end
   end
 
