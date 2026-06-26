@@ -470,6 +470,9 @@ If you are the administrator, install Invidious Companion: \
       subs_text = author_info["subscriberCountText"]?
         .try { |t| t["simpleText"]? || t.dig?("runs", 0, "text") }
         .try &.as_s.split(" ", 2)[0]
+
+      author ||= extract_text(author_info.dig?("title"))
+      ucid ||= author_info.dig?("title", "runs", 0, "navigationEndpoint", "browseEndpoint", "browseId").try &.as_s
     end
 
     # Return data
