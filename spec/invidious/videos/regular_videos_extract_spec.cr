@@ -163,4 +163,45 @@ Spectator.describe "parse_video_info" do
     expect(info["authorVerified"].as_bool).to be_false
     expect(info["subCountText"].as_s).to eq("3.11K")
   end
+
+  it "parses a video without videoDetails (fallback to /next data)" do
+    _player = load_mock("video/no-videodetails.player")
+    _next = load_mock("video/regular_no-description.next")
+
+    raw_data = _player.merge!(_next)
+    info = Invidious::Videos::Parser.parse_video_info("no-videodetails-id", raw_data)
+
+    expect(typeof(info)).to eq(Hash(String, JSON::Any))
+
+    # Title falls back to videoPrimaryInfoRenderer
+    expect(info["title"].as_s).to eq("Chris Rea - Auberge")
+
+    # Views from videoPrimaryInfoRenderer
+    expect(info["views"].as_i).to eq(14_324_584)
+
+    # Likes still work (from videoPrimaryInfoRenderer buttons)
+    expect(info["likes"].as_i).to eq(35_870)
+
+    # Length from microformat
+    expect(info["lengthSeconds"].as_i).to eq(283_i64)
+
+    # Published from microformat, or dateText fallback
+    expect(info["published"].as_s).to eq("2012-05-21T00:00:00Z")
+
+    # Author from videoOwnerRenderer
+    expect(info["author"].as_s).to eq("ChrisReaVideos")
+    expect(info["ucid"].as_s).to eq("UC_5q6nWPbD30-y6oiWF_oNA")
+
+    # Family friendly defaults to true when missing
+    expect(info["isFamilyFriendly"].as_bool).to be_true
+
+    # isListed defaults to true when no badges
+    expect(info["isListed"].as_bool).to be_true
+
+    # Description
+    expect(info["descriptionHtml"].as_s).to eq("")
+
+    # Related videos still work from /next
+    expect(info["relatedVideos"].as_a.size).to eq(20)
+  end
 end
