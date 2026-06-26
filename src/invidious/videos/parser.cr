@@ -99,7 +99,7 @@ If you are the administrator, install Invidious Companion: \
       # Stop here if video is not found, or private with no further data.
       # For other statuses (UNPLAYABLE, etc.), continue to extract as much
       # data as possible from the /next endpoint.
-      if reason == "Video unavailable" && !{"UNPLAYABLE"}.any?(playability_status)
+      if reason == "Video unavailable" && playability_status != "UNPLAYABLE"
         return {
           "version"   => JSON::Any.new(Video::SCHEMA_VERSION.to_i64),
           "reason"    => JSON::Any.new(reason),
@@ -282,7 +282,8 @@ If you are the administrator, install Invidious Companion: \
 
     live_now = microformat.dig?("liveBroadcastDetails", "isLiveNow")
       .try &.as_bool
-    live_now ||= video_details.dig?("isLive").try &.as_bool || false
+    live_now ||= video_details.dig?("isLive").try &.as_bool
+    live_now ||= video_primary_renderer.try &.dig?("viewCount", "videoViewCountRenderer", "isLive").try &.as_bool || false
 
     post_live_dvr = video_details.dig?("isPostLiveDvr")
       .try &.as_bool || false
