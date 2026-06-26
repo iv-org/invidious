@@ -102,23 +102,23 @@ module Invidious::Videos::Parser
 
     # Fetch the /next endpoint for additional data.
     begin
-        next_response = YoutubeAPI.next({"videoId": video_id, "params": ""})
-        # Remove the microformat returned by the /next endpoint on some videos
-        # to prevent player_response microformat from being overwritten.
-        next_response.delete("microformat")
-        player_response = player_response.merge(next_response)
-      rescue ex
-        # If we're in an error state and /next fails, return what we have
-        if reason
-          LOGGER.debug("extract_video_info: /next failed for #{video_id}: #{ex.message}")
-          return {
-            "version"   => JSON::Any.new(Video::SCHEMA_VERSION.to_i64),
-            "reason"    => JSON::Any.new(reason),
-            "subreason" => JSON::Any.new(subreason),
-          }
-        end
-        raise ex
+      next_response = YoutubeAPI.next({"videoId": video_id, "params": ""})
+      # Remove the microformat returned by the /next endpoint on some videos
+      # to prevent player_response microformat from being overwritten.
+      next_response.delete("microformat")
+      player_response = player_response.merge(next_response)
+    rescue ex
+      # If we're in an error state and /next fails, return what we have
+      if reason
+        LOGGER.debug("extract_video_info: /next failed for #{video_id}: #{ex.message}")
+        return {
+          "version"   => JSON::Any.new(Video::SCHEMA_VERSION.to_i64),
+          "reason"    => JSON::Any.new(reason),
+          "subreason" => JSON::Any.new(subreason),
+        }
       end
+      raise ex
+    end
 
     begin
       params = self.parse_video_info(video_id, player_response)
