@@ -15,7 +15,7 @@ struct Video
   # NOTE: don't forget to bump this number if any change is made to
   # the `params` structure in videos/parser.cr!!!
   #
-  SCHEMA_VERSION = 3
+  SCHEMA_VERSION = 4
 
   property id : String
 
@@ -179,7 +179,13 @@ struct Video
   end
 
   def reason : String?
-    info["reason"]?.try &.as_s
+    # Use `as_s?` so a JSON `null` (stored by some error paths) yields `nil`
+    # instead of raising a TypeCastError.
+    info["reason"]?.try &.as_s?
+  end
+
+  def subreason : String?
+    info["subreason"]?.try &.as_s?
   end
 
   def music : Array(VideoMusic)
@@ -325,25 +331,9 @@ rescue DB::Error
 end
 
 def fetch_video(id, region)
+  # `extract_video_info` always returns a hash (it raises `NotFoundException`
+  # for genuinely unavailable videos), so there is no nil case to handle here.
   info = Invidious::Videos::Parser.extract_video_info(video_id: id)
-
-  if info.nil?
-    raise InfoException.new("Invidious companion is not available. \
-    Video playback cannot continue. \
-    If you are the administrator of this instance, install Invidious companion \
-    following the installation instructions \
-    <a href=\"https://docs.invidious.io/installation/\">https://docs.invidious.io/installation/</a>")
-  end
-
-  if reason = info["reason"]?
-    if reason == "Video unavailable"
-      raise NotFoundException.new(reason.as_s || "")
-    elsif !reason.as_s.starts_with? "Premieres"
-      # dont error when it's a premiere.
-      # we already parsed most of the data and display the premiere date
-      raise InfoException.new(reason.as_s || "")
-    end
-  end
 
   video = Video.new({
     id:      id,

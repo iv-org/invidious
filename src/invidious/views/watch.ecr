@@ -71,11 +71,22 @@ we're going to need to do it here in order to allow for translations.
 %>
 </script>
 
+<% if video.reason.nil? %>
 <div id="player-container" class="h-box">
     <%= rendered "components/player" %>
 </div>
+<% end %>
 
 <div class="h-box">
+    <% if video.reason %>
+        <h3>
+            <%= I18n.translate(locale, "error_from_youtube_unplayable") %> <%= video.reason %>
+        </h3>
+        <% if video.subreason %>
+        <p><%= video.subreason %></p>
+        <% end %>
+        <%= error_redirect_helper(env) %>
+    <% end %>
     <h1>
         <%= title %>
         <% if params.listen %>
@@ -95,11 +106,7 @@ we're going to need to do it here in order to allow for translations.
         </h3>
     <% end %>
 
-    <% if video.reason %>
-        <h3>
-            <%= video.reason %>
-        </h3>
-    <% elsif video.premiere_timestamp.try &.> Time.utc %>
+    <% if video.premiere_timestamp.try &.> Time.utc %>
         <h3>
             <%= video.premiere_timestamp.try { |t| I18n.translate(locale, "Premieres in `x`", recode_date((t - Time.utc).ago, locale)) } %>
         </h3>
