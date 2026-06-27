@@ -18,7 +18,7 @@ Packaging moves Docker builds to the 84codes Crystal compiler image, updates Ope
   - Invidious cookies are honoured across alternative configured domains (#5647)
   - Embed and "Watch on YouTube" redirects use the correct `t`/`start` parameter and the `www.youtube.com` host consistently (#5660, #5768)
   - The `referrerpolicy`/`noreferrer` handling was corrected now that YouTube requires referrers on embeds (#5642)
-  - The listen button on the title updates its elapsed time, and the unused "sort by rating/date" search filter options were removed (#5625, #5629)
+  - The listen button on the title updates its elapsed time, and the deprecated "sort by rating/date" search filter options were removed (#5625, #5629)
 
 #### For instance owners
   - Docker builds switched to the 84codes Crystal compiler container image, and OCI images were updated to Crystal 1.20.x with OpenSSL 3.6.2 (#5473, #5692)
