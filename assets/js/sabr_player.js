@@ -211,7 +211,8 @@ var SABRPlayer = (function () {
 
     player = new shaka.Player();
     player.configure({
-      preferredAudioLanguage: 'en-US',
+      // Shaka 5 renamed preferredAudioLanguage -> preferredAudio.
+      preferredAudio: 'en-US',
       abr: DEFAULT_ABR_CONFIG,
       streaming: {
         bufferingGoal: 120,
@@ -219,8 +220,10 @@ var SABRPlayer = (function () {
         bufferBehind: 300,
         retryParameters: { maxAttempts: 8, fuzzFactor: 0.5, timeout: 30 * 1000 }
       },
-      // disableVideo is read by our SabrManifestParser to skip video streams for audio-only/listen mode.
-      disableVideo: !!listenMode
+      manifest: {
+        // disableVideo is read by our SabrManifestParser to skip video streams for audio-only/listen mode.
+        disableVideo: !!listenMode
+      }
     });
 
     videoElement.volume = getSavedVolume();
@@ -237,7 +240,6 @@ var SABRPlayer = (function () {
     if (shaka.ui && shaka.ui.Overlay) {
       ui = new shaka.ui.Overlay(player, shakaContainer, videoElement);
       ui.configure({
-        addBigPlayButton: true,
         overflowMenuButtons: ['captions', 'quality', 'language', 'playback_rate', 'loop', 'picture_in_picture']
       });
     }
@@ -476,7 +478,7 @@ var SABRPlayer = (function () {
         await initializeShakaPlayer(containerElement, options.listen);
       } else {
         player.configure('abr', DEFAULT_ABR_CONFIG);
-        player.configure('disableVideo', !!options.listen);
+        player.configure('manifest.disableVideo', !!options.listen);
       }
 
       setupRequestFilters();
