@@ -163,7 +163,10 @@
     transform: translate(-50%, -50%);
 }
 
-.shaka-play-button {
+/* Scope to the big centered play button only. The control-bar play button
+   shares the .shaka-play-button class, so an unscoped rule here oversizes it
+   (1.5em + 1.5em padding = 4.5em ≈ 54px vs the 48px control-bar siblings). */
+.shaka-play-button-container .shaka-play-button {
     background-color: rgba(35, 35, 35, 0.75) !important;
     border-radius: 0.3em !important;
     width: 1.5em !important;
@@ -172,7 +175,7 @@
     box-sizing: content-box !important;
 }
 
-.shaka-play-button:hover {
+.shaka-play-button-container .shaka-play-button:hover {
     background-color: rgba(35, 35, 35, 0.9) !important;
 }
 
@@ -227,7 +230,7 @@
 }
 
 @media (max-width: 768px) {
-    .shaka-play-button {
+    .shaka-play-button-container .shaka-play-button {
         padding: 1em !important;
     }
     

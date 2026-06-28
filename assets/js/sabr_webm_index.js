@@ -125,7 +125,10 @@
       var currentOffset = segmentOffset + tuple.relativeOffset;
 
       if (lastTime != null) {
-        var uris1 = [uri + '&startTimeMs=' + Math.round((lastTime + timestampOffset) * 1000) + '&sq=' + (sq++)];
+        // NOTE: must be `let` (block-scoped). With `var` the closure below
+        // captures the function-scoped binding, so every SegmentReference would
+        // return the LAST segment's URL (wrong startTimeMs/sq -> SABR serves no media).
+        let uris1 = [uri + '&startTimeMs=' + Math.round((lastTime + timestampOffset) * 1000) + '&sq=' + (sq++)];
         references.push(
           new shaka.media.SegmentReference(
             lastTime + timestampOffset,
