@@ -114,9 +114,15 @@
     <link rel="stylesheet" href="/css/sabr_player.css?v=<%= ASSET_COMMIT %>">
     <link rel="stylesheet" href="/js/sabr/shaka-player/controls.css?v=<%= ASSET_COMMIT %>">
     <script src="/js/sabr/shaka-player/shaka-player.ui.js?v=<%= ASSET_COMMIT %>"></script>
+    <!-- SABR engine ports (FreeTube): plain scripts reading shaka/googlevideo from window globals -->
+    <script src="/js/sabr_ebml_parser.js?v=<%= ASSET_COMMIT %>"></script>
+    <script src="/js/sabr_mp4_index.js?v=<%= ASSET_COMMIT %>"></script>
+    <script src="/js/sabr_webm_index.js?v=<%= ASSET_COMMIT %>"></script>
+    <script src="/js/sabr_manifest_parser.js?v=<%= ASSET_COMMIT %>"></script>
+    <script src="/js/sabr_scheme_plugin.js?v=<%= ASSET_COMMIT %>"></script>
+    <!-- SABR orchestrator + helpers -->
     <script src="/js/sabr_helpers.js?v=<%= ASSET_COMMIT %>"></script>
     <script src="/js/sabr_potoken.js?v=<%= ASSET_COMMIT %>"></script>
-    <script src="/js/sabr_shaka_adapter.js?v=<%= ASSET_COMMIT %>"></script>
     <script src="/js/sabr_player.js?v=<%= ASSET_COMMIT %>"></script>
     <script src="/js/sabr_init.js?v=<%= ASSET_COMMIT %>"></script>
     <!-- ES module loader for SABR libraries (youtubei.js, googlevideo, bgutils) -->
