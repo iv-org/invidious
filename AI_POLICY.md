@@ -17,17 +17,20 @@ The problem of being the biggest software in an obscure language is that you're 
 
 This makes it so working on Invidious far harder than working on most open source projects because you are effectively not benefiting and not using any external libraries for the vast majority of things. Almost any time you need anything, you have to make it yourself, which overcomplicates everything.
 
-We are aware that some people wont like that and we might even end up on one of the "bad people" list, but we try to be reasonable. We ask that you do not fork the project out of spite because of this new policy - let's not split the thin list of people able to contribute even thinner. Contributions are welcome and highly preferred to anything made by AI. This policy comes from a place of *need* not from a place of *choice*.
+We are aware that some people wont like this change and we might even end up on one of the "bad people" list, but we try to be reasonable. We ask that you, please, do not fork the project out of spite because of this new policy - let's not split the thin list of people able to contribute even thinner. Contributions are welcome and highly preferred to anything made by AI.
+
+This policy comes from a place of *need* not from a place of *choice*.
 
 
 # Policy
 
-**Any one using AI to report bugs or submit code MUST properly disclose it, this includes mentioning the name of the EXACT model used and the tools used to interact with it.**
 
-Now that LLM exists and have become *reasonably good*, we will tolerate people using them with reasons and knowledge, with those rules:
+Now that AIs exists and have become *reasonably good*, we will tolerate people using them with reasons and knowledge, with those rules:
 
+
+- **Any one using AI to report bugs or submit code MUST properly disclose it, this includes mentioning the name of the EXACT model used and the tools used to interact with it.**
 - The Human using AI MUST properly check the output manually in addition to any automated check that may exist or may have been created, **this includes BOTH codes AND bug reports**.
 - Any code submitted by a Human, written even partially by AI, is the responsibility of this Human - If it's malicious, broken, destructive or anything bad, the Human is the sole responsible. 
 - Any new code touching any of the actual functions of Invidious MUST BE thoroughly tested by the Human MANUALLY.
-- Team members using LLMs are strongly encouraged to wait for the review of another Human before merging anything.
+- Team members using AIs are strongly encouraged to wait for the review of another Human before merging anything.
 - At any point [Human-in-the-loop](https://en.wikipedia.org/wiki/Human-in-the-loop) applies.
