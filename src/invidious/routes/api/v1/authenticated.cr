@@ -364,7 +364,7 @@ module Invidious::Routes::API::V1::Authenticated
       return error_json(404, "Playlist does not contain index")
     end
 
-    Invidious::Database::PlaylistVideos.delete(index)
+    Invidious::Database::PlaylistVideos.delete(index, plid)
     Invidious::Database::Playlists.update_video_removed(plid, index)
 
     env.response.status_code = 204
