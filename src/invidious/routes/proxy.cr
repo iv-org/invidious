@@ -84,7 +84,6 @@ module Invidious::Routes::Proxy
     custom_headers = HTTP::Headers.new
     if headers_param = query_params["__headers"]?
       begin
-        puts "[DEBUG] Proxy: Parsing __headers parameter: #{headers_param}"
         headers_array = JSON.parse(headers_param).as_a
         headers_array.each do |header|
           # header is a JSON::Any, need to extract as array
@@ -93,11 +92,10 @@ module Invidious::Routes::Proxy
           value = header_array[1]?.try &.as_s
           if name && value
             custom_headers[name] = value
-            puts "[DEBUG] Proxy: Adding custom header #{name}: #{value}"
           end
         end
       rescue ex
-        # Ignore malformed headers but log the error
+        # Ignore malformed headers
         puts "[WARN] Proxy: Failed to parse __headers: #{ex.message}"
       end
     end
@@ -121,14 +119,10 @@ module Invidious::Routes::Proxy
     request_headers = HTTP::Headers.new
 
     # Copy custom headers
-    puts "[DEBUG] Proxy: custom_headers size: #{custom_headers.size}"
     custom_headers.each do |key, values|
-      # HTTP::Headers stores values as arrays, get the first value
       value = values.is_a?(Array) ? values.first : values.to_s
-      puts "[DEBUG] Proxy: Forwarding header #{key}: #{value}"
       request_headers[key] = value
     end
-    puts "[DEBUG] Proxy: request_headers size after copying: #{request_headers.size}"
 
     # Copy range header from original request
     if range = env.request.headers["Range"]?
@@ -139,25 +133,21 @@ module Invidious::Routes::Proxy
     if content_type = env.request.headers["Content-Type"]?
       if !request_headers["Content-Type"]?
         request_headers["Content-Type"] = content_type
-        puts "[DEBUG] Proxy: Copied Content-Type from request: #{content_type}"
       end
     end
 
     # Copy user-agent if not already set
     if !request_headers["User-Agent"]? && env.request.headers["User-Agent"]?
       request_headers["User-Agent"] = env.request.headers["User-Agent"]
-      puts "[DEBUG] Proxy: Copied User-Agent from request: #{request_headers["User-Agent"]}"
     end
 
     # Set origin/referer for YouTube and Google domains (only if not already set)
     if target_host.includes?("youtube") || target_host.includes?("googlevideo") || target_host.includes?("googleapis")
       if !request_headers["Origin"]?
         request_headers["Origin"] = "https://www.youtube.com"
-        puts "[DEBUG] Proxy: Set Origin header"
       end
       if !request_headers["Referer"]?
         request_headers["Referer"] = "https://www.youtube.com/"
-        puts "[DEBUG] Proxy: Set Referer header"
       end
     end
 
@@ -165,7 +155,12 @@ module Invidious::Routes::Proxy
     # YouTube requires application/x-protobuf for SABR videoplayback requests
     if env.request.method == "POST" && target_url.path.includes?("videoplayback")
       request_headers["Content-Type"] = "application/x-protobuf"
-      puts "[DEBUG] Proxy: Set Content-Type: application/x-protobuf for videoplayback POST"
+    end
+
+    # The SABR scheme plugin reads UMP parts incrementally from the response
+    # stream, so make sure the upstream sends us raw bytes (no gzip/deflate).
+    if !request_headers["Accept-Encoding"]?
+      request_headers["Accept-Encoding"] = "identity"
     end
 
     # Copy authorization if present
@@ -173,59 +168,63 @@ module Invidious::Routes::Proxy
       request_headers["Authorization"] = auth
     end
 
-    # Final debug output showing all headers being sent
-    puts "[DEBUG] Proxy: Final headers to send: #{request_headers.to_a.map { |k, v| "#{k}: #{v[0..50]}..." }.join(", ")}"
-
-    # Make the proxied request
+    # Make the proxied request, streaming the upstream body straight to the
+    # client instead of buffering response.body. This is required so the SABR
+    # scheme plugin can read UMP parts incrementally and abort a fetch
+    # mid-stream (backoff / reload / seek).
     begin
       client = HTTP::Client.new(target_url.host.not_nil!, tls: true)
       client.connect_timeout = 10.seconds
       client.read_timeout = 30.seconds
+      # Don't let HTTP::Client advertise its own Accept-Encoding; we forward the
+      # plugin's identity header and stream raw bytes.
+      client.compress = false
 
-      case env.request.method
-      when "GET"
-        response = client.get(target_url.request_target, headers: request_headers)
-      when "POST"
-        # Read body as binary Slice to preserve protobuf data integrity
-        body_io = env.request.body
-        body_bytes : Bytes? = nil
-        if body_io
-          body_bytes = body_io.getb_to_end
+      method = env.request.method
+      case method
+      when "GET", "POST"
+        # Build a raw request so we control streaming + binary POST body.
+        request = HTTP::Request.new(method, target_url.request_target, request_headers)
+        if method == "POST"
+          body_io = env.request.body
+          body_bytes : Bytes? = nil
+          if body_io
+            body_bytes = body_io.getb_to_end
+          end
+          if body_bytes
+            request.body = body_bytes
+            request.content_length = body_bytes.size
+          end
         end
-        body_size = body_bytes.try(&.size) || 0
-        puts "[DEBUG] Proxy: POST body size: #{body_size} bytes (binary)"
-        puts "[DEBUG] Proxy: POST target: #{target_url.request_target[0..200]}"
-        response = client.post(target_url.request_target, headers: request_headers, body: body_bytes)
-        puts "[DEBUG] Proxy: Response status: #{response.status_code}, content-type: #{response.headers["content-type"]?}"
+
+        client.exec(request) do |response|
+          env.response.status_code = response.status_code
+
+          CONTENT_HEADERS.each do |header|
+            if value = response.headers[header]?
+              env.response.headers[header] = value
+            end
+          end
+
+          env.response.headers["Access-Control-Allow-Origin"] = origin
+          env.response.headers["Access-Control-Allow-Headers"] = ALLOWED_HEADERS.join(", ")
+          env.response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+          env.response.headers["Access-Control-Allow-Credentials"] = "true"
+
+          # Stream the upstream body through without buffering, so the client's
+          # UmpReader can consume parts as they arrive and so backoff/abort
+          # actually cancels the transfer.
+          begin
+            IO.copy(response.body_io, env.response.output)
+            env.response.output.flush
+          rescue ex : IO::Error
+            # Client disconnected mid-stream (seek / quality change / abort).
+            # This is expected, just stop copying.
+          end
+        end
       else
         env.response.status_code = 405
         return "Method not allowed"
-      end
-
-      # Set response status
-      env.response.status_code = response.status_code
-
-      # Copy content headers
-      CONTENT_HEADERS.each do |header|
-        if value = response.headers[header]?
-          env.response.headers[header] = value
-        end
-      end
-
-      # Add CORS headers
-      env.response.headers["Access-Control-Allow-Origin"] = origin
-      env.response.headers["Access-Control-Allow-Headers"] = ALLOWED_HEADERS.join(", ")
-      env.response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
-      env.response.headers["Access-Control-Allow-Credentials"] = "true"
-
-      # Return the response body
-      # Wrap in error handling to suppress "Broken pipe" errors when client disconnects
-      begin
-        response.body
-      rescue ex : IO::Error
-        # Client disconnected (common during seeking/quality changes) - this is expected
-        puts "[DEBUG] Proxy: Client disconnected (#{ex.message})"
-        ""
       end
     rescue ex
       env.response.status_code = 502

@@ -9,30 +9,19 @@ require "colorize"
 
 SABR_DEPENDENCIES = {
   "shaka-player" => {
-    "version" => "4.16.4",
+    "version" => "5.1.10",
     "files" => [
-      {"url" => "https://cdn.jsdelivr.net/npm/shaka-player@4.16.4/dist/shaka-player.ui.js", "dest" => "shaka-player.ui.js"},
-      {"url" => "https://cdn.jsdelivr.net/npm/shaka-player@4.16.4/dist/controls.css", "dest" => "controls.css"},
+      {"url" => "https://cdn.jsdelivr.net/npm/shaka-player@5.1.10/dist/shaka-player.ui.js", "dest" => "shaka-player.ui.js"},
+      {"url" => "https://cdn.jsdelivr.net/npm/shaka-player@5.1.10/dist/controls.css", "dest" => "controls.css"},
     ]
   },
-  "googlevideo" => {
-    "version" => "4.0.4",
-    "files" => [
-      # esm.sh bundled version - fetch full bundle path directly
-      {"url" => "https://esm.sh/googlevideo@4.0.4/es2022/sabr-streaming-adapter.bundle.mjs", "dest" => "googlevideo.bundle.min.js"},
-    ]
-  },
+  # googlevideo + bgutils-js are bundled locally from npm via scripts/bundle-sabr-libs.js
+  # (no esm.sh fetch). youtubei.js is also bundled locally from npm, but we keep a
+  # pre-built jsDelivr copy as the esbuild entry for reproducibility.
   "youtubei.js" => {
-    "version" => "16.0.1",
+    "version" => "17.0.1",
     "files" => [
-      # Use the web bundle from jsdelivr (pre-built by youtubei.js)
-      {"url" => "https://cdn.jsdelivr.net/npm/youtubei.js@16.0.1/bundle/browser.min.js", "dest" => "youtubei.bundle.min.js"},
-    ]
-  },
-  "bgutils-js" => {
-    "version" => "3.2.0",
-    "files" => [
-      {"url" => "https://esm.sh/bgutils-js@3.2.0/es2022/bgutils-js.bundle.mjs", "dest" => "bgutils.bundle.min.js"},
+      {"url" => "https://cdn.jsdelivr.net/npm/youtubei.js@17.0.1/bundle/browser.js", "dest" => "youtubei.bundle.min.js"},
     ]
   },
 }
@@ -135,49 +124,7 @@ if File.exists?(shaka_css_path)
   puts "#{"Patched".colorize(:green)} Shaka CSS to use system fonts"
 end
 
-# Post-process: Patch googlevideo bundle to remove esm.sh import and add process shim
-googlevideo_path = "#{sabr_dir}/googlevideo/googlevideo.bundle.min.js"
-if File.exists?(googlevideo_path)
-  js_content = File.read(googlevideo_path)
-
-  # Add process shim at the beginning and remove the esm.sh import
-  process_shim = <<-JS
-// Browser-compatible process shim for googlevideo
-var __Process$ = { env: {} };
-
-JS
-
-  # Remove the esm.sh import line: import __Process$ from "/node/process.mjs";
-  js_content = js_content.gsub(/import\s+__Process\$\s+from\s*["'][^"']+["'];?\s*/, "")
-
-  # Prepend the shim
-  js_content = process_shim + js_content
-
-  File.write(googlevideo_path, js_content)
-  puts "#{"Patched".colorize(:green)} googlevideo bundle with process shim"
-end
-
-# Post-process: Patch bgutils-js bundle to be self-contained
-bgutils_path = "#{sabr_dir}/bgutils-js/bgutils.bundle.min.js"
-if File.exists?(bgutils_path)
-  js_content = File.read(bgutils_path)
-
-  # Check if it's just an export redirect and fetch the actual bundle
-  if js_content.includes?("export * from")
-    # The esm.sh bundle is just a redirect, we need the actual content
-    puts "#{"Info".colorize(:yellow)} bgutils bundle is a redirect, fetching actual content..."
-
-    # Extract the actual path from: export * from "/bgutils-js@3.1.3/es2022/bgutils-js.bundle.mjs";
-    if match = js_content.match(/export \* from ["']([^"']+)["']/)
-      actual_path = match[1]
-      actual_url = "https://esm.sh#{actual_path}"
-
-      HTTP::Client.get(actual_url) do |response|
-        if response.status_code == 200
-          File.write(bgutils_path, response.body_io.gets_to_end)
-          puts "#{"Fetched".colorize(:green)} actual bgutils bundle"
-        end
-      end
-    end
-  end
-end
+# Note: googlevideo and bgutils-js are now bundled locally from npm via
+# scripts/bundle-sabr-libs.js (esbuild, platform: 'browser', with
+# process.env.NODE_ENV defined to 'production'). No esm.sh fetch or
+# post-patching is required.
