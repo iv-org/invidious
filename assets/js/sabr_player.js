@@ -211,8 +211,6 @@ var SABRPlayer = (function () {
 
     player = new shaka.Player();
     player.configure({
-      // Shaka 5 renamed preferredAudioLanguage -> preferredAudio.
-      preferredAudio: 'en-US',
       abr: DEFAULT_ABR_CONFIG,
       streaming: {
         bufferingGoal: 120,
