@@ -42,6 +42,8 @@ var SABRPlayer = (function () {
   var sabrStream = null;         // handle returned by setupSabrScheme
   var sabrManifest = null;       // captured from player.getManifest() on 'loaded'
   var currentLoadOptions = null; // for onReloadOnce -> re-run loadVideo
+  var reloadCount = 0;           // cap reloads to prevent infinite loop on blocked/throttled videos
+  var MAX_RELOADS = 3;
 
   function getSavedVolume() {
     try {
@@ -446,13 +448,27 @@ var SABRPlayer = (function () {
       }
     });
     sabrStream.onReloadOnce(function () {
-      console.warn('[SABRPlayer] SABR reload requested by server; re-loading video');
+      reloadCount++;
+      if (reloadCount >= MAX_RELOADS) {
+        console.error('[SABRPlayer] SABR reload limit reached; giving up on video', currentVideoId);
+        if (shakaContainer) {
+          var errDiv = document.createElement('div');
+          errDiv.className = 'sabr-error-display';
+          errDiv.innerHTML = '<p>This video is currently unavailable via SABR.</p>' +
+            '<p>YouTube is throttling this request.</p>' +
+            '<p><a href="?quality=dash">Try DASH player instead</a></p>';
+          shakaContainer.appendChild(errDiv);
+        }
+        return;
+      }
+      console.warn('[SABRPlayer] SABR reload requested by server; re-loading video (attempt ' + reloadCount + '/' + MAX_RELOADS + ')');
       if (currentVideoId && loadFn) loadFn(currentVideoId, shakaContainer, currentLoadOptions || {});
     });
   }
 
   async function loadVideo(videoId, containerElement, options) {
     options = options || {};
+    if (videoId !== currentVideoId) reloadCount = 0;
     currentVideoId = videoId;
     currentLoadOptions = options;
     playbackWebPoToken = null;
