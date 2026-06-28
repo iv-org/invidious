@@ -459,25 +459,32 @@ var SABRPlayer = (function () {
     playbackWebPoTokenContentBinding = videoId;
 
     try {
-      if (!innertube) {
-        innertube = await initInnertube();
-        if (!innertube) throw new Error('Failed to initialize Innertube');
-      }
-      if (!clientConfig) {
-        await fetchOnesieConfig();
-      }
-
-      // Mint a content-bound PoToken before getInfo so streaming_data includes
-      // the server_abr_streaming_url and so the SABR requests authenticate.
-      try { await mintContentWebPO(); } catch (e) { console.warn('[SABRPlayer] poToken mint failed, continuing', e); }
-      var poToken = playbackWebPoToken || coldStartToken || '';
-
+      // Start Shaka player init (DOM + polyfills) in parallel with network init.
+      var shakaPromise;
       if (!player) {
-        await initializeShakaPlayer(containerElement, options.listen);
+        shakaPromise = initializeShakaPlayer(containerElement, options.listen);
       } else {
         player.configure('abr', DEFAULT_ABR_CONFIG);
         player.configure('manifest.disableVideo', !!options.listen);
+        shakaPromise = Promise.resolve();
       }
+
+      // Network init chain: Innertube → Onesie config → PoToken.
+      var netPromise = (async function () {
+        if (!innertube) {
+          innertube = await initInnertube();
+          if (!innertube) throw new Error('Failed to initialize Innertube');
+        }
+        if (!clientConfig) {
+          await fetchOnesieConfig();
+        }
+        // Mint a content-bound PoToken before getInfo so streaming_data includes
+        // the server_abr_streaming_url and so the SABR requests authenticate.
+        try { await mintContentWebPO(); } catch (e) { console.warn('[SABRPlayer] poToken mint failed, continuing', e); }
+      })();
+
+      await Promise.all([shakaPromise, netPromise]);
+      var poToken = playbackWebPoToken || coldStartToken || '';
 
       setupRequestFilters();
 
