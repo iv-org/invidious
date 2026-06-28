@@ -17,7 +17,7 @@ The problem of being the biggest software in an obscure language is that you're 
 
 This makes it so working on Invidious far harder than working on most open source projects because you are effectively not benefiting and not using any external libraries for the vast majority of things. Almost any time you need anything, you have to make it yourself, which overcomplicates everything.
 
-We are aware that some people like that and we might even end up on one of the "bad people" list, but we try to be reasonable. We ask that you do not fork the project out of spite because of this new policy - let's not split the thin list of people able to contribute even thinner. Contributions are welcome and highly preferred to anything made by AI. This policy comes from a place of *need* not from a place of *choice*.
+We are aware that some people wont like that and we might even end up on one of the "bad people" list, but we try to be reasonable. We ask that you do not fork the project out of spite because of this new policy - let's not split the thin list of people able to contribute even thinner. Contributions are welcome and highly preferred to anything made by AI. This policy comes from a place of *need* not from a place of *choice*.
 
 
 # Policy
