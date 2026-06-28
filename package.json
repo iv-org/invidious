@@ -7,8 +7,8 @@
   },
   "dependencies": {
     "googlevideo": "^4.0.4",
-    "youtubei.js": "^16.0.0",
-    "bgutils-js": "^3.1.3"
+    "youtubei.js": "^17.0.1",
+    "bgutils-js": "^3.2.0"
   },
   "devDependencies": {
     "esbuild": "^0.27.2"
