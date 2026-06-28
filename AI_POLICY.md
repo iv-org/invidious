@@ -25,7 +25,7 @@ This policy comes from a place of *need* not from a place of *choice*.
 # Policy
 
 
-Now that AIs exists and have become *reasonably good*, we will tolerate people using them with reasons and knowledge, with those rules:
+Now that AIs exists and have become *reasonably good*, we will tolerate people using them with reasons and knowledge, as long those rules are respected:
 
 
 - **Any one using AI to report bugs or submit code MUST properly disclose it, this includes mentioning the name of the EXACT model used and the tools used to interact with it.**
