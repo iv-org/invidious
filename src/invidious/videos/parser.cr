@@ -87,10 +87,12 @@ module Invidious::Videos::Parser
       begin
         params = self.parse_video_info(video_id, player_response)
         params["version"] = JSON::Any.new(Video::SCHEMA_VERSION.to_i64)
-        params["reason"] = JSON::Any.new("Video unavailable")
-        params["subreason"] = JSON::Any.new("Invidious Companion is not available. Video playback is not possible. \
-If you are the administrator, install Invidious Companion: \
-<a href=\"https://docs.invidious.io/installation/\">https://docs.invidious.io/installation/</a>")
+        # We have metadata from /next but no server-side streaming data (no
+        # companion). Don't treat this as a hard error: the watch page still
+        # renders, and for quality=sabr the browser SABR player fetches the
+        # stream itself via Innertube + browser-side PoToken. An informational
+        # subreason is surfaced for non-SABR playback (which needs companion or
+        # the local streams proxy).
         return params
       rescue ex
         LOGGER.debug("extract_video_info: parse from /next failed for #{video_id}: #{ex.message}")

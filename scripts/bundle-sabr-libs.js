@@ -21,30 +21,43 @@ fs.mkdirSync(path.join(outputDir, 'googlevideo'), { recursive: true });
 fs.mkdirSync(path.join(outputDir, 'youtubei.js'), { recursive: true });
 fs.mkdirSync(path.join(outputDir, 'bgutils-js'), { recursive: true });
 
-// Create a custom entry point that re-exports everything from googlevideo
+// Create a custom entry point that exposes the googlevideo namespaces the
+// SABR scheme plugin / manifest parser need (ump, utils, protos) as a single
+// `googlevideo` object, so sabr_loader.js can do window.googlevideo = googlevideo.
+// sabr-streaming-adapter is no longer used (we ported FreeTube's sabr: scheme plugin).
 const googlevideoEntryContent = `
-export * from 'googlevideo/sabr-streaming-adapter';
-export * from 'googlevideo/ump';
-export * from 'googlevideo/utils';
-export * from 'googlevideo/protos';
+import * as utils from 'googlevideo/utils';
+import * as ump from 'googlevideo/ump';
+import * as protos from 'googlevideo/protos';
+
+export const googlevideo = { utils, ump, protos };
+// Also re-export flat for convenience / debugging on window.
+export { utils, ump, protos };
 `;
 
 const googlevideoEntryPath = path.join(__dirname, 'temp-googlevideo-entry.js');
 fs.writeFileSync(googlevideoEntryPath, googlevideoEntryContent);
 
-// Bundle googlevideo with all exports
-esbuild.build({
-  entryPoints: [googlevideoEntryPath],
+const commonEsbuildOptions = {
   bundle: true,
   format: 'esm',
-  outfile: path.join(outputDir, 'googlevideo/googlevideo.bundle.min.js'),
   minify: true,
   sourcemap: false,
   external: [],
   nodePaths: [nodeModules],
-  banner: {
-    js: '// googlevideo library - bundled with esbuild'
+  platform: 'browser',
+  define: {
+    'process.env.NODE_ENV': '"production"',
+    'process.env.SUPPORTS_LOCAL_API': 'true'
   }
+};
+
+// Bundle googlevideo with all exports
+esbuild.build({
+  ...commonEsbuildOptions,
+  entryPoints: [googlevideoEntryPath],
+  outfile: path.join(outputDir, 'googlevideo/googlevideo.bundle.min.js'),
+  banner: { js: '// googlevideo library - bundled with esbuild' }
 }).then(() => {
   console.log('✓ googlevideo bundled successfully');
   fs.unlinkSync(googlevideoEntryPath);
@@ -54,37 +67,16 @@ esbuild.build({
   process.exit(1);
 });
 
-// Bundle youtubei.js
-esbuild.build({
-  entryPoints: [path.join(nodeModules, 'youtubei.js/bundle/browser.js')],
-  bundle: true,
-  format: 'esm',
-  outfile: path.join(outputDir, 'youtubei.js/youtubei.bundle.min.js'),
-  minify: true,
-  sourcemap: false,
-  external: [],
-  banner: {
-    js: '// youtubei.js library - bundled with esbuild'
-  }
-}).then(() => {
-  console.log('✓ youtubei.js bundled successfully');
-}).catch((err) => {
-  console.error('✗ youtubei.js bundling failed:', err);
-  process.exit(1);
-});
+// youtubei.js is fetched as a pre-built browser bundle from jsDelivr by
+// scripts/fetch-sabr-dependencies.cr (not bundled here), to avoid re-bundling
+// a large lib and clobbering the pre-built artifact.
 
 // Bundle bgutils-js
 esbuild.build({
+  ...commonEsbuildOptions,
   entryPoints: [path.join(nodeModules, 'bgutils-js/dist/index.js')],
-  bundle: true,
-  format: 'esm',
   outfile: path.join(outputDir, 'bgutils-js/bgutils.bundle.min.js'),
-  minify: true,
-  sourcemap: false,
-  external: [],
-  banner: {
-    js: '// bgutils-js library - bundled with esbuild'
-  }
+  banner: { js: '// bgutils-js library - bundled with esbuild' }
 }).then(() => {
   console.log('✓ bgutils-js bundled successfully');
 }).catch((err) => {
