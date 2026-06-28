@@ -176,17 +176,7 @@
     background-color: rgba(35, 35, 35, 0.9) !important;
 }
 
-/* Spinner */
-.shaka-spinner-container {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.shaka-spinner {
-    border-color: rgba(0, 182, 240, 1) transparent transparent transparent !important;
-}
+/* Shaka 5 spinner uses full-container flex centering; do not override container position. */
 
 /* Captions/subtitles - match video.js */
 .shaka-text-container {
