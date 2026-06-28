@@ -53,7 +53,10 @@
       var nativeStartTime = unscaledStartTime / timescale;
       var nativeEndTime = (unscaledStartTime + subsegmentDuration) / timescale;
 
-      var uris = [uri + '&startTimeMs=' + Math.round((nativeStartTime + timestampOffset) * 1000) + '&sq=' + (i + 1)];
+      // NOTE: must be `let` (block-scoped). With `var` the closure below
+      // captures the function-scoped binding, so every SegmentReference would
+      // return the LAST segment's URL (wrong startTimeMs/sq -> SABR serves no media).
+      let uris = [uri + '&startTimeMs=' + Math.round((nativeStartTime + timestampOffset) * 1000) + '&sq=' + (i + 1)];
 
       references.push(
         new shaka.media.SegmentReference(
