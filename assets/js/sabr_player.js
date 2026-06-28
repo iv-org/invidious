@@ -504,7 +504,26 @@ var SABRPlayer = (function () {
 
       setupRequestFilters();
 
-      var videoInfo = await innertube.getInfo(videoId, { po_token: poToken || undefined });
+      // Fetch the player response through Onesie (WEB client) so the SABR
+      // streaming URL isn't bound to the proxy's egress IP. Falls back to a
+      // plain getInfo() if the onesie path is unavailable. Media still flows
+      // over SABR (sabr_scheme_plugin.js) either way.
+      var videoInfo;
+      try {
+        if (typeof window.fetchOnesiePlayerResponse !== 'function' || !window.YT || !window.YT.VideoInfo) {
+          throw new Error('Onesie support not loaded');
+        }
+        var playerResponse = await window.fetchOnesiePlayerResponse(innertube, videoId, poToken || undefined, clientConfig);
+        videoInfo = new window.YT.VideoInfo(
+          [{ success: true, status_code: 200, data: playerResponse }],
+          innertube.actions,
+          SABRHelpers.generateRandomString(16)
+        );
+        console.info('[SABRPlayer]', 'Player response fetched via Onesie (WEB)');
+      } catch (onesieErr) {
+        console.warn('[SABRPlayer]', 'Onesie player request failed, falling back to getInfo:', onesieErr);
+        videoInfo = await innertube.getInfo(videoId, { po_token: poToken || undefined });
+      }
       if (!videoInfo || !videoInfo.playability_status || videoInfo.playability_status.status !== 'OK') {
         var reason = (videoInfo && videoInfo.playability_status && videoInfo.playability_status.reason) || 'Unknown error';
         throw new Error('Video unavailable: ' + reason);
