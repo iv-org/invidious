@@ -10,7 +10,7 @@
  * onto window.googlevideo so the plain-script plugin can read them at call time.
  */
 
-import Innertube, { Platform, Constants } from '/js/sabr/youtubei.js/youtubei.bundle.min.js';
+import Innertube, { Platform, Constants, YT } from '/js/sabr/youtubei.js/youtubei.bundle.min.js';
 import { googlevideo } from '/js/sabr/googlevideo/googlevideo.bundle.min.js';
 import { BG } from '/js/sabr/bgutils-js/bgutils.bundle.min.js';
 
@@ -18,6 +18,9 @@ import { BG } from '/js/sabr/bgutils-js/bgutils.bundle.min.js';
 window.Innertube = Innertube;
 window.Platform = Platform;
 window.Constants = Constants;
+// YT.VideoInfo: build a VideoInfo from a raw player response fetched via the
+// onesie path (sabr_onesie.js) instead of innertube.getInfo().
+window.YT = YT;
 
 // googlevideo namespace (utils, ump, protos) for the SABR scheme plugin + manifest parser
 window.googlevideo = googlevideo;

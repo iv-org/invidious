@@ -76,6 +76,54 @@ async function encryptRequest(clientKey, data) {
 }
 
 /**
+ * Decrypt an (optionally) encrypted Onesie response with AES-CTR and verify
+ * its HMAC-SHA256. Mirrors googlevideo/examples/onesie-request/utils.ts.
+ * @param {Uint8Array} iv
+ * @param {Uint8Array} hmac
+ * @param {Uint8Array} data
+ * @param {Uint8Array} clientKeyData - 32-byte client key (16B AES + 16B HMAC)
+ * @returns {Promise<Uint8Array>}
+ */
+async function decryptResponse(iv, hmac, data, clientKeyData) {
+    if (!iv || !hmac || !data || !clientKeyData) {
+        throw new Error('Invalid input to decryptResponse');
+    }
+
+    var aesKey = await window.crypto.subtle.importKey(
+        'raw',
+        clientKeyData.slice(0, 16),
+        { name: 'AES-CTR', length: 128 },
+        false,
+        ['decrypt']
+    );
+
+    var decryptedData = new Uint8Array(await window.crypto.subtle.decrypt(
+        { name: 'AES-CTR', counter: iv, length: 128 },
+        aesKey,
+        data
+    ));
+
+    var hmacKey = await window.crypto.subtle.importKey(
+        'raw',
+        clientKeyData.slice(16, 32),
+        { name: 'HMAC', hash: { name: 'SHA-256' } },
+        false,
+        ['verify']
+    );
+
+    var dataToVerify = new Uint8Array(data.length + iv.length);
+    dataToVerify.set(data, 0);
+    dataToVerify.set(iv, data.length);
+
+    var isValid = await window.crypto.subtle.verify('HMAC', hmacKey, hmac, dataToVerify);
+    if (!isValid) {
+        throw new Error('HMAC verification failed');
+    }
+
+    return decryptedData;
+}
+
+/**
  * Check if Onesie client config is still valid
  * @param {Object} config - Client config object
  * @returns {boolean}
@@ -324,6 +372,7 @@ function generateRandomString(length) {
 window.SABRHelpers = {
     getProxyConfig: getProxyConfig,
     encryptRequest: encryptRequest,
+    decryptResponse: decryptResponse,
     isConfigValid: isConfigValid,
     loadCachedClientConfig: loadCachedClientConfig,
     saveCachedClientConfig: saveCachedClientConfig,
