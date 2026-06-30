@@ -206,12 +206,15 @@ before_all do |env|
     path = env.request.path
     allowed = {
       "/login", "/register", "/api/",
-      "/embed/",
       "/sb/", "/vi/", "/s_p/", "/yts/", "/ggpht/",
       "/api/manifest/", "/videoplayback", "/latest_version",
       "/download", "/companion/",
     }
-    unless allowed.any? { |p| path.starts_with?(p) }
+
+    is_allowed = allowed.any? { |p| path.starts_with?(p) }
+    is_allowed ||= path.starts_with?("/embed/") && !CONFIG.require_login_for_embeds
+
+    unless is_allowed
       env.redirect "/login?referer=#{URI.encode_www_form(path)}"
       halt env, 302
     end
