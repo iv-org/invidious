@@ -102,10 +102,54 @@ module Invidious::Frontend::Comments
               END_HTML
             else
               html << <<-END_HTML
-              <div class="pure-g video-iframe-wrapper">
-                <iframe class="video-iframe" src='/embed/#{attachment["videoId"]?}?autoplay=0'></iframe>
-              </div>
+                <a href="/watch?v=#{attachment["videoId"]}">
+                  <div class="thumbnail">
               END_HTML
+
+              if thin_mode
+                html << %(<img loading="lazy" class="thumbnail" src="/vi/)
+                html << attachment["videoId"]
+                html << %(/mqdefault.jpg" alt="" />)
+              else
+                html << %(<div class="bottom-right-overlay">)
+              end
+
+              html << <<-END_HTML
+                    <div class="bottom-right-overlay">
+                      <p class="length">#{recode_length_seconds(attachment["lengthSeconds"].as_i)}</p>
+                    </div>
+                  </div>
+                  <div class="video-card-row">
+                    <p style="width:100%">#{attachment["title"]}</p>
+                  </div>
+                </a>
+              END_HTML
+
+              if !attachment["authorId"].as_s.empty?
+                if attachment["authorVerified"].as_bool
+                  verified_icon_html = %(&nbsp;<i class="icon ion ion-md-checkmark-circle"></i>)
+                else
+                  verified_icon_html = ""
+                end
+
+                html << <<-END_HTML
+                  <a href="/channel/#{attachment["authorId"]}">
+                    <div class="video-card-row flexible">
+                      <p class="channel-name">
+                        <b style="width:100%">#{attachment["author"]}</b>#{verified_icon_html}
+                      </p>
+                    </div>
+                  </a>
+                END_HTML
+              else
+                html << <<-END_HTML
+                  <div class="video-card-row flexible">
+                    <p class="channel-name">
+                      <b style="width:100%">#{attachment["author"]}</b>
+                    </p>
+                  </div>
+                END_HTML
+              end
             end
           when "multiImage"
             html << <<-END_HTML
