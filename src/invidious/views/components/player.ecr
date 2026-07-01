@@ -1,6 +1,3 @@
-<%
-    invidious_companion_check_id = invidious_companion_encrypt(video.id) if invidious_companion
-%>
 <video style="outline:none;width:100%;background-color:#000" playsinline poster="<%= thumbnail %>"
     id="player" class="on-video_player video-js player-style-<%= params.player_style %>"
     preload="<% if params.preload %>auto<% else %>none<% end %>"
