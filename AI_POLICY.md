@@ -11,6 +11,8 @@ Invidious is written in an obscure language: Crystal.
 
 Because it is obscure the number of people knowing it is really low.
 
+Because the amount of people knowing it is really low, the amount of contributors to Invidious is really low: the vast majority of contributions are done by the Invidious maintainers themselves.
+
 Invidious is the biggest Crystal project that exists, bigger than Crystal itself [(yes, seriously)](https://shards.info/).
 
 The problem of being the biggest software in an obscure language is that you're often effectively the first project to encounter a problem and because it's an obscure language, not a lot of libraries exist to make it easier for you, meaning, you usually have to make everything you need yourself.
