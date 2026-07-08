@@ -540,7 +540,8 @@ span > select {
 .light-theme .pure-button-primary:hover,
 .light-theme .pure-button-primary:focus,
 .light-theme .pure-button-secondary:hover,
-.light-theme .pure-button-secondary:focus {
+.light-theme .pure-button-secondary:focus,
+.light-theme .active {
   color: #fff !important;
   border-color: rgba(0, 182, 240, 0.75) !important;
   background-color: rgba(0, 182, 240, 0.75) !important;
@@ -571,6 +572,10 @@ span > select {
   border: 1px solid black;
 }
 
+.light-theme #suggestions {
+  background: rgb(255, 255, 255);
+}
+
 @media (prefers-color-scheme: light) {
   .no-theme a:hover,
   .no-theme a:active,
@@ -583,7 +588,8 @@ span > select {
   .no-theme .pure-button-primary:hover,
   .no-theme .pure-button-primary:focus,
   .no-theme .pure-button-secondary:hover,
-  .no-theme .pure-button-secondary:focus {
+  .no-theme .pure-button-secondary:focus,
+  .no-theme .active {
     color: #fff !important;
     border-color: rgba(0, 182, 240, 0.75) !important;
     background-color: rgba(0, 182, 240, 0.75) !important;
@@ -621,6 +627,10 @@ span > select {
   .no-theme .error-card {
     border: 1px solid black;
   }
+
+  .no-theme #suggestions {
+    background: rgb(255, 255, 255);
+  }
 }
 
 
@@ -639,7 +649,8 @@ span > select {
 .dark-theme .pure-button-primary:hover,
 .dark-theme .pure-button-primary:focus,
 .dark-theme .pure-button-secondary:hover,
-.dark-theme .pure-button-secondary:focus {
+.dark-theme .pure-button-secondary:focus,
+.dark-theme .active {
   color: #fff !important;
   border-color: rgb(0, 182, 240) !important;
   background-color: rgba(0, 182, 240, 1) !important;
@@ -687,6 +698,10 @@ body.dark-theme {
   border: 1px solid #5e5e5e;
 }
 
+.dark-theme #suggestions {
+  background: rgb(35, 35, 35);
+}
+
 @media (prefers-color-scheme: dark) {
   .no-theme a:hover,
   .no-theme a:active,
@@ -697,7 +712,8 @@ body.dark-theme {
   .no-theme .pure-button-primary:hover,
   .no-theme .pure-button-primary:focus,
   .no-theme .pure-button-secondary:hover,
-  .no-theme .pure-button-secondary:focus {
+  .no-theme .pure-button-secondary:focus,
+  .no-theme .active {
     color: #fff !important;
     border-color: rgb(0, 182, 240) !important;
     background-color: rgba(0, 182, 240, 1) !important;
@@ -751,6 +767,10 @@ body.dark-theme {
 
   .no-theme .error-card {
     border: 1px solid #5e5e5e;
+  }
+
+  .no-theme #suggestions {
+    background: rgb(35, 35, 35);
   }
 }
 
@@ -909,4 +929,33 @@ h1, h2, h3, h4, h5, p,
   padding-left: 10px;
   display: inline-block;
   vertical-align: top;
+}
+
+#search-container {
+  position: relative;
+  display: block !important;
+}
+
+#suggestions {
+  position: absolute;
+  width: 100%;
+  top: calc(100% + .25em);
+  border: 1px solid #a0a0a0;
+  z-index: 200;
+  padding: .25em 0;
+  display: none;
+}
+
+#search-container:has(:active) #suggestions:has(*),
+#search-container:has(:focus) #suggestions:has(*) {
+  display: block;
+}
+
+#suggestions>* {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: .25em .5em;
+  text-align: left;
 }
