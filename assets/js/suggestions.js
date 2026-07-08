@@ -11,19 +11,12 @@ function resetSuggestions() {
   selectedSuggestion = -1;
 }
 
-searchbox.addEventListener("input", function () {
+searchbox?.addEventListener("input", function () {
   // If there is already a request in progress,
   // abort. The user has made another input,
   // invalidating the old query.
   if (suggestionController != undefined) {
     suggestionController.abort();
-  }
-
-  // Only continue for queries of at least
-  // one character.
-  if (searchbox.value.length < 2) {
-    resetSuggestions();
-    return;
   }
 
   // Only make a request for suggestions after
@@ -33,6 +26,13 @@ searchbox.addEventListener("input", function () {
   setTimeout(async function () {
     queuedSuggestions--;
     if (queuedSuggestions != 0) {
+      return;
+    }
+
+    // Only continue for queries of at least
+    // one character.
+    if (searchbox.value.length < 2) {
+      resetSuggestions();
       return;
     }
 
@@ -74,7 +74,7 @@ searchbox.addEventListener("input", function () {
   }, 150);
 });
 
-searchbox.addEventListener("keydown", function (e) {
+searchbox?.addEventListener("keydown", function (e) {
   const currentSuggestions = suggestions.children;
 
   // Navigate suggestions by key.
