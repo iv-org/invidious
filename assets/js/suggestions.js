@@ -29,8 +29,8 @@ searchbox?.addEventListener("input", function () {
       return;
     }
 
-    // Only continue for queries of at least
-    // one character.
+    // Only continue for queries of more than one
+    // character.
     if (searchbox.value.length < 2) {
       resetSuggestions();
       return;
