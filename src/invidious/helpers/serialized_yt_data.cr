@@ -148,7 +148,7 @@ struct SearchVideo
   end
 
   def upcoming?
-    premiere_timestamp ? true : false
+    premiere_timestamp.try { |t| t.to_unix > 0 } ? true : false
   end
 end
 
