@@ -3,7 +3,7 @@
 - [] I have read the [AI Policy](./AI_POLICY.md) and understand the disclosure requirements
 
 
-## AI Usage
+## AI Disclosure
 
 <!-- Tick exactly one -->
 
@@ -11,10 +11,7 @@
 - [] AI was used to fully write this pull request
 - [] AI was used to partially create this pull request (explain how)
 
-
-## AI Disclosure
-
-<!-- Leave this whole section blank if not applicable -->
+<!-- Leave this whole section blank if you didn't use AI -->
 
 **Model(s) used:**
 <!-- e.g. Llama 3.1, Mistral, Qwen 2.5, DeepSeek-R1 -->
