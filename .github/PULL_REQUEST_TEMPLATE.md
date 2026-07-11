@@ -1,6 +1,6 @@
 ## Checklist
 
-- [] I have read the [AI Policy](./AI_POLICY.md) and understand the disclosure requirements
+- [] I have read the [AI Policy](https://github.com/iv-org/invidious/blob/master/AI_POLICY.md) and understand the disclosure requirements
 
 
 ## AI Disclosure
