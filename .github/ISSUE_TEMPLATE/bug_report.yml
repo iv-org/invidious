@@ -39,7 +39,7 @@ body:
     id: logs
     attributes:
       label: Logs
-      description: If applicable, copy the log that appear in the browser page where the error is reported.
+      description: If applicable, copy the logs that appear on the page where the error is reported.
       render: shell
     validations:
       required: false
