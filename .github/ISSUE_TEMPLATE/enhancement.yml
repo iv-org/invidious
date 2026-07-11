@@ -1,0 +1,81 @@
+name: Enhancement
+description: Suggest an enhancement for an existing feature
+title: "[Enhancement] "
+labels: ["enhancement"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please use the search function to check if the desired function has already been requested by someone else
+        If you want to suggest a new feature please use "Feature request" instead
+        If you want to report a bug, please use "Bug report" instead
+  - type: textarea
+    id: problem
+    attributes:
+      label: Is your enhancement request related to a problem? Please describe.
+      description: A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Describe the solution you'd like
+      description: A clear and concise description of what you want to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Describe alternatives you've considered
+      description: A clear and concise description of any alternative solutions or features you've considered.
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Add any other context or screenshots about the enhancement here.
+    validations:
+      required: false
+  - type: checkboxes
+    id: ai-policy
+    attributes:
+      label: AI Policy
+      options:
+        - label: I have read the [AI Policy](https://github.com/iv-org/invidious/blob/master/AI_POLICY.md) and understand the disclosure requirements
+          required: true
+  - type: dropdown
+    id: ai-usage
+    attributes:
+      label: AI usage
+      description: Did you use AI to help create this issue?
+      options:
+        - AI was not used to write this issue
+        - AI was used to fully write this issue
+        - AI was used to partially create this issue (explain how)
+    validations:
+      required: true
+  - type: input
+    id: ai-models
+    attributes:
+      label: Model(s) used
+      description: If you used AI, list the EXACT model(s) used. Leave empty if you did not use AI.
+      placeholder: "e.g. Llama 3.1, Mistral, Qwen 2.5, DeepSeek-R1"
+    validations:
+      required: false
+  - type: input
+    id: ai-tools
+    attributes:
+      label: Tool(s) used
+      description: If you used AI, list the tool(s) used to interact with it. Leave empty if you did not use AI.
+      placeholder: "e.g. Ollama, Open WebUI, Continue"
+    validations:
+      required: false
+  - type: textarea
+    id: ai-explanation
+    attributes:
+      label: How was AI used?
+      description: If you selected "AI was used to partially create this issue (explain how)" above, explain how AI was used here. Leave empty otherwise.
+    validations:
+      required: false

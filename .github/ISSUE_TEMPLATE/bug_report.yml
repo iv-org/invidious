@@ -1,0 +1,103 @@
+name: Bug report
+description: Create a bug report to help us improve Invidious
+title: "[Bug] "
+labels: ["bug"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        BEFORE TRYING TO REPORT A BUG:
+
+        * Read the FAQ: https://docs.invidious.io/faq/!
+        * Use the search function to check if there is already an issue open for your problem: https://github.com/search?q=repo%3Aiv-org%2Finvidious+replace+me+with+your+bug&type=issues!
+
+        MAKE SURE TO FOLLOW THE TWO STEPS ABOVE BEFORE REPORTING A BUG. A BUG THAT ALREADY EXISTS WILL BE IMMEDIATELY CLOSED.
+
+        If you want to suggest a new feature please use "Feature request" instead
+        If you want to suggest an enhancement to an existing feature please use "Enhancement" instead
+  - type: textarea
+    id: describe-bug
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior.
+      placeholder: |
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: If applicable, copy the logs that appear on the page where the error is reported.
+      render: shell
+    validations:
+      required: false
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: If applicable, add screenshots to help explain your problem.
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Add any other context about the problem here.
+      placeholder: |
+        - Browser (if applicable):
+        - OS (if applicable):
+    validations:
+      required: false
+  - type: checkboxes
+    id: ai-policy
+    attributes:
+      label: AI Policy
+      options:
+        - label: I have read the [AI Policy](https://github.com/iv-org/invidious/blob/master/AI_POLICY.md) and understand the disclosure requirements
+          required: true
+  - type: dropdown
+    id: ai-usage
+    attributes:
+      label: AI usage
+      description: Did you use AI to help create this issue?
+      options:
+        - AI was not used to write this issue
+        - AI was used to fully write this issue
+        - AI was used to partially create this issue (explain how)
+    validations:
+      required: true
+  - type: input
+    id: ai-models
+    attributes:
+      label: Model(s) used
+      description: If you used AI, list the EXACT model(s) used. Leave empty if you did not use AI.
+      placeholder: "e.g. Llama 3.1, Mistral, Qwen 2.5, DeepSeek-R1"
+    validations:
+      required: false
+  - type: input
+    id: ai-tools
+    attributes:
+      label: Tool(s) used
+      description: If you used AI, list the tool(s) used to interact with it. Leave empty if you did not use AI.
+      placeholder: "e.g. Ollama, Open WebUI, Continue"
+    validations:
+      required: false
+  - type: textarea
+    id: ai-explanation
+    attributes:
+      label: How was AI used?
+      description: If you selected "AI was used to partially create this issue (explain how)" above, explain how AI was used here. Leave empty otherwise.
+    validations:
+      required: false
