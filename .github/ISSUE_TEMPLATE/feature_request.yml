@@ -43,7 +43,7 @@ body:
     attributes:
       label: AI Policy
       options:
-        - label: I have read the [AI Policy](./AI_POLICY.md)
+        - label: I have read the [AI Policy](./AI_POLICY.md) and understand the disclosure requirements
           required: true
   - type: dropdown
     id: ai-usage
