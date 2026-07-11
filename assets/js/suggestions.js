@@ -50,19 +50,24 @@ searchbox?.addEventListener("input", function () {
       );
       const body = await resp.json();
 
-      // As a sanity check, ensure the
-      // suggestions match the query.
-      if (body.query != searchbox.value) {
-        return;
-      }
-
       // Put the results into DOM.
       resetSuggestions();
       const results = body.suggestions;
       for (let i = 0; i < results.length; i++) {
         const s = document.createElement("a");
-        s.href = `/search?q=${encodeURIComponent(results[i])}`;
+        s.href = "/search";
         s.innerText = results[i];
+        s.setAttribute("role", "option");
+        s.setAttribute("aria-selected", "false");
+        s.addEventListener("click", function (e) {
+          searchbox.value = results[i];
+          if (searchbox.form?.requestSubmit) {
+            searchbox.form.requestSubmit();
+          } else {
+            searchbox.form?.submit();
+          }
+          e.preventDefault();
+        });
         suggestions.appendChild(s);
       }
     } catch (err) {
@@ -109,8 +114,10 @@ searchbox?.addEventListener("keydown", function (e) {
   for (let i = 0; i < currentSuggestions.length; i++) {
     if (i == selectedSuggestion) {
       currentSuggestions[i].classList.add("active");
+      currentSuggestions[i].setAttribute("aria-selected", "true");
     } else if (currentSuggestions[i].classList.contains("active")) {
       currentSuggestions[i].classList.remove("active");
+      currentSuggestions[i].setAttribute("aria-selected", "false");
     }
   }
 });
