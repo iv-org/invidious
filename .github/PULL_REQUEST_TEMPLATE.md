@@ -9,7 +9,7 @@
 
 - [] AI was not used to create this pull request
 - [] AI was used to fully create this pull request
-- [] AI was used to partially create this pull request (explain how)
+- [] AI was used to partially create this pull request
 
 <!-- Leave the following section blank if you didn't use AI -->
 
