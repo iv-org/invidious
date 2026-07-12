@@ -14,8 +14,8 @@ body:
 
         MAKE SURE TO FOLLOW THE TWO STEPS ABOVE BEFORE REPORTING A BUG. A BUG THAT ALREADY EXISTS WILL BE IMMEDIATELY CLOSED.
 
-        If you want to suggest a new feature please use "Feature request" instead
-        If you want to suggest an enhancement to an existing feature please use "Enhancement" instead
+        If you want to suggest a new feature, please use "Feature request" instead
+        If you want to suggest an enhancement to an existing feature, please use "Enhancement" instead
   - type: textarea
     id: describe-bug
     attributes:

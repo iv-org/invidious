@@ -8,8 +8,8 @@ body:
     attributes:
       value: |
         Please use the search function to check if the desired function has already been requested by someone else
-        If you want to suggest an enhancement to an existing feature please use "Enhancement" instead
-        If you want to report a bug please use "Bug report" instead
+        If you want to suggest an enhancement to an existing feature, please use "Enhancement" instead
+        If you want to report a bug, please use "Bug report" instead
   - type: textarea
     id: problem
     attributes:
