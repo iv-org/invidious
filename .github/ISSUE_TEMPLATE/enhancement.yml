@@ -9,7 +9,7 @@ body:
       value: |
         Please use the search function to check if the desired function has already been requested by someone else
         If you want to suggest a new feature please use "Feature request" instead
-        If you want to report a bug, please use "Bug report" instead
+        If you want to report a bug please use "Bug report" instead
   - type: textarea
     id: problem
     attributes:
@@ -51,8 +51,8 @@ body:
       label: AI usage
       description: Did you use AI to help create this issue?
       options:
-        - AI was not used to write this issue
-        - AI was used to fully write this issue
+        - AI was not used to create this issue
+        - AI was used to fully create this issue
         - AI was used to partially create this issue (explain how)
     validations:
       required: true
@@ -60,8 +60,8 @@ body:
     id: ai-models
     attributes:
       label: Model(s) used
-      description: If you used AI, list the EXACT model(s) used. Leave empty if you did not use AI.
-      placeholder: "e.g. Llama 3.1, Mistral, Qwen 2.5, DeepSeek-R1"
+      description: If you used AI, list the EXACT model(s) used (and thinking/reasoning level if relevant). Leave empty if you did not use AI.
+      placeholder: "e.g. GLM-5.2, MiniMax-M3, DeepSeek V4 Pro, Kimi K2.7 Code..."
     validations:
       required: false
   - type: input
@@ -69,7 +69,7 @@ body:
     attributes:
       label: Tool(s) used
       description: If you used AI, list the tool(s) used to interact with it. Leave empty if you did not use AI.
-      placeholder: "e.g. Ollama, Open WebUI, Continue"
+      placeholder: "e.g. OpenCode, OpenChamber, Cline, Pi, Open WebUI..."
     validations:
       required: false
   - type: textarea
