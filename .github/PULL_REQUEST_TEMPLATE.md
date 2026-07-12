@@ -20,7 +20,7 @@
 <!-- e.g. OpenCode, OpenChamber, Cline, Pi, Open WebUI... -->
 
 **How was AI used?**
-<!-- If you selected "AI was used to partially create this pull request (explain how)" above, explain how AI was used here. Leave empty otherwise. -->
+<!-- If you selected "AI was used to partially create this pull request" above, explain how AI was used here. Leave empty otherwise. -->
 
 ---
 
