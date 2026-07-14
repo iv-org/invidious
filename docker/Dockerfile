@@ -1,6 +1,6 @@
-# https://github.com/openssl/openssl/releases/tag/openssl-3.6.2
-ARG OPENSSL_VERSION='3.6.2'
-ARG OPENSSL_SHA256='aaf51a1fe064384f811daeaeb4ec4dce7340ec8bd893027eee676af31e83a04f'
+# https://github.com/openssl/openssl/releases/tag/openssl-3.6.3
+ARG OPENSSL_VERSION='3.6.3'
+ARG OPENSSL_SHA256='243a86649cf6f23eeb6a2ff2456e09e5d77dd9018a54d3d96b0c6bdd6ba6c7f1'
 
 FROM 84codes/crystal:1.20.3-alpine AS dependabot-crystal
 
