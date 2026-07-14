@@ -128,6 +128,8 @@ class Config
   property popular_enabled : Bool = true
   property captcha_enabled : Bool = true
   property login_enabled : Bool = true
+  property require_login : Bool = false
+  property require_login_for_embeds : Bool = false
   property registration_enabled : Bool = true
   property statistics_enabled : Bool = false
   property admins : Array(String) = [] of String
