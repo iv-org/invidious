@@ -1,0 +1,60 @@
+name: Create new release
+
+# Manually-triggered workflow that prepares a new Invidious release by running
+# scripts/create-release.py. All the logic lives in that script (which can also
+# be run by hand); this workflow only provides checkout, Python and secrets.
+#
+# The script computes the version, collects every merged PR since the last
+# release, generates the changelog prose via an OpenAI-compatible API (any
+# endpoint via OPENAI_BASE_URL; OpenRouter by default), bumps shard.yml +
+# CHANGELOG.md, and opens a release PR. Tagging and publishing stay manual, as
+# the release documentation requires maintainer review.
+
+on:
+  workflow_dispatch:
+    inputs:
+      major:
+        description: "Major version. Empty = keep current. Bump only for breaking changes."
+        required: false
+        default: ""
+      patch:
+        description: "Patch number (increment for a 2nd release on the same UTC day)."
+        required: false
+        default: "0"
+      model:
+        description: "Model used to write the changelog."
+        required: false
+        default: "deepseek/deepseek-v4-pro"
+      base_url:
+        description: "OpenAI-compatible API base URL (default: OpenRouter)."
+        required: false
+        default: "https://openrouter.ai/api/v1"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  prepare-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: master
+          fetch-depth: 0
+          fetch-tags: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Prepare release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_BASE_URL: ${{ inputs.base_url }}
+        run: |
+          python3 scripts/create-release.py \
+            ${{ inputs.major && format('--major {0}', inputs.major) || '' }} \
+            --patch "${{ inputs.patch }}" \
+            --model "${{ inputs.model }}"
