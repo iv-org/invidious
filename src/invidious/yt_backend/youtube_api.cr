@@ -50,6 +50,7 @@ module YoutubeAPI
     ClientType::Web => {
       name:       "WEB",
       name_proto: "1",
+
       version:    "2.20260722.01.00",
       screen:     "WATCH_FULL_SCREEN",
       os_name:    "Windows",
@@ -76,7 +77,9 @@ module YoutubeAPI
     ClientType::WebScreenEmbed => {
       name:       "WEB",
       name_proto: "1",
+
       version:    "2.20260722.01.00",
+
       screen:     "EMBED",
       os_name:    "Windows",
       os_version: WINDOWS_VERSION,
