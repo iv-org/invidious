@@ -162,3 +162,7 @@ end
 
 # Cleanup
 `rm -rf #{tmp_dir_path}`
+
+# Also fetch SABR dependencies
+puts "#{"Checking".colorize(:green)} #{"SABR".colorize(:blue)} dependencies..."
+`crystal run scripts/fetch-sabr-dependencies.cr`
