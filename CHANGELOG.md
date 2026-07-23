@@ -2,6 +2,58 @@
 
 ## vX.Y.0 (future)
 
+
+## v2.20260723.0
+
+### Wrap-up
+
+This release hardens security, adds an instance option to disable API endpoints, and fixes YouTube backend changes that broke video metadata and playback. A cross-user playlist deletion vulnerability was closed, and videos are no longer incorrectly marked as upcoming.
+
+Instance owners gain a new configuration flag to disable API endpoints that are easy to abuse, a reduced backoff in the channel refresh job when no errors occur, and an updated User-Agent header for YouTube requests. The OCI image bumps OpenSSL to 3.6.3, and the Docker image moves to Crystal 1.20.3.
+
+Developer experience improves with the ability to release directly from GitHub Actions, enhanced issue/PR templates with an AI policy compliance field, and a new `AI_POLICY.md` document. Dependency bumps keep CI current with `int128/docker-manifest-create-action` 2.25.0 and `actions/cache` 6.
+
+### New features & important changes
+#### For Users
+  - No user-facing changes in this release.
+
+#### For instance owners
+  - A new configuration option allows disabling API endpoints that are easy to abuse (#5630)
+  - The `RefreshChannelsJob` backoff is reduced when no errors occur, improving channel refresh efficiency (#5759)
+  - The User-Agent header for YouTube requests was updated to maintain compatibility (#5794)
+  - OpenSSL was updated to 3.6.3 in the OCI image (#5808)
+  - The Docker image now uses Crystal 1.20.3 (#5797)
+
+#### For developers
+  - Releases can now be triggered directly from a GitHub Action workflow (#5823)
+  - Issue and PR templates were reworded and enhanced, and a field for AI policy compliance was added (#5804, #5803)
+  - An `AI_POLICY.md` document was created to clarify the project's stance on AI-generated contributions (#5791)
+  - CI dependencies were bumped: `int128/docker-manifest-create-action` to 2.25.0 and `actions/cache` to 6 (#5807, #5793)
+
+### Bugs fixed
+#### User-side
+  - A security issue that allowed playlist deletion across different users was fixed (#5790)
+  - Videos are no longer incorrectly labelled as `isUpcoming = true` due to a YouTube backend change (#5800)
+  - YouTube backend API changes that caused playback and metadata issues were addressed (#5818, #5819)
+
+### Full list of pull requests merged since the last release (newest first)
+
+* feat: add ability to release from github action (https://github.com/iv-org/invidious/pull/5823, by @unixfox)
+* youtube backend api fix (https://github.com/iv-org/invidious/pull/5818, by @gabe4278)
+* Hotfix - Fix YouTube change (https://github.com/iv-org/invidious/pull/5819, by @bunchy7ss)
+* chore: update openssl to 3.6.3 in OCI (https://github.com/iv-org/invidious/pull/5808, by @Fijxu)
+* chore(deps): bump int128/docker-manifest-create-action from 2.22.0 to 2.25.0 (https://github.com/iv-org/invidious/pull/5807, by @dependabot[bot])
+* Various enhancements and rewording to the issues/PRs templates (https://github.com/iv-org/invidious/pull/5804, by @TheFrenchGhosty)
+* Add a field for AI policy compliance in the issues/PRs templates (https://github.com/iv-org/invidious/pull/5803, by @TheFrenchGhosty)
+* Fix videos being incorrectly labelled as isUpcoming = true (https://github.com/iv-org/invidious/pull/5800, by @absidue)
+* chore(deps): bump 84codes/crystal from 1.20.2-alpine to 1.20.3-alpine in /docker (https://github.com/iv-org/invidious/pull/5797, by @dependabot[bot])
+* Create AI_POLICY.md (https://github.com/iv-org/invidious/pull/5791, by @TheFrenchGhosty)
+* Add option to disable easy to abuse API endpoints (https://github.com/iv-org/invidious/pull/5630, by @Fijxu)
+* [RefreshChannelsJob] Reduce backoff if no errors occur (https://github.com/iv-org/invidious/pull/5759, by @unrealtournament)
+* fix: security issue playlist deletion cross user (https://github.com/iv-org/invidious/pull/5790, by @unixfox)
+* chore: update User-Agent header for Youtube requests (https://github.com/iv-org/invidious/pull/5794, by @Fijxu)
+* chore(deps): bump actions/cache from 5 to 6 (https://github.com/iv-org/invidious/pull/5793, by @dependabot[bot])
+
 ## v2.20260626.0
 
 ### Wrap-up
