@@ -1,20 +1,22 @@
 module Invidious::Routes::Companion
+  extend self
+
   # GET /companion
-  def self.get_companion(env)
-    url = self.make_url
-    self.proxy_companion(env, "GET", url)
+  def get_companion(env)
+    url = make_url(env)
+    proxy_companion(env, "GET", url)
   end
 
   # POST /companion
-  def self.post_companion(env)
-    url = self.make_url
-    self.proxy_companion(env, "POST", url)
+  def post_companion(env)
+    url = make_url(env)
+    proxy_companion(env, "POST", url)
   end
 
   # OPTIONS /companion
-  def self.options_companion(env)
-    url = self.make_url
-    self.proxy_companion(env, "OPTIONS", url)
+  def options_companion(env)
+    url = make_url(env)
+    proxy_companion(env, "OPTIONS", url)
   end
 
   private def make_url(env)
@@ -22,9 +24,10 @@ module Invidious::Routes::Companion
     if env.request.query
       url += "?#{env.request.query}"
     end
+    url
   end
 
-  private def self.proxy_companion(env, method, url)
+  private def proxy_companion(env, method, url)
     begin
       COMPANION_POOL.client do |wrapper|
         wrapper.client.exec(method, url, env.request.headers, (env.request.body if method == "POST")) do |resp|
