@@ -92,19 +92,11 @@ module Invidious::Routes::Subscriptions
         export = XML.build do |xml|
           xml.element("opml", version: "1.1") do
             xml.element("body") do
-              if format == "newpipe"
-                title = "YouTube Subscriptions"
-              else
-                title = "Invidious Subscriptions"
-              end
+              title = "Invidious Subscriptions"
 
               xml.element("outline", text: title, title: title) do
                 subscriptions.each do |channel|
-                  if format == "newpipe"
-                    xml_url = "https://www.youtube.com/feeds/videos.xml?channel_id=#{channel.id}"
-                  else
-                    xml_url = "#{HOST_URL}/feed/channel/#{channel.id}"
-                  end
+                  xml_url = "#{HOST_URL}/feed/channel/#{channel.id}"
 
                   xml.element("outline", text: channel.author, title: channel.author,
                     "type": "rss", xmlUrl: xml_url)
