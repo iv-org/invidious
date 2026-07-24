@@ -2,6 +2,26 @@ struct Invidious::User
   module Export
     extend self
 
+    def to_newpipe(subscriptions)
+      return JSON.build do |json|
+        json.object do
+          json.field "subscriptions" do
+            json.array do
+              subscriptions.each do |channel|
+                json.object do
+                  json.field "service_id", 0
+                  json.field "url", "https://www.youtube.com/channel/" + channel.id
+                  json.field "name", channel.author
+                end
+              end
+            end
+          end
+          json.field "app_version", "0.29.0"
+          json.field "app_version_int", 1014
+        end
+      end
+    end
+
     def to_invidious(user : User)
       playlists = Invidious::Database::Playlists.select_like_iv(user.email)
 
