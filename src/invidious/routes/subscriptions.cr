@@ -80,14 +80,15 @@ module Invidious::Routes::Subscriptions
     subscriptions.sort_by!(&.author.downcase)
 
     if action_takeout
-      if format == "json"
-        env.response.content_type = "application/json"
-        env.response.headers["content-disposition"] = "attachment"
+      env.response.content_type = "application/json"
+      env.response.headers["content-disposition"] = "attachment"
 
+      if format == "json"
         return Invidious::User::Export.to_invidious(user)
+      elsif format == "newpipe_json"
+        return Invidious::User::Export.to_newpipe(subscriptions)
       else
         env.response.content_type = "application/xml"
-        env.response.headers["content-disposition"] = "attachment"
         export = XML.build do |xml|
           xml.element("opml", version: "1.1") do
             xml.element("body") do
