@@ -55,6 +55,107 @@ module Invidious::Videos::Parser
     }
   end
 
+  def parse_related_lockup_video(related : JSON::Any) : Hash(String, JSON::Any)?
+    return nil if related["contentType"]?.try &.as_s != "LOCKUP_CONTENT_TYPE_VIDEO"
+    return nil if !related["contentId"]?
+
+    metadata = related.dig("metadata", "lockupMetadataViewModel")
+    thumbnail_view_model = related.dig?("contentImage", "thumbnailViewModel")
+    video_id = related["contentId"]
+    title = metadata.dig?("title", "content").try &.as_s || ""
+
+    length = thumbnail_view_model.try &.dig?(
+      "overlays", 0, "thumbnailBottomOverlayViewModel",
+      "badges", 0, "thumbnailBadgeViewModel", "text"
+    ).try &.as_s
+    length_seconds = decode_length_seconds(length) if length
+
+    metadata_parts = [] of JSON::Any
+    metadata_rows = metadata.dig?("metadata", "contentMetadataViewModel", "metadataRows")
+      .try &.as_a
+    if metadata_rows
+      metadata_rows.each do |row|
+        if parts = row["metadataParts"]?
+          metadata_parts.concat(parts.as_a)
+        end
+      end
+    end
+
+    author = metadata_parts.find { |item|
+      if text = item.dig?("text", "content").try &.as_s
+        !text.includes?("views") && !text.includes?("ago")
+      end
+    }.try &.dig("text", "content").as_s || ""
+
+    short_view_count = metadata_parts.find { |item|
+      item.dig?("text", "content").try &.as_s.includes?("views")
+    }
+      .try &.dig("text", "content").as_s
+
+    published = metadata_parts.find { |item|
+      item.dig?("text", "content").try &.as_s.includes?("ago")
+    }
+      .try { |item| decode_date(item.dig("text", "content").as_s).to_rfc3339.to_s }
+
+    author_items = [] of JSON::Any
+
+    if list_items = metadata
+         .dig?(
+           "image", "avatarStackViewModel", "rendererContext", "commandContext",
+           "onTap", "innertubeCommand", "showDialogCommand", "panelLoadingStrategy",
+           "inlineContent", "dialogViewModel", "customContent", "listViewModel", "listItems"
+         )
+         .try &.as_a
+      list_items.each do |list_item|
+        view = list_item["listItemViewModel"]?
+        next if !view
+
+        item_author = view.dig?("title", "content").try &.as_s || ""
+        item_ucid = view.dig?(
+          "rendererContext", "commandContext", "onTap",
+          "innertubeCommand", "browseEndpoint", "browseId"
+        ).try &.as_s || ""
+
+        next if item_author.empty?
+
+        author_items << JSON::Any.new({
+          "author" => JSON::Any.new(item_author),
+          "ucid"   => JSON::Any.new(item_ucid),
+        })
+      end
+    elsif author_info = metadata.dig?("image", "decoratedAvatarViewModel")
+      ucid = author_info.dig?(
+        "rendererContext", "commandContext", "onTap",
+        "innertubeCommand", "browseEndpoint", "browseId"
+      ).try &.as_s || ""
+
+      author_items << JSON::Any.new({
+        "author" => JSON::Any.new(author),
+        "ucid"   => JSON::Any.new(ucid),
+      }) if !author.empty?
+    end
+
+    ucid = ""
+    if first_author = author_items[0]?
+      ucid = first_author["ucid"].as_s
+    end
+
+    related_video = {
+      "id"               => video_id,
+      "title"            => JSON::Any.new(title),
+      "author"           => JSON::Any.new(author),
+      "ucid"             => JSON::Any.new(ucid),
+      "length_seconds"   => JSON::Any.new((length_seconds || 0).to_s),
+      "short_view_count" => JSON::Any.new(short_view_count || "0"),
+      "author_verified"  => JSON::Any.new("false"),
+      "published"        => JSON::Any.new(published || ""),
+    }
+
+    related_video["author_items"] = JSON::Any.new(author_items) if !author_items.empty?
+
+    return related_video
+  end
+
   def extract_video_info(video_id : String)
     # Fetch data from the player endpoint
     player_response = YoutubeAPI.player(video_id: video_id)
@@ -246,6 +347,9 @@ module Invidious::Videos::Parser
     secondary_results.try &.as_a.each do |element|
       if item = element["compactVideoRenderer"]?
         related_video = self.parse_related_video(item)
+        related << JSON::Any.new(related_video) if related_video
+      elsif item = element["lockupViewModel"]?
+        related_video = self.parse_related_lockup_video(item)
         related << JSON::Any.new(related_video) if related_video
       end
     end
