@@ -50,6 +50,7 @@ def get_about_info(ucid, locale) : AboutChannel
   tab_names = [] of String
   total_views = 0_i64
   joined = Time.unix(0)
+  author_verified = false
 
   if age_gate_renderer = initdata.dig?("contents", "twoColumnBrowseResultsRenderer", "tabs", 0, "tabRenderer", "content", "sectionListRenderer", "contents", 0, "channelAgeGateRenderer")
     description_node = nil
@@ -64,21 +65,39 @@ def get_about_info(ucid, locale) : AboutChannel
     auto_generated = false
   else
     if auto_generated
-      author = initdata["header"]["interactiveTabbedHeaderRenderer"]["title"]["simpleText"].as_s
-      author_url = initdata["microformat"]["microformatDataRenderer"]["urlCanonical"].as_s
-      author_thumbnail = initdata["header"]["interactiveTabbedHeaderRenderer"]["boxArt"]["thumbnails"][0]["url"].as_s
+      if interactive_header = initdata.dig?("header", "interactiveTabbedHeaderRenderer")
+        author = interactive_header["title"]["simpleText"].as_s
+        author_url = initdata.dig?("microformat", "microformatDataRenderer", "urlCanonical").try &.as_s || "https://www.youtube.com/channel/#{ucid}"
+        author_thumbnail = interactive_header["boxArt"]["thumbnails"][0]["url"].as_s
 
-      # Raises a KeyError on failure.
-      banners = initdata["header"]["interactiveTabbedHeaderRenderer"]?.try &.["banner"]?.try &.["thumbnails"]?
-      banner = banners.try &.[-1]?.try &.["url"].as_s?
+        banners = interactive_header["banner"]?.try &.["thumbnails"]?
+        banner = banners.try &.[-1]?.try &.["url"].as_s?
 
-      description_base_node = initdata["header"]["interactiveTabbedHeaderRenderer"]["description"]
-      # some channels have the description in a simpleText
-      # ex: https://www.youtube.com/channel/UCQvWX73GQygcwXOTSf_VDVg/
-      description_node = description_base_node.dig?("simpleText") || description_base_node
+        description_base_node = interactive_header["description"]
+        # some channels have the description in a simpleText
+        # ex: https://www.youtube.com/channel/UCQvWX73GQygcwXOTSf_VDVg/
+        description_node = description_base_node.dig?("simpleText") || description_base_node
 
-      tags = initdata.dig?("header", "interactiveTabbedHeaderRenderer", "badges")
-        .try &.as_a.map(&.["metadataBadgeRenderer"]["label"].as_s) || [] of String
+        tags = interactive_header["badges"]?
+          .try &.as_a.map(&.["metadataBadgeRenderer"]["label"].as_s) || [] of String
+      else
+        page_header = initdata.dig?("header", "pageHeaderRenderer")
+        page_header_view = page_header.try &.dig?("content", "pageHeaderViewModel")
+
+        author = page_header_view.try &.dig?("title", "dynamicTextViewModel", "text", "content").try &.as_s ||
+          page_header.try &.dig?("pageTitle").try &.as_s ||
+          ucid
+        author_url = initdata.dig?("microformat", "microformatDataRenderer", "urlCanonical").try &.as_s || "https://www.youtube.com/channel/#{ucid}"
+
+        thumbnail_sources = page_header_view.try &.dig?("image", "decoratedAvatarViewModel", "avatar", "avatarViewModel", "image", "sources") ||
+          page_header_view.try &.dig?("animatedImage", "contentPreviewImageViewModel", "image", "sources")
+        author_thumbnail = thumbnail_sources.try &.[0]?.try &.["url"].as_s? || ""
+
+        banners = page_header_view.try &.dig?("banner", "imageBannerViewModel", "image", "sources")
+        banner = banners.try &.[-1]?.try &.["url"].as_s?
+
+        description_node = page_header_view.try &.dig?("description", "descriptionPreviewViewModel", "description", "content")
+      end
     else
       author = initdata["metadata"]["channelMetadataRenderer"]["title"].as_s
       author_url = initdata["metadata"]["channelMetadataRenderer"]["channelUrl"].as_s
@@ -105,7 +124,7 @@ def get_about_info(ucid, locale) : AboutChannel
       tags = initdata.dig?("microformat", "microformatDataRenderer", "tags").try &.as_a.map(&.as_s) || [] of String
     end
 
-    is_family_friendly = initdata["microformat"]["microformatDataRenderer"]["familySafe"].as_bool
+    is_family_friendly = initdata.dig?("microformat", "microformatDataRenderer", "familySafe").try &.as_bool || true
     if tabs_json = initdata["contents"]["twoColumnBrowseResultsRenderer"]["tabs"]?
       # Get the name of the tabs available on this channel
       tab_names = tabs_json.as_a.compact_map do |entry|
