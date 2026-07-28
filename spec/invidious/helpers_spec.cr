@@ -3,6 +3,16 @@ require "../spec_helper"
 CONFIG = Config.from_yaml(File.open("config/config.example.yml"))
 
 Spectator.describe "Helper" do
+  describe "#parse_video_title" do
+    it "links hashtags in video titles" do
+      expect(parse_video_title("Video title #music")).to eq(%(Video title <a href="/hashtag/music">#music</a>))
+    end
+
+    it "escapes video titles before linking hashtags" do
+      expect(parse_video_title(%(<b>#music</b>))).to eq(%(&lt;b&gt;<a href="/hashtag/music">#music</a>&lt;/b&gt;))
+    end
+  end
+
   describe "#produce_channel_search_continuation" do
     it "correctly produces token for searching a specific channel" do
       expect(produce_channel_search_continuation("UCXuqSBlHAE6Xw-yeJA0Tunw", "", 100)).to eq("4qmFsgJqEhhVQ1h1cVNCbEhBRTZYdy15ZUpBMFR1bncaIEVnWnpaV0Z5WTJnd0FUZ0JZQUY2QkVkS2IxaTRBUUE9WgCaAilicm93c2UtZmVlZFVDWHVxU0JsSEFFNlh3LXllSkEwVHVud3NlYXJjaA%3D%3D")

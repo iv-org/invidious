@@ -1,5 +1,6 @@
 <% ucid = video.ucid %>
 <% title = HTML.escape(video.title) %>
+<% title_html = parse_video_title(video.title) %>
 <% author = HTML.escape(video.author) %>
 
 
@@ -77,7 +78,7 @@ we're going to need to do it here in order to allow for translations.
 
 <div class="h-box">
     <h1>
-        <%= title %>
+        <%= title_html %>
         <% if params.listen %>
             <a title="<%=I18n.translate(locale, "Video mode")%>" id="link-iv-listen" data-base-url="/watch?<%= env.params.query %>&listen=0" href="/watch?<%= env.params.query %>&listen=0">
                 <i class="icon ion-ios-videocam"></i>
