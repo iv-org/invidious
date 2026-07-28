@@ -20,6 +20,16 @@ def elapsed_text(elapsed)
   "#{(millis * 1000).round(2)}µs"
 end
 
+def parse_video_title(title : String) : String
+  HTML.escape(title).gsub(/(^|[[:space:]])#([A-Za-z0-9_]+)/) do |match|
+    prefix = match.starts_with?("#") ? "" : match[0].to_s
+    hashtag = match[prefix.size + 1..]
+    href = URI.encode_path("/hashtag/#{hashtag}")
+
+    %(#{prefix}<a href="#{href}">##{hashtag}</a>)
+  end
+end
+
 def decode_length_seconds(string)
   length_seconds = string.gsub(/[^0-9:]/, "")
   return 0_i32 if length_seconds.empty?
