@@ -84,6 +84,15 @@ private module Parsers
         author_id = author_fallback.id
       end
 
+      # When ucid is still empty (e.g. collaboration videos with a composite
+      # channel name and no navigation endpoint), extract the first creator's
+      # channel ID from the channelThumbnailSupportedRenderers navigationEndpoint.
+      if author_id.empty?
+        if channel_id = item_contents.dig?("channelThumbnailSupportedRenderers", "channelThumbnailWithLinkRenderer", "navigationEndpoint", "browseEndpoint", "browseId").try &.as_s
+          author_id = channel_id
+        end
+      end
+
       author_thumbnail = item_contents.dig?("channelThumbnailSupportedRenderers", "channelThumbnailWithLinkRenderer", "thumbnail", "thumbnails", 0, "url").try &.as_s
 
       author_verified = has_verified_badge?(item_contents["ownerBadges"]?)
