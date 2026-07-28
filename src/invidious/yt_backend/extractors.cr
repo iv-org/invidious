@@ -661,12 +661,26 @@ private module Parsers
 
         metadata = item_contents.dig("metadata", "lockupMetadataViewModel")
         title = metadata.dig("title", "content").as_s
-        # Contains the views of the video and the published time of the video.
-        metadata_parts = metadata.dig("metadata", "contentMetadataViewModel", "metadataRows", 0, "metadataParts").try &.as_a
+        # Contains the author line and the views/published time. Collaboration
+        # videos can put those values in separate rows, so inspect all rows.
+        metadata_parts = [] of JSON::Any
+        if metadata_rows = metadata.dig?("metadata", "contentMetadataViewModel", "metadataRows").try &.as_a
+          metadata_rows.each do |row|
+            if parts = row["metadataParts"]?
+              metadata_parts.concat(parts.as_a)
+            end
+          end
+        end
 
-        view_count_text = metadata_parts.try &.find { |item| item["icon"]?.nil? && item.dig?("text", "content").try &.as_s.includes?("views") }
+        view_count_text = metadata_parts.find { |item|
+          item["icon"]?.nil? &&
+            item.dig?("text", "content").try &.as_s.includes?("views")
+        }
           .try &.dig("text", "content").as_s
-        published = metadata_parts.try &.find { |item| item["icon"]?.nil? && item.dig?("text", "content").try &.as_s.includes?("ago") }
+        published = metadata_parts.find { |item|
+          item["icon"]?.nil? &&
+            item.dig?("text", "content").try &.as_s.includes?("ago")
+        }
           .try { |item| decode_date(item.dig("text", "content").as_s) } || Time.local
 
         view_count = short_text_to_number(view_count_text || "0")
