@@ -1141,7 +1141,13 @@ module HelperExtractors
   # Retrieves the ID required for querying the InnerTube browse endpoint.
   # Returns an empty string when it's unable to do so
   def self.get_browse_id(container)
-    return container.dig?("navigationEndpoint", "browseEndpoint", "browseId").try &.as_s || ""
+    return container.dig?("navigationEndpoint", "browseEndpoint", "browseId").try &.as_s ||
+      container.dig?(
+        "navigationEndpoint", "showDialogCommand", "panelLoadingStrategy",
+        "inlineContent", "dialogViewModel", "customContent", "listViewModel",
+        "listItems", 0, "listItemViewModel", "rendererContext", "commandContext",
+        "onTap", "innertubeCommand", "browseEndpoint", "browseId"
+      ).try &.as_s || ""
   end
 end
 
