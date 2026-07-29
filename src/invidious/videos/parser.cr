@@ -15,11 +15,11 @@ module Invidious::Videos::Parser
     # The compact renderer has video length in seconds, where the end
     # screen rendered has a full text version ("42:40")
     length = related["lengthInSeconds"]?.try &.as_i.to_s
-    length ||= related.dig?("lengthText", "simpleText").try do |box|
-      decode_length_seconds(box.as_s).to_s
+    length ||= extract_text(related["lengthText"]?).try do |box|
+      decode_length_seconds(box).to_s
     end
 
-    # Both have "short", so the "long" option shouldn't be required
+    # Extract author and channel ID from the byline
     channel_info = (related["shortBylineText"]? || related["longBylineText"]?)
       .try &.dig?("runs", 0)
 
@@ -28,6 +28,34 @@ module Invidious::Videos::Parser
 
     ucid = channel_info.try { |ci| HelperExtractors.get_browse_id(ci) }
 
+    # When ucid is still empty (e.g. collaboration videos with a composite
+    # channel name and a "show dialog" navigation endpoint), extract the first
+    # collaborator's channel ID from the collaborator dialog.
+    if ucid.to_s.empty? && channel_info
+      # The navigationEndpoint may contain a showDialogCommand with a
+      # collaborator list in the form of listItems, each having a
+      # browseEndpoint in the onTap command.
+      list_items = channel_info.dig?(
+        "navigationEndpoint", "showDialogCommand",
+        "panelLoadingStrategy", "inlineContent",
+        "dialogViewModel", "customContent",
+        "listViewModel", "listItems"
+      ).try &.as_a
+      if list_items
+        # Try rendererContext path first, then onTap path
+        ucid = list_items[0]?.try &.dig?(
+          "listItemViewModel",
+          "rendererContext", "commandContext", "onTap",
+          "innertubeCommand", "browseEndpoint", "browseId"
+        ).try &.as_s
+        ucid ||= list_items[0]?.try &.dig?(
+          "listItemViewModel",
+          "onTap", "innertubeCommand",
+          "browseEndpoint", "browseId"
+        ).try &.as_s
+      end
+    end
+
     short_view_count = related.try do |r|
       HelperExtractors.get_short_view_count(r).to_s
     end
@@ -35,8 +63,13 @@ module Invidious::Videos::Parser
     LOGGER.trace("parse_related_video: Found \"watchNextEndScreenRenderer\" container")
 
     if published_time_text = related["publishedTimeText"]?
-      decoded_time = decode_date(published_time_text["simpleText"].to_s)
-      published = decoded_time.to_rfc3339.to_s
+      published_time = extract_text(published_time_text)
+      if published_time
+        decoded_time = decode_date(published_time)
+        published = decoded_time.to_rfc3339.to_s
+      else
+        published = nil
+      end
     else
       published = nil
     end
@@ -45,7 +78,7 @@ module Invidious::Videos::Parser
     # or reuse an existing type, if that fits.
     return {
       "id"               => related["videoId"],
-      "title"            => related["title"]["simpleText"],
+      "title"            => JSON::Any.new(extract_text(related["title"]?) || ""),
       "author"           => author || JSON::Any.new(""),
       "ucid"             => JSON::Any.new(ucid || ""),
       "length_seconds"   => JSON::Any.new(length || "0"),
