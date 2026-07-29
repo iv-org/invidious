@@ -3,6 +3,36 @@ require "../spec_helper"
 CONFIG = Config.from_yaml(File.open("config/config.example.yml"))
 
 Spectator.describe "Helper" do
+  describe "#parse_video_title" do
+    it "links hashtags in video titles" do
+      expect(parse_video_title("Video title #music"))
+        .to eq(%(Video title <a href="/hashtag/music">#music</a>))
+    end
+
+    it "links hashtags after punctuation" do
+      expect(parse_video_title("Watch: #music"))
+        .to eq(%(Watch: <a href="/hashtag/music">#music</a>))
+    end
+
+    it "does not link hashes inside words" do
+      expect(parse_video_title("Video title test#music"))
+        .to eq("Video title test#music")
+    end
+
+    it "encodes unicode hashtags" do
+      hashtag = "\u{4E2D}\u{6587}"
+      punctuation = "\u{FF0C}"
+
+      expect(parse_video_title("Video ##{hashtag}#{punctuation}"))
+        .to eq(%(Video <a href="/hashtag/%E4%B8%AD%E6%96%87">##{hashtag}</a>#{punctuation}))
+    end
+
+    it "escapes video titles before linking hashtags" do
+      expect(parse_video_title(%(<b>#music</b> & #news)))
+        .to eq(%(&lt;b&gt;<a href="/hashtag/music">#music</a>&lt;/b&gt; &amp; <a href="/hashtag/news">#news</a>))
+    end
+  end
+
   describe "#produce_channel_search_continuation" do
     it "correctly produces token for searching a specific channel" do
       expect(produce_channel_search_continuation("UCXuqSBlHAE6Xw-yeJA0Tunw", "", 100)).to eq("4qmFsgJqEhhVQ1h1cVNCbEhBRTZYdy15ZUpBMFR1bncaIEVnWnpaV0Z5WTJnd0FUZ0JZQUY2QkVkS2IxaTRBUUE9WgCaAilicm93c2UtZmVlZFVDWHVxU0JsSEFFNlh3LXllSkEwVHVud3NlYXJjaA%3D%3D")

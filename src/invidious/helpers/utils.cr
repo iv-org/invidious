@@ -20,6 +20,50 @@ def elapsed_text(elapsed)
   "#{(millis * 1000).round(2)}µs"
 end
 
+def parse_video_title(title : String) : String
+  title_chars = title.chars
+
+  return String.build(title.size) do |str|
+    index = 0
+
+    while index < title_chars.size
+      char = title_chars[index]
+
+      if char == '#' && video_title_hashtag_start?(title_chars, index)
+        hashtag_end = index + 1
+
+        while hashtag_end < title_chars.size && video_title_hashtag_char?(title_chars[hashtag_end])
+          hashtag_end += 1
+        end
+
+        hashtag = title_chars[(index + 1)...hashtag_end].join
+        url = URI.encode_path("/hashtag/#{hashtag}")
+
+        str << %(<a href="#{url}">)
+        str << HTML.escape("##{hashtag}")
+        str << "</a>"
+
+        index = hashtag_end
+      else
+        str << HTML.escape(char.to_s)
+        index += 1
+      end
+    end
+  end
+end
+
+private def video_title_hashtag_start?(title_chars : Array(Char), index : Int) : Bool
+  next_char = title_chars[index + 1]?
+  return false if next_char.nil?
+  return false unless video_title_hashtag_char?(next_char)
+
+  index == 0 || !video_title_hashtag_char?(title_chars[index - 1])
+end
+
+private def video_title_hashtag_char?(char : Char) : Bool
+  char == '_' || char.alphanumeric?
+end
+
 def decode_length_seconds(string)
   length_seconds = string.gsub(/[^0-9:]/, "")
   return 0_i32 if length_seconds.empty?
