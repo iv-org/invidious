@@ -27,6 +27,13 @@ module Invidious::Videos::Parser
     author_verified = has_verified_badge?(related["ownerBadges"]?).to_s
 
     ucid = channel_info.try { |ci| HelperExtractors.get_browse_id(ci) }
+    if ucid.nil? || ucid.empty?
+      channel_renderer = related.dig?(
+        "channelThumbnailSupportedRenderers",
+        "channelThumbnailWithLinkRenderer"
+      )
+      ucid = channel_renderer.try { |renderer| HelperExtractors.get_browse_id(renderer) }
+    end
 
     short_view_count = related.try do |r|
       HelperExtractors.get_short_view_count(r).to_s
