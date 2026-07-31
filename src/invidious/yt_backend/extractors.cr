@@ -159,8 +159,8 @@ private module Parsers
       # A livestream no longer necessarily carries a "LIVE" entry in `badges`.
       # On the trending feed — which is the livestreams feed since YouTube
       # removed the aggregated trending page — `badges` is absent altogether and
-      # the only marker is the thumbnail's time-status overlay, which reads
-      # `{"style": "LIVE", "text": "LIVE"}` in place of a duration.
+      # the only marker is the thumbnail's time-status overlay, which carries
+      # `{"style": "LIVE", "text": {"simpleText": "LIVE"}}` in place of a duration.
       #
       # Without this, every item on that feed is serialised as
       # `liveNow: false`, directly contradicting `/api/v1/videos` for the same
