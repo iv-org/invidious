@@ -1,6 +1,14 @@
 module Invidious::Frontend::Comments
   extend self
 
+  def template_youtube_disabled(locale)
+    <<-END_HTML
+    <div class="h-box">
+      <p>#{I18n.translate(locale, "Comments are turned off")}</p>
+    </div>
+    END_HTML
+  end
+
   def template_youtube(comments, locale, thin_mode, is_replies = false)
     String.build do |html|
       root = comments["comments"].as_a

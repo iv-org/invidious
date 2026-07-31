@@ -94,17 +94,45 @@ module Invidious::Comments
 
     if !contents
       if format == "json"
-        return {"comments" => [] of String}.to_json
+        return {
+          "comments"         => [] of String,
+          "commentCount"     => 0,
+          "commentsDisabled" => true,
+        }.to_json
       else
-        return {"contentHtml" => "", "commentCount" => 0}.to_json
+        return {
+          "contentHtml"      => Frontend::Comments.template_youtube_disabled(locale),
+          "commentCount"     => 0,
+          "commentsDisabled" => true,
+        }.to_json
       end
     end
 
     continuation_item_renderer = nil
+    has_message_renderer = false
     contents.as_a.reject! do |item|
       if item["continuationItemRenderer"]?
         continuation_item_renderer = item["continuationItemRenderer"]
         true
+      elsif item["messageRenderer"]?
+        has_message_renderer = true
+        true
+      end
+    end
+
+    if has_message_renderer || contents.as_a.empty?
+      if format == "json"
+        return {
+          "comments"         => [] of String,
+          "commentCount"     => 0,
+          "commentsDisabled" => true,
+        }.to_json
+      else
+        return {
+          "contentHtml"      => Frontend::Comments.template_youtube_disabled(locale),
+          "commentCount"     => 0,
+          "commentsDisabled" => true,
+        }.to_json
       end
     end
 
