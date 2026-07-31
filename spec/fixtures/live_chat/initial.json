@@ -1,0 +1,17 @@
+{
+  "contents": {
+    "twoColumnWatchNextResults": {
+      "conversationBar": {
+        "liveChatRenderer": {
+          "continuations": [
+            {
+              "reloadContinuationData": {
+                "continuation": "top-chat-token"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

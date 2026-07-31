@@ -78,7 +78,7 @@ module YoutubeAPI
       name:       "WEB",
       name_proto: "1",
 
-      version:    "2.20260722.01.00",
+      version: "2.20260722.01.00",
 
       screen:     "EMBED",
       os_name:    "Windows",
@@ -447,6 +447,22 @@ module YoutubeAPI
   # Allow a NamedTuple to be passed, too.
   def next(data : NamedTuple, *, client_config : ClientConfig | Nil = nil)
     return self.next(data.to_h, client_config: client_config)
+  end
+
+  ####################################################################
+  # live_chat(continuation, client_config?)
+  #
+  # Requests the youtubei/v1/live_chat/get_live_chat endpoint using a
+  # continuation obtained from the watch-next response or a previous
+  # live-chat response.
+  #
+  def live_chat(continuation : String, *, client_config : ClientConfig | Nil = nil)
+    data = {
+      "context"      => self.make_context(client_config),
+      "continuation" => continuation,
+    }
+
+    return self._post_json("/youtubei/v1/live_chat/get_live_chat", data, client_config)
   end
 
   ####################################################################

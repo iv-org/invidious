@@ -390,6 +390,31 @@ module Invidious::Routes::API::V1::Videos
     end
   end
 
+  def self.live_chat(env)
+    env.response.content_type = "application/json"
+
+    id = env.params.url["id"]
+    continuation = env.params.query["continuation"]?
+    region = env.params.query["region"]?
+    mode = env.params.query["mode"]? || "top"
+
+    if id.size != 11 || !id.matches?(/^[\w-]+$/)
+      return error_json(400, "Invalid video ID")
+    end
+
+    unless {"top", "live"}.includes?(mode)
+      return error_json(400, "Invalid live chat mode")
+    end
+
+    begin
+      return Invidious::LiveChat.fetch(id, continuation, region, mode)
+    rescue ex : NotFoundException
+      return error_json(404, ex)
+    rescue ex
+      return error_json(500, ex)
+    end
+  end
+
   def self.clips(env)
     locale = env.get("preferences").as(Preferences).locale
 
