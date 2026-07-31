@@ -78,7 +78,7 @@
             </div>
 
             <div class="video-card-row">
-                <a href="<%= link_url %>"><p dir="auto"><%= HTML.escape(item.title) %></p></a>
+                <a href="<%= link_url %>"><p dir="auto"><%= parse_hashtags_in_text(HTML.escape(item.title)) %></p></a>
             </div>
 
             <div class="video-card-row flexible">
@@ -176,7 +176,7 @@
             </div>
 
             <div class="video-card-row">
-                <a href="<%= link_url %>"><p dir="auto"><%= HTML.escape(item.title) %></p></a>
+                <a href="<%= link_url %>"><p dir="auto"><%= parse_hashtags_in_text(HTML.escape(item.title)) %></p></a>
             </div>
 
             <div class="video-card-row flexible">

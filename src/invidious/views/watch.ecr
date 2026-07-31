@@ -1,5 +1,5 @@
 <% ucid = video.ucid %>
-<% title = HTML.escape(video.title) %>
+<% title = parse_hashtags_in_text(HTML.escape(video.title)) %>
 <% author = HTML.escape(video.author) %>
 
 
@@ -341,7 +341,7 @@ we're going to need to do it here in order to allow for translations.
                             </div>
 
                             <div class="video-card-row">
-                                <a href="/watch?v=<%= rv["id"] %>&listen=<%= params.listen %>"><p dir="auto"><%= HTML.escape(rv["title"]) %></p></a>
+                                <a href="/watch?v=<%= rv["id"] %>&listen=<%= params.listen %>"><p dir="auto"><%= parse_hashtags_in_text(HTML.escape(rv["title"])) %></p></a>
                             </div>
 
                             <h5 class="pure-g">

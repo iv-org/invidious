@@ -404,3 +404,13 @@ def invidious_companion_encrypt(data)
   encrypted_data = encrypt_ecb_without_salt("#{timestamp}|#{data}", CONFIG.invidious_companion_key)
   return Base64.urlsafe_encode(encrypted_data)
 end
+
+# Parses hashtags (#tag) in a text string and wraps them in clickable links.
+# The input text should already be HTML-escaped. The hashtag text is kept as-is
+# (including the # symbol) within the link, while the URL uses the encoded tag name.
+def parse_hashtags_in_text(text : String) : String
+  text.gsub(/#([\w-]+)/) do |_match|
+    hashtag = $1
+    %(<a href="/hashtag/#{URI.encode_www_form(hashtag, space_to_plus: false)}">##{hashtag}</a>)
+  end
+end
