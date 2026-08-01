@@ -13,6 +13,7 @@ with pkgs;
   # Invidious dependencies
   crystal_1_19
   sqlite
+  shards
   # Utilities
   nixd # Nixd LSP to format .nix files
 ]
