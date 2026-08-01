@@ -24,6 +24,10 @@ on:
       - .github/ISSUE_TEMPLATE/*
       - kubernetes/**
 
+      # Nix development files that are not used here.
+      - "*.nix"
+      - flake.flake
+
 jobs:
   build:
 
