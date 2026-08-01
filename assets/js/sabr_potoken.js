@@ -12,6 +12,10 @@
 'use strict';
 
 var BotguardService = (function() {
+    // WEB WAA request key. Note: the TV/living-room key 'Z1elNkAKLpSR3oPOUMSN' (used by
+    // youtube.com/tv) is rejected (null integrity token) when the Create/GenerateIT flow
+    // runs from our (non-youtube.com) origin, so we keep the WEB key which at least mints a
+    // token (though only StreamProtectionStatus=2/pending without a youtube.com origin).
     var WAA_REQUEST_KEY = 'O43z0dpjhgX20SCx4KAo';
     // Use the API key from bgutils-js/Kira which has access to Web Anti-Abuse API
     var GOOG_API_KEY = 'AIzaSyDyT5W0Jh49F30Pqqtyfdf7pDLFKLJoAnw';
@@ -20,6 +24,11 @@ var BotguardService = (function() {
     var initializationPromise = null;
     var integrityTokenBasedMinter = null;
     var bgChallenge = null;
+    // InnerTube session context (client.visitorData, clientVersion, ...). Required to
+    // fetch a SESSION-BOUND BotGuard challenge from youtubei/v1/att/get. Without it the
+    // attestation is session-less and YouTube's SABR server marks the PO token
+    // StreamProtectionStatus=2 (pending) -> media stops at ~60s and seeks return no media.
+    var sessionContext = null;
 
     /**
      * Build URL for BotGuard API calls (using YouTube endpoint, not googleapis.com)
@@ -77,7 +86,8 @@ var BotguardService = (function() {
      * Initialize the BotGuard client
      * @returns {Promise<Object|undefined>}
      */
-    async function init() {
+    async function init(context) {
+        if (context) sessionContext = context;
         if (initializationPromise) {
             return await initializationPromise;
         }
@@ -115,8 +125,12 @@ var BotguardService = (function() {
         }
 
         try {
-            // First call (Create) uses direct fetch - no proxy needed
-            var challengeResponse = await fetch(buildURL('Create', true), {
+            // TV / living-room (Cobalt) attestation via the generic WAA 'Create' endpoint
+            // with the TV request key. youtube.com/tv uses this key and its GenerateIT
+            // returns a VALID integrity token (index 0) - unlike the strict WEB att/get flow
+            // which is rejected (null) from a non-youtube origin. Testing whether the lenient
+            // TV attestation yields a StreamProtectionStatus=1 token from our origin.
+            var challengeResponse = await fetchWithProxy(buildURL('Create', true), {
                 method: 'POST',
                 headers: {
                     'content-type': 'application/json+protobuf',
@@ -130,11 +144,12 @@ var BotguardService = (function() {
             bgChallenge = BG.Challenge.parseChallengeData(challengeResponseData);
 
             if (!bgChallenge) {
-                console.error('[BotguardService]', 'Failed to parse challenge data');
+                console.error('[BotguardService]', 'Failed to parse challenge data (Create)');
                 return undefined;
             }
 
-            var interpreterJavascript = bgChallenge.interpreterJavascript?.privateDoNotAccessOrElseSafeScriptWrappedValue;
+            var interpreterJavascript = bgChallenge.interpreterJavascript &&
+                bgChallenge.interpreterJavascript.privateDoNotAccessOrElseSafeScriptWrappedValue;
 
             if (!interpreterJavascript) {
                 console.error('[BotguardService]', 'Could not get interpreter javascript. Interpreter Hash:', bgChallenge.interpreterHash);
@@ -173,7 +188,12 @@ var BotguardService = (function() {
                 });
 
                 var integrityTokenResponseData = await integrityTokenResponse.json();
-                var integrityToken = integrityTokenResponseData[0];
+                // The att/get flow's GenerateIT returns e.g. [null, ttl, null, "<token>"]
+                // (token not always at index 0). Take the first string element.
+                var integrityToken = Array.isArray(integrityTokenResponseData)
+                    ? integrityTokenResponseData.find(function (x) { return typeof x === 'string' && x.length > 0; })
+                    : integrityTokenResponseData;
+                console.info('[BotguardService]', 'GenerateIT response shape:', JSON.stringify(integrityTokenResponseData.map(function (x) { return typeof x === 'string' ? 'str(' + x.length + ')' : x; })));
 
                 if (!integrityToken) {
                     console.error('[BotguardService]', 'Could not get integrity token. Interpreter Hash:', bgChallenge.interpreterHash);
@@ -248,7 +268,8 @@ var BotguardService = (function() {
      * Reinitialize BotGuard
      * @returns {Promise<Object|undefined>}
      */
-    async function reinit() {
+    async function reinit(context) {
+        if (context) sessionContext = context;
         if (initializationPromise) {
             return initializationPromise;
         }
