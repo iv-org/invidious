@@ -19,10 +19,26 @@ var SABRPlayer = (function () {
 
   var DEFAULT_ABR_CONFIG = {
     enabled: true,
-    restrictions: { maxHeight: 480 },
+    // Adapt quality to the player element size (like FreeTube), NOT a hard 480p cap.
+    // A maxHeight:480 cap made shaka request the 480p format, which then set
+    // stickyResolution/lastManualSelectedResolution=480 in the SABR request, so the
+    // server LOCKED playback to a blurry 480p even after the cap was lifted.
+    restrictToElementSize: true,
     switchInterval: 4,
     useNetworkInformation: false
   };
+
+  // TEMP: bypass the Onesie player-response fetch and use a plain WEB getInfo()
+  // instead. The Onesie path yields a ustreamerConfig that does NOT opt us into
+  // SABR contexts (server never sends SABR_CONTEXT_UPDATE / context 5), which
+  // breaks seeking. A normal WEB getInfo() (like FreeTube's createInnertube)
+  // returns the full ustreamerConfig. Onesie to be revisited separately.
+  var BYPASS_ONESIE = false;
+
+  // bg-helper-server /generate endpoint. Mints an ATTESTED (StreamProtectionStatus=1)
+  // PO token server-side, where jsdom presents a youtube.com origin. In-browser BotGuard
+  // (Invidious origin) can only get status 2 (pending), so it's used only as a fallback.
+  var BG_HELPER_URL = 'http://127.0.0.1:4416/generate';
 
   // State
   var player = null;
@@ -40,10 +56,19 @@ var SABRPlayer = (function () {
   var playbackWebPoTokenCreationLock = false;
 
   var sabrStream = null;         // handle returned by setupSabrScheme
+  // Guards so per-player-instance listeners/filters are installed once, not once
+  // per reload (loadVideo re-runs on every SABR reload).
+  var requestFiltersInstalled = false;
+  var loadedListenerInstalled = false;
   var sabrManifest = null;       // captured from player.getManifest() on 'loaded'
   var currentLoadOptions = null; // for onReloadOnce -> re-run loadVideo
   var reloadCount = 0;           // cap reloads to prevent infinite loop on blocked/throttled videos
-  var MAX_RELOADS = 3;
+  // YouTube walls SABR playback at ~60s of content on some videos and only lets a
+  // fresh player response (new server_abr_streaming_url) through. FreeTube recovers
+  // by reloading the SABR player several times (observed: ~4 reloads before it sticks),
+  // so cap high enough to actually recover instead of giving up early — matching
+  // FreeTube's behaviour — while still bounding a truly blocked/throttled video.
+  var MAX_RELOADS = 10;
 
   function getSavedVolume() {
     try {
@@ -107,12 +132,12 @@ var SABRPlayer = (function () {
         generate_session_locally: true
       });
 
-      // Kick off BotGuard init (don't block player setup).
-      BotguardService.init().then(function () {
-        console.info('[SABRPlayer]', 'BotGuard client initialized');
-      }).catch(function (err) {
-        console.warn('[SABRPlayer]', 'BotGuard initialization failed:', err.message);
-      });
+      // NOTE: the in-browser BotguardService is NOT eagerly initialized anymore. The PO
+      // token is minted by the bg-helper-server (/generate), where jsdom presents a
+      // youtube.com origin and the token actually attests. In-browser BotGuard could only
+      // ever produce a StreamProtectionStatus=2 (pending) token AND fired a redundant
+      // GenerateIT request on every video. It remains only as an on-demand fallback
+      // (mintContentWebPO -> BotguardService.reinit) if the helper is unreachable.
 
       // Preload the redirector URL.
       try {
@@ -173,14 +198,28 @@ var SABRPlayer = (function () {
     playbackWebPoTokenCreationLock = true;
     try {
       coldStartToken = BotguardService.mintColdStartToken(playbackWebPoTokenContentBinding);
-      console.info('[SABRPlayer]', 'Cold start token created:', coldStartToken ? coldStartToken.substring(0, 30) + '...' : 'null');
 
+      // Prefer the bg-helper-server: it mints an ATTESTED token (youtube.com-origin jsdom).
+      // The token is bound to our session's visitorData, so we send that.
+      var sessionCtx = innertube && innertube.session && innertube.session.context;
+      var visitorData = sessionCtx && sessionCtx.client && sessionCtx.client.visitorData;
+      if (visitorData) {
+        var helperToken = await fetchHelperPoToken(visitorData, currentVideoId, sessionCtx);
+        if (helperToken) {
+          playbackWebPoToken = helperToken;
+          console.info('[SABRPlayer]', 'WebPO token from bg-helper (attested):', helperToken.substring(0, 30) + '...');
+          return;
+        }
+      }
+
+      // Fallback: in-browser BotGuard (only StreamProtectionStatus=2/pending, no youtube.com origin).
+      console.warn('[SABRPlayer]', 'bg-helper unavailable, falling back to in-browser BotGuard (unattested)');
       if (!BotguardService.isInitialized()) {
-        await BotguardService.reinit();
+        await BotguardService.reinit(innertube && innertube.session && innertube.session.context);
       }
       if (BotguardService.isInitialized()) {
         playbackWebPoToken = await BotguardService.mintWebPoToken(decodeURIComponent(playbackWebPoTokenContentBinding));
-        console.info('[SABRPlayer]', 'WebPO token created:', playbackWebPoToken ? playbackWebPoToken.substring(0, 30) + '...' : 'null');
+        console.info('[SABRPlayer]', 'WebPO token created (in-browser):', playbackWebPoToken ? playbackWebPoToken.substring(0, 30) + '...' : 'null');
       } else {
         console.warn('[SABRPlayer]', 'BotGuard still not initialized after reinit');
       }
@@ -188,6 +227,63 @@ var SABRPlayer = (function () {
       console.error('[SABRPlayer]', 'Error minting WebPO token', err);
     } finally {
       playbackWebPoTokenCreationLock = false;
+    }
+  }
+
+  // Fetch an attested PO token from the bg-helper-server, bound to the video id
+  // (content binding, like FreeTube). The full InnerTube session context is sent so the
+  // helper's att/get challenge is session-bound to our visitorData.
+  async function fetchHelperPoToken(visitorData, videoId, context) {
+    try {
+      var resp = await fetch(BG_HELPER_URL, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ visitorData: visitorData, videoId: videoId, context: context })
+      });
+      if (!resp.ok) {
+        console.warn('[SABRPlayer]', 'bg-helper /generate returned', resp.status);
+        return null;
+      }
+      var data = await resp.json();
+      return data && data.poToken ? data.poToken : null;
+    } catch (err) {
+      console.warn('[SABRPlayer]', 'bg-helper /generate fetch failed', err && err.message);
+      return null;
+    }
+  }
+
+  // Mint a brand new content-bound WebPO token for the current video. Used by the
+  // sabr: scheme when the server answers with StreamProtectionStatus 3
+  // (ATTESTATION_REQUIRED) and refuses to send any more media until we re-attest.
+  async function mintFreshPoToken() {
+    if (!currentVideoId) return null;
+    try {
+      // Re-mint via the bg-helper (attested), same as the initial mint. The in-browser
+      // BotguardService can't attest (no youtube.com origin) so it must NOT be used here —
+      // doing so threw BGError: PMD:Undefined and never satisfied the attestation.
+      var sessionCtx = innertube && innertube.session && innertube.session.context;
+      var visitorData = sessionCtx && sessionCtx.client && sessionCtx.client.visitorData;
+      var token = null;
+      if (visitorData) {
+        token = await fetchHelperPoToken(visitorData, currentVideoId, sessionCtx);
+      }
+      if (!token) {
+        // Fallback: in-browser (unattested) only if the helper is unreachable.
+        if (!BotguardService.isInitialized()) {
+          await BotguardService.reinit(sessionCtx);
+        }
+        if (BotguardService.isInitialized()) {
+          token = await BotguardService.mintWebPoToken(currentVideoId);
+        }
+      }
+      if (token) {
+        playbackWebPoToken = token;
+        console.info('[SABRPlayer]', 'Re-minted WebPO token after attestation request');
+      }
+      return token;
+    } catch (err) {
+      console.warn('[SABRPlayer]', 'Failed to re-mint WebPO token', err);
+      return null;
     }
   }
 
@@ -215,10 +311,13 @@ var SABRPlayer = (function () {
     player.configure({
       abr: DEFAULT_ABR_CONFIG,
       streaming: {
-        bufferingGoal: 120,
-        rebufferingGoal: 0.01,
+        // Match FreeTube's SABR streaming config exactly (values YouTube itself uses):
+        // large buffering goal, tiny rebuffering goal, big bufferBehind, and a doubled
+        // (60s) retry timeout to tolerate the larger SABR UMP responses.
+        bufferingGoal: 180,
+        rebufferingGoal: 0.02,
         bufferBehind: 300,
-        retryParameters: { maxAttempts: 8, fuzzFactor: 0.5, timeout: 30 * 1000 }
+        retryParameters: { timeout: 60 * 1000 }
       },
       manifest: {
         // disableVideo is read by our SabrManifestParser to skip video streams for audio-only/listen mode.
@@ -462,7 +561,19 @@ var SABRPlayer = (function () {
         return;
       }
       console.warn('[SABRPlayer] SABR reload requested by server; re-loading video (attempt ' + reloadCount + '/' + MAX_RELOADS + ')');
-      if (currentVideoId && loadFn) loadFn(currentVideoId, shakaContainer, currentLoadOptions || {});
+      // Match FreeTube's reloadView(): re-fetch with a FRESH innertube session
+      // (new visitorData) and a re-attested BotGuard, instead of reusing the same
+      // session identity. The 60s SABR wall is tied to the session/streaming
+      // context, so a fresh session is what actually lets the reload recover.
+      var resumeAt = (videoElement && isFinite(videoElement.currentTime)) ? videoElement.currentTime : undefined;
+      innertube = null;
+      clientConfig = null;
+      playbackWebPoToken = null;
+      coldStartToken = null;
+      try { BotguardService.dispose(); } catch (e) {}
+      var reloadOptions = Object.assign({}, currentLoadOptions || {});
+      if (resumeAt !== undefined && resumeAt > 1) reloadOptions.startTime = resumeAt;
+      if (currentVideoId && loadFn) loadFn(currentVideoId, shakaContainer, reloadOptions);
     });
   }
 
@@ -478,6 +589,8 @@ var SABRPlayer = (function () {
       // Start Shaka player init (DOM + polyfills) in parallel with network init.
       var shakaPromise;
       if (!player) {
+        requestFiltersInstalled = false;
+        loadedListenerInstalled = false;
         shakaPromise = initializeShakaPlayer(containerElement, options.listen);
       } else {
         player.configure('abr', DEFAULT_ABR_CONFIG);
@@ -501,8 +614,10 @@ var SABRPlayer = (function () {
 
       await Promise.all([shakaPromise, netPromise]);
       var poToken = playbackWebPoToken || coldStartToken || '';
-
-      setupRequestFilters();
+      if (!requestFiltersInstalled) {
+        setupRequestFilters();
+        requestFiltersInstalled = true;
+      }
 
       // Fetch the player response through Onesie (WEB client) so the SABR
       // streaming URL isn't bound to the proxy's egress IP. Falls back to a
@@ -510,6 +625,9 @@ var SABRPlayer = (function () {
       // over SABR (sabr_scheme_plugin.js) either way.
       var videoInfo;
       try {
+        if (BYPASS_ONESIE) {
+          throw new Error('Onesie bypassed (BYPASS_ONESIE) - using plain WEB getInfo');
+        }
         if (typeof window.fetchOnesiePlayerResponse !== 'function' || !window.YT || !window.YT.VideoInfo) {
           throw new Error('Onesie support not loaded');
         }
@@ -577,17 +695,23 @@ var SABRPlayer = (function () {
         if (sabrStream) {
           try { sabrStream.cleanup(); } catch (e) {}
         }
-        sabrStream = window.setupSabrScheme(SABRPlayer._lastSabrData, getPlayer, getManifest, getPlayerWidth, getPlayerHeight);
+        sabrStream = window.setupSabrScheme(
+          SABRPlayer._lastSabrData, getPlayer, getManifest, getPlayerWidth, getPlayerHeight, mintFreshPoToken
+        );
         wireSabrStream(loadVideo);
       }
 
       // Capture the parsed manifest once Shaka has loaded it, so the sabr:
-      // scheme plugin can read variant/segment indices from it.
-      player.addEventListener('loaded', function () {
-        if (typeof player.getManifest === 'function') {
-          sabrManifest = player.getManifest();
-        }
-      });
+      // scheme plugin can read variant/segment indices from it. Install once per
+      // player instance (loadVideo re-runs on every reload).
+      if (!loadedListenerInstalled) {
+        player.addEventListener('loaded', function () {
+          if (typeof player.getManifest === 'function') {
+            sabrManifest = player.getManifest();
+          }
+        });
+        loadedListenerInstalled = true;
+      }
 
       var startTime = options.startTime;
       if (startTime === undefined && options.savePlayerPos !== false) {

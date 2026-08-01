@@ -486,6 +486,13 @@
           // Workaround: https://github.com/LuanRT/googlevideo/issues/42
           continue;
         }
+        // TEST: skip DRC ("Stable Volume") audio. Our player was defaulting to the
+        // DRC track (drcEnabled:true in the SABR request); FreeTube uses normal audio
+        // (drcEnabled:false). Testing whether DRC selection is why the server returns
+        // 0 media on seeks.
+        if (format.isDrc) {
+          continue;
+        }
         audioStreams.push(createAudioStream(format, currentId++, hasDrcAudio, hasVoiceBoostAudio, presentationTimeline, networkingEngine, fakeVideoFormatId));
       } else if (!this._config.disableVideo) {
         videoStreams.push(createVideoStream(format, currentId++, presentationTimeline, networkingEngine));

@@ -52,7 +52,9 @@ module Invidious::Routes::BeforeAll
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data:",
       "font-src 'self' data:",
-      "connect-src 'self' https://*.googleapis.com https://*.youtube.com " + COMPANION_CSP.companion_urls,
+      # http://127.0.0.1:4416 = bg-helper-server (/generate) for server-side (youtube.com-origin
+      # jsdom) BotGuard PO token minting, which browser-origin BotGuard cannot attest.
+      "connect-src 'self' https://*.googleapis.com https://*.youtube.com http://127.0.0.1:4416 " + COMPANION_CSP.companion_urls,
       "manifest-src 'self'",
       "media-src 'self' blob: " + COMPANION_CSP.companion_urls,
       "child-src 'self' blob:",

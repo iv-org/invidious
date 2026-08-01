@@ -18,6 +18,7 @@
     return JSON.parse(JSON.stringify(obj));
   }
 
+
   function formatIdFromString(str) {
     var parts = str.split('-');
     return {
@@ -205,6 +206,27 @@
       throw createRecoverableNetworkError(ShakaError.Code.OPERATION_ABORTED, operationInputs.uri, operationInputs.requestType);
     }
 
+    // --- TEMP SEEK DIAGNOSTICS (toggle: window.SABR_DEBUG = true) ---
+    var _dbg = (typeof window !== 'undefined' && window.SABR_DEBUG);
+    var _dbgHeaders = [];
+    var _dbgPartTypes = {};
+    if (_dbg) {
+      try {
+        console.log('[SABR_DBG] REQ', JSON.stringify({
+          uri: operationInputs.uri,
+          isInit: operationInputs.isInit,
+          sq: operationInputs.sequenceNumber,
+          playerTimeMs: currentState.abrRequest.clientAbrState.playerTimeMs,
+          bufRanges: (currentState.abrRequest.bufferedRanges || []).length,
+          rn: currentState.sabrStreamState.requestNumber,
+          ctxStored: currentState.sabrStreamState.sabrContexts.size,
+          ctxActive: Array.from(currentState.sabrStreamState.activeSabrContextTypes),
+          ctxSent: (currentState.abrRequest.streamerContext.sabrContexts || []).length,
+          sabrHost: (new URL(currentState.sabrStreamState.sabrUrl)).host
+        }));
+      } catch (e) {}
+    }
+
     try {
       var shouldReloadDueToBackoffLoop = false;
       if ((currentState.sabrStreamState.nextRequestPolicy?.backoffTimeMs || 0) > 0) {
@@ -255,11 +277,15 @@
         }
 
         var remainingData = new UmpReader(chunkedDataBuffer).read(function (part) {
+          if (_dbg) { _dbgPartTypes[part.type] = (_dbgPartTypes[part.type] || 0) + 1; }
           switch (part.type) {
             case UMPPartId.STREAM_PROTECTION_STATUS: {
               var streamProtectionStatus = decodePart(part, StreamProtectionStatus);
               if (streamProtectionStatus && streamProtectionStatus.status === 3) {
                 invalidPoToken = true;
+                if (streamProtectionStatus.maxRetries) {
+                  currentState.attestationMaxRetries = streamProtectionStatus.maxRetries;
+                }
               }
               break;
             }
@@ -272,9 +298,14 @@
             case UMPPartId.SABR_REDIRECT: {
               var sabrRedirect = decodePart(part, SabrRedirect);
               if (!sabrRedirect) break;
-              // BUGFIX (vs FreeTube): the read site reads sabrStreamState.sabrUrl,
-              // so write there, not currentState.sabrUrl.
-              currentState.sabrStreamState.sabrUrl = sabrRedirect.url;
+              // Match FreeTube EXACTLY: it writes currentState.sabrUrl (a field that does
+              // NOT exist on currentState), so the redirect URL is effectively ignored and
+              // every request keeps POSTing to the ORIGINAL server_abr_streaming_url
+              // (sabrStreamState.sabrUrl). Earlier we "fixed" this to follow the redirect,
+              // which pins the session to a specific CDN host (rrN---snXXX) that maintains a
+              // sequential cursor and returns 0 media when the client jumps/seeks. Following
+              // the redirect breaks seeking; ignoring it (as FreeTube does) keeps seeks working.
+              currentState.sabrUrl = sabrRedirect.url;
               shouldRetry = true;
               break;
             }
@@ -282,6 +313,11 @@
               if (mediaHeaderId === undefined) {
                 var mediaHeader = decodePart(part, MediaHeader);
                 if (!mediaHeader) break;
+                if (_dbg) {
+                  try {
+                    _dbgHeaders.push({ itag: mediaHeader.formatId.itag, seq: mediaHeader.sequenceNumber, isInitSeg: !!mediaHeader.isInitSeg, start: mediaHeader.startMs, want: operationInputs.sequenceNumber });
+                  } catch (e) {}
+                }
                 if (
                   mediaHeader.formatId.itag === itag &&
                   mediaHeader.formatId.lastModified === lastModified &&
@@ -328,6 +364,7 @@
             }
             case UMPPartId.SABR_CONTEXT_UPDATE: {
               var sabrContextUpdate = decodePart(part, SabrContextUpdate);
+              if (_dbg) { try { console.log('[SABR_DBG] CTX_UPDATE', JSON.stringify({ decoded: !!sabrContextUpdate, type: sabrContextUpdate ? sabrContextUpdate.type : null, valueLen: sabrContextUpdate && sabrContextUpdate.value ? sabrContextUpdate.value.length : 0, sendByDefault: sabrContextUpdate ? sabrContextUpdate.sendByDefault : null, writePolicy: sabrContextUpdate ? sabrContextUpdate.writePolicy : null })); } catch (e) {} }
               if (!sabrContextUpdate) break;
               if (sabrContextUpdate.type !== undefined && sabrContextUpdate.value?.length) {
                 if (
@@ -407,6 +444,29 @@
       throw createRecoverableNetworkError(ShakaError.Code.TIMEOUT, operationInputs.uri, operationInputs.requestType);
     }
 
+
+    if (_dbg) {
+      try {
+        console.log('[SABR_DBG] RESP', JSON.stringify({
+          sq: operationInputs.sequenceNumber,
+          isInit: operationInputs.isInit,
+          mediaBytes: responseDataChunks.reduce(function (n, c) { return n + (c.length || c.byteLength || 0); }, 0),
+          segmentComplete: segmentComplete,
+          shouldRetry: shouldRetry,
+          retryNextPolicy: shouldRetryDueToNextRequestPolicy,
+          invalidPoToken: invalidPoToken,
+          backoffMs: currentState.sabrStreamState.nextRequestPolicy ? currentState.sabrStreamState.nextRequestPolicy.backoffTimeMs : undefined,
+          reload: currentState.sabrStreamState.playerReloadRequested,
+          error: error,
+          httpStatus: response ? response.status : undefined,
+          headersSeen: _dbgHeaders,
+          partTypes: _dbgPartTypes,
+          CTX_UPDATE_ID: UMPPartId.SABR_CONTEXT_UPDATE,
+          CTX_SENDING_ID: UMPPartId.SABR_CONTEXT_SENDING_POLICY
+        }));
+      } catch (e) {}
+    }
+
     if (responseDataChunks.length > 0 && segmentComplete) {
       var concatenateChunks = utils.concatenateChunks;
       var data = concatenateChunks(responseDataChunks);
@@ -422,7 +482,35 @@
         fromCache: false,
         originalRequest: operationInputs.request
       };
-    } else if (shouldRetry) {
+    } else if (shouldRetry || invalidPoToken) {
+      // StreamProtectionStatus 3 = ATTESTATION_REQUIRED: the server is refusing to
+      // send media until we re-attest. Retrying with the same PO token just loops on
+      // the 2s backoff forever (the symptom: endless "SABR throttled" toasts), so
+      // mint a fresh token before retrying and give up loudly once maxRetries is hit.
+      if (invalidPoToken) {
+        currentState.attestationRetries = (currentState.attestationRetries || 0) + 1;
+        var attestationLimit = currentState.attestationMaxRetries || 10;
+        if (currentState.attestationRetries > attestationLimit) {
+          throw new ShakaError(
+            ShakaError.Severity.CRITICAL,
+            ShakaError.Category.NETWORK,
+            ShakaError.Code.HTTP_ERROR,
+            operationInputs.uri,
+            new Error('SABR attestation required and PO token re-minting did not satisfy it'),
+            operationInputs.requestType
+          );
+        }
+        var freshPoToken = null;
+        try {
+          freshPoToken = currentState.mintPoToken ? await currentState.mintPoToken() : null;
+        } catch (e) {
+          console.warn('[SabrScheme] PO token re-mint failed', e);
+        }
+        if (freshPoToken) {
+          currentState.abrRequest.streamerContext.poToken = utils.base64ToU8(freshPoToken);
+        }
+      }
+
       if (shouldRetryDueToNextRequestPolicy) {
         currentState.cumulativeRetryDueToNextRequestPolicy += 1;
       }
@@ -452,15 +540,6 @@
       currentState.abortStatus.timedOut = false;
       currentState.abortStatus.finished = false;
       return doRequest(operationInputs, currentState);
-    } else if (invalidPoToken) {
-      throw new ShakaError(
-        ShakaError.Severity.CRITICAL,
-        ShakaError.Category.NETWORK,
-        ShakaError.Code.HTTP_ERROR,
-        operationInputs.uri,
-        new Error('Invalid PO token'),
-        operationInputs.requestType
-      );
     } else if (error) {
       throw createRecoverableNetworkError(ShakaError.Code.HTTP_ERROR, operationInputs.uri, new Error(error), operationInputs.requestType);
     } else if (responseDataChunks.length > 0 && !segmentComplete) {
@@ -495,7 +574,7 @@
     }
   }
 
-  function setupSabrScheme(sabrData, getPlayer, getManifest, getWidth, getHeight) {
+  function setupSabrScheme(sabrData, getPlayer, getManifest, getWidth, getHeight, mintPoToken) {
     var ShakaAbortableOperation = shaka().util.AbortableOperation;
     var ShakaError = shaka().util.Error;
     var protos = gv().protos;
@@ -669,6 +748,8 @@
         sabrStreamState: sabrStreamState,
         timeoutController: timeoutController,
         eventEmitter: eventEmitter,
+        mintPoToken: mintPoToken,
+        attestationRetries: 0,
         cumulativeBackOffTimeMs: 0,
         cumulativeBackOffRequested: 0,
         cumulativeRetryDueToNextRequestPolicy: 0
