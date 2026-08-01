@@ -61,13 +61,17 @@
     transition: opacity cubic-bezier(.4, 0, .6, 1) .6s;
 }
 
-/* Controls bar - match video.js style */
+/* Controls bar - match video.js style.
+   NOTE: .shaka-controls-container is the FULL-SIZE overlay covering the whole video.
+   A gradient background here (combined with the forced opacity:1 above) permanently
+   darkened the entire video. Keep it transparent and put the control-contrast gradient
+   only on the bottom strip instead. */
 .shaka-controls-container {
-    background: linear-gradient(rgba(0,0,0,0.1), rgba(0, 0, 0,0.5));
+    background: transparent;
 }
 
 .shaka-bottom-controls {
-    background: transparent;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0));
 }
 
 /* Buttons - match video.js colors */
