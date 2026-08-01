@@ -7,3 +7,6 @@
 /invidious
 /sentry
 /config/config.yml
+
+# direnv directory used for the Nix Flake.
+.direnv
