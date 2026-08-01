@@ -19,6 +19,55 @@ record AboutChannel,
   verified : Bool,
   is_age_gated : Bool
 
+def extract_auto_generated_channel_header(initdata : Hash(String, JSON::Any), ucid : String)
+  if header = initdata.dig?("header", "interactiveTabbedHeaderRenderer")
+    author = header.dig("title", "simpleText").as_s
+    author_url = initdata.dig("microformat", "microformatDataRenderer", "urlCanonical").as_s
+    author_thumbnail = header.dig("boxArt", "thumbnails", 0, "url").as_s
+
+    banners = header.dig?("banner", "thumbnails")
+    banner = banners.try &.as_a[-1]?.try &.dig?("url").try &.as_s
+
+    description_base_node = header["description"]
+    description_node = description_base_node.dig?("simpleText") || description_base_node
+
+    tags = header["badges"]?
+      .try &.as_a.map(&.dig("metadataBadgeRenderer", "label").as_s) || [] of String
+  elsif header = initdata.dig?("header", "pageHeaderRenderer")
+    header_view = header.dig?("content", "pageHeaderViewModel")
+
+    author = header_view.try &.dig?("title", "dynamicTextViewModel", "text", "content").try &.as_s
+    author ||= header["pageTitle"]?.try &.as_s
+    author ||= ucid
+
+    author_url = "https://www.youtube.com/channel/#{ucid}"
+    author_thumbnail = header_view.try &.dig?("animatedImage", "contentPreviewImageViewModel", "image", "sources", 0, "url").try &.as_s
+    author_thumbnail ||= header_view.try &.dig?("image", "decoratedAvatarViewModel", "avatar", "avatarViewModel", "image", "sources", 0, "url").try &.as_s
+    author_thumbnail ||= ""
+
+    banners = header_view.try &.dig?("banner", "imageBannerViewModel", "image", "sources")
+    banner = banners.try &.as_a[-1]?.try &.dig?("url").try &.as_s
+
+    description_node = header_view.try &.dig?("description", "descriptionPreviewViewModel", "description", "content")
+    tags = [] of String
+  else
+    raise InfoException.new("Could not extract channel header.")
+  end
+
+  family_safe = initdata.dig?("microformat", "microformatDataRenderer", "familySafe").try &.as_bool
+  is_family_friendly = family_safe.nil? ? true : family_safe
+
+  {
+    author:             author,
+    author_url:         author_url,
+    author_thumbnail:   author_thumbnail,
+    banner:             banner,
+    description_node:   description_node,
+    tags:               tags,
+    is_family_friendly: is_family_friendly,
+  }
+end
+
 def get_about_info(ucid, locale) : AboutChannel
   begin
     # Fetch channel information from channel home page
@@ -50,6 +99,8 @@ def get_about_info(ucid, locale) : AboutChannel
   tab_names = [] of String
   total_views = 0_i64
   joined = Time.unix(0)
+  author_verified = false
+  is_age_gated = false
 
   if age_gate_renderer = initdata.dig?("contents", "twoColumnBrowseResultsRenderer", "tabs", 0, "tabRenderer", "content", "sectionListRenderer", "contents", 0, "channelAgeGateRenderer")
     description_node = nil
@@ -64,21 +115,14 @@ def get_about_info(ucid, locale) : AboutChannel
     auto_generated = false
   else
     if auto_generated
-      author = initdata["header"]["interactiveTabbedHeaderRenderer"]["title"]["simpleText"].as_s
-      author_url = initdata["microformat"]["microformatDataRenderer"]["urlCanonical"].as_s
-      author_thumbnail = initdata["header"]["interactiveTabbedHeaderRenderer"]["boxArt"]["thumbnails"][0]["url"].as_s
-
-      # Raises a KeyError on failure.
-      banners = initdata["header"]["interactiveTabbedHeaderRenderer"]?.try &.["banner"]?.try &.["thumbnails"]?
-      banner = banners.try &.[-1]?.try &.["url"].as_s?
-
-      description_base_node = initdata["header"]["interactiveTabbedHeaderRenderer"]["description"]
-      # some channels have the description in a simpleText
-      # ex: https://www.youtube.com/channel/UCQvWX73GQygcwXOTSf_VDVg/
-      description_node = description_base_node.dig?("simpleText") || description_base_node
-
-      tags = initdata.dig?("header", "interactiveTabbedHeaderRenderer", "badges")
-        .try &.as_a.map(&.["metadataBadgeRenderer"]["label"].as_s) || [] of String
+      channel_header = extract_auto_generated_channel_header(initdata, ucid)
+      author = channel_header[:author]
+      author_url = channel_header[:author_url]
+      author_thumbnail = channel_header[:author_thumbnail]
+      banner = channel_header[:banner]
+      description_node = channel_header[:description_node]
+      tags = channel_header[:tags]
+      is_family_friendly = channel_header[:is_family_friendly]
     else
       author = initdata["metadata"]["channelMetadataRenderer"]["title"].as_s
       author_url = initdata["metadata"]["channelMetadataRenderer"]["channelUrl"].as_s
@@ -103,9 +147,9 @@ def get_about_info(ucid, locale) : AboutChannel
 
       description_node = initdata["metadata"]["channelMetadataRenderer"]?.try &.["description"]?
       tags = initdata.dig?("microformat", "microformatDataRenderer", "tags").try &.as_a.map(&.as_s) || [] of String
+      is_family_friendly = initdata["microformat"]["microformatDataRenderer"]["familySafe"].as_bool
     end
 
-    is_family_friendly = initdata["microformat"]["microformatDataRenderer"]["familySafe"].as_bool
     if tabs_json = initdata["contents"]["twoColumnBrowseResultsRenderer"]["tabs"]?
       # Get the name of the tabs available on this channel
       tab_names = tabs_json.as_a.compact_map do |entry|
