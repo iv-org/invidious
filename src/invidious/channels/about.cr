@@ -174,18 +174,15 @@ def get_about_info(ucid, locale) : AboutChannel
     metadata_rows.each do |row|
       metadata_parts = row.dig?("metadataParts")
 
-      subscribe_metadata_part = metadata_parts.try &.as_a.find { |i| i.dig?("text", "content").try &.as_s.includes?("subscribers") }
-      if !subscribe_metadata_part.nil?
+      if (subscribe_metadata_part = metadata_parts.try &.as_a.find { |i| i.dig?("text", "content").try &.as_s.includes?("subscribers") })
         sub_count = short_text_to_number(subscribe_metadata_part.dig("text", "content").as_s.split(" ")[0]).to_i32
       end
 
-      channel_handle_part = metadata_parts.try &.as_a.find { |i| i.dig?("text", "content").try &.as_s.includes?("@") }
-      if !channel_handle_part.nil?
+      if (channel_handle_part = metadata_parts.try &.as_a.find { |i| i.dig?("text", "content").try &.as_s.includes?("@") })
         channel_handle = channel_handle_part.dig("text", "content").as_s
       end
 
-      pronoun_metadata_part = metadata_parts.try &.as_a.find { |i| i.dig?("tooltip").try &.as_s.includes?("Pronouns") }
-      if !pronoun_metadata_part.nil?
+      if (pronoun_metadata_part = metadata_parts.try &.as_a.find { |i| i.dig?("tooltip").try &.as_s.includes?("Pronouns") })
         pronouns = pronoun_metadata_part.dig("text", "content").as_s
       end
 
