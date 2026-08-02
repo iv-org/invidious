@@ -78,7 +78,7 @@ module YoutubeAPI
       name:       "WEB",
       name_proto: "1",
 
-      version:    "2.20260722.01.00",
+      version: "2.20260722.01.00",
 
       screen:     "EMBED",
       os_name:    "Windows",
