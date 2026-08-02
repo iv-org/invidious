@@ -109,6 +109,29 @@ Spectator.describe "extract_auto_generated_channel_header" do
     end.to raise_error(InfoException)
   end
 
+  it "still renders a carousel channel that carries no avatar" do
+    initdata = JSON.parse(<<-JSON).as_h
+      {
+        "header": {
+          "carouselHeaderRenderer": {
+            "contents": [
+              {
+                "topicChannelDetailsRenderer": {
+                  "title": {"simpleText": "Sports"}
+                }
+              }
+            ]
+          }
+        }
+      }
+      JSON
+
+    header = extract_auto_generated_channel_header(initdata, "UCEgdi0XIXXZ-qJOFPf4JSKw")
+
+    expect(header[:author]).to eq("Sports")
+    expect(header[:author_thumbnail]).to eq("")
+  end
+
   it "parses the current pageHeaderRenderer shape" do
     # ex: https://www.youtube.com/channel/UCOpNcN46UbXVtpKMrmU4Abg (Gaming)
     initdata = JSON.parse(<<-JSON).as_h
