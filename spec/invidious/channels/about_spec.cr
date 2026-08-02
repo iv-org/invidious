@@ -69,7 +69,7 @@ Spectator.describe "extract_auto_generated_channel_header" do
     expect(header[:author_thumbnail]).to eq("//yt3.example/first")
   end
 
-  it "falls back to the ucid when the carousel carries no topic details" do
+  it "raises when the carousel carries no topic details" do
     initdata = JSON.parse(<<-JSON).as_h
       {
         "header": {
@@ -82,10 +82,31 @@ Spectator.describe "extract_auto_generated_channel_header" do
       }
       JSON
 
-    header = extract_auto_generated_channel_header(initdata, "UCEgdi0XIXXZ-qJOFPf4JSKw")
+    expect do
+      extract_auto_generated_channel_header(initdata, "UCEgdi0XIXXZ-qJOFPf4JSKw")
+    end.to raise_error(InfoException)
+  end
 
-    expect(header[:author]).to eq("UCEgdi0XIXXZ-qJOFPf4JSKw")
-    expect(header[:author_thumbnail]).to eq("")
+  it "raises when the carousel topic details have no title" do
+    initdata = JSON.parse(<<-JSON).as_h
+      {
+        "header": {
+          "carouselHeaderRenderer": {
+            "contents": [
+              {
+                "topicChannelDetailsRenderer": {
+                  "avatar": {"thumbnails": [{"url": "//yt3.example/avatar"}]}
+                }
+              }
+            ]
+          }
+        }
+      }
+      JSON
+
+    expect do
+      extract_auto_generated_channel_header(initdata, "UCEgdi0XIXXZ-qJOFPf4JSKw")
+    end.to raise_error(InfoException)
   end
 
   it "parses the current pageHeaderRenderer shape" do
