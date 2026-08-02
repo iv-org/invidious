@@ -521,5 +521,9 @@
     "timeline_parse_error_show_technical_details": "Показать технические подробности",
     "Filipino (auto-generated)": "Филиппинский (автоматически сгенерировано)",
     "preferences_default_playlist": "Плейлист по умолчанию: ",
-    "preferences_default_playlist_none": "Плейлист по умолчанию не указан"
+    "preferences_default_playlist_none": "Плейлист по умолчанию не указан",
+    "Livestreams": "Трансляции",
+    "dmca_content": "Это видео не может быть загружено на данный экземпляр из-за DMCA/письма о нарушении авторских прав, отправленного администратору экземпляра.",
+    "preferences_search_privacy_description": "Включение этой настройки предотвратит сохранение ваших поисковых запросов в истории вашего браузера.",
+    "preferences_search_privacy_label": "Конфиденциальность поиска: "
 }
