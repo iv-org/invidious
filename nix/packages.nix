@@ -21,7 +21,6 @@ with pkgs;
   sqlite
   shards
   crystalline # LSP, is not that good, but still useful.
-  pkg-config # Required by crystalline
   ameba # For linting
   ameba-ls # LSP for the ameba linter, to get inline messages from ameba
   # Utilities
