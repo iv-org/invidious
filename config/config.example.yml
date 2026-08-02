@@ -247,15 +247,22 @@ https_only: false
 #force_resolve:
 
 ##
-## Configuration for using a HTTP proxy
-## If unset, then no HTTP proxy will be used.
-## Proxy type supported: HTTP, HTTPS
+## Configuration for using an outbound proxy.
+## If unset, then no proxy will be used.
+##
+## The 'type' field selects the proxy protocol:
+##   - "http"    : HTTP CONNECT proxy (default when 'type' is omitted)
+##   - "socks5"  : SOCKS5 proxy (target hostnames are resolved by the proxy)
+##   - "socks5h" : alias for "socks5"
+##
+## 'user' and 'password' are optional (leave empty for an unauthenticated proxy).
 ##
 ## This is not used for loading the video streams from YouTube servers (circumvent YouTube restrictions)
 ## Please instead configure the proxy in Invidious companion:
 ## https://github.com/iv-org/invidious-companion/blob/master/config/config.example.toml
 ##
 #http_proxy:
+#  type: http
 #  user:
 #  password:
 #  host:
