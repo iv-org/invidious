@@ -1,7 +1,16 @@
 require "json"
 require "uri"
 
-private def copy_string(str : String::Builder, iter : Iterator, count : Int) : Int
+private def utf16_length(str : String) : Int32
+  length = 0
+  str.each_codepoint do |cp|
+    length += cp > 0xFFFF ? 2 : 1
+  end
+
+  return length
+end
+
+private def copy_string(str : String::Builder, iter : Iterator, count : Int, *, utf16 : Bool = false) : Int
   copied = 0
   while copied < count
     cp = iter.next
@@ -21,7 +30,9 @@ private def copy_string(str : String::Builder, iter : Iterator, count : Int) : I
       str << cp.chr
     end
 
-    copied += 1
+    # YouTube's command offsets use UTF-16 code units. Characters outside the
+    # basic multilingual plane (such as most emoji) occupy two such units.
+    copied += (utf16 && cp > 0xFFFF) ? 2 : 1
   end
 
   return copied
@@ -53,12 +64,12 @@ def parse_description(desc, video_id : String) : String?
 
       # Copy the text chunk between this command and the previous if needed.
       length = cmd_start - index
-      index += copy_string(str, iter, length)
+      index += copy_string(str, iter, length, utf16: true)
 
       # We need to copy the command's text using the iterator
       # and the special function defined above.
       cmd_content = String.build(cmd_length) do |str2|
-        copy_string(str2, iter, cmd_length)
+        copy_string(str2, iter, cmd_length, utf16: true)
       end
 
       link = cmd_content
@@ -70,7 +81,7 @@ def parse_description(desc, video_id : String) : String?
     end
 
     # Copy the end of the string (past the last command).
-    remaining_length = content.size - index
-    copy_string(str, iter, remaining_length) if remaining_length > 0
+    remaining_length = utf16_length(content) - index
+    copy_string(str, iter, remaining_length, utf16: true) if remaining_length > 0
   end
 end
