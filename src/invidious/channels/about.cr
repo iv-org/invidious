@@ -75,9 +75,15 @@ def extract_auto_generated_channel_header(initdata : Hash(String, JSON::Any), uc
     # This shape carries neither a banner nor a description.
     details = extract_topic_channel_details(initdata)
 
-    author = details.try &.dig?("title", "simpleText").try &.as_s || ucid
+    unless details
+      raise InfoException.new("Could not extract the carousel header of channel #{ucid}")
+    end
+
+    author = details.dig?("title", "simpleText").try &.as_s
+    author ||= raise InfoException.new("Could not extract the carousel title of channel #{ucid}")
     author_url = "https://www.youtube.com/channel/#{ucid}"
-    author_thumbnail = details.try &.dig?("avatar", "thumbnails", 0, "url").try &.as_s || ""
+    author_thumbnail = details.dig?("avatar", "thumbnails", 0, "url").try &.as_s
+    author_thumbnail ||= raise InfoException.new("Could not extract the carousel thumbnail of channel #{ucid}")
   else
     raise InfoException.new("Could not extract the header of channel #{ucid}")
   end
