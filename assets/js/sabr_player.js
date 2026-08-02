@@ -713,6 +713,21 @@ var SABRPlayer = (function () {
         loadedListenerInstalled = true;
       }
 
+      // Default to the ORIGINAL audio language (e.g. English), not a dubbed track.
+      // Without a preferredAudioLanguage, shaka picks the first variant (often a dub);
+      // it doesn't honor our `primary`/original flag on its own. Derive the original
+      // language from the adaptive format flagged is_original and set it as preferred.
+      if (!isLive && streamingData.adaptive_formats) {
+        var originalAudioLang = null;
+        for (var afi = 0; afi < streamingData.adaptive_formats.length; afi++) {
+          var af = streamingData.adaptive_formats[afi];
+          if (af.is_original && af.language) { originalAudioLang = af.language; break; }
+        }
+        if (originalAudioLang) {
+          try { player.configure('preferredAudioLanguage', originalAudioLang); } catch (e) {}
+        }
+      }
+
       var startTime = options.startTime;
       if (startTime === undefined && options.savePlayerPos !== false) {
         startTime = getPlaybackPosition(videoId);
