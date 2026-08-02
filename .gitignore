@@ -12,6 +12,6 @@
 .direnv
 
 # Invidious object file that gets generated when compiling
-# Invidiois with `--cross-compile` argument
+# Invidious with `--cross-compile` argument
 # Example: `crystal build src/invidious.cr --cross-compile`
 /invidious.o
