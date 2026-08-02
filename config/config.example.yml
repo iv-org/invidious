@@ -460,7 +460,6 @@ feed_threads: 1
 ##
 ## Notes: The following API endpoints will be disabled:
 ##  - /api/v1/videos
-##  - /api/v1/clips
 ##  - /api/v1/transcripts
 ##
 ## Accepted values: true, false

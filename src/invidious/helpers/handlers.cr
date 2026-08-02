@@ -136,7 +136,7 @@ end
 class DisableAbusableAPIHandler < Kemal::Handler
   {% for method in %w(GET HEAD) %}
     # This endpoints make a video request to Invidious companion.
-    {% for endpoint in %w(videos clips transcripts) %}
+    {% for endpoint in %w(videos transcripts) %}
       only ["/api/v1/{{ endpoint.id }}/:id"], {{ method }}
     {% end %}
   {% end %}
