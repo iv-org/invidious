@@ -1,9 +1,9 @@
 require "json"
 require "uri"
 
-private def copy_string(str : String::Builder, iter : Iterator, count : Int) : Int
+private def copy_string(str : String::Builder, iter : Iterator, count : Int? = nil) : Int
   copied = 0
-  while copied < count
+  while count.nil? || copied < count
     cp = iter.next
     break if cp.is_a?(Iterator::Stop)
 
@@ -21,7 +21,9 @@ private def copy_string(str : String::Builder, iter : Iterator, count : Int) : I
       str << cp.chr
     end
 
-    copied += 1
+    # YouTube expresses command offsets in UTF-16 code units. Astral
+    # codepoints therefore count as two units instead of one.
+    copied += cp > 0xFFFF ? 2 : 1
   end
 
   return copied
@@ -38,7 +40,7 @@ def parse_description(desc, video_id : String) : String?
     # Slightly faster than HTML.escape, as we're only doing one pass on
     # the string instead of five for the standard library
     return String.build do |str|
-      copy_string(str, content.each_codepoint, content.size)
+      copy_string(str, content.each_codepoint)
     end
   end
 
@@ -70,7 +72,6 @@ def parse_description(desc, video_id : String) : String?
     end
 
     # Copy the end of the string (past the last command).
-    remaining_length = content.size - index
-    copy_string(str, iter, remaining_length) if remaining_length > 0
+    copy_string(str, iter)
   end
 end
