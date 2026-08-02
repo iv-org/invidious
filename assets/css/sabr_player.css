@@ -53,11 +53,12 @@
     object-fit: contain !important;
 }
 
-/* IMPORTANT: Force controls to be visible */
+/* Let Shaka auto-hide the controls when idle. (Previously these were forced to
+   opacity:1 !important, so the control bar / progress bar never disappeared.) Keep
+   only the fade transition. */
 .shaka-controls-button-panel,
 .shaka-scrim-container,
 .shaka-play-button {
-    opacity: 1 !important;
     transition: opacity cubic-bezier(.4, 0, .6, 1) .6s;
 }
 
@@ -89,7 +90,6 @@
 .shaka-seek-bar-container {
     height: 5px !important;
     margin-bottom: 10px;
-    opacity: 1 !important;
 }
 
 .shaka-seek-bar {
