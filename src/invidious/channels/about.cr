@@ -82,8 +82,10 @@ def extract_auto_generated_channel_header(initdata : Hash(String, JSON::Any), uc
     author = details.dig?("title", "simpleText").try &.as_s
     author ||= raise InfoException.new("Could not extract the carousel title of channel #{ucid}")
     author_url = "https://www.youtube.com/channel/#{ucid}"
-    author_thumbnail = details.dig?("avatar", "thumbnails", 0, "url").try &.as_s
-    author_thumbnail ||= raise InfoException.new("Could not extract the carousel thumbnail of channel #{ucid}")
+
+    # A missing avatar is not worth failing the whole page over, and the
+    # `pageHeaderRenderer` branch above falls back to an empty string too.
+    author_thumbnail = details.dig?("avatar", "thumbnails", 0, "url").try &.as_s || ""
   else
     raise InfoException.new("Could not extract the header of channel #{ucid}")
   end
