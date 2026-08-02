@@ -80,7 +80,7 @@ jobs:
       - name: Install Shards
         run: |
           if ! shards check; then
-            shards install
+            shards install --without-development
           fi
 
       - name: Run tests
