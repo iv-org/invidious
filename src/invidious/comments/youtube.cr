@@ -128,6 +128,8 @@ module Invidious::Comments
         json.field "comments" do
           json.array do
             contents.as_a.each do |node|
+              next if node["commentFilterContextViewModel"]?
+
               json.object do
                 if node["commentThreadRenderer"]?
                   node = node["commentThreadRenderer"]
