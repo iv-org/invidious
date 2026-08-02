@@ -24,11 +24,6 @@ ifeq ($(STATIC), 1)
   FLAGS += --static
 endif
 
-ifeq ($(MT), 1)
-  FLAGS += -Dpreview_mt
-endif
-
-
 ifeq ($(NO_DBG_SYMBOLS), 1)
   FLAGS += --no-debug
 else
