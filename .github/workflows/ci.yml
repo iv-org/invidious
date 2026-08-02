@@ -139,7 +139,7 @@ jobs:
         id: lint_step_install_crystal
         uses: crystal-lang/install-crystal@v1.9.2
         with:
-          crystal: latest
+          crystal: 1.20.3
 
       - name: Cache Shards
         uses: actions/cache@v6
