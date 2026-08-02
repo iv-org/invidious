@@ -155,17 +155,7 @@ module Invidious::Comments
                     json.field "authorUrl", "/channel/#{comment_author["channelId"].as_s}"
                     json.field "author", comment_author["displayName"].as_s
                     json.field "verified", comment_author["isVerified"].as_bool
-                    json.field "authorThumbnails" do
-                      json.array do
-                        comment_mutation.dig?("payload", "commentEntityPayload", "avatar", "image", "sources").try &.as_a.each do |thumbnail|
-                          json.object do
-                            json.field "url", thumbnail["url"]
-                            json.field "width", thumbnail["width"]
-                            json.field "height", thumbnail["height"]
-                          end
-                        end
-                      end
-                    end
+                    json.field "authorThumbnail", comment_author["avatarThumbnailUrl"].as_s
 
                     json.field "authorIsChannelOwner", comment_author["isCreator"].as_bool
                     json.field "isSponsor", (comment_author["sponsorBadgeUrl"]? != nil)
