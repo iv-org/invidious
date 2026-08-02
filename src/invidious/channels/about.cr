@@ -51,7 +51,7 @@ def extract_auto_generated_channel_header(initdata : Hash(String, JSON::Any), uc
     description_node = header_view.try &.dig?("description", "descriptionPreviewViewModel", "description", "content")
     tags = [] of String
   else
-    raise InfoException.new("Could not extract channel header.")
+    raise InfoException.new("Could not extract channel header for #{ucid}: expected interactiveTabbedHeaderRenderer or pageHeaderRenderer.")
   end
 
   family_safe = initdata.dig?("microformat", "microformatDataRenderer", "familySafe").try &.as_bool
