@@ -295,6 +295,18 @@ module Invidious::Videos::Parser
           "likeButton", "toggleButtonRenderer"
         )
 
+      # Comments enabled?
+      comments_enabled = false
+
+      # When comments are enabled there should be a comments-section section in the primary results
+      if primary_results
+        section = primary_results.as_a.find(&.dig?("itemSectionRenderer", "targetId").== "comments-section")
+
+        if section
+          comments_enabled = true
+        end
+      end
+
       if likes_button
         likes_txt = likes_button.dig?("accessibilityText")
         # Note: The like count from `toggledText` is off by one, as it would
@@ -421,6 +433,7 @@ module Invidious::Videos::Parser
       "isFamilyFriendly" => JSON::Any.new(family_friendly || false),
       "isListed"         => JSON::Any.new(is_listed || false),
       "isUpcoming"       => JSON::Any.new(is_upcoming || false),
+      "commentsEnabled"  => JSON::Any.new(comments_enabled),
       "keywords"         => JSON::Any.new(keywords.map { |v| JSON::Any.new(v) }),
       "isPostLiveDvr"    => JSON::Any.new(post_live_dvr),
       # Related videos
