@@ -1141,7 +1141,29 @@ module HelperExtractors
   # Retrieves the ID required for querying the InnerTube browse endpoint.
   # Returns an empty string when it's unable to do so
   def self.get_browse_id(container)
-    return container.dig?("navigationEndpoint", "browseEndpoint", "browseId").try &.as_s || ""
+    browse_id = container.dig?("navigationEndpoint", "browseEndpoint", "browseId")
+    return browse_id.as_s if browse_id
+
+    # Collaborative bylines open a dialog instead of linking to a channel.
+    # Use the first listed creator because video items store a single channel.
+    return container.dig?(
+      "navigationEndpoint",
+      "showDialogCommand",
+      "panelLoadingStrategy",
+      "inlineContent",
+      "dialogViewModel",
+      "customContent",
+      "listViewModel",
+      "listItems",
+      0,
+      "listItemViewModel",
+      "rendererContext",
+      "commandContext",
+      "onTap",
+      "innertubeCommand",
+      "browseEndpoint",
+      "browseId"
+    ).try &.as_s || ""
   end
 end
 
