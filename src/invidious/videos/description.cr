@@ -1,6 +1,13 @@
 require "json"
 require "uri"
 
+# YouTube provides startIndex/length in UTF-16 code units.
+# Supplementary codepoints (emojis, rare CJK) are 2 UTF-16 units (surrogate pair)
+# but 1 Crystal codepoint. Counting in codepoints causes misaligned links.
+private def utf16_len(cp : Int) : Int
+  cp > 0xFFFF ? 2 : 1
+end
+
 private def copy_string(str : String::Builder, iter : Iterator, count : Int) : Int
   copied = 0
   while copied < count
@@ -15,13 +22,13 @@ private def copy_string(str : String::Builder, iter : Iterator, count : Int) : I
       str << "&quot;"
     elsif cp == 0x3C # Less-than (<)
       str << "&lt;"
-    elsif cp == 0x3E # Greater than (>)
+    elsif cp == 0x3E # Greater-than (>)
       str << "&gt;"
     else
       str << cp.chr
     end
 
-    copied += 1
+    copied += utf16_len(cp)
   end
 
   return copied
@@ -38,7 +45,7 @@ def parse_description(desc, video_id : String) : String?
     # Slightly faster than HTML.escape, as we're only doing one pass on
     # the string instead of five for the standard library
     return String.build do |str|
-      copy_string(str, content.each_codepoint, content.size)
+      copy_string(str, content.each_codepoint, Int32::MAX)
     end
   end
 
@@ -69,8 +76,7 @@ def parse_description(desc, video_id : String) : String?
       index += cmd_length
     end
 
-    # Copy the end of the string (past the last command).
-    remaining_length = content.size - index
-    copy_string(str, iter, remaining_length) if remaining_length > 0
+    # Copy the rest of the string (past the last command).
+    copy_string(str, iter, Int32::MAX)
   end
 end
