@@ -450,6 +450,22 @@ module YoutubeAPI
   end
 
   ####################################################################
+  # live_chat(continuation, client_config?)
+  #
+  # Requests the youtubei/v1/live_chat/get_live_chat endpoint using a
+  # continuation obtained from the watch-next response or a previous
+  # live-chat response.
+  #
+  def live_chat(continuation : String, *, client_config : ClientConfig | Nil = nil)
+    data = {
+      "context"      => self.make_context(client_config),
+      "continuation" => continuation,
+    }
+
+    return self._post_json("/youtubei/v1/live_chat/get_live_chat", data, client_config)
+  end
+
+  ####################################################################
   # player(video_id)
   #
   # Requests the youtubei/v1/player Invidious Companion endpoint with

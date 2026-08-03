@@ -462,6 +462,7 @@ feed_threads: 1
 ##  - /api/v1/videos
 ##  - /api/v1/clips
 ##  - /api/v1/transcripts
+##  - /api/v1/live_chat
 ##
 ## Accepted values: true, false
 ## Default: false

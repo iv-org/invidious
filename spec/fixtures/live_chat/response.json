@@ -1,0 +1,115 @@
+{
+  "continuationContents": {
+    "liveChatContinuation": {
+      "header": {
+        "liveChatHeaderRenderer": {
+          "viewSelector": {
+            "sortFilterSubMenuRenderer": {
+              "subMenuItems": [
+                {
+                  "title": "Top chat",
+                  "selected": true,
+                  "continuation": {
+                    "reloadContinuationData": {
+                      "continuation": "top-chat-mode-token"
+                    }
+                  }
+                },
+                {
+                  "title": "Live chat",
+                  "selected": false,
+                  "continuation": {
+                    "reloadContinuationData": {
+                      "continuation": "live-chat-mode-token"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "actions": [
+        {
+          "clickTrackingParams": "tracking",
+          "addChatItemAction": {
+            "item": {
+              "liveChatTextMessageRenderer": {
+                "id": "message-1",
+                "authorExternalChannelId": "channel-1",
+                "authorName": {
+                  "simpleText": "Viewer"
+                },
+                "authorBadges": [
+                  {
+                    "liveChatAuthorBadgeRenderer": {
+                      "tooltip": "Member",
+                      "accessibility": {
+                        "accessibilityData": {
+                          "label": "Member"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "message": {
+                  "runs": [
+                    {
+                      "text": "Hello "
+                    },
+                    {
+                      "emoji": {
+                        "emojiId": "wave",
+                        "image": {
+                          "accessibility": {
+                            "accessibilityData": {
+                              "label": "wave"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        {
+          "clickTrackingParams": "tracking",
+          "addChatItemAction": {
+            "item": {
+              "liveChatViewerEngagementMessageRenderer": {
+                "id": "notice-1",
+                "message": {
+                  "runs": [
+                    {
+                      "text": "Subscribers-only mode."
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        {
+          "clickTrackingParams": "tracking",
+          "removeChatItemAction": {
+            "targetItemId": "message-0"
+          }
+        },
+        {
+          "clickTrackingParams": "tracking"
+        }
+      ],
+      "continuations": [
+        {
+          "invalidationContinuationData": {
+            "timeoutMs": 4321,
+            "continuation": "next-token"
+          }
+        }
+      ]
+    }
+  }
+}

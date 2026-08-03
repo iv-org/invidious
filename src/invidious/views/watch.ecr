@@ -1,6 +1,7 @@
 <% ucid = video.ucid %>
 <% title = HTML.escape(video.title) %>
 <% author = HTML.escape(video.author) %>
+<% live_chat_enabled = video.live_now && !CONFIG.disable_abusable_api %>
 
 
 <% content_for "header" do %>
@@ -66,14 +67,49 @@ we're going to need to do it here in order to allow for translations.
     "projection_type" => video.projection_type,
     "local_disabled" => CONFIG.disabled?("local"),
     "support_reddit" => true,
+    "live_chat" => live_chat_enabled ? {
+        "loading_text" => HTML.escape(I18n.translate(locale, "Loading live chat...")),
+        "unavailable_text" => HTML.escape(I18n.translate(locale, "Live chat is unavailable.")),
+        "ended_text" => HTML.escape(I18n.translate(locale, "Live chat has ended.")),
+        "reconnecting_text" => HTML.escape(I18n.translate(locale, "Reconnecting to live chat...")),
+    } : nil,
     "live_now" => video.live_now
 }.to_pretty_json
 %>
 </script>
 
-<div id="player-container" class="h-box">
-    <%= rendered "components/player" %>
-</div>
+<% if live_chat_enabled %>
+    <div class="pure-g live-chat-player-row">
+        <div class="pure-u-1 pure-u-lg-3-4 live-chat-player-column">
+            <div id="player-container" class="h-box">
+                <%= rendered "components/player" %>
+            </div>
+        </div>
+        <aside class="pure-u-1 pure-u-lg-1-4 live-chat-column">
+            <section id="live-chat" class="h-box live-chat" aria-labelledby="live-chat-title">
+                <header class="live-chat-header">
+                    <div>
+                        <h2 id="live-chat-title"><%= I18n.translate(locale, "Live chat") %></h2>
+                        <small><%= I18n.translate(locale, "Live chat is read-only.") %></small>
+                    </div>
+                    <select id="live-chat-mode" class="live-chat-mode" aria-label="<%= I18n.translate(locale, "Live chat") %>">
+                        <option value="top"><%= I18n.translate(locale, "Top chat") %></option>
+                        <option value="live"><%= I18n.translate(locale, "Live chat") %></option>
+                    </select>
+                </header>
+                <div id="live-chat-status" class="live-chat-status" role="status" aria-live="polite">
+                    <%= I18n.translate(locale, "Loading live chat...") %>
+                </div>
+                <div id="live-chat-messages" class="live-chat-messages" role="log" aria-live="off"></div>
+                <noscript><p><%= I18n.translate(locale, "JavaScript is required to view live chat.") %></p></noscript>
+            </section>
+        </aside>
+    </div>
+<% else %>
+    <div id="player-container" class="h-box">
+        <%= rendered "components/player" %>
+    </div>
+<% end %>
 
 <div class="h-box">
     <h1>
@@ -371,3 +407,6 @@ we're going to need to do it here in order to allow for translations.
 </div>
 <script src="/js/comments.js?v=<%= ASSET_COMMIT %>"></script>
 <script src="/js/watch.js?v=<%= ASSET_COMMIT %>"></script>
+<% if live_chat_enabled %>
+    <script src="/js/live_chat.js?v=<%= ASSET_COMMIT %>"></script>
+<% end %>
