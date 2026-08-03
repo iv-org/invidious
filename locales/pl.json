@@ -525,5 +525,9 @@
     "Livestreams": "Na żywo",
     "dmca_content": "Tego filmu nie można pobrać na tej instancji z powodu listu DMCA/o naruszeniu praw autorskich wysłanego do administratora instancji.",
     "preferences_search_privacy_label": "Prywatność wyszukiwania: ",
-    "preferences_search_privacy_description": "Włączenie tej opcji spowoduje, że zapytania wyszukiwania nie będą zapisywane w historii przeglądarki."
+    "preferences_search_privacy_description": "Włączenie tej opcji spowoduje, że zapytania wyszukiwania nie będą zapisywane w historii przeglądarki.",
+    "comments_youtube_disabled_text": "Komentarze na YouTube są wyłączone w tym filmie",
+    "comments_youtube_disabled_try_reddit": "Spróbować komentarzy na Reddicie?",
+    "comments_invidious_disabled_text": "Komentarze są ukrywane zgodnie z preferencjami użytkownika",
+    "comments_youtube_disabled_try_reddit_no_js": "Cześć! Wygląda na to, że masz wyłączony JavaScript. Chociaż autor posta wyłączył komentarze na YouTube, nadal możesz kliknąć tutaj, aby spróbować wyświetlić komentarze na Reddicie. Pamiętaj jednak, że ich załadowanie może potrwać trochę dłużej."
 }
