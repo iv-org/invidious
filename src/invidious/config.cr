@@ -186,6 +186,19 @@ class Config
   # Disable easy to abuse API endpoints
   property disable_abusable_api : Bool = false
 
+  property videojs : VideoJSConfig = VideoJSConfig.from_yaml("")
+
+  struct VideoJSConfig
+    include YAML::Serializable
+    include JSON::Serializable
+
+    # This are the default values that VideoJS uses.
+    # See `assets/videojs/video.js/video.js` file
+    # and search for `GOAL_BUFFER_LENGTH` and `MAX_GOAL_BUFFER_LENGTH`
+    property goal_buffer_length : Int32? = 30
+    property max_goal_buffer_length : Int32? = 60
+  end
+
   def disabled?(option)
     case disabled = CONFIG.disable_proxy
     when Bool

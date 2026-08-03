@@ -79,6 +79,13 @@ we're going to need to do it here in order to allow for translations.
 }.to_pretty_json
 %>
 </script>
+<script id="config" type="application/json">
+<%=
+{
+    "videojs" => CONFIG.videojs,
+}.to_pretty_json
+%>
+</script>
 
 <div id="player-container" class="h-box">
     <%= rendered "components/player" %>

@@ -593,6 +593,27 @@ hmac_key: "CHANGE_ME!!"
 ## browser's cookies).
 ##
 
+#########################################
+#
+#  VideoJS Settings
+#
+#########################################
+
+videojs:
+  ## Change goal buffer length
+  ##
+  ## Accepted values: a positive integer OR null
+  ## Default: 30
+  ##
+  goal_buffer_length: 30
+
+  ## Change max goal buffer length
+  ##
+  ## Accepted values: a positive integer OR null
+  ## Default: 60
+  ##
+  max_goal_buffer_length: 60
+
 default_user_preferences:
 
   # -----------------------------
