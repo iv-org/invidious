@@ -328,7 +328,7 @@ we're going to need to do it here in order to allow for translations.
                                 <%= comment_html %>
                             <% else %>
                                 <a href="/watch?<%= env.params.query %>&nojs=1">
-                                    <%= I18n.translate(locale, "comments_youtube_disabled_try_reddit_no_js") %>
+                                    <%= HTML.escape(I18n.translate(locale, "comments_youtube_disabled_try_reddit_no_js")) %>
                                 </a>
                             <% end %>
                         </noscript>
