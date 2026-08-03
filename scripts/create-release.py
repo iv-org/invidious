@@ -48,7 +48,7 @@ import urllib.error
 import urllib.request
 
 DEFAULT_BASE_URL = "https://openrouter.ai/api/v1"
-DEFAULT_MODEL = "deepseek/deepseek-v4-pro"
+DEFAULT_MODEL = "deepseek/deepseek-v4-flash-0731"
 REPO_URL = "https://github.com/iv-org/invidious"
 CHANGELOG_FILE = "CHANGELOG.md"
 SHARD_FILE = "shard.yml"
