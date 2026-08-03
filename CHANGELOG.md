@@ -3,6 +3,59 @@
 ## vX.Y.0 (future)
 
 
+
+## v2.20260803.0
+
+### Wrap-up
+
+This release improves the comment experience by showing an explicit message when comments are disabled, fixing HTML rendering and description links, and restoring comments on community posts. Language support expands with the automatic enablement of locales that have reached 20% translation coverage, alongside a fresh batch of translations from Hosted Weblate.
+
+Instance owners can now fine-tune video playback by setting a maximum buffer length for the video.js player. The project continues to harden its contribution standards with a stricter AI policy and removes an external badge that no longer aligns with those values.
+
+Developer tooling sees the removal of a deprecated Crystal compiler flag, the addition of Nix environment files, and CI updates including a pinned Crystal version for linting and a dependency bump for `actions/setup-python`.
+
+### New features & important changes
+#### For Users
+  - A message is now displayed when comments are turned off on a video (#4051)
+  - New locales that have at least 20% of strings translated are now enabled automatically (#5882)
+  - Translations were updated from Hosted Weblate (#5474)
+
+#### For instance owners
+  - The maximum buffer length for the video.js player can now be set via `config.yml` (#5876)
+
+#### For developers
+  - The AI policy was updated to more clearly ban AI-generated contributions (#5849)
+  - Nix development files were added to facilitate a reproducible development environment (#5856)
+  - The “awesome humane tech” badge was removed from the README (#5853)
+  - Crystal is pinned to 1.20.3 for the linting CI job so Ameba can build correctly (#5859)
+  - The deprecated `-Dpreview_mt` flag was removed from the Makefile (#5872)
+  - The `actions/setup-python` action was bumped from v5 to v7 (#5829)
+
+### Bugs fixed
+#### User-side
+  - Rendered links and timestamps in video descriptions now display correctly (#5878)
+  - Comments on community posts are once again visible (#5874)
+  - Non-comment keys in comment JSON are now properly skipped, preventing errors (#5870)
+  - Comment HTML rendering was fixed (#5862)
+
+### Full list of pull requests merged since the last release (newest first)
+
+* feat: allow setting videojs max buffer length via config.yml (https://github.com/iv-org/invidious/pull/5876, by @Fijxu)
+* fix: fix rendered links and timestamps in video descriptions (https://github.com/iv-org/invidious/pull/5878, by @Fijxu)
+* Show message when comments are turned off (https://github.com/iv-org/invidious/pull/4051, by @syeopite)
+* Enable the new locales translated at more than 20% (https://github.com/iv-org/invidious/pull/5882, by @TheFrenchGhosty)
+* fix: also fix comments in community posts (https://github.com/iv-org/invidious/pull/5874, by @Fijxu)
+* chore: remove `-Dpreview_mt` from Makefile as it has been deprecated by the Crystal compiler. (https://github.com/iv-org/invidious/pull/5872, by @Fijxu)
+* Translations update from Hosted Weblate (https://github.com/iv-org/invidious/pull/5474, by @weblate)
+* fix: skip non comment `commentFilterContextViewModel` key in comments (https://github.com/iv-org/invidious/pull/5870, by @Fijxu)
+* fix: fix comments html rendering (https://github.com/iv-org/invidious/pull/5862, by @Fijxu)
+* chore: Move nix files out of root directory (https://github.com/iv-org/invidious/pull/5861, by @Fijxu)
+* CI: Pin Crystal to 1.20.3 for linting task so ameba can build (https://github.com/iv-org/invidious/pull/5859, by @Fijxu)
+* chore: Add Nix development files (https://github.com/iv-org/invidious/pull/5856, by @Fijxu)
+* Remove the awesome humane tech badge (https://github.com/iv-org/invidious/pull/5853, by @TheFrenchGhosty)
+* Update the AI policy to properly ban AI slop (https://github.com/iv-org/invidious/pull/5849, by @TheFrenchGhosty)
+* chore(deps): bump actions/setup-python from 5 to 7 (https://github.com/iv-org/invidious/pull/5829, by @dependabot[bot])
+
 ## v2.20260723.0
 
 ### Wrap-up
