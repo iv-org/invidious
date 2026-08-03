@@ -15,7 +15,7 @@ module I18n
   #
   LOCALES_LIST = {
     "ar"      => "العربية",               # Arabic
-    "be"      => "Беларуская",          # Belarusian
+    "be"      => "Беларуская",            # Belarusian
     "bg"      => "български",             # Bulgarian
     "bn"      => "বাংলা",                 # Bengali
     "ca"      => "Català",                # Catalan
@@ -32,13 +32,13 @@ module I18n
     "fa"      => "فارسی",                 # Persian
     "fi"      => "Suomi",                 # Finnish
     "fr"      => "Français",              # French
-    "gl"      => "Galego",              # Galician
-    "gsw"     => "Schwiizerdütsch",     # Swiss German
+    "gl"      => "Galego",                # Galician
+    "gsw"     => "Schwiizerdütsch",       # Swiss German
     "he"      => "עברית",                 # Hebrew
     "hi"      => "हिन्दी",                # Hindi
     "hr"      => "Hrvatski",              # Croatian
     "hu-HU"   => "Magyar Nyelv",          # Hungarian
-    "hy"      => "Հայերեն",             # Armenian
+    "hy"      => "Հայերեն",               # Armenian
     "id"      => "Bahasa Indonesia",      # Indonesian
     "is"      => "Íslenska",              # Icelandic
     "it"      => "Italiano",              # Italian
@@ -46,7 +46,7 @@ module I18n
     "ko"      => "한국어",                   # Korean
     "lmo"     => "Lombard",               # Lombard
     "lt"      => "Lietuvių",              # Lithuanian
-    "lv"      => "Latviešu",            # Latvian
+    "lv"      => "Latviešu",              # Latvian
     "nb-NO"   => "Norsk bokmål",          # Norwegian Bokmål
     "nl"      => "Nederlands",            # Dutch
     "pl"      => "Polski",                # Polish
