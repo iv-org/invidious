@@ -3,6 +3,53 @@
 ## vX.Y.0 (future)
 
 
+
+## v2.20260803.0
+
+### Wrap-up
+
+This release improves the comment experience by showing a clear message when comments are disabled and fixing several rendering and handling issues. New locales that have reached more than 20% translation coverage are now enabled, and the “Awesome Humane Tech” badge has been removed from the interface.
+
+Developer workflows are streamlined with the addition of Nix development files, a CI linting fix, and the removal of a deprecated compiler flag. The project’s AI policy was also tightened to explicitly ban AI-generated contributions.
+
+### New features & important changes
+#### For Users
+  - A message is now displayed when comments are turned off on a video (#4051)
+  - New locales with more than 20% translation coverage are now available (#5882)
+  - Translations have been updated from Hosted Weblate (#5474)
+  - The “Awesome Humane Tech” badge has been removed (#5853)
+
+#### For instance owners
+  - No instance owner-facing changes in this release.
+
+#### For developers
+  - The deprecated `-Dpreview_mt` flag was removed from the Makefile (#5872)
+  - Nix development files were added and existing ones moved out of the root directory (#5856, #5861)
+  - CI linting now pins Crystal to 1.20.3 to ensure ameba builds (#5859)
+  - The AI policy was updated to explicitly ban AI-generated contributions (#5849)
+  - The `actions/setup-python` action was bumped from 5 to 7 (#5829)
+
+### Bugs fixed
+#### User-side
+  - Comment HTML rendering and handling of non-comment keys were fixed (#5862, #5870)
+  - Comments in community posts are now correctly processed (#5874)
+
+### Full list of pull requests merged since the last release (newest first)
+
+* Show message when comments are turned off (https://github.com/iv-org/invidious/pull/4051, by @syeopite)
+* Enable the new locales translated at more than 20% (https://github.com/iv-org/invidious/pull/5882, by @TheFrenchGhosty)
+* fix: also fix comments in community posts (https://github.com/iv-org/invidious/pull/5874, by @Fijxu)
+* chore: remove `-Dpreview_mt` from Makefile as it has been deprecated by the Crystal compiler. (https://github.com/iv-org/invidious/pull/5872, by @Fijxu)
+* Translations update from Hosted Weblate (https://github.com/iv-org/invidious/pull/5474, by @weblate)
+* fix: skip non comment `commentFilterContextViewModel` key in comments (https://github.com/iv-org/invidious/pull/5870, by @Fijxu)
+* fix: fix comments html rendering (https://github.com/iv-org/invidious/pull/5862, by @Fijxu)
+* chore: Move nix files out of root directory (https://github.com/iv-org/invidious/pull/5861, by @Fijxu)
+* CI: Pin Crystal to 1.20.3 for linting task so ameba can build (https://github.com/iv-org/invidious/pull/5859, by @Fijxu)
+* chore: Add Nix development files (https://github.com/iv-org/invidious/pull/5856, by @Fijxu)
+* Remove the awesome humane tech badge (https://github.com/iv-org/invidious/pull/5853, by @TheFrenchGhosty)
+* Update the AI policy to properly ban AI slop (https://github.com/iv-org/invidious/pull/5849, by @TheFrenchGhosty)
+* chore(deps): bump actions/setup-python from 5 to 7 (https://github.com/iv-org/invidious/pull/5829, by @dependabot[bot])
+
 ## v2.20260723.0
 
 ### Wrap-up
