@@ -65,6 +65,7 @@ module I18n
     "ta"      => "தமிழ்",                 # Tamil
     "tr"      => "Türkçe",                # Turkish
     "uk"      => "Українська",            # Ukrainian
+    "uz"      => "O'zbekcha",             # Uzbek
     "vi"      => "Tiếng Việt",            # Vietnamese
     "zh-CN"   => "汉语",                    # Chinese (Simplified)
     "zh-TW"   => "漢語",                    # Chinese (Traditional)
