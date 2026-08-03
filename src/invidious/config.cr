@@ -65,11 +65,17 @@ struct ConfigPreferences
   end
 end
 
+# Outbound proxy configuration. The name is kept for config backwards
+# compatibility; `type` selects the protocol (HTTP CONNECT or SOCKS5).
 struct HTTPProxyConfig
   include YAML::Serializable
 
-  property user : String
-  property password : String
+  # Proxy protocol: "http" (HTTP CONNECT, the default), "socks5", or "socks5h".
+  # SOCKS5 resolves target hostnames on the proxy side (SOCKS5h semantics).
+  property type : String = "http"
+  # Credentials are optional: omit both for an unauthenticated proxy.
+  property user : String? = nil
+  property password : String? = nil
   property host : String
   property port : Int32
 end
