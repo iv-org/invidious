@@ -326,7 +326,10 @@
           for (var j = 0; j < storyboard.storyboardCount; j++) {
             var startTime = j * segmentDuration;
             var endTime = Math.min(startTime + segmentDuration, duration);
-            var urls = [storyboard.templateUrl.replace('$M', String(j))];
+            // NOTE: must be `let` (block-scoped). With `var` the closure below captures the
+            // function-scoped binding, so every SegmentReference returns the LAST storyboard
+            // image -> the same (mismatched, distorted) thumbnail for the whole video.
+            let urls = [storyboard.templateUrl.replace('$M', String(j))];
             var segmentReference = new shaka.media.SegmentReference(
               startTime, endTime,
               function () { return urls; },

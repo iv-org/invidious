@@ -72,7 +72,14 @@
 }
 
 .shaka-bottom-controls {
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0));
+    background: transparent;
+}
+
+/* Control-contrast gradient goes on the SCRIM, which Shaka fades in/out together with the
+   controls. (Putting it on .shaka-bottom-controls left a permanent black band at the bottom
+   because that element stays visible when the controls auto-hide.) */
+.shaka-scrim-container {
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0));
 }
 
 /* Buttons - match video.js colors */
@@ -249,8 +256,40 @@
     display: none !important;
 }
 
+/* Hide Shaka's built-in buffering spinner — we drive our own (.sabr-loading-spinner),
+   which also covers the pre-load SABR init. Otherwise both show at once. */
+.shaka-spinner-container {
+    display: none !important;
+}
+
 /* Poster/thumbnail styling */
 .shaka-video-container .shaka-poster {
     background-size: cover;
     object-fit: cover;
+}
+
+/* Loading spinner — shown while the container has .is-loading (SABR init + buffering).
+   Driven by sabr_player.js (shaka's own spinner only covers its post-load buffering). */
+.sabr-loading-spinner {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 56px;
+    height: 56px;
+    margin: -28px 0 0 -28px;
+    border: 4px solid rgba(255, 255, 255, 0.25);
+    border-top-color: rgba(0, 182, 240, 1);
+    border-radius: 50%;
+    animation: sabr-spin 0.9s linear infinite;
+    z-index: 20;
+    pointer-events: none;
+}
+
+.sabr-player-container.is-loading .sabr-loading-spinner {
+    display: block;
+}
+
+@keyframes sabr-spin {
+    to { transform: rotate(360deg); }
 }
