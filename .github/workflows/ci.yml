@@ -80,7 +80,8 @@ jobs:
       - name: Install Shards
         run: |
           if ! shards check; then
-            shards install --without-development
+            shards install --production
+            shards install spectator --frozen
           fi
 
       - name: Run tests
