@@ -61,7 +61,7 @@ jobs:
 
       - name: Install required APT packages
         run: |
-          sudo apt install -y libsqlite3-dev
+          sudo apt install -y libsqlite3-dev mold
         shell: bash
 
       - name: Install Crystal
