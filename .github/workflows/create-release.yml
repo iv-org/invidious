@@ -24,7 +24,7 @@ on:
       model:
         description: "Model used to write the changelog."
         required: false
-        default: "deepseek/deepseek-v4-pro"
+        default: "deepseek/deepseek-v4-flash-0731"
       base_url:
         description: "OpenAI-compatible API base URL (default: OpenRouter)."
         required: false
