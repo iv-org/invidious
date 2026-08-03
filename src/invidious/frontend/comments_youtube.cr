@@ -44,7 +44,11 @@ module Invidious::Frontend::Comments
         end
 
         if !thin_mode
-          author_thumbnail = "/ggpht#{URI.parse(child["authorThumbnail"].as_s).request_target}"
+          if child_author_thumbnail = child["authorThumbnail"]?.try &.as_s
+            author_thumbnail = "/ggpht#{URI.parse(child_author_thumbnail).request_target}"
+          else
+            author_thumbnail = "/ggpht#{URI.parse(child["authorThumbnails"][-1]["url"].as_s).request_target}"
+          end
         else
           author_thumbnail = ""
         end
