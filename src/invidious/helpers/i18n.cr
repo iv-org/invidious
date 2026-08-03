@@ -6,15 +6,16 @@ module I18n
   #
   #  "af"      => "", # Afrikaans
   #  "az"      => "", # Azerbaijani
-  #  "be"      => "", # Belarusian
   #  "bn_BD"   => "", # Bengali (Bangladesh)
   #  "ia"      => "", # Interlingua
   #  "or"      => "", # Odia
+  #  "sgn"     => "", # Sign Language
   #  "tk"      => "", # Turkmen
-  #  "tok      => "", # Toki Pona
+  #  "tok"     => "", # Toki Pona
   #
   LOCALES_LIST = {
     "ar"      => "العربية",               # Arabic
+    "be"      => "Беларуская",            # Belarusian
     "bg"      => "български",             # Bulgarian
     "bn"      => "বাংলা",                 # Bengali
     "ca"      => "Català",                # Catalan
@@ -31,10 +32,13 @@ module I18n
     "fa"      => "فارسی",                 # Persian
     "fi"      => "Suomi",                 # Finnish
     "fr"      => "Français",              # French
+    "gl"      => "Galego",                # Galician
+    "gsw"     => "Schwiizerdütsch",       # Swiss German
     "he"      => "עברית",                 # Hebrew
     "hi"      => "हिन्दी",                # Hindi
     "hr"      => "Hrvatski",              # Croatian
     "hu-HU"   => "Magyar Nyelv",          # Hungarian
+    "hy"      => "Հայերեն",               # Armenian
     "id"      => "Bahasa Indonesia",      # Indonesian
     "is"      => "Íslenska",              # Icelandic
     "it"      => "Italiano",              # Italian
@@ -42,6 +46,7 @@ module I18n
     "ko"      => "한국어",                   # Korean
     "lmo"     => "Lombard",               # Lombard
     "lt"      => "Lietuvių",              # Lithuanian
+    "lv"      => "Latviešu",              # Latvian
     "nb-NO"   => "Norsk bokmål",          # Norwegian Bokmål
     "nl"      => "Nederlands",            # Dutch
     "pl"      => "Polski",                # Polish
