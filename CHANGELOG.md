@@ -8,7 +8,7 @@
 
 ### Wrap-up
 
-This release focuses on fixing comment rendering, adding new configuration options for instance owners, and streamlining developer tooling. Comments in videos and community posts now render correctly again, a message appears when comments are disabled, and several new locales including Uzbek were enabled.
+This release focuses on fixing comment rendering, adding new configuration options for instance owners, and streamlining developer tooling. Comments in videos and community posts now render correctly again, a message appears when comments are disabled, and several new locales were made available to users.
 
 Instance owners gain SOCKS5 proxy support and the ability to set the videojs max buffer length via config.yml. Developer experience improves with Nix development files, a pinned Crystal version for linting, and an updated AI policy that properly bans AI slop.
 
