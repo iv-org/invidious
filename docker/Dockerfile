@@ -48,17 +48,29 @@ RUN crystal spec --warnings all \
 ARG OPENSSL_VERSION
 COPY --from=openssl-builder /openssl-${OPENSSL_VERSION} /openssl-${OPENSSL_VERSION}
 
+# 2026-08-04:
+#
+# `-no-pie` has been added to link flags due to missing debug information
+# when compiling Invidious using `--static` (because `--static` enables PIE, but
+# with PIE enabled, Crystal cannot provide debug information when an error
+# in Invidious appears)
+# References:
+# - https://forum.crystal-lang.org/t/gcc-15-on-alpine-linux-changes-static-to-imply-pie-i-e-static-pie/9074/5?u=fijxu
+# - https://github.com/crystal-lang/distribution-scripts/issues/445
+# - https://github.com/84codes/crystal-packages/issues/41
+#
+# `-no-pie` can be removed once it's fixed.
 RUN --mount=type=cache,target=/root/.cache/crystal if [[ "${release}" == 1 ]] ; then \
         PKG_CONFIG_PATH=/openssl-${OPENSSL_VERSION} \
         crystal build ./src/invidious.cr \
         --release \
         --static --warnings all \
-        --link-flags "-lxml2 -llzma"; \
+        --link-flags "-lxml2 -llzma -no-pie"; \
     else \
         PKG_CONFIG_PATH=/openssl-${OPENSSL_VERSION} \
         crystal build ./src/invidious.cr \
         --static --warnings all \
-        --link-flags "-lxml2 -llzma"; \
+        --link-flags "-lxml2 -llzma -no-pie";  \
     fi
 
 FROM alpine:3.24
