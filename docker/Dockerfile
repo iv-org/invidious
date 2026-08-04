@@ -70,7 +70,7 @@ RUN --mount=type=cache,target=/root/.cache/crystal if [[ "${release}" == 1 ]] ; 
         PKG_CONFIG_PATH=/openssl-${OPENSSL_VERSION} \
         crystal build ./src/invidious.cr \
         --static --warnings all \
-        --link-flags "-lxml2 -llzma -no-pie";  \
+        --link-flags "-lxml2 -llzma -no-pie"; \
     fi
 
 FROM alpine:3.24
