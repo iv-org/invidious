@@ -15,7 +15,7 @@ Instance owners gain SOCKS5 proxy support and the ability to set the videojs max
 ### New features & important changes
 #### For Users
   - A message is now shown when comments are turned off (#4051)
-  - New locales translated at more than 20% were enabled, including Uzbek (#5891, #5882)
+  - New locales translated at more than 20% are now made available to users, this includes Belarusian, Galician, Swiss German, Armenian, Latvian and Uzbek (#5891, #5882)
 
 #### For instance owners
   - SOCKS5 proxy support was added (#5865)
