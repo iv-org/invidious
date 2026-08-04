@@ -3,6 +3,65 @@
 ## vX.Y.0 (future)
 
 
+
+## v2.20260804.0
+
+### Wrap-up
+
+This release focuses on fixing comment rendering, adding new configuration options for instance owners, and streamlining developer tooling. Comments in videos and community posts now render correctly again, a message appears when comments are disabled, and several new locales including Uzbek were enabled.
+
+Instance owners gain SOCKS5 proxy support and the ability to set the videojs max buffer length via config.yml. Developer experience improves with Nix development files, a pinned Crystal version for linting, and an updated AI policy that properly bans AI slop.
+
+### New features & important changes
+#### For Users
+  - A message is now shown when comments are turned off (#4051)
+  - New locales translated at more than 20% were enabled, including Uzbek (#5891, #5882)
+
+#### For instance owners
+  - SOCKS5 proxy support was added (#5865)
+  - The videojs max buffer length can now be set via config.yml (#5876)
+
+#### For developers
+  - Nix development files were added and moved out of the root directory (#5856, #5861)
+  - The Makefile no longer uses the deprecated `-Dpreview_mt` flag (#5872)
+  - Crystal was pinned to 1.20.3 for the linting task so Ameba can build (#5859)
+  - The release script now uses deepseek/deepseek-v4-flash-0731 (#5886)
+  - The AI policy was updated to properly ban AI slop (#5849)
+  - The awesome humane tech badge was removed (#5853)
+  - Development dependencies were excluded from the CI build job (#5860)
+  - CI dependencies were bumped: `actions/stale` to 11 and `actions/setup-python` to 7 (#5890, #5829)
+
+### Bugs fixed
+#### User-side
+  - Rendered links and timestamps in video descriptions were fixed (#5878)
+  - Comments HTML rendering was fixed (#5862)
+  - Comments in community posts were fixed (#5874)
+  - Non-comment `commentFilterContextViewModel` keys are now skipped in comments (#5870)
+
+### Full list of pull requests merged since the last release (newest first)
+
+* CI: Exclude development dependencies from build job (https://github.com/iv-org/invidious/pull/5860, by @Fijxu)
+* Enable the Uzbek since it's been translated at more than 20% (https://github.com/iv-org/invidious/pull/5891, by @TheFrenchGhosty)
+* Translations update from Hosted Weblate (https://github.com/iv-org/invidious/pull/5881, by @weblate)
+* Switch to deepseek/deepseek-v4-flash-0731 for the release script (https://github.com/iv-org/invidious/pull/5886, by @TheFrenchGhosty)
+* chore(deps): bump actions/stale from 10 to 11 (https://github.com/iv-org/invidious/pull/5890, by @dependabot[bot])
+* feat: add support for SOCKS5 proxy (https://github.com/iv-org/invidious/pull/5865, by @unixfox)
+* feat: allow setting videojs max buffer length via config.yml (https://github.com/iv-org/invidious/pull/5876, by @Fijxu)
+* fix: fix rendered links and timestamps in video descriptions (https://github.com/iv-org/invidious/pull/5878, by @Fijxu)
+* Show message when comments are turned off (https://github.com/iv-org/invidious/pull/4051, by @syeopite)
+* Enable the new locales translated at more than 20% (https://github.com/iv-org/invidious/pull/5882, by @TheFrenchGhosty)
+* fix: also fix comments in community posts (https://github.com/iv-org/invidious/pull/5874, by @Fijxu)
+* chore: remove `-Dpreview_mt` from Makefile as it has been deprecated by the Crystal compiler. (https://github.com/iv-org/invidious/pull/5872, by @Fijxu)
+* Translations update from Hosted Weblate (https://github.com/iv-org/invidious/pull/5474, by @weblate)
+* fix: skip non comment `commentFilterContextViewModel` key in comments (https://github.com/iv-org/invidious/pull/5870, by @Fijxu)
+* fix: fix comments html rendering (https://github.com/iv-org/invidious/pull/5862, by @Fijxu)
+* chore: Move nix files out of root directory (https://github.com/iv-org/invidious/pull/5861, by @Fijxu)
+* CI: Pin Crystal to 1.20.3 for linting task so ameba can build (https://github.com/iv-org/invidious/pull/5859, by @Fijxu)
+* chore: Add Nix development files (https://github.com/iv-org/invidious/pull/5856, by @Fijxu)
+* Remove the awesome humane tech badge (https://github.com/iv-org/invidious/pull/5853, by @TheFrenchGhosty)
+* Update the AI policy to properly ban AI slop (https://github.com/iv-org/invidious/pull/5849, by @TheFrenchGhosty)
+* chore(deps): bump actions/setup-python from 5 to 7 (https://github.com/iv-org/invidious/pull/5829, by @dependabot[bot])
+
 ## v2.20260723.0
 
 ### Wrap-up
