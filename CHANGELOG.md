@@ -22,7 +22,7 @@ Instance owners gain SOCKS5 proxy support and the ability to set the videojs max
   - The videojs max buffer length can now be set via config.yml (#5876)
 
 #### For developers
-  - Nix development files were added and moved out of the root directory (#5856, #5861)
+  - Nix development files were added (#5856, #5861)
   - The Makefile no longer uses the deprecated `-Dpreview_mt` flag (#5872)
   - Crystal was pinned to 1.20.3 for the linting task so Ameba can build (#5859)
   - The release script now uses deepseek/deepseek-v4-flash-0731 (#5886)
