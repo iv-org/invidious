@@ -18,7 +18,7 @@ RUN curl -Ls "https://github.com/openssl/openssl/releases/download/openssl-${OPE
 RUN echo "${OPENSSL_SHA256}  openssl-${OPENSSL_VERSION}.tar.gz" | sha256sum -c
 RUN tar -xzvf openssl-${OPENSSL_VERSION}.tar.gz
 
-RUN cd openssl-${OPENSSL_VERSION} && ./Configure --openssldir=/etc/ssl && make -j$(nproc)
+RUN cd openssl-${OPENSSL_VERSION} && ./Configure --openssldir=/etc/ssl no-apps && make -j$(nproc)
 
 FROM dependabot-crystal AS builder
 
