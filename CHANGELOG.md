@@ -4,6 +4,24 @@
 
 
 
+
+## v2.20260804.1
+
+### Wrap-up
+
+This patch release fixes a regression in the OCI (container) build that omitted debug information, making it harder to diagnose issues in production. The fix ensures that the `-no-pie` link flag is passed correctly, restoring debug symbols for better stack traces and crash analysis.
+
+No new features are included in this release; it is solely focused on improving the debuggability of containerized instances.
+
+### Bugs fixed
+#### For instance owners
+  - Debug information is now included again in OCI images by passing the `-no-pie` link flag correctly (#5895)
+
+### Full list of pull requests merged since the last release (newest first)
+
+* fix: pass `-no-pie` link flag argument to include debug information again for OCI (https://github.com/iv-org/invidious/pull/5895, by @Fijxu)
+* Release v2.20260804.0 (https://github.com/iv-org/invidious/pull/5893, by @github-actions[bot])
+
 ## v2.20260804.0
 
 ### Wrap-up
