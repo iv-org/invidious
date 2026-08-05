@@ -183,7 +183,7 @@ def fetch_channel(ucid, pull_all_videos : Bool)
 
   LOGGER.trace("fetch_channel: #{ucid} : Extracting videos from channel")
   videos.select(SearchVideo).each do |video|
-    new_video = ChannelVideo.new({
+    video = ChannelVideo.new({
       id:                 video.id,
       title:              video.title,
       published:          video.published,
@@ -196,17 +196,17 @@ def fetch_channel(ucid, pull_all_videos : Bool)
       views:              video.views,
     })
 
-    LOGGER.trace("fetch_channel: #{ucid} : video #{new_video.id} : Updating or inserting video")
+    LOGGER.trace("fetch_channel: #{ucid} : video #{video.id} : Updating or inserting video")
 
     # We don't include the 'premiere_timestamp' here because channel pages don't include them,
     # meaning the above timestamp is always null
-    was_insert = Invidious::Database::ChannelVideos.insert(new_video)
+    was_insert = Invidious::Database::ChannelVideos.insert(video)
 
     if was_insert
-      LOGGER.trace("fetch_channel: #{ucid} : video #{new_video.id} : Inserted, updating subscriptions")
-      NOTIFICATION_CHANNEL.send(VideoNotification.from_video(new_video))
+      LOGGER.trace("fetch_channel: #{ucid} : video #{video.id} : Inserted, updating subscriptions")
+      NOTIFICATION_CHANNEL.send(VideoNotification.from_video(video))
     else
-      LOGGER.trace("fetch_channel: #{ucid} : video #{new_video.id} : Updated")
+      LOGGER.trace("fetch_channel: #{ucid} : video #{video.id} : Updated")
     end
   end
 
