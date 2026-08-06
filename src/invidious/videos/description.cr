@@ -40,6 +40,46 @@ private def copy_string(str : String::Builder, iter : Iterator, count : Int) : I
   return copied
 end
 
+private def image_source(url : String) : String?
+  uri = URI.parse(url)
+
+  case uri.host
+  when "yt3.ggpht.com"
+    "/ggpht#{uri.request_target}"
+  when "lh3.googleusercontent.com"
+    # Google serves these image paths from the ggpht host as well, keeping
+    # inline emoji behind Invidious' existing image proxy and CSP.
+    "/ggpht#{uri.request_target}"
+  end
+rescue
+  nil
+end
+
+private def render_attachment(attachment : JSON::Any) : String?
+  source = attachment.dig?("element", "type", "imageType", "image", "sources", 0)
+  return if source.nil?
+
+  source_url = source["url"]?.try &.as_s
+  return if source_url.nil?
+
+  src = image_source(source_url)
+  return if src.nil?
+
+  alt = attachment.dig?("properties", "accessibilityProperties", "label").try &.as_s || ""
+  width = source["width"]?.try &.as_i || 16_i64
+  height = source["height"]?.try &.as_i || 16_i64
+
+  String.build do |str|
+    str << %(<img class="channel-emoji" alt=")
+    str << HTML.escape(alt)
+    str << %(" src=")
+    str << HTML.escape(src)
+    str << %(" title=")
+    str << HTML.escape(alt)
+    str << %(" width=") << width << %(" height=") << height << %( />)
+  end
+end
+
 def parse_description(desc, video_id : String) : String?
   return "" if desc.nil?
 
@@ -47,7 +87,17 @@ def parse_description(desc, video_id : String) : String?
   return "" if content.empty?
 
   commands = desc["commandRuns"]?.try &.as_a
-  if commands.nil?
+  attachments = desc["attachmentRuns"]?.try &.as_a
+
+  events = [] of JSON::Any
+  if commands
+    commands.each { |command| events << command }
+  end
+  if attachments
+    attachments.each { |attachment| events << attachment }
+  end
+
+  if events.empty?
     # Slightly faster than HTML.escape, as we're only doing one pass on
     # the string instead of five for the standard library
     return String.build do |str|
@@ -55,6 +105,8 @@ def parse_description(desc, video_id : String) : String?
       copy_string(str, content.each_codepoint, content_size)
     end
   end
+
+  events.sort_by! { |event| event["startIndex"].as_i }
 
   # Not everything is stored in UTF-8 on youtube's side. The SMP codepoints
   # (0x10000 and above) are encoded as UTF-16 surrogate pairs, which are
@@ -65,26 +117,36 @@ def parse_description(desc, video_id : String) : String?
   index = 0
 
   return String.build do |str|
-    commands.each do |command|
-      cmd_start = command["startIndex"].as_i
-      cmd_length = command["length"].as_i
+    events.each do |event|
+      event_start = event["startIndex"].as_i
+      event_length = event["length"].as_i
+      next if event_start < index
 
       # Copy the text chunk between this command and the previous if needed.
-      length = cmd_start - index
+      length = event_start - index
       index += copy_string(str, iter, length)
 
-      # We need to copy the command's text using the iterator
-      # and the special function defined above.
-      cmd_content = String.build(cmd_length) do |str2|
-        copy_string(str2, iter, cmd_length)
-      end
+      if event["element"]?
+        # Inline images, including custom channel emojis, are represented as
+        # attachmentRuns by the current YouTube comment API.
+        attachment_content = String.build do |attachment_str|
+          copy_string(attachment_str, iter, event_length)
+        end
+        str << (render_attachment(event) || attachment_content)
+      else
+        # We need to copy the command's text using the iterator
+        # and the special function defined above.
+        cmd_content = String.build(event_length) do |str2|
+          copy_string(str2, iter, event_length)
+        end
 
-      link = cmd_content
-      if on_tap = command.dig?("onTap", "innertubeCommand")
-        link = parse_link_endpoint(on_tap, cmd_content, video_id)
+        link = cmd_content
+        if on_tap = event.dig?("onTap", "innertubeCommand")
+          link = parse_link_endpoint(on_tap, cmd_content, video_id)
+        end
+        str << link
       end
-      str << link
-      index += cmd_length
+      index += event_length
     end
 
     # Copy the end of the string (past the last command).
