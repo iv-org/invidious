@@ -1141,7 +1141,37 @@ module HelperExtractors
   # Retrieves the ID required for querying the InnerTube browse endpoint.
   # Returns an empty string when it's unable to do so
   def self.get_browse_id(container)
-    return container.dig?("navigationEndpoint", "browseEndpoint", "browseId").try &.as_s || ""
+    if browse_id = container.dig?("navigationEndpoint", "browseEndpoint", "browseId").try &.as_s
+      return browse_id
+    end
+
+    find_browse_id(container) || ""
+  end
+
+  # YouTube wraps the channel links for videos with multiple creators in a
+  # collaborator dialog instead of putting a browse endpoint directly on the
+  # byline run. Search nested navigation data so those videos still get a
+  # usable channel link.
+  private def self.find_browse_id(container : JSON::Any) : String?
+    if browse_id = container.dig?("browseEndpoint", "browseId").try &.as_s
+      return browse_id
+    end
+
+    if object = container.as_h?
+      object.each_value do |value|
+        if browse_id = find_browse_id(value)
+          return browse_id
+        end
+      end
+    elsif array = container.as_a?
+      array.each do |value|
+        if browse_id = find_browse_id(value)
+          return browse_id
+        end
+      end
+    end
+
+    nil
   end
 end
 
