@@ -30,7 +30,7 @@ Now that AIs exists and have become *reasonably good*, we will tolerate people u
 
 - **Any one using AI to report bugs or submit code MUST properly disclose it**, this includes mentioning the name of the EXACT model used and the tools used to interact with it.
 - **Any "AI slop" contribution (issue or pull request) will be closed on sight**, even more so if they are pull requests targetting issues that have bounties associated.
-- For BOTH codes AND bug reports, the Human using AI MUST manually verify, review and test that what the AI has done is correct, in addition to any automated check that may exist or may have been created. **If no human verification is demonstrated, presented or proven, it will be closed on sight**.
+- For BOTH code AND bug reports, the Human using AI MUST manually verify, review and test that what the AI has done is correct, in addition to any automated check that may exist or may have been created. **If no human verification is demonstrated, presented or proven, it will be closed on sight**.
 - Any code submitted by a Human, written even partially by AI, is the responsibility of this Human - If it's malicious, broken, destructive or anything bad, the Human is the sole responsible.
 - Any new code touching any of the actual functions of Invidious MUST BE thoroughly tested by the Human MANUALLY.
 - At any point [Human-in-the-loop](https://en.wikipedia.org/wiki/Human-in-the-loop) applies.
