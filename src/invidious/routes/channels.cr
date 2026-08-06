@@ -433,7 +433,7 @@ module Invidious::Routes::Channels
     continuation = env.params.query["continuation"]?
 
     begin
-      channel = get_about_info(ucid, locale)
+      channel = get_about_info(ucid)
     rescue ex : ChannelRedirect
       return env.redirect env.request.resource.gsub(ucid, ex.channel_id)
     rescue ex : NotFoundException
