@@ -57,7 +57,7 @@ require "./invidious/jobs/*"
   {{ raise "Crystal version 1.14.1 or newer is required to build Invidious. \
     You currently have Crystal version #{Crystal::VERSION} installed. \
     update it to a new version to be able to build Invidious. \
-    For more information, visit the official Crystal compiler website: https://crystal-lang.org/install/" }}
+    We recommend that you install it following the way that the Crystal compiler itself recommend for your OS, see: https://crystal-lang.org/install/" }}
 {% end %}
 
 # Declare the base namespace for invidious
