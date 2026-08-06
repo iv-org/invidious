@@ -54,7 +54,7 @@ require "./invidious/jobs/*"
 # encouraging the user compiling Invidious, to update it's Crystal compiler
 # version.
 {% if compare_versions(Crystal::VERSION, "1.14.1") < 0 %}
-  {{ raise "Crystal version 1.14.1 or newer is required to build Invidious, \
+  {{ raise "Crystal version 1.14.1 or newer is required to build Invidious. \
     you currently have Crystal version #{Crystal::VERSION}, \
     update it to a new version to be able to build Invidious. \
     For more information, visit the official Crystal compiler website: https://crystal-lang.org/install/" }}
