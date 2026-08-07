@@ -99,7 +99,9 @@ private def attachment_run_inside_command?(attachment, command) : Bool
   command_start = command["startIndex"].as_i
   command_end = command_start + command["length"].as_i
 
-  attachment_start >= command_start && attachment_end <= command_end
+  attachment_start >= command_start &&
+    attachment_start < command_end &&
+    attachment_end <= command_end
 end
 
 private def parse_command_run(command, nested_attachments, iter, video_id : String) : String

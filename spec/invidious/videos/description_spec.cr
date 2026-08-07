@@ -147,4 +147,43 @@ Spectator.describe "parse_description" do
       "cd</a>"
     )
   end
+
+  it "assigns boundary attachments to only the following command run" do
+    description = JSON.parse(<<-JSON)
+      {
+        "content": "abcd",
+        "commandRuns": [
+          {
+            "startIndex": 0,
+            "length": 2,
+            "onTap": {"innertubeCommand": {"watchEndpoint": {"videoId": "first-video"}}}
+          },
+          {
+            "startIndex": 2,
+            "length": 2,
+            "onTap": {"innertubeCommand": {"watchEndpoint": {"videoId": "second-video"}}}
+          }
+        ],
+        "attachmentRuns": [{
+          "startIndex": 2,
+          "length": 0,
+          "element": {
+            "type": {
+              "imageType": {
+                "image": {
+                  "sources": [{"url": "https://lh3.googleusercontent.com/emoji-boundary=s16", "width": 16, "height": 16}]
+                }
+              }
+            }
+          },
+          "properties": {"accessibilityProperties": {"label": "emoji-boundary"}}
+        }]
+      }
+    JSON
+
+    expect(parse_description(description, "video-id")).to eq(
+      %(<a href="/watch?v=first-video">ab</a>) +
+      %(<a href="/watch?v=second-video"><img alt="emoji-boundary" src="/ggpht/emoji-boundary=s16" title="emoji-boundary" width="16" height="16" class="channel-emoji" />cd</a>)
+    )
+  end
 end
