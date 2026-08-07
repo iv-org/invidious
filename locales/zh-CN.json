@@ -491,5 +491,9 @@
     "Livestreams": "直播",
     "dmca_content": "由于发送给实例管理员的 DMCA/侵犯版权信件，无法在这个实例上下载该视频。",
     "preferences_search_privacy_label": "搜索隐私： ",
-    "preferences_search_privacy_description": "启用此首选项会阻止在浏览器历史记录中保存搜索条目。"
+    "preferences_search_privacy_description": "启用此首选项会阻止在浏览器历史记录中保存搜索条目。",
+    "comments_youtube_disabled_text": "此视频禁用了 YouTube 评论",
+    "comments_youtube_disabled_try_reddit": "尝试 reddit 评论?",
+    "comments_invidious_disabled_text": "根据用户设置隐藏了评论",
+    "comments_youtube_disabled_try_reddit_no_js": "嘿！看起来你关闭了 JavaScript。虽然上传者禁用了 YouTube 评论，你仍可以单击此处尝试并查看 Reddit 评论，可能需要较长时间才能加载。"
 }
