@@ -83,6 +83,24 @@ Spectator.describe "parse_description" do
     expect(parse_description(description, "video-id")).to eq("before &lt;:custom:&gt; after")
   end
 
+  it "preserves the escaped shortcode when an attachment source URL is invalid" do
+    description = JSON.parse(%({
+      "content":"before <:custom:> after",
+      "attachmentRuns":[{
+        "startIndex":8,
+        "length":8,
+        "element":{"type":{"imageType":{"image":{"sources":[{
+          "url":"https://lh3.googleusercontent.com:invalid/custom.png",
+          "width":16,
+          "height":16
+        }]}}}},
+        "properties":{"accessibilityProperties":{"label":"custom"}}
+      }]
+    }))
+
+    expect(parse_description(description, "video-id")).to eq("before &lt;:custom:&gt; after")
+  end
+
   it "escapes attachment labels before inserting them into HTML" do
     description = JSON.parse(%({
       "content":":custom:",
