@@ -48,7 +48,11 @@ private def render_description_attachment(attachment : JSON::Any, fallback : Str
   source_url = source["url"]?.try &.as_s?
   return if source_url.nil?
 
-  uri = URI.parse(source_url)
+  uri = begin
+    URI.parse(source_url)
+  rescue URI::Error
+    return
+  end
   return if uri.scheme != "https"
 
   # Custom emoji URLs use either host; the existing /ggpht proxy serves the
