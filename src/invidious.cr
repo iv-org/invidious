@@ -50,6 +50,18 @@ require "./invidious/routes/**"
 require "./invidious/jobs/base_job"
 require "./invidious/jobs/*"
 
+# Show a nice message for unsupported versions of the Crystal compiler,
+# encouraging the user compiling Invidious, to update it's Crystal compiler
+# version.
+{% begin %}
+  {% minimum_version = "1.14.1" %}
+  {% if compare_versions(Crystal::VERSION, minimum_version) < 0 %}
+    {{ raise "Crystal version #{minimum_version} or newer is required to build Invidious. \
+      You currently have Crystal version #{Crystal::VERSION} installed. \
+      We recommend that you install it following the way that the Crystal compiler itself recommend for your OS, see: https://crystal-lang.org/install/" }}
+  {% end %}
+{% end %}
+
 # Declare the base namespace for invidious
 module Invidious
 end
