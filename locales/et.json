@@ -508,5 +508,9 @@
     "Livestreams": "Otseülekanded",
     "dmca_content": "Seda videot ei saa antud serverist alla laadida, sest serveri peakasutajale on saadetud autoriõiguste/DCMA rikkumise teade.",
     "preferences_search_privacy_label": "Otsinguprivaatsus: ",
-    "preferences_search_privacy_description": "Selle eelistuse sisselülitamisel sinu otsingupäringud ei salvestu veebibrauseri ajaloos."
+    "preferences_search_privacy_description": "Selle eelistuse sisselülitamisel sinu otsingupäringud ei salvestu veebibrauseri ajaloos.",
+    "comments_youtube_disabled_text": "Youtube'i kommentaarid on selle video puhul lülitatud välja",
+    "comments_youtube_disabled_try_reddit": "Kas proovid redditi kommentaare?",
+    "comments_invidious_disabled_text": "Kasutaja eelistuste alusel on kommentaarid peidetud",
+    "comments_youtube_disabled_try_reddit_no_js": "Hei! Tundub, et sul on JavaScript lülitatud välja. Kuigi üleslaadija on YouTube’i kommentaarid keelanud, võid ikkagi siia klõpsata ja proovida Redditi kommentaare vaadata, aga arvesta, et nende laadimine võib veidi kauem aega võtta."
 }
