@@ -212,5 +212,13 @@ module Kemal
         end
       end
     end
+
+    # See https://github.com/crystal-lang/crystal/issues/15788
+    #
+    # URL fragments also aren't passed along but there isn't an easy way
+    # to retrieve that at the moment.
+    private def redirect_to(context, path)
+      context.response.redirect URI.new(path: URI.encode_path(path.to_s), query: context.request.query)
+    end
   end
 end
