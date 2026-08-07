@@ -96,4 +96,55 @@ Spectator.describe "parse_description" do
 
     expect(parse_description(description, "video-id")).to eq("one:custom-emoji:two")
   end
+
+  it "renders attachments nested in command runs" do
+    description = JSON.parse(<<-JSON)
+      {
+        "content": "abcd",
+        "commandRuns": [{
+          "startIndex": 0,
+          "length": 4,
+          "onTap": {"innertubeCommand": {"watchEndpoint": {"videoId": "linked-video"}}}
+        }],
+        "attachmentRuns": [
+          {
+            "startIndex": 0,
+            "length": 0,
+            "element": {
+              "type": {
+                "imageType": {
+                  "image": {
+                    "sources": [{"url": "https://lh3.googleusercontent.com/emoji-start=s16", "width": 16, "height": 16}]
+                  }
+                }
+              }
+            },
+            "properties": {"accessibilityProperties": {"label": "emoji-at-start"}}
+          },
+          {
+            "startIndex": 2,
+            "length": 0,
+            "element": {
+              "type": {
+                "imageType": {
+                  "image": {
+                    "sources": [{"url": "https://lh3.googleusercontent.com/emoji-inside=s16", "width": 16, "height": 16}]
+                  }
+                }
+              }
+            },
+            "properties": {"accessibilityProperties": {"label": "emoji-inside"}}
+          }
+        ]
+      }
+    JSON
+
+    expect(parse_description(description, "video-id")).to eq(
+      %(<a href="/watch?v=linked-video">) +
+      %(<img alt="emoji-at-start" src="/ggpht/emoji-start=s16" title="emoji-at-start" width="16" height="16" class="channel-emoji" />) +
+      "ab" +
+      %(<img alt="emoji-inside" src="/ggpht/emoji-inside=s16" title="emoji-inside" width="16" height="16" class="channel-emoji" />) +
+      "cd</a>"
+    )
+  end
 end

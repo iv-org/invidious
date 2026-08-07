@@ -93,6 +93,44 @@ private def parse_attachment_run(attachment) : String?
   end
 end
 
+private def attachment_run_inside_command?(attachment, command) : Bool
+  attachment_start = attachment["startIndex"].as_i
+  attachment_end = attachment_start + attachment["length"].as_i
+  command_start = command["startIndex"].as_i
+  command_end = command_start + command["length"].as_i
+
+  attachment_start >= command_start && attachment_end <= command_end
+end
+
+private def parse_command_run(command, nested_attachments, iter, video_id : String) : String
+  command_start = command["startIndex"].as_i
+  command_length = command["length"].as_i
+
+  command_content = String.build do |command_str|
+    index = 0
+    nested_attachments.sort_by { |attachment| attachment["startIndex"].as_i }.each do |attachment|
+      relative_start = attachment["startIndex"].as_i - command_start
+      next if relative_start < index
+
+      index += copy_string(command_str, iter, relative_start - index)
+      if attachment_html = parse_attachment_run(attachment)
+        command_str << attachment_html
+        index += skip_string(iter, attachment["length"].as_i)
+      else
+        index += copy_string(command_str, iter, attachment["length"].as_i)
+      end
+    end
+
+    copy_string(command_str, iter, command_length - index) if index < command_length
+  end
+
+  link = command_content
+  if on_tap = command.dig?("onTap", "innertubeCommand")
+    link = parse_link_endpoint(on_tap, command_content, video_id)
+  end
+  link
+end
+
 private def parse_description_with_attachments(content : String, commands, attachments, video_id : String) : String
   runs = [] of Tuple(Int32, Int32, String, JSON::Any)
 
@@ -101,6 +139,8 @@ private def parse_description_with_attachments(content : String, commands, attac
   end
 
   attachments.each do |attachment|
+    next if commands.try &.any? { |command| attachment_run_inside_command?(attachment, command) }
+
     runs << {attachment["startIndex"].as_i, attachment["length"].as_i, "attachment", attachment}
   end
 
@@ -122,15 +162,10 @@ private def parse_description_with_attachments(content : String, commands, attac
       case run[2]
       when "command"
         command = run[3]
-        command_content = String.build(length) do |command_str|
-          copy_string(command_str, iter, length)
+        nested_attachments = attachments.select do |attachment|
+          attachment_run_inside_command?(attachment, command)
         end
-
-        link = command_content
-        if on_tap = command.dig?("onTap", "innertubeCommand")
-          link = parse_link_endpoint(on_tap, command_content, video_id)
-        end
-        str << link
+        str << parse_command_run(command, nested_attachments, iter, video_id)
       when "attachment"
         attachment = run[3]
         if attachment_html = parse_attachment_run(attachment)
