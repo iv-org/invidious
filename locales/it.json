@@ -525,5 +525,9 @@
     "Livestreams": "Dirette",
     "dmca_content": "Questo video non può essere scaricato su questa istanza a causa di una lettera di violazione DMCA/copyright inviata all'amministratore dell'istanza.",
     "preferences_search_privacy_label": "Privacy di ricerca: ",
-    "preferences_search_privacy_description": "Attivare questa preferenza eviterà che le tue ricerche vengano salvate nella cronologia del browser."
+    "preferences_search_privacy_description": "Attivare questa preferenza eviterà che le tue ricerche vengano salvate nella cronologia del browser.",
+    "comments_youtube_disabled_text": "I commenti di Youtube sono disattivati in questo video",
+    "comments_youtube_disabled_try_reddit": "Provare con i commenti di Reddit?",
+    "comments_invidious_disabled_text": "I commenti sono nascosti secondo le preferenze dell'utente",
+    "comments_youtube_disabled_try_reddit_no_js": "Ciao! Sembra che tu abbia disattivato JavaScript. Anche se l'autore ha disattivato i commenti di YouTube, puoi comunque cliccare qui per provare a vedere i commenti di Reddit, tenendo presente che possono richiedere un po' più tempo per caricare."
 }
