@@ -72,4 +72,28 @@ Spectator.describe "parse_description" do
 
     expect(parse_description(description, "video-id")).to eq("hello:custom-emoji:")
   end
+
+  it "preserves attachment text when the image host is unsupported" do
+    description = JSON.parse(<<-JSON)
+      {
+        "content": "one:custom-emoji:two",
+        "attachmentRuns": [{
+          "startIndex": 3,
+          "length": 14,
+          "element": {
+            "type": {
+              "imageType": {
+                "image": {
+                  "sources": [{"url": "https://example.com/custom.png", "width": 16, "height": 16}]
+                }
+              }
+            }
+          },
+          "properties": {"accessibilityProperties": {"label": "custom-emoji"}}
+        }]
+      }
+    JSON
+
+    expect(parse_description(description, "video-id")).to eq("one:custom-emoji:two")
+  end
 end

@@ -52,26 +52,40 @@ private def skip_string(iter : Iterator, count : Int) : Int
   skipped
 end
 
-private def parse_attachment_run(attachment) : String?
-  image_source = attachment.dig?("element", "type", "imageType", "image", "sources", 0)
-  return if image_source.nil?
+private def image_source(url : String) : String?
+  uri = URI.parse(url)
 
-  url = image_source["url"]?.try &.as_s?
+  case uri.host
+  when "yt3.ggpht.com", "lh3.googleusercontent.com"
+    "/ggpht#{HTML.escape(uri.request_target)}"
+  end
+rescue
+  nil
+end
+
+private def parse_attachment_run(attachment) : String?
+  source = attachment.dig?("element", "type", "imageType", "image", "sources", 0)
+  return if source.nil?
+
+  url = source["url"]?.try &.as_s?
   return if url.nil?
+
+  src = image_source(url)
+  return if src.nil?
 
   label = attachment.dig?("properties", "accessibilityProperties", "label").try &.as_s? || ""
   escaped_label = HTML.escape(label)
 
   String.build do |str|
     str << %(<img alt=") << escaped_label << %(" )
-    str << %(src="/ggpht) << HTML.escape(URI.parse(url).request_target) << %(" )
+    str << %(src=") << src << %(" )
     str << %(title=") << escaped_label << %(")
 
-    if width = image_source["width"]?.try &.as_i?
+    if width = source["width"]?.try &.as_i?
       str << %( width=") << width << %(")
     end
 
-    if height = image_source["height"]?.try &.as_i?
+    if height = source["height"]?.try &.as_i?
       str << %( height=") << height << %(")
     end
 
