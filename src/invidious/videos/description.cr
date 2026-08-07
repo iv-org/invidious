@@ -59,14 +59,18 @@ private def render_description_attachment(attachment : JSON::Any, fallback : Str
   # same request path through yt3.ggpht.com.
   return unless {"lh3.googleusercontent.com", "yt3.ggpht.com"}.includes?(uri.host)
 
-  label = attachment.dig?("properties", "accessibilityProperties", "label").try &.as_s? || fallback
+  label = if raw_label = attachment.dig?("properties", "accessibilityProperties", "label").try &.as_s?
+            HTML.escape(raw_label)
+          else
+            fallback
+          end
   width = source["width"]?.try &.as_i? || 16_i64
   height = source["height"]?.try &.as_i? || 16_i64
 
   String.build do |str|
-    str << %(<img alt=") << HTML.escape(label) << %(" )
+    str << %(<img alt=") << label << %(" )
     str << %(src="/ggpht) << HTML.escape(uri.request_target) << %(" )
-    str << %(title=") << HTML.escape(label) << %(" )
+    str << %(title=") << label << %(" )
     str << %(width=") << width << %(" )
     str << %(height=") << height << %(" )
     str << %(class="channel-emoji" />)
