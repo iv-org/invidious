@@ -121,6 +121,25 @@ Spectator.describe "parse_description" do
     )
   end
 
+  it "escapes an attachment fallback exactly once when its label is absent" do
+    description = JSON.parse(%({
+      "content":"<&",
+      "attachmentRuns":[{
+        "startIndex":0,
+        "length":2,
+        "element":{"type":{"imageType":{"image":{"sources":[{
+          "url":"https://lh3.googleusercontent.com/custom=s16",
+          "width":16,
+          "height":16
+        }]}}}}
+      }]
+    }))
+
+    expect(parse_description(description, "video-id")).to eq(
+      %(<img alt="&lt;&amp;" src="/ggpht/custom=s16" title="&lt;&amp;" width="16" height="16" class="channel-emoji" />)
+    )
+  end
+
   it "does not render zero-length graphical attachments" do
     description = JSON.parse(%({
       "content":"plain text",
