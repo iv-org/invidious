@@ -542,5 +542,9 @@
     "Livestreams": "Prenosi v živo",
     "dmca_content": "Tega videoposnetka ni mogoče prenesti v ta primerek zaradi pisma o kršitvi DMCA/avtorskih pravic, poslanega skrbniku primerka.",
     "preferences_search_privacy_label": "Zasebnost iskanja: ",
-    "preferences_search_privacy_description": "Če to nastavitev omogočiš, se tvoja iskalna poizvedovanja ne bodo shranjevala v zgodovini brskalnika."
+    "preferences_search_privacy_description": "Če to nastavitev omogočiš, se tvoja iskalna poizvedovanja ne bodo shranjevala v zgodovini brskalnika.",
+    "comments_youtube_disabled_text": "Komentarji na YouTubu so pri tem videoposnetku onemogočeni",
+    "comments_youtube_disabled_try_reddit": "Morda bi poskusil/a s komentarji na Redditu?",
+    "comments_invidious_disabled_text": "Komentarji so skriti v skladu z nastavitvami uporabnika",
+    "comments_youtube_disabled_try_reddit_no_js": "Zdravo! Videti je, da imaš izklopljen JavaScript. Čeprav je avtor videoposnetka onemogočil komentarje na YouTubu, lahko še vedno klikneš tukaj in si poskusiš ogledati komentarje na Redditu; upoštevaj, da se lahko nalaganje nekoliko podaljša."
 }
