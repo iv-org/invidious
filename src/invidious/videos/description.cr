@@ -40,6 +40,102 @@ private def copy_string(str : String::Builder, iter : Iterator, count : Int) : I
   return copied
 end
 
+private def skip_string(iter : Iterator, count : Int) : Int
+  skipped = 0
+  while skipped < count
+    cp = iter.next
+    break if cp.is_a?(Iterator::Stop)
+
+    skipped += cp > 0xFFFF ? 2 : 1
+  end
+
+  skipped
+end
+
+private def parse_attachment_run(attachment) : String?
+  image_source = attachment.dig?("element", "type", "imageType", "image", "sources", 0)
+  return if image_source.nil?
+
+  url = image_source["url"]?.try &.as_s?
+  return if url.nil?
+
+  label = attachment.dig?("properties", "accessibilityProperties", "label").try &.as_s? || ""
+  escaped_label = HTML.escape(label)
+
+  String.build do |str|
+    str << %(<img alt=") << escaped_label << %(" )
+    str << %(src="/ggpht) << HTML.escape(URI.parse(url).request_target) << %(" )
+    str << %(title=") << escaped_label << %(")
+
+    if width = image_source["width"]?.try &.as_i?
+      str << %( width=") << width << %(")
+    end
+
+    if height = image_source["height"]?.try &.as_i?
+      str << %( height=") << height << %(")
+    end
+
+    str << %( class="channel-emoji" />)
+  end
+end
+
+private def parse_description_with_attachments(content : String, commands, attachments, video_id : String) : String
+  runs = [] of Tuple(Int32, Int32, String, JSON::Any)
+
+  commands.try &.each do |command|
+    runs << {command["startIndex"].as_i, command["length"].as_i, "command", command}
+  end
+
+  attachments.each do |attachment|
+    runs << {attachment["startIndex"].as_i, attachment["length"].as_i, "attachment", attachment}
+  end
+
+  runs.sort_by! { |run| run[0] }
+
+  iter = content.each_codepoint
+  index = 0_i32
+
+  String.build do |str|
+    runs.each do |run|
+      start_index = run[0]
+      length = run[1]
+      next if start_index < index
+
+      if start_index > index
+        index += copy_string(str, iter, start_index - index)
+      end
+
+      case run[2]
+      when "command"
+        command = run[3]
+        command_content = String.build(length) do |command_str|
+          copy_string(command_str, iter, length)
+        end
+
+        link = command_content
+        if on_tap = command.dig?("onTap", "innertubeCommand")
+          link = parse_link_endpoint(on_tap, command_content, video_id)
+        end
+        str << link
+      when "attachment"
+        attachment = run[3]
+        if attachment_html = parse_attachment_run(attachment)
+          str << attachment_html
+          skip_string(iter, length)
+        else
+          copy_string(str, iter, length)
+        end
+      end
+
+      index += length
+    end
+
+    content_size = content.ascii_only? ? content.size : utf16_length(content)
+    remaining_length = content_size - index
+    copy_string(str, iter, remaining_length) if remaining_length > 0
+  end
+end
+
 def parse_description(desc, video_id : String) : String?
   return "" if desc.nil?
 
@@ -47,6 +143,10 @@ def parse_description(desc, video_id : String) : String?
   return "" if content.empty?
 
   commands = desc["commandRuns"]?.try &.as_a
+  if attachments = desc["attachmentRuns"]?.try &.as_a
+    return parse_description_with_attachments(content, commands, attachments, video_id)
+  end
+
   if commands.nil?
     # Slightly faster than HTML.escape, as we're only doing one pass on
     # the string instead of five for the standard library
