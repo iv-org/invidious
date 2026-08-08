@@ -64,19 +64,27 @@ def content_to_comment_html(content, video_id : String? = "")
     # check for custom emojis
     if run["emoji"]?
       if emoji_image = run.dig?("emoji", "image")
-        emoji_alt = HTML.escape(emoji_image.dig?("accessibility", "accessibilityData", "label").try(&.as_s) || text)
-        emoji_thumb = emoji_image["thumbnails"][0]
-        text = String.build do |str|
-          str << %(<img alt=") << emoji_alt << "\" "
-          str << %(src="/ggpht) << URI.parse(emoji_thumb["url"].as_s).request_target << "\" "
-          str << %(title=") << emoji_alt << "\" "
-          str << %(width=") << emoji_thumb["width"] << "\" "
-          str << %(height=") << emoji_thumb["height"] << "\" "
-          str << %(class="channel-emoji" />)
+        thumbnails = emoji_image["thumbnails"]?.try &.as_a?
+        if thumbnails && (emoji_thumb = thumbnails.first?) && (thumb_url = emoji_thumb["url"]?.try &.as_s?)
+          raw_label = emoji_image.dig?("accessibility", "accessibilityData", "label").try &.as_s?
+          emoji_alt = raw_label ? HTML.escape(raw_label) : text
+
+          text = String.build do |str|
+            str << %(<img alt=") << emoji_alt << "\" "
+            str << %(src="/ggpht) << URI.parse(thumb_url).request_target << "\" "
+            str << %(title=") << emoji_alt << "\" "
+            if thumb_width = emoji_thumb["width"]?
+              str << %(width=") << thumb_width << "\" "
+            end
+            if thumb_height = emoji_thumb["height"]?
+              str << %(height=") << thumb_height << "\" "
+            end
+            str << %(class="channel-emoji" />)
+          end
         end
       else
         # Hide deleted channel emoji
-        text = ""
+        text = "" if text.starts_with?(':') && text.ends_with?(':')
       end
     end
 

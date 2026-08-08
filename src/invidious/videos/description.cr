@@ -80,8 +80,34 @@ def parse_description(desc, video_id : String) : String?
       end
 
       link = cmd_content
+      
+      if command["emoji"]?
+        if emoji_image = command.dig?("emoji", "image")
+          thumbnails = emoji_image["thumbnails"]?.try &.as_a?
+          if thumbnails && (emoji_thumb = thumbnails.first?) && (thumb_url = emoji_thumb["url"]?.try &.as_s?)
+            raw_label = emoji_image.dig?("accessibility", "accessibilityData", "label").try &.as_s?
+            emoji_alt = raw_label ? HTML.escape(raw_label) : cmd_content
+
+            link = String.build do |s|
+              s << %(<img alt=") << emoji_alt << "\" "
+              s << %(src="/ggpht) << URI.parse(thumb_url).request_target << "\" "
+              s << %(title=") << emoji_alt << "\" "
+              if thumb_width = emoji_thumb["width"]?
+                s << %(width=") << thumb_width << "\" "
+              end
+              if thumb_height = emoji_thumb["height"]?
+                s << %(height=") << thumb_height << "\" "
+              end
+              s << %(class="channel-emoji" />)
+            end
+          end
+        else
+          link = "" if link.starts_with?(':') && link.ends_with?(':')
+        end
+      end
+
       if on_tap = command.dig?("onTap", "innertubeCommand")
-        link = parse_link_endpoint(on_tap, cmd_content, video_id)
+        link = parse_link_endpoint(on_tap, link, video_id)
       end
       str << link
       index += cmd_length
