@@ -38,7 +38,7 @@ struct Video
   # Methods for API v1 JSON
 
   def to_json(locale : String?, json : JSON::Builder)
-    Invidious::JSONify::APIv1.video(self, json, locale: locale)
+    Invidious::JSONify::APIv1(self, json, locale: locale)
   end
 
   # TODO: remove the locale and follow the crystal convention
