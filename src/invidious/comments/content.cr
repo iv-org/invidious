@@ -64,7 +64,7 @@ def content_to_comment_html(content, video_id : String? = "")
     # check for custom emojis
     if run["emoji"]?
       if emoji_image = run.dig?("emoji", "image")
-        emoji_alt = emoji_image.dig?("accessibility", "accessibilityData", "label").try &.as_s || text
+        emoji_alt = HTML.escape(emoji_image.dig?("accessibility", "accessibilityData", "label").try(&.as_s) || text)
         emoji_thumb = emoji_image["thumbnails"][0]
         text = String.build do |str|
           str << %(<img alt=") << emoji_alt << "\" "
