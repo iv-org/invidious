@@ -67,7 +67,8 @@ def content_to_comment_html(content, video_id : String? = "")
         thumbnails = emoji_image["thumbnails"]?.try &.as_a?
         if thumbnails && (emoji_thumb = thumbnails.first?) && (thumb_url = emoji_thumb["url"]?.try &.as_s?)
           raw_label = emoji_image.dig?("accessibility", "accessibilityData", "label").try &.as_s?
-          emoji_alt = raw_label ? HTML.escape(raw_label) : text
+          raw_run_text = run["text"]?.try(&.as_s?) || ""
+          emoji_alt = raw_label ? HTML.escape(raw_label) : HTML.escape(raw_run_text)
 
           text = String.build do |str|
             str << %(<img alt=") << emoji_alt << "\" "
