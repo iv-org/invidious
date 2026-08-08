@@ -7,7 +7,7 @@ module Invidious::Database::Users
   #  Insert / delete
   # -------------------
 
-  def insert(user : User, update_on_conflict : Bool = false)
+  def insert(user : User, update_on_conflict : Bool = false, *, conn : DB::Database | DB::Connection | DB::Transaction = PG_DB)
     user_array = user.to_a
     user_array[4] = user_array[4].to_json # User preferences
 
@@ -23,16 +23,16 @@ module Invidious::Database::Users
       SQL
     end
 
-    PG_DB.exec(request, args: user_array)
+    conn.exec(request, args: user_array)
   end
 
-  def delete(user : User)
+  def delete(user : User, *, conn : DB::Database | DB::Connection | DB::Transaction = PG_DB)
     request = <<-SQL
       DELETE FROM users *
       WHERE email = $1
     SQL
 
-    PG_DB.exec(request, user.email)
+    conn.exec(request, user.email)
   end
 
   # -------------------
