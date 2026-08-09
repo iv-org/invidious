@@ -525,5 +525,9 @@
     "Livestreams": "Živé přenosy",
     "dmca_content": "Toto video nelze na této instanci stáhnout z důvodu obdržení dopisu o porušení DMCA / autorského práva správcem této instance.",
     "preferences_search_privacy_label": "Soukromé vyhledávání: ",
-    "preferences_search_privacy_description": "Povolení tohoto nastavení zabrání uložení vašich vyhledávání v historii prohlížeče."
+    "preferences_search_privacy_description": "Povolení tohoto nastavení zabrání uložení vašich vyhledávání v historii prohlížeče.",
+    "comments_youtube_disabled_text": "YouTube komentáře jsou u tohoto videa zakázány",
+    "comments_youtube_disabled_try_reddit": "Zkusit Reddit komentáře?",
+    "comments_invidious_disabled_text": "Komentáře jsou skryty v souladu s nastavením uživatele",
+    "comments_youtube_disabled_try_reddit_no_js": "Dobrý den! Vypadá to, že máte vypnutý JavaScript. Ačkoli autor videa zakázal YouTube komentáře, můžete přesto kliknout sem pro vyzkoušení zobrazení komentářů na Redditu – jejich načtení může nicméně trvat trochu déle."
 }
