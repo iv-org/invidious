@@ -491,5 +491,9 @@
     "Livestreams": "即時串流",
     "dmca_content": "由於收到一封針對本伺服器的數位千禧年版權法案 (DMCA)/版權侵權通知函，此影片無法在本伺服器上進行下載。",
     "preferences_search_privacy_label": "搜尋隱私： ",
-    "preferences_search_privacy_description": "啟用此設定後，您的搜尋查詢將不會儲存於瀏覽器歷史紀錄中。"
+    "preferences_search_privacy_description": "啟用此設定後，您的搜尋查詢將不會儲存於瀏覽器歷史紀錄中。",
+    "comments_youtube_disabled_text": "此影片已停用 Youtube 留言",
+    "comments_youtube_disabled_try_reddit": "嘗試 reddit 留言？",
+    "comments_invidious_disabled_text": "留言已根據使用者偏好設定隱藏",
+    "comments_youtube_disabled_try_reddit_no_js": "您好！您似乎把 JavaScript 關閉了。雖然上傳者已停用 YouTube 留言，但您仍可點擊此處檢視 Reddit 留言，但要記住，這可能會需要比較久的時間載入。"
 }

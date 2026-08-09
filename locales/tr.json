@@ -508,5 +508,9 @@
     "Livestreams": "Canlı Yayınlar",
     "dmca_content": "Bu video, örnek yöneticisine gönderilen DMCA/telif hakkı ihlali mektubu nedeniyle bu örnekte indirilemez.",
     "preferences_search_privacy_label": "Arama gizliliği: ",
-    "preferences_search_privacy_description": "Bu ayarı etkinleştirdiğinizde, arama sorgularınız tarayıcı geçmişinize kaydedilmez."
+    "preferences_search_privacy_description": "Bu ayarı etkinleştirdiğinizde, arama sorgularınız tarayıcı geçmişinize kaydedilmez.",
+    "comments_youtube_disabled_text": "Bu videoda YouTube yorumları devre dışı bırakıldı",
+    "comments_youtube_disabled_try_reddit": "Reddit yorumları denensin mi?",
+    "comments_invidious_disabled_text": "Kullanıcı tercihlerine göre yorumlar gizlendi",
+    "comments_youtube_disabled_try_reddit_no_js": "Merhaba! Görünüşe göre JavaScript kapalı. Yükleyici, YouTube yorumlarını devre dışı bırakmış olsa da, yine de buraya tıklayarak Reddit yorumlarını görüntülemeyi deneyebilirsiniz; ancak bunların yüklenmesinin biraz daha uzun sürebileceğini unutmayın."
 }
