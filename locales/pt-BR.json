@@ -525,5 +525,9 @@
     "Livestreams": "Transmissões ao vivo",
     "dmca_content": "Este vídeo não pode ser baixado nesta instância devido a uma carta de violação de direitos autorais/DMCA enviada ao administrador da instância.",
     "preferences_search_privacy_label": "Privacidade de pesquisa: ",
-    "preferences_search_privacy_description": "Ativar esta preferência prevenirá que suas pesquisas sejam salvas no histórico do navegador."
+    "preferences_search_privacy_description": "Ativar esta preferência prevenirá que suas pesquisas sejam salvas no histórico do navegador.",
+    "comments_youtube_disabled_text": "Os comentários do YouTube estão desativados neste vídeo",
+    "comments_youtube_disabled_try_reddit": "Tentar comentários do Reddit?",
+    "comments_invidious_disabled_text": "Os comentários estão escondidos conforme as preferências do usuário",
+    "comments_youtube_disabled_try_reddit_no_js": "Oi! Parece que você está com o JavaScript desativado. Embora a pessoa que enviou o vídeo tenha desativado os comentários do YouTube, você ainda pode clicar aqui para tentar ver os comentários do Reddit. Note que eles podem demorar um pouco mais para carregar."
 }
