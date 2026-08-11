@@ -13,6 +13,7 @@ module Invidious::Routes::Companion
         end
       end
     rescue ex
+      LOGGER.warn("Companion GET upstream request failed: #{ex.class}")
       env.response.status_code = 502
       return env.response.print("502 Bad Gateway")
     end
@@ -32,6 +33,7 @@ module Invidious::Routes::Companion
         end
       end
     rescue ex
+      LOGGER.warn("Companion POST upstream request failed: #{ex.class}")
       env.response.status_code = 502
       return env.response.print("502 Bad Gateway")
     end
@@ -50,6 +52,7 @@ module Invidious::Routes::Companion
         end
       end
     rescue ex
+      LOGGER.warn("Companion OPTIONS upstream request failed: #{ex.class}")
       env.response.status_code = 502
       return env.response.print("502 Bad Gateway")
     end
@@ -61,6 +64,12 @@ module Invidious::Routes::Companion
       env.response.headers[key] = value
     end
 
-    return IO.copy response.body_io, env.response
+    begin
+      return IO.copy response.body_io, env.response
+    rescue ex
+      LOGGER.warn("Companion response stream failed: #{ex.class}")
+      env.response.close unless env.response.closed?
+      return
+    end
   end
 end
