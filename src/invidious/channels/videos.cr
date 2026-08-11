@@ -11,6 +11,7 @@ module Invidious::Channel::Tabs
   def get_videos(channel : AboutChannel, *, continuation : String? = nil, sort_by = "newest")
     return get_videos(
       channel.author, channel.ucid,
+      author_thumbnail: channel.author_thumbnail,
       continuation: continuation, sort_by: sort_by
     )
   end
@@ -21,15 +22,16 @@ module Invidious::Channel::Tabs
   def get_videos(channel : InvidiousChannel, *, continuation : String? = nil, sort_by = "newest")
     return get_videos(
       channel.author, channel.id,
+      author_thumbnail: channel.author_thumbnail,
       continuation: continuation, sort_by: sort_by
     )
   end
 
-  def get_videos(author : String, ucid : String, *, continuation : String? = nil, sort_by = "newest")
+  def get_videos(author : String, ucid : String, *, continuation : String? = nil, sort_by = "newest", author_thumbnail : String? = nil)
     continuation ||= make_initial_videos_ctoken(ucid, sort_by)
     initial_data = YoutubeAPI.browse(continuation: continuation)
 
-    return extract_items(initial_data, author, ucid)
+    return extract_items(initial_data, author, ucid, author_thumbnail)
   end
 
   def get_60_videos(channel : AboutChannel, *, continuation : String? = nil, sort_by = "newest")
@@ -59,7 +61,7 @@ module Invidious::Channel::Tabs
     continuation ||= make_initial_shorts_ctoken(channel.ucid, sort_by)
     initial_data = YoutubeAPI.browse(continuation: continuation)
 
-    return extract_items(initial_data, channel.author, channel.ucid)
+    return extract_items(initial_data, channel.author, channel.ucid, channel.author_thumbnail)
   end
 
   # -------------------
@@ -70,7 +72,7 @@ module Invidious::Channel::Tabs
     continuation ||= make_initial_livestreams_ctoken(channel.ucid, sort_by)
     initial_data = YoutubeAPI.browse(continuation: continuation)
 
-    return extract_items(initial_data, channel.author, channel.ucid)
+    return extract_items(initial_data, channel.author, channel.ucid, channel.author_thumbnail)
   end
 
   def get_60_livestreams(channel : AboutChannel, *, continuation : String? = nil, sort_by = "newest")

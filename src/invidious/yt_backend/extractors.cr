@@ -26,7 +26,7 @@ private ITEM_PARSERS = {
 
 private alias InitialData = Hash(String, JSON::Any)
 
-record AuthorFallback, name : String, id : String
+record AuthorFallback, name : String, id : String, thumbnail : String? = nil
 
 # Namespace for logic relating to parsing InnerTube data into various datastructs.
 #
@@ -618,9 +618,9 @@ private module Parsers
         views:              view_count,
         description_html:   "",
         length_seconds:     duration,
-        premiere_timestamp: Time.unix(0),
+        premiere_timestamp: nil,
         author_verified:    false,
-        author_thumbnail:   nil,
+        author_thumbnail:   author_fallback.thumbnail,
         badges:             VideoBadges::None,
       })
     end
@@ -684,9 +684,9 @@ private module Parsers
           views:              view_count,
           description_html:   "",
           length_seconds:     length_seconds || 0,
-          premiere_timestamp: Time.unix(0),
+          premiere_timestamp: nil,
           author_verified:    false,
-          author_thumbnail:   nil,
+          author_thumbnail:   author_fallback.thumbnail,
           badges:             VideoBadges::None,
         })
         # If it's a playlist, it's content_type would be "LOCKUP_CONTENT_TYPE_PLAYLIST"
@@ -881,9 +881,9 @@ private module Parsers
         views:              view_count,
         description_html:   "",
         length_seconds:     duration,
-        premiere_timestamp: Time.unix(0),
+        premiere_timestamp: nil,
         author_verified:    false,
-        author_thumbnail:   nil,
+        author_thumbnail:   author_fallback.thumbnail,
         badges:             VideoBadges::None,
       })
     end
@@ -1147,11 +1147,11 @@ end
 
 # Parses an item from Youtube's JSON response into a more usable structure.
 # The end result can either be a SearchVideo, SearchPlaylist or SearchChannel.
-def parse_item(item : JSON::Any, author_fallback : String? = "", author_id_fallback : String? = "")
+def parse_item(item : JSON::Any, author_fallback : String? = "", author_id_fallback : String? = "", author_thumbnail_fallback : String? = nil)
   # We "allow" nil values but secretly use empty strings instead. This is to save us the
   # hassle of modifying every author_fallback and author_id_fallback arg usage
   # which is more often than not nil.
-  author_fallback = AuthorFallback.new(author_fallback || "", author_id_fallback || "")
+  author_fallback = AuthorFallback.new(author_fallback || "", author_id_fallback || "", author_thumbnail_fallback)
 
   # Cycles through all of the item parsers and attempt to parse the raw YT JSON data.
   # Each parser automatically validates the data given to see if the data is
@@ -1201,12 +1201,13 @@ def extract_items(
   initial_data : InitialData,
   author_fallback : String? = nil,
   author_id_fallback : String? = nil,
+  author_thumbnail_fallback : String? = nil,
 ) : {Array(SearchItem), String?}
   items = [] of SearchItem
   continuation = nil
 
   extract_items(initial_data) do |item|
-    parsed = parse_item(item, author_fallback, author_id_fallback)
+    parsed = parse_item(item, author_fallback, author_id_fallback, author_thumbnail_fallback)
 
     case parsed
     when .is_a?(Continuation) then continuation = parsed.token
