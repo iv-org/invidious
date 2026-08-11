@@ -93,7 +93,7 @@ we're going to need to do it here in order to allow for translations.
 
 <div class="h-box">
     <h1>
-        <%= title %>
+        <%= title.gsub(/\B#[\p{L}\p{N}_]+/) { |hashtag| "<a href=\"/search?q=#{URI.encode_www_form(hashtag, space_to_plus: false)}\">#{hashtag}</a>" } %>
         <% if params.listen %>
             <a title="<%=I18n.translate(locale, "Video mode")%>" id="link-iv-listen" data-base-url="/watch?<%= env.params.query %>&listen=0" href="/watch?<%= env.params.query %>&listen=0">
                 <i class="icon ion-ios-videocam"></i>
