@@ -22,7 +22,6 @@ module Invidious::Channel::Tabs
   def get_videos(channel : InvidiousChannel, *, continuation : String? = nil, sort_by = "newest")
     return get_videos(
       channel.author, channel.id,
-      author_thumbnail: channel.author_thumbnail,
       continuation: continuation, sort_by: sort_by
     )
   end
