@@ -453,7 +453,7 @@ private module Parsers
       end
 
       content_container["items"]?.try &.as_a.each do |item|
-        result = parse_item(item, author_fallback.name, author_fallback.id)
+        result = parse_item(item, author_fallback.name, author_fallback.id, author_fallback.thumbnail)
         contents << result if result.is_a?(SearchItem)
       end
 
