@@ -9,7 +9,7 @@ module Invidious::Routes::Companion
     begin
       COMPANION_POOL.client do |wrapper|
         wrapper.client.get(url, env.request.headers) do |resp|
-          return self.proxy_companion(env, resp)
+          return self.proxy_companion(env, resp, wrapper)
         end
       end
     rescue ex
@@ -29,7 +29,7 @@ module Invidious::Routes::Companion
     begin
       COMPANION_POOL.client do |wrapper|
         wrapper.client.post(url, env.request.headers, env.request.body) do |resp|
-          return self.proxy_companion(env, resp)
+          return self.proxy_companion(env, resp, wrapper)
         end
       end
     rescue ex
@@ -48,7 +48,7 @@ module Invidious::Routes::Companion
     begin
       COMPANION_POOL.client do |wrapper|
         wrapper.client.options(url, env.request.headers) do |resp|
-          return self.proxy_companion(env, resp)
+          return self.proxy_companion(env, resp, wrapper)
         end
       end
     rescue ex
@@ -58,7 +58,7 @@ module Invidious::Routes::Companion
     end
   end
 
-  private def self.proxy_companion(env, response)
+  private def self.proxy_companion(env, response, wrapper)
     env.response.status_code = response.status_code
     response.headers.each do |key, value|
       env.response.headers[key] = value
@@ -68,6 +68,7 @@ module Invidious::Routes::Companion
       return IO.copy response.body_io, env.response
     rescue ex
       LOGGER.warn("Companion response stream failed: #{ex.class}")
+      wrapper.close
       env.response.close unless env.response.closed?
       return
     end
