@@ -445,7 +445,7 @@ def get_playlist_videos(playlist : InvidiousPlaylist | Playlist, offset : Int32,
       # 100 videos per request
       ctoken = produce_playlist_continuation(playlist.id, offset)
       initial_data = YoutubeAPI.browse(ctoken)
-      videos += extract_playlist_videos(playlist.id, initial_data)
+      videos += extract_playlist_videos(playlist, initial_data)
 
       offset += 100
     end
@@ -458,7 +458,7 @@ end
 # the same LockupViewModel used in Channel videos and Youtube playlists that
 # appears on searches (Invidious /search endpoint).
 # Related to https://github.com/iv-org/invidious/pull/5736
-def extract_playlist_videos(playlist_id : String, initial_data : Hash(String, JSON::Any))
+def extract_playlist_videos(playlist : InvidiousPlaylist | Playlist, initial_data : Hash(String, JSON::Any))
   videos = [] of PlaylistVideo | ProblematicTimelineItem
 
   if initial_data["contents"]?
@@ -489,7 +489,7 @@ def extract_playlist_videos(playlist_id : String, initial_data : Hash(String, JS
 
       watch_endpoint = i.dig?("rendererContext", "commandContext", "onTap", "innertubeCommand", "watchEndpoint")
       video_id = watch_endpoint.try &.["videoId"]?.try &.as_s
-      plid = watch_endpoint.try &.["playlistId"]?.try &.as_s || playlist_id
+      plid = watch_endpoint.try &.["playlistId"]?.try &.as_s || playlist.id
       index = watch_endpoint.try &.["index"]?.try &.as_i64
 
       metadata = i["metadata"]?
@@ -505,11 +505,33 @@ def extract_playlist_videos(playlist_id : String, initial_data : Hash(String, JS
         parts && parts.any? { |item2| item2.dig?("text", "commandRuns").try &.as_a }
       }.try &.["metadataParts"].as_a
 
+      author = nil
+      ucid = nil
       if author_info = metadata_parts.try &.find(&.dig?("text", "commandRuns"))
            .try &.["text"]
         author = author_info["content"].as_s
         ucid = author_info.dig?("commandRuns", 0, "onTap", "innertubeCommand", "browseEndpoint", "browseId")
           .try &.as_s
+      end
+
+      unless author && ucid
+        avatar_cmd = lockup_metadata_view_model.try &.dig?(
+          "image", "decoratedAvatarViewModel", "rendererContext", "commandContext", "onTap", "innertubeCommand"
+        )
+        if avatar_cmd
+          ucid ||= avatar_cmd.dig?("browseEndpoint", "browseId").try &.as_s
+          
+          if ucid && playlist.responds_to?(:ucid) && ucid == playlist.ucid
+            author ||= playlist.author
+          end
+          
+          if !author || author.empty?
+            handle = avatar_cmd.dig?("commandMetadata", "webCommandMetadata", "url").try &.as_s
+            if handle && handle.starts_with?("/@")
+              author = handle.lchop("/@")
+            end
+          end
+        end
       end
 
       length = thumbnail_view_model.try &.dig?("overlays", 0, "thumbnailBottomOverlayViewModel", "badges", 0, "thumbnailBadgeViewModel", "text").try &.as_s
