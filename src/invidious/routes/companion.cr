@@ -13,6 +13,8 @@ module Invidious::Routes::Companion
         end
       end
     rescue ex
+      env.response.status_code = 502
+      return env.response.print("502 Bad Gateway")
     end
   end
 
@@ -30,6 +32,8 @@ module Invidious::Routes::Companion
         end
       end
     rescue ex
+      env.response.status_code = 502
+      return env.response.print("502 Bad Gateway")
     end
   end
 
@@ -46,6 +50,8 @@ module Invidious::Routes::Companion
         end
       end
     rescue ex
+      env.response.status_code = 502
+      return env.response.print("502 Bad Gateway")
     end
   end
 
