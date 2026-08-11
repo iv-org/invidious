@@ -33,10 +33,6 @@ module Invidious::Routes::API::V1::Misc
     env.response.content_type = "application/json"
     plid = env.params.url["plid"]
 
-    offset = env.params.query["index"]?.try &.to_i?
-    offset ||= env.params.query["page"]?.try &.to_i?.try { |page| (page - 1) * 100 }
-    offset ||= 0
-
     video_id = env.params.query["continuation"]?
 
     format = env.params.query["format"]?
@@ -56,6 +52,19 @@ module Invidious::Routes::API::V1::Misc
     rescue ex
       return error_json(404, "Playlist does not exist.")
     end
+
+    offset = env.params.query["index"]?.try &.to_i?
+    if offset.nil?
+      page = env.params.query["page"]?.try &.to_i?
+      if page
+        if playlist.is_a? InvidiousPlaylist
+          offset = (page - 1) * 100
+        else
+          offset = (page - 1) * 200
+        end
+      end
+    end
+    offset ||= 0
 
     user = env.get?("user").try &.as(User)
     if !playlist || playlist.privacy.private? && playlist.author != user.try &.email
