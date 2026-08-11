@@ -46,8 +46,12 @@ def parse_description(desc, video_id : String) : String?
   content = desc["content"].as_s
   return "" if content.empty?
 
-  commands = desc["commandRuns"]?.try &.as_a
-  if commands.nil?
+  # attachmentRuns contains custom emoji URLs
+  attachments = desc["attachmentRuns"]?.try &.as_a || [] of JSON::Any
+
+  commands = desc["commandRuns"]?.try &.as_a || [] of JSON::Any
+
+  if commands.empty? && attachments.empty?
     # Slightly faster than HTML.escape, as we're only doing one pass on
     # the string instead of five for the standard library
     return String.build do |str|
@@ -65,28 +69,59 @@ def parse_description(desc, video_id : String) : String?
   index = 0
 
   return String.build do |str|
-    commands.each do |command|
-      cmd_start = command["startIndex"].as_i
-      cmd_length = command["length"].as_i
+    # Combine commandRuns and attachmentRuns into one array
+    events = commands + attachments
+
+    events.each do |event|
+      cmd_start = event["startIndex"].as_i
+      cmd_length = event["length"].as_i
 
       # Copy the text chunk between this command and the previous if needed.
       length = cmd_start - index
       index += copy_string(str, iter, length)
 
-      # We need to copy the command's text using the iterator
-      # and the special function defined above.
-      cmd_content = String.build(cmd_length) do |str2|
-        copy_string(str2, iter, cmd_length)
-      end
+      if image = event.dig?("element", "type", "imageType", "image")
+        source = image["sources"][0]
+        url = source["url"].as_s
 
-      link = cmd_content
-      if on_tap = command.dig?("onTap", "innertubeCommand")
-        link = parse_link_endpoint(on_tap, cmd_content, video_id)
+        # Custom emoji attachment, so far URL is lh3.googleusercontent.com and yt3.googleusercontent.com
+        # Filter out any description logo images, which use gstatic endpoint
+        if url.includes?("googleusercontent")
+          # Extract the emoji name
+          label = event.dig?("element", "properties", "accessibilityProperties", "label").try &.as_s || ""
+
+          # Apply channel-emoji CSS to add margin around emoji
+          str << %(<img class="channel-emoji" alt=")
+          str << HTML.escape(label)
+          str << %(" src="/ggpht)
+          str << URI.parse(url).request_target
+          str << %(" title=")
+          str << HTML.escape(label)
+          str << %(" width=")
+          str << source["width"]?.to_s
+          str << %(" height=")
+          str << source["height"]?.to_s
+          str << %(" />)
+
+          # Use String::Builder.new to NOT append emoji text to final HTML output
+          index += copy_string(String::Builder.new, iter, cmd_length)
+        end
+
+      else
+        # We need to copy the command's text using the iterator
+        # and the special function defined above.
+        cmd_content = String.build(cmd_length) do |str2|
+          copy_string(str2, iter, cmd_length)
+        end
+
+        link = cmd_content
+        if on_tap = event.dig?("onTap", "innertubeCommand")
+          link = parse_link_endpoint(on_tap, cmd_content, video_id)
+        end
+        str << link
+        index += cmd_length
       end
-      str << link
-      index += cmd_length
     end
-
     # Copy the end of the string (past the last command).
     content_size = content.ascii_only? ? content.size : utf16_length(content)
     remaining_length = content_size - index
