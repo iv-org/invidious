@@ -19,14 +19,22 @@ module Invidious::Videos::Parser
       decode_length_seconds(box.as_s).to_s
     end
 
-    # Both have "short", so the "long" option shouldn't be required
-    channel_info = (related["shortBylineText"]? || related["longBylineText"]?)
-      .try &.dig?("runs", 0)
+    byline = related["shortBylineText"]? || related["longBylineText"]?
 
-    author = channel_info.try &.dig?("text")
+    author = extract_text(byline)
     author_verified = has_verified_badge?(related["ownerBadges"]?).to_s
 
-    ucid = channel_info.try { |ci| HelperExtractors.get_browse_id(ci) }
+    ucid = nil
+    runs = byline.try &.dig?("runs")
+    if runs && runs.as_a?
+      runs.as_a.each do |run|
+        id = HelperExtractors.get_browse_id(run)
+        if id && !id.to_s.empty?
+          ucid = id
+          break
+        end
+      end
+    end
 
     short_view_count = related.try do |r|
       HelperExtractors.get_short_view_count(r).to_s
