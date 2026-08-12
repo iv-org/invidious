@@ -192,7 +192,9 @@ def fetch_channel(ucid, pull_all_videos : Bool)
 
     # We don't include the 'premiere_timestamp' here because channel pages don't include them,
     # meaning the above timestamp is always null
-    was_insert = Invidious::Database::ChannelVideos.insert(video)
+    # InnerTube provides relative publication labels. Once persisted, keep the
+    # existing timestamp so a later refresh cannot shift it forward.
+    was_insert = Invidious::Database::ChannelVideos.insert(video, update_published: false)
 
     if was_insert
       LOGGER.trace("fetch_channel: #{ucid} : video #{channel_video.id} : Inserted, updating subscriptions")
@@ -226,7 +228,7 @@ def fetch_channel(ucid, pull_all_videos : Bool)
         # We are notified of Red videos elsewhere (PubSub), which includes a correct published date,
         # so since they don't provide a published date here we can safely ignore them.
         if Time.utc - video.published > 1.minute
-          was_insert = Invidious::Database::ChannelVideos.insert(video)
+          was_insert = Invidious::Database::ChannelVideos.insert(video, update_published: false)
           if was_insert
             NOTIFICATION_CHANNEL.send(VideoNotification.from_video(video))
           end
