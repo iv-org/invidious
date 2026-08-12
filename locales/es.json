@@ -483,7 +483,7 @@
     "error_video_not_in_playlist": "El vídeo que has solicitado no existe en esta lista de reproducción. <a href=\"`x`\">Haz clic aquí para acceder a la página de inicio de la lista de reproducción.</a>",
     "channel_tab_streams_label": "Directos",
     "channel_tab_channels_label": "Canales",
-    "channel_tab_shorts_label": "Cortos",
+    "channel_tab_shorts_label": "Shorts",
     "channel_tab_playlists_label": "Listas de reproducción",
     "Music in this video": "Música en este video",
     "Artist: ": "Artista: ",
@@ -524,5 +524,10 @@
     "timeline_parse_error_placeholder_heading": "Imposible procesar este elemento",
     "Livestreams": "Transmisiones en vivo",
     "dmca_content": "Este video no se puede descargar en esta instancia debido a una carta de infracción de derechos de autor/DMCA enviada al administrador de la instancia.",
-    "preferences_search_privacy_label": "Privacidad de busquedas: "
+    "preferences_search_privacy_label": "Privacidad de busquedas: ",
+    "preferences_search_privacy_description": "Al activar esta preferencia, se evitará que tus búsquedas se guarden en el historial del navegador.",
+    "comments_youtube_disabled_text": "Los comentarios de YouTube están desactivados en este video",
+    "comments_youtube_disabled_try_reddit": "¿Probar con los comentarios de Reddit?",
+    "comments_invidious_disabled_text": "Los comentarios están ocultos según las preferencias del usuario",
+    "comments_youtube_disabled_try_reddit_no_js": "¡Hola! Parece que tienes JavaScript desactivado. Aunque el autor del video ha inhabilitado los comentarios de YouTube, aún puedes hacer clic aquí para intentar ver los comentarios de Reddit; ten en cuenta que pueden tardar un poco más en cargar."
 }
