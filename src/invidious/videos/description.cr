@@ -80,40 +80,36 @@ def parse_description(desc, video_id : String) : String?
       length = cmd_start - index
       index += copy_string(str, iter, length)
 
-      if image = event.dig?("element", "type", "imageType", "image")
+      # We need to copy the command's text using the iterator
+      # and the special function defined above.
+      cmd_content = String.build(cmd_length) do |str2|
+        copy_string(str2, iter, cmd_length)
+      end
+
+      # Check if event is an attachment AND a custom emoji using regex. Format is :<name>:
+      # Members-only custom emojis have prefix :_ Built in YouTube emojis do not
+      if (image = event.dig?("element", "type", "imageType", "image")) && cmd_content.matches?(/^:[^:\s]+:$/)
+        # Source contains the emoji URL, height, and width
         source = image["sources"][0]
-        url = source["url"].as_s
 
-        # Custom emoji attachment, so far URL is lh3.googleusercontent.com and yt3.googleusercontent.com
-        # Filter out any description logo images, which use gstatic endpoint
-        if url.includes?("googleusercontent")
-          # Extract the emoji name
-          label = event.dig?("element", "properties", "accessibilityProperties", "label").try &.as_s || ""
+        # Extract the emoji name
+        label = event.dig?("element", "properties", "accessibilityProperties", "label").try &.as_s || ""
 
-          # Apply channel-emoji CSS to add margin around emoji
-          str << %(<img class="channel-emoji" alt=")
-          str << HTML.escape(label)
-          str << %(" src="/ggpht)
-          str << URI.parse(url).request_target
-          str << %(" title=")
-          str << HTML.escape(label)
-          str << %(" width=")
-          str << source["width"]?.to_s
-          str << %(" height=")
-          str << source["height"]?.to_s
-          str << %(" />)
+        # Apply channel-emoji CSS to add margin around emoji
+        str << %(<img class="channel-emoji" alt=")
+        str << HTML.escape(label)
+        str << %(" src="/ggpht)
+        str << URI.parse(url = source["url"].as_s).request_target
+        str << %(" title=")
+        str << HTML.escape(label)
+        str << %(" width=")
+        str << source["width"]?.to_s
+        str << %(" height=")
+        str << source["height"]?.to_s
+        str << %(" />)
 
-          # Use String::Builder.new to NOT append emoji text to final HTML output
-          index += copy_string(String::Builder.new, iter, cmd_length)
-        end
-
+        index += cmd_length
       else
-        # We need to copy the command's text using the iterator
-        # and the special function defined above.
-        cmd_content = String.build(cmd_length) do |str2|
-          copy_string(str2, iter, cmd_length)
-        end
-
         link = cmd_content
         if on_tap = event.dig?("onTap", "innertubeCommand")
           link = parse_link_endpoint(on_tap, cmd_content, video_id)
