@@ -1,3 +1,33 @@
+# Strip punctuation at the end of an auto-detected URL that most likely
+# belongs to the surrounding text rather than to the URL itself (e.g the
+# period at the end of a sentence, or the closing parenthesis in
+# "(see https://example.com)").
+#
+# The rules mimic the autolink extension of GitHub Flavored Markdown
+# (https://github.github.com/gfm/#extended-autolink-path-validation),
+# with the addition of ';' since entity references can't appear in the
+# plain text handled here.
+#
+# A trailing closing parenthesis is only stripped when it has no matching
+# opening parenthesis within the URL, so that links like
+# https://en.wikipedia.org/wiki/Crystal_(programming_language) are kept
+# intact.
+def strip_url_trailing_punctuation(url : String) : String
+  loop do
+    case url[-1]?
+    when '.', ',', ':', ';', '!', '?', '\'', '"', '*', '_', '~'
+      url = url.rchop
+    when ')'
+      break if url.count('(') >= url.count(')')
+      url = url.rchop
+    else
+      break
+    end
+  end
+
+  return url
+end
+
 def text_to_parsed_content(text : String) : JSON::Any
   nodes = [] of JSON::Any
   # For each line convert line to array of nodes
@@ -12,14 +42,16 @@ def text_to_parsed_content(text : String) : JSON::Any
     # For each match with url pattern, get last node and preserve
     # last node before create new node with url information
     # { 'text': match, 'navigationEndpoint': { 'urlEndpoint' : 'url': match } }
-    line.scan(/https?:\/\/[^ ]*/).each do |url_match|
+    line.scan(/https?:\/\/[^\s<>]+/).each do |url_match|
+      url = strip_url_trailing_punctuation(url_match[0])
+
       # Retrieve last node and update node without match
       last_node = current_nodes[-1].as_h
-      splitted_last_node = last_node["text"].as_s.split(url_match[0])
+      splitted_last_node = last_node["text"].as_s.split(url, 2)
       last_node["text"] = JSON.parse(splitted_last_node[0].to_json)
       current_nodes[-1] = JSON.parse(last_node.to_json)
       # Create new node with match and navigation infos
-      current_node = {"text" => url_match[0], "navigationEndpoint" => {"urlEndpoint" => {"url" => url_match[0]}}}
+      current_node = {"text" => url, "navigationEndpoint" => {"urlEndpoint" => {"url" => url}}}
       current_nodes << (JSON.parse(current_node.to_json))
       # If text remain after match create new simple node with text after match
       after_node = {"text" => splitted_last_node.size > 1 ? splitted_last_node[1] : ""}
