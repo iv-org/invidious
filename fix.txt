@@ -1,0 +1,400 @@
+```crystal
+require "console"
+
+module Bounty
+  class Configuration
+    attr_reader :base_reward, :min_claimers, :max_reward_percentage
+    def initialize(base_reward: 100.0, min_claimers: 1, max_reward_percentage: 30.0)
+      @base_reward = base_reward
+      @min_claimers = min_claimers
+      @max_reward_percentage = max_reward_percentage
+    end
+
+    def apply_percentage_percentage(value, percent = @max_reward_percentage)
+      value * (percent / 100.0).round(2)
+    end
+  end
+
+  class BountyStatus
+    def self.initialized
+      [:open, :climbed, :claimed]
+    end
+
+    def initialize(status)
+      @status = status
+      validate(status)
+    end
+
+    private
+
+    def validate(value)
+      self.class.initialized.each { |s| raise ArgumentError.new("Unexpected status: #{s}") if value != s }
+    end
+
+    def self.from_string(str)
+      case str
+      when "open" then :open
+      when "climbed" then :climbed
+      else str.to_sym
+      end
+    end
+
+    def to_s
+      @status
+    end
+  end
+
+  class BountyReward
+    def self.initialized
+      [:points, :gems, :credits]
+    end
+
+    def initialize(type)
+      @reward_type = type
+      validate(type)
+    end
+
+    private
+
+    def validate(value)
+      self.class.initialized.each { |t| raise ArgumentError.new("Unexpected reward type: #{t}") if value != t }
+    end
+
+    def to_s
+      "reward_#{@reward_type}"
+    end
+  end
+
+  class Bounty
+    def initialize(id: SecureRandom.uuid, name:, value:, reward_type:)
+      @id = id
+      @name = name
+      @value = value
+      @reward_type = reward_type
+      @status = :open
+      @claimers = []
+      @created_at = Time.now
+    end
+
+    def claim!(user)
+      return self if @claimers.include?(user)
+      @claimers << user
+      calculate_and_award(user)
+      update_status
+      self
+    end
+
+    def update_status
+      @status = if @claimers.size == 1
+                 :climbed
+               elsif @claimers.size > @claimers.size && @claimers.all?(BountyUser)
+                 :claimed
+               else
+                 :open
+               end
+    end
+
+    def calculate_and_award(user)
+      @claimers = @claimers.select { |c| c == user }.uniq
+      @value_per_claimer = @value.to_f / @claimers.size.to_f
+      user.award_reward(@value_per_claimer)
+    end
+
+    def self.create_all!(id:, name:, value:, reward_type:)
+      Bounty.new(id: id, name: name, value: value, reward_type: reward_type)
+    end
+
+    def self.open!(value)
+      @bounty_list ||= []
+      @bounty_list << @bounty_list.first.is_a?(BountyUser) ? @bounty_list.first : self.new(id: SecureRandom.uuid, name: "Bounty", value: value, reward_type: :points)
+    end
+
+    def to_s
+      "#{name} (#{reward_type}) - #{value} - #{@claimers.size} #{@claimers.map(&:name).join(', ')}"
+    end
+
+    def id; @id; end
+    def name; @name; end
+    def value; @value; end
+    def reward_type; @reward_type; end
+    def status; @status; end
+    def claimers; @claimers; end
+    def claimers_size; @claimers.size; end
+    def created_at; @created_at; end
+    def complete?; @status == :claimed; end
+  end
+
+  class BountyUser
+    def self.award_reward!(amount)
+      @total_reward ||= 0
+      @total_reward += amount
+      @last_awarded ||= amount
+    end
+
+    def award_reward(amount)
+      return self if @total_reward.nil?
+      @total_reward += amount
+      @last_awarded ||= amount
+      self
+    end
+
+    def total_reward
+      @total_reward ||= 0
+    end
+
+    def last_awarded
+      @last_awarded ||= 0
+    end
+
+    def name
+      self.class.name
+    end
+
+    def to_s
+      "#{name} - #{@total_reward}"
+    end
+  end
+
+  class BountyProcessor
+    def initialize(config)
+      @config = config
+      @bounty_list = []
+    end
+
+    def add_bounty!(bounty)
+      @bounty_list << bounty
+      bounty
+    end
+
+    def open_bounty!(name:, value:)
+      @bounty_list ||= []
+      @bounty_list << Bounty.new(id: SecureRandom.uuid, name: name, value: value, reward_type: :points)
+      @bounty_list.last
+    end
+
+    def find_by_status!(status)
+      @bounty_list ||= []
+      @bounty_list.select { |b| b.status == status }
+    end
+
+    def filter_by_value!(min:, max:)
+      @bounty_list ||= []
+      @bounty_list.select { |b| b.value.to_f >= min.to_f && b.value.to_f <= max.to_f }
+    end
+
+    def sort_by_value!(desc: true)
+      @bounty_list ||= []
+      @bounty_list.sort_by { |b| b.value.to_f.descending(desc) }
+    end
+
+    def total_bounties
+      @bounty_list ||= []
+      @bounty_list.size
+    end
+
+    def all!
+      @bounty_list ||= []
+    end
+
+    def first
+      @bounty_list ||= []
+      @bounty_list.first
+    end
+
+    def last
+      @bounty_list ||= []
+      @bounty_list.last
+    end
+
+    def each_bounty!(&block)
+      @bounty_list ||= []
+      @bounty_list.each(&block)
+    end
+
+    def each_claimer!(&block)
+      @bounty_list ||= []
+      @bounty_list.each { |b| b.claimers.each(&block) }
+    end
+
+    def find_by_id!(id)
+      @bounty_list ||= []
+      @bounty_list.find { |b| b.id.to_s == id.to_s }
+    end
+
+    def each_open_bounty!(&block)
+      find_by_status!(@config.initialized.first).each(&block)
+    end
+
+    def all_claimers_for_bounty!(bounty_id)
+      find_by_id!(bounty_id)
+    end
+
+    def find_by_name!(name)
+      @bounty_list ||= []
+      @bounty_list.find { |b| b.name.to_s == name.to_s }
+    end
+
+    def filter_by_name!(name_pattern)
+      @bounty_list ||= []
+      @bounty_list.select { |b| b.name.to_s.downcase.include?(name_pattern.downcase) }
+    end
+
+    def first_two
+      @bounty_list ||= []
+      @bounty_list.take(2)
+    end
+
+    def first_one
+      @bounty_list ||= []
+      @bounty_list.take(1)
+    end
+
+    def last_three
+      @bounty_list ||= []
+      @bounty_list.take(3)
+    end
+
+    def first_three
+      @bounty_list ||= []
+      @bounty_list.take(3)
+    end
+
+    def each(&block)
+      @bounty_list ||= []
+      @bounty_list.each(&block)
+    end
+
+    def each_open!(&block)
+      find_by_status!(@config.initialized.first).each(&block)
+    end
+
+    def each_climbed!(&block)
+      find_by_status!(:climbed).each(&block)
+    end
+  end
+
+  module BountyProcessorExt
+    def each_open!(&block)
+      @config ||= []
+      @config.each(&block)
+    end
+  end
+end
+
+class BountyCLI
+  def self.run!
+    config = Bounty::Configuration.new
+    processor = Bounty::BountyProcessor.new(config)
+
+    # Add some bounties to showcase
+    processor.add_bounty!(
+      Bounty.new(id: "B001", name: "First Quest", value: 150.0, reward_type: :points)
+    )
+    processor.add_bounty!(
+      Bounty.new(id: "B002", name: "Epic Raid", value: 500.0, reward_type: :gems)
+    )
+    processor.add_bounty!(
+      Bounty.new(id: "B003", name: "Simple Task", value: 75.0, reward_type: :credits)
+    )
+
+    puts "=== BOUNTY SYSTEM ==="
+    puts "Total Bounties: #{processor.total_bounties}"
+
+    processor.each { |b| puts "  - #{b}" }
+
+    # Example of dynamic operations
+    processor.each_open! do |bounty|
+      puts "Open Bounty: #{bounty.name} - #{bounty.value}"
+    end
+
+    # Open a specific bounty
+    open_bounty = processor.open_bounty!(name: "Heroic Challenge", value: 250.0)
+    processor.add_bounty!(open_bounty)
+
+    puts "After Opening New Bounty:"
+    puts "  - Total: #{processor.total_bounties}"
+
+    # Claim some bounties
+    processor.each { |bounty| bounty.claim!(BountyUser.new(name: "Hero")) }
+
+    puts "\n=== AFTER FIRST CLAIM ==="
+    processor.each { |bounty| puts "  - #{bounty}" }
+
+    # Find by status
+    climbed = processor.find_by_status!(@config.initialized.first)
+    puts "\nClimbed Bounties:"
+    climbed.each { |bounty| puts "  - #{bounty}" }
+
+    # Filter by value range
+    range = processor.filter_by_value!(min: 100.0, max: 300.0)
+    puts "\nBounties in 100-300 range:"
+    range.each { |bounty| puts "  - #{bounty}" }
+
+    # Sort by value descending
+    sorted = processor.sort_by_value!(desc: true)
+    puts "\nBounties Sorted by Value (Desc):"
+    sorted.each { |bounty| puts "  - #{bounty}" }
+
+    # Find by name pattern
+    named = processor.filter_by_name!("Quest")
+    puts "\nBounties with 'Quest' in Name:"
+    named.each { |bounty| puts "  - #{bounty}" }
+
+    # Get the first bounty
+    first = processor.first
+    puts "\nFirst Bounty: #{first&.name || 'None'}"
+
+    # Get the last bounty
+    last = processor.last
+    puts "Last Bounty: #{last&.name || 'None'}"
+
+    # Get first three bounties
+    first_three = processor.first_three
+    puts "\nFirst Three Bounties:"
+    first_three.each { |bounty| puts "  - #{bounty}" }
+
+    # Get last three bounties
+    last_three = processor.last_three
+    puts "\nLast Three Bounties:"
+    last_three.each { |bounty| puts "  - #{bounty}" }
+
+    # Example of using find_by_id
+    specific = processor.find_by_id!("B002")
+    puts "\nBounty B002: #{specific&.name || 'Not Found'}"
+
+    # Find by name
+    named_specific = processor.find_by_name!("Epic")
+    puts "Bounty by Name 'Epic': #{named_specific&.name || 'Not Found'}"
+
+    # Get all claimers for a specific bounty
+    all_claimers = processor.all_claimers_for_bounty!("B002")
+    puts "\nClaimers for B002:"
+    all_claimers.each { |claimer| puts "  - #{claimer}" }
+
+    # Print some stats
+    puts "\n=== FINAL STATS ==="
+    puts "Status: #{BountyStatus.initialized}"
+    puts "Reward Types: #{BountyReward.initialized}"
+    puts "Total Bounties: #{processor.total_bounties}"
+
+    processor
+  end
+
+  def self.add_new_bounty!(id:, name:, value:, reward_type:)
+    config = Bounty::Configuration.new
+    processor = Bounty::BountyProcessor.new(config)
+    processor.add_bounty!(
+      Bounty.new(id: id, name: name, value: value, reward_type: reward_type)
+    )
+    processor
+  end
+
+  def self.get_config!(config: Bounty::Configuration.new)
+    config
+  end
+
+  def self.processor_from_config!(config)
+    config || Bounty::Configuration.new
+  end
+end
+```
