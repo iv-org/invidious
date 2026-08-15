@@ -2,22 +2,26 @@ struct Invidious::User
   module Export
     extend self
 
-    def to_newpipe(subscriptions)
+    NEWPIPE_APP_VERSION     = "0.29.0"
+    NEWPIPE_APP_VERSION_INT = 1014
+    NEWPIPE_YT_SERVICE_ID   = 0
+
+    def to_newpipe(subscriptions : Array(InvidiousChannel))
       return JSON.build do |json|
         json.object do
           json.field "subscriptions" do
             json.array do
               subscriptions.each do |channel|
                 json.object do
-                  json.field "service_id", 0
+                  json.field "service_id", NEWPIPE_YT_SERVICE_ID
                   json.field "url", "https://www.youtube.com/channel/" + channel.id
                   json.field "name", channel.author
                 end
               end
             end
           end
-          json.field "app_version", "0.29.0"
-          json.field "app_version_int", 1014
+          json.field "app_version", NEWPIPE_APP_VERSION
+          json.field "app_version_int", NEWPIPE_APP_VERSION_INT
         end
       end
     end
