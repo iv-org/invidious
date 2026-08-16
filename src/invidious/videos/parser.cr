@@ -32,11 +32,16 @@ module Invidious::Videos::Parser
     ucid = byline.try do |b|
       runs = b.dig?("runs")
       next nil unless runs
+      found_id = nil
       runs.as_a.each do |run|
-        if id = HelperExtractors.get_browse_id(run)
-          break id
-        end
+        id = HelperExtractors.get_browse_id(run)
+        # get_browse_id returns "" (not nil) when no browseId is present, so an
+        # empty first run must not stop the scan. Only keep a non-empty id.
+        next if id.empty?
+        found_id = id
+        break
       end
+      found_id
     end
 
     author_verified = has_verified_badge?(related["ownerBadges"]?).to_s
