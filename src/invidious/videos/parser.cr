@@ -399,6 +399,39 @@ module Invidious::Videos::Parser
     author = video_details["author"]?.try &.as_s
     ucid = video_details["channelId"]?.try &.as_s
 
+    # For videos with multiple authors (collaborations) YouTube does not
+    # expose a single `channelId` in `videoDetails`, which left `ucid` empty
+    # and made the channel link on the watch page disappear. Fall back to the
+    # owner/byline navigation endpoint, which still carries the first
+    # channel's browseId. See iv-org/invidious#5722.
+    if ucid.nil? || ucid.empty?
+      # Prefer the owner renderer (first channel of a collaboration).
+      if owner = video_secondary_renderer.try &.dig?("owner", "videoOwnerRenderer")
+        owner_ucid = owner.dig?("title", "runs", 0, "navigationEndpoint", "browseEndpoint", "browseId").try &.as_s
+        ucid = owner_ucid if owner_ucid && !owner_ucid.empty?
+      end
+
+      # Still missing? Walk every byline candidate and keep the first one that
+      # actually carries a usable browseId, instead of stopping at the first
+      # non-nil byline (whose first run may lack a navigation endpoint).
+      if ucid.nil? || ucid.empty?
+        byline_candidates = [
+          video_details["longBylineText"]?,
+          video_details["shortBylineText"]?,
+          video_secondary_renderer.try &.dig?("longBylineText"),
+          video_secondary_renderer.try &.dig?("shortBylineText"),
+        ]
+        byline_candidates.each do |candidate|
+          next if candidate.nil?
+          candidate_ucid = candidate.dig?("runs", 0, "navigationEndpoint", "browseEndpoint", "browseId").try &.as_s
+          if candidate_ucid && !candidate_ucid.empty?
+            ucid = candidate_ucid
+            break
+          end
+        end
+      end
+    end
+
     if author_info = video_secondary_renderer.try &.dig?("owner", "videoOwnerRenderer")
       author_thumbnail = author_info.dig?("thumbnail", "thumbnails", 0, "url")
       author_verified = has_verified_badge?(author_info["badges"]?)
