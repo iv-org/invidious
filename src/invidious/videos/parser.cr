@@ -19,14 +19,27 @@ module Invidious::Videos::Parser
       decode_length_seconds(box.as_s).to_s
     end
 
-    # Both have "short", so the "long" option shouldn't be required
-    channel_info = (related["shortBylineText"]? || related["longBylineText"]?)
-      .try &.dig?("runs", 0)
+    # Both have "short", so the "long" option shouldn't be required.
+    # Videos with multiple creators expose each creator as a separate run
+    # inside "runs" (e.g. "Channel A", " and ", "Channel B"). The previous
+    # code only ever read runs[0], so any creator past the first one had no
+    # channel link. We now pick the first run that actually carries a
+    # channel id (browseId) so multi-creator videos still get a working link.
+    byline = (related["shortBylineText"]? || related["longBylineText"]?)
 
-    author = channel_info.try &.dig?("text")
+    author = byline.try { |b| b.dig?("runs", 0, "text") }
+
+    ucid = byline.try do |b|
+      runs = b.dig?("runs")
+      next nil unless runs
+      runs.as_a.each do |run|
+        if id = HelperExtractors.get_browse_id(run)
+          break id
+        end
+      end
+    end
+
     author_verified = has_verified_badge?(related["ownerBadges"]?).to_s
-
-    ucid = channel_info.try { |ci| HelperExtractors.get_browse_id(ci) }
 
     short_view_count = related.try do |r|
       HelperExtractors.get_short_view_count(r).to_s
