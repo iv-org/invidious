@@ -1,4 +1,4 @@
-# "Invidious" (which is an alternative front-end to YouTube)
+# "INVIDIOUS" (WHICH IS AN ALTERNATIVE FRONT-END TO YOUTUBE)
 # Copyright (C) 2019  Omar Roth
 #
 # This program is free software: you can redistribute it and/or modify
