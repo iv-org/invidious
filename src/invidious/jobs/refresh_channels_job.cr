@@ -43,7 +43,7 @@ class Invidious::Jobs::RefreshChannelsJob < Invidious::Jobs::BaseJob
               end
             rescue ex
               LOGGER.error("RefreshChannelsJob: #{id} : #{ex.message}")
-              if ex.is_a?(InfoException)
+              if ex.is_a?(NotFoundException)
                 Invidious::Database::Channels.update_mark_deleted(id)
               else
                 lim_fibers = 1

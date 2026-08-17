@@ -161,7 +161,7 @@ def fetch_channel(ucid, pull_all_videos : Bool)
 
   # Deleted channels raise a `InfoException` exception.
   begin
-    channel = get_about_info(ucid, nil)
+    channel = get_about_info(ucid)
   rescue ex
     raise ex
   end
