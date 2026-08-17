@@ -10,7 +10,7 @@ targets:
     main: src/invidious.cr
 
 description: |
-   Invidious is an alternative front-end to YouTube 
+   Invidious is an alternative front-end to YouTube
 
 dependencies:
   pg:
@@ -40,7 +40,7 @@ development_dependencies:
     github: crystal-ameba/ameba
     version: ~> 1.6.1
 
-crystal: ">= 1.10.0, < 2.0.0"
+crystal: ">= 1.20.0, < 2.0.0"
 
 license: AGPL-3.0-only
 
