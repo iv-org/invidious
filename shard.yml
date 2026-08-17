@@ -40,7 +40,7 @@ development_dependencies:
     github: crystal-ameba/ameba
     version: ~> 1.6.1
 
-crystal: ">= 1.20.0, < 2.0.0"
+crystal: ">= 1.14.0, < 2.0.0"
 
 license: AGPL-3.0-only
 
