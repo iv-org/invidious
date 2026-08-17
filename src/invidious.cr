@@ -51,7 +51,7 @@ require "./invidious/jobs/base_job"
 require "./invidious/jobs/*"
 
 # Show a nice message for unsupported versions of the Crystal compiler,
-# encouraging the user compiling Invidious, to update it's Crystal compiler
+# encouraging the user compiling Invidious to update it```
 # version.
 {% begin %}
   # `-Dskip_version_check` compile-time flag, for development purposes
