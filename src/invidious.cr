@@ -59,7 +59,7 @@ require "./invidious/jobs/*"
   # Invidious.
   {% if !flag?(:skip_version_check) %}
     {% shard_yml = read_file("shard.yml") %}
-    {% crystal_constraint = shard_yml.split('\n').find { |line| line.starts_with?("crystal:") } %}
+    {% crystal_constraint = shard_yml.split('\n').find(&.starts_with?("crystal:")) %}
     {% minimum_version = crystal_constraint.split('"')[1].split(",").first.split(">=").last.strip %}
     {% if compare_versions(Crystal::VERSION, minimum_version) < 0 %}
       {{ raise "Crystal version #{minimum_version} or newer is required to build Invidious. \
