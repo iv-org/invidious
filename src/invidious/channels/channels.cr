@@ -159,12 +159,7 @@ def fetch_channel(ucid, pull_all_videos : Bool)
   LOGGER.debug("fetch_channel: #{ucid}")
   LOGGER.trace("fetch_channel: #{ucid} : pull_all_videos = #{pull_all_videos}")
 
-  # Deleted channels raise a `InfoException` exception.
-  begin
-    channel = get_about_info(ucid)
-  rescue ex
-    raise ex
-  end
+  channel = get_about_info(ucid)
 
   author = channel.author
 
@@ -187,7 +182,7 @@ def fetch_channel(ucid, pull_all_videos : Bool)
       id:                 video.id,
       title:              video.title,
       published:          video.published,
-      updated:            Time.utc,
+      updated:            video.updated,
       ucid:               video.ucid,
       author:             video.author,
       length_seconds:     video.length_seconds,
