@@ -3,7 +3,7 @@ module Invidious::Routes::API::V1::Channels
   # This sets the `channel` variable, or handles Exceptions.
   private macro get_channel
     begin
-      channel = get_about_info(ucid, locale)
+      channel = get_about_info(ucid)
     rescue ex : ChannelRedirect
       env.response.headers["Location"] = env.request.resource.gsub(ucid, ex.channel_id)
       return error_json(302, "Channel is unavailable", {"authorId" => ex.channel_id})

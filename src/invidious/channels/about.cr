@@ -19,7 +19,7 @@ record AboutChannel,
   verified : Bool,
   is_age_gated : Bool
 
-def get_about_info(ucid, locale) : AboutChannel
+def get_about_info(ucid) : AboutChannel
   begin
     # Fetch channel information from channel home page
     initdata = YoutubeAPI.browse(browse_id: ucid, params: "")
