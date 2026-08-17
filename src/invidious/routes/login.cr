@@ -122,11 +122,13 @@ module Invidious::Routes::Login
           end
         end
 
-        Invidious::Database::Users.insert(user)
-        Invidious::Database::SessionIDs.insert(sid, email)
+        PG_DB.transaction do |tx|
+          Invidious::Database::Users.insert(user, conn: tx.connection)
+          Invidious::Database::SessionIDs.insert(sid, email, conn: tx.connection)
 
-        view_name = "subscriptions_#{sha256(user.email)}"
-        PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(user.email)}")
+          view_name = "subscriptions_#{sha256(user.email)}"
+          tx.connection.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(user.email)}")
+        end
 
         if alt = CONFIG.alternative_domains.index(host)
           env.response.cookies["SID"] = Invidious::User::Cookies.sid(CONFIG.alternative_domains[alt], sid)

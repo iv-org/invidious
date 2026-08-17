@@ -7,7 +7,7 @@ module Invidious::Database::SessionIDs
   #  Insert
   # -------------------
 
-  def insert(sid : String, email : String, handle_conflicts : Bool = false)
+  def insert(sid : String, email : String, handle_conflicts : Bool = false, *, conn : DB::Database | DB::Connection | DB::Transaction = PG_DB)
     request = <<-SQL
       INSERT INTO session_ids
       VALUES ($1, $2, now())
@@ -15,38 +15,38 @@ module Invidious::Database::SessionIDs
 
     request += " ON CONFLICT (id) DO NOTHING" if handle_conflicts
 
-    PG_DB.exec(request, sid, email)
+    conn.exec(request, sid, email)
   end
 
   # -------------------
   #  Delete
   # -------------------
 
-  def delete(*, sid : String)
+  def delete(*, sid : String, conn : DB::Database | DB::Connection | DB::Transaction = PG_DB)
     request = <<-SQL
       DELETE FROM session_ids *
       WHERE id = $1
     SQL
 
-    PG_DB.exec(request, sid)
+    conn.exec(request, sid)
   end
 
-  def delete(*, email : String)
+  def delete(*, email : String, conn : DB::Database | DB::Connection | DB::Transaction = PG_DB)
     request = <<-SQL
       DELETE FROM session_ids *
       WHERE email = $1
     SQL
 
-    PG_DB.exec(request, email)
+    conn.exec(request, email)
   end
 
-  def delete(*, sid : String, email : String)
+  def delete(*, sid : String, email : String, conn : DB::Database | DB::Connection | DB::Transaction = PG_DB)
     request = <<-SQL
       DELETE FROM session_ids *
       WHERE id = $1 AND email = $2
     SQL
 
-    PG_DB.exec(request, sid, email)
+    conn.exec(request, sid, email)
   end
 
   # -------------------
