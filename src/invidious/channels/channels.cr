@@ -182,7 +182,7 @@ def fetch_channel(ucid, pull_all_videos : Bool)
       id:                 video.id,
       title:              video.title,
       published:          video.published,
-      updated:            video.updated,
+      updated:            Time.utc,
       ucid:               video.ucid,
       author:             video.author,
       length_seconds:     video.length_seconds,
