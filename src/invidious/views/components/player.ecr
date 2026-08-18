@@ -43,7 +43,7 @@
                src_url = "/api/manifest/dash/id/" + video.id + "?local=true&unique_res=1"
                src_url = invidious_companion.public_url.to_s + src_url +
                             "&check=#{URI.encode_www_form(invidious_companion_check_id || "")}" if (invidious_companion)
-               src_url += "&codec_dash=#{URI.encode_www_form(params.codec_dash)}" if (["av1", "h264"].includes?(params.codec_dash))
+               src_url += "&codec_dash=#{URI.encode_www_form(params.codec_dash)}" if (invidious_companion && ["av1", "h264"].includes?(params.codec_dash))
             %>
                 <source src="<%= src_url %>" type='application/dash+xml' label="dash">
             <% end %>
