@@ -23,10 +23,10 @@
                end
 
                audio_streams.each_with_index do |fmt, i|
-                src_url  = "/latest_version?id=#{video.id}&itag=#{fmt["itag"]}"
+                src_url  = "/latest_version?id=#{URI.encode_www_form(video.id)}&itag=#{URI.encode_www_form(fmt["itag"].to_json)}"
                 src_url += "&local=true" if params.local
                 src_url = invidious_companion.public_url.to_s + src_url +
-                            "&check=#{invidious_companion_check_id}" if (invidious_companion)
+                            "&check=#{URI.encode_www_form(invidious_companion_check_id || "")}" if (invidious_companion)
 
                 bitrate = fmt["bitrate"]
                 mimetype = HTML.escape(fmt["mimeType"].as_s)
@@ -42,7 +42,8 @@
             <% if params.quality == "dash"
                src_url = "/api/manifest/dash/id/" + video.id + "?local=true&unique_res=1"
                src_url = invidious_companion.public_url.to_s + src_url +
-                            "&check=#{invidious_companion_check_id}" if (invidious_companion)
+                            "&check=#{URI.encode_www_form(invidious_companion_check_id || "")}" if (invidious_companion)
+               src_url += "&codec_dash=#{URI.encode_www_form(params.codec_dash)}" if (invidious_companion && ["av1", "h264"].includes?(params.codec_dash))
             %>
                 <source src="<%= src_url %>" type='application/dash+xml' label="dash">
             <% end %>
@@ -51,10 +52,10 @@
             fmt_stream.reject! { |f| f["itag"] == 17 }
             fmt_stream.sort_by! {|f| params.quality == f["quality"] ? 0 : 1 }
             fmt_stream.each_with_index do |fmt, i|
-                src_url  = "/latest_version?id=#{video.id}&itag=#{fmt["itag"]}"
+                src_url  = "/latest_version?id=#{URI.encode_www_form(video.id)}&itag=#{URI.encode_www_form(fmt["itag"].to_json)}"
                 src_url += "&local=true" if params.local
                 src_url = invidious_companion.public_url.to_s + src_url +
-                            "&check=#{invidious_companion_check_id}" if (invidious_companion)
+                            "&check=#{URI.encode_www_form(invidious_companion_check_id || "")}" if (invidious_companion)
 
                 quality = fmt["quality"]
                 mimetype = HTML.escape(fmt["mimeType"].as_s)
@@ -71,7 +72,7 @@
         <% preferred_captions.each do |caption|
             api_captions_url = "/api/v1/captions/"
             api_captions_url = invidious_companion.public_url.to_s + api_captions_url if (invidious_companion)
-            api_captions_check_id = "&check=#{invidious_companion_check_id}"
+            api_captions_check_id = "&check=#{URI.encode_www_form(invidious_companion_check_id || "")}"
         %>
             <track kind="captions" src="<%= api_captions_url %><%= video.id %>?label=<%= caption.name %><%= api_captions_check_id %>" label="<%= caption.name %>">
         <% end %>
@@ -79,7 +80,7 @@
         <% captions.each do |caption|
             api_captions_url = "/api/v1/captions/"
             api_captions_url = invidious_companion.public_url.to_s + api_captions_url if (invidious_companion)
-            api_captions_check_id = "&check=#{invidious_companion_check_id}"
+            api_captions_check_id = "&check=#{URI.encode_www_form(invidious_companion_check_id || "")}"
         %>
             <track kind="captions" src="<%= api_captions_url %><%= video.id %>?label=<%= caption.name %><%= api_captions_check_id %>" label="<%= caption.name %>">
         <% end %>
