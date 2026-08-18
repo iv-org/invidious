@@ -44,7 +44,7 @@ end
 # Google image CDNs that the /ggpht route can serve. They share a path
 # namespace, so an emoji hosted on googleusercontent is also reachable through
 # the ggpht pool that route proxies to.
-EMOJI_IMAGE_DOMAINS = {"ggpht.com", "googleusercontent.com"}
+private EMOJI_IMAGE_DOMAINS = {"ggpht.com", "googleusercontent.com"}
 
 # Custom emojis (channel membership ones, and the ":face-red-heart-shape:"
 # set) have no unicode equivalent, so youtube sends them as an image
