@@ -42,6 +42,7 @@
             <% if params.quality == "dash"
                src_url = "/api/manifest/dash/id/" + video.id + "?local=true&unique_res=1"
                src_url = invidious_companion.public_url.to_s + src_url +
+                            "&codec_dash=#{params.codec_dash}" +
                             "&check=#{invidious_companion_check_id}" if (invidious_companion)
             %>
                 <source src="<%= src_url %>" type='application/dash+xml' label="dash">
