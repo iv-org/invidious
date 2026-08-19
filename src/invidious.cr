@@ -200,6 +200,25 @@ end
 
 before_all do |env|
   Invidious::Routes::BeforeAll.handle(env)
+
+  # Redirect unauthenticated users if require_login is enabled
+  if CONFIG.require_login && env.get?("user").nil?
+    path = env.request.path
+    allowed = {
+      "/login", "/register", "/api/",
+      "/sb/", "/vi/", "/s_p/", "/yts/", "/ggpht/",
+      "/api/manifest/", "/videoplayback", "/latest_version",
+      "/download", "/companion/",
+    }
+
+    is_allowed = allowed.any? { |p| path.starts_with?(p) }
+    is_allowed ||= path.starts_with?("/embed/") && !CONFIG.require_login_for_embeds
+
+    unless is_allowed
+      env.redirect "/login?referer=#{URI.encode_www_form(path)}"
+      halt env, 302
+    end
+  end
 end
 
 Invidious::Routing.register_all
