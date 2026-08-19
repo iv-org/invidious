@@ -28,6 +28,13 @@ module Invidious::Videos::Parser
 
     ucid = channel_info.try { |ci| HelperExtractors.get_browse_id(ci) }
 
+    # Videos published as a collaboration have no "browseEndpoint" in their
+    # byline, so the channel has to be read from the "Collaborators" dialog
+    # that the byline opens instead. See `get_collaborator_browse_id`.
+    if ucid.nil? || ucid.empty?
+      ucid = channel_info.try { |ci| HelperExtractors.get_collaborator_browse_id(ci) }
+    end
+
     short_view_count = related.try do |r|
       HelperExtractors.get_short_view_count(r).to_s
     end

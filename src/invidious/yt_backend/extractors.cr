@@ -1143,6 +1143,21 @@ module HelperExtractors
   def self.get_browse_id(container)
     return container.dig?("navigationEndpoint", "browseEndpoint", "browseId").try &.as_s || ""
   end
+
+  # Videos published as a collaboration have no "browseEndpoint" in their
+  # byline. Their byline opens a "Collaborators" dialog instead, which holds
+  # the channel of every collaborator. Retrieves the ID of the first entry,
+  # which is the channel the video was published on.
+  #
+  # Returns an empty string when it's unable to do so
+  def self.get_collaborator_browse_id(container)
+    return container.dig?(
+      "navigationEndpoint", "showDialogCommand", "panelLoadingStrategy",
+      "inlineContent", "dialogViewModel", "customContent", "listViewModel",
+      "listItems", 0, "listItemViewModel", "rendererContext", "commandContext",
+      "onTap", "innertubeCommand", "browseEndpoint", "browseId"
+    ).try &.as_s || ""
+  end
 end
 
 # Parses an item from Youtube's JSON response into a more usable structure.
