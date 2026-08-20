@@ -38,8 +38,8 @@
   cmovie.hoffnungsportal@protonmail.com
   </a>
   <h5> Impressum</h5>
-  <a href="https://cmovie.4lima.de/#impressum">
-    https://cmovie.4lima.de/#impressum
+  <a href="https://www.cmovie.eu/#impressum">
+    https://www.cmovie.eu/#impressum
   </a>
   <br>
   </div>
