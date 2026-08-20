@@ -33,22 +33,16 @@
   &nbsp;•&nbsp;
   <a href="#contribute">Contribute</a>
 
-  <h5>Chat with us:</h5>
-  <a href="https://matrix.to/#/#invidious:matrix.org">
-    <img alt="Matrix" src="https://img.shields.io/matrix/invidious:matrix.org?label=Matrix&color=darkgreen">
+  <h5>Contact with us:</h5>
+  E-Mail: <a href="mailto:cmovie.hoffnungsportal@protonmail.com">
+  cmovie.hoffnungsportal@protonmail.com
   </a>
-  <a href="https://web.libera.chat/?channel=#invidious">
-    <img alt="Libera.chat (IRC)" src="https://img.shields.io/badge/IRC%20%28Libera.chat%29-%23invidious-darkgreen">
-  </a>
-  <br>
-  <a rel="me" href="https://social.tchncs.de/@invidious">
-  <img alt="Fediverse: @invidious@social.tchncs.de" src="https://img.shields.io/badge/Fediverse-%40invidious%40social.tchncs.de-darkgreen">
+  <h5> Impressum</h5>
+  <a href="https://cmovie.4lima.de/#impressum">
+    https://cmovie.4lima.de/#impressum
   </a>
   <br>
-  <a href="https://invidious.io/contact/">
-  <img alt="E-mail" src="https://img.shields.io/badge/E%2d%2dmail-darkgreen">
-  </a>
-</div>
+  </div>
 
 
 ## Screenshots
