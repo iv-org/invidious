@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="assets/invidious-colored-vector.svg" width="192" height="192" alt="Invidious logo">
-  <h1>Invidious</h1>
+  <img src="assets/CMovie-Logo.png" width="192" height="192" alt="CMovie logo">
+  <h1>CMovie - a fork from Invidious</h1>
 
   <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">
     <img alt="License: AGPLv3" src="https://shields.io/badge/License-AGPL%20v3-blue.svg">
@@ -23,17 +23,15 @@
 
   <h3>An open source alternative front-end to YouTube</h3>
 
-  <a href="https://invidious.io/">Website</a>
+  <a href="https://www.cmovie.eu/">Website</a>
   &nbsp;•&nbsp;
-  <a href="https://instances.invidious.io/">Instances list</a>
+  <a href="https://instances.invidious.io/">Invidious - Instances list</a>
   &nbsp;•&nbsp;
   <a href="https://docs.invidious.io/faq/">FAQ</a>
   &nbsp;•&nbsp;
   <a href="https://docs.invidious.io/">Documentation</a>
   &nbsp;•&nbsp;
   <a href="#contribute">Contribute</a>
-  &nbsp;•&nbsp;
-  <a href="https://invidious.io/donate/">Donate</a>
 
   <h5>Chat with us:</h5>
   <a href="https://matrix.to/#/#invidious:matrix.org">
