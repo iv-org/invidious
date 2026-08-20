@@ -122,6 +122,10 @@
     "Redirect homepage to feed: ": "Redirect homepage to feed: ",
     "preferences_max_results_label": "Number of videos shown in feed: ",
     "preferences_sort_label": "Sort videos by: ",
+    "preferences_default_playlist": "Default playlist: ",
+    "preferences_default_playlist_none": "No default playlist set",
+    "preferences_search_privacy_label": "Search privacy: ",
+    "preferences_search_privacy_description": "Enabling this preference will prevent your search queries from being saved in your browser history.",
     "published": "published",
     "published - reverse": "published - reverse",
     "alphabetically": "alphabetically",
@@ -218,6 +222,10 @@
     "View Reddit comments": "View Reddit comments",
     "Hide replies": "Hide replies",
     "Show replies": "Show replies",
+    "comments_youtube_disabled_text": "Youtube comments are disabled on this video",
+    "comments_youtube_disabled_try_reddit": "Try reddit comments?",
+    "comments_invidious_disabled_text": "Comments are hidden as per user preferences",
+    "comments_youtube_disabled_try_reddit_no_js": "Hi! Looks like you have JavaScript turned off. Although the uploader has disabled YouTube comments you can still click here to try and view Reddit comments, keep in mind they may take a bit longer to load.",
     "Incorrect password": "Incorrect password",
     "Wrong answer": "Wrong answer",
     "Erroneous CAPTCHA": "Erroneous CAPTCHA",
@@ -406,6 +414,7 @@
     "Default": "Default",
     "Music": "Music",
     "Gaming": "Gaming",
+    "Livestreams": "Livestreams",
     "News": "News",
     "Movies": "Movies",
     "Download": "Download",
@@ -502,5 +511,6 @@
     "carousel_go_to": "Go to slide `x`",
     "timeline_parse_error_placeholder_heading": "Unable to parse item",
     "timeline_parse_error_placeholder_message": "Invidious encountered an error while trying to parse this item. For more information see below:",
-    "timeline_parse_error_show_technical_details": "Show technical details"
+    "timeline_parse_error_show_technical_details": "Show technical details",
+    "dmca_content": "This video cannot be downloaded on this instance due to a DMCA/copyright infringement letter sent to the instance administrator."
 }

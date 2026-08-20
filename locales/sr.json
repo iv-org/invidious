@@ -39,8 +39,6 @@
     "User ID": "ID korisnika",
     "Password": "Lozinka",
     "Time (h:mm:ss):": "Vreme (č:mm:ss):",
-    "Text CAPTCHA": "Tekst CAPTCHA",
-    "Image CAPTCHA": "Slika CAPTCHA",
     "Sign In": "Prijava",
     "Register": "Registracija",
     "E-mail": "Imejl",
@@ -518,5 +516,8 @@
     "Filipino (auto-generated)": "Filipinski (automatski generisano)",
     "channel_tab_posts_label": "Objave",
     "First page": "Prva stranica",
-    "channel_tab_courses_label": "Kursevi"
+    "channel_tab_courses_label": "Kursevi",
+    "timeline_parse_error_placeholder_heading": "Nije moguće raščlaniti predmet",
+    "timeline_parse_error_show_technical_details": "Prikaži tehničke detalje",
+    "timeline_parse_error_placeholder_message": "Invidious je naišao na grešku prilikom pokušaja raščlanjivanja ovog predmeta. Za više informacija pogledajte ispod:"
 }

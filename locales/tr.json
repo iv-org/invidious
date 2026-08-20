@@ -39,8 +39,6 @@
     "User ID": "Kullanıcı Kimliği",
     "Password": "Parola",
     "Time (h:mm:ss):": "Zaman (h:mm:ss):",
-    "Text CAPTCHA": "Metin CAPTCHA",
-    "Image CAPTCHA": "Resim CAPTCHA",
     "Sign In": "Oturum Aç",
     "Register": "Kayıt Ol",
     "E-mail": "E-Posta",
@@ -501,5 +499,18 @@
     "First page": "İlk sayfa",
     "Filipino (auto-generated)": "Filipince (oto-oluşturuldu)",
     "channel_tab_courses_label": "Kurslar",
-    "channel_tab_posts_label": "Yazılar"
+    "channel_tab_posts_label": "Yazılar",
+    "timeline_parse_error_placeholder_heading": "Öge ayrıştıramıyor",
+    "timeline_parse_error_placeholder_message": "Invidious, bu ögeyi ayrıştırmaya çalışırken bir hatayla karşılaştı. Daha fazla bilgi için aşağıya bakın:",
+    "timeline_parse_error_show_technical_details": "Teknik ayrıntıları göster",
+    "preferences_default_playlist": "Öntanımlı oynatma listesi: ",
+    "preferences_default_playlist_none": "Öntanımlı oynatma listesi ayarlanmadı",
+    "Livestreams": "Canlı Yayınlar",
+    "dmca_content": "Bu video, örnek yöneticisine gönderilen DMCA/telif hakkı ihlali mektubu nedeniyle bu örnekte indirilemez.",
+    "preferences_search_privacy_label": "Arama gizliliği: ",
+    "preferences_search_privacy_description": "Bu ayarı etkinleştirdiğinizde, arama sorgularınız tarayıcı geçmişinize kaydedilmez.",
+    "comments_youtube_disabled_text": "Bu videoda YouTube yorumları devre dışı bırakıldı",
+    "comments_youtube_disabled_try_reddit": "Reddit yorumları denensin mi?",
+    "comments_invidious_disabled_text": "Kullanıcı tercihlerine göre yorumlar gizlendi",
+    "comments_youtube_disabled_try_reddit_no_js": "Merhaba! Görünüşe göre JavaScript kapalı. Yükleyici, YouTube yorumlarını devre dışı bırakmış olsa da, yine de buraya tıklayarak Reddit yorumlarını görüntülemeyi deneyebilirsiniz; ancak bunların yüklenmesinin biraz daha uzun sürebileceğini unutmayın."
 }

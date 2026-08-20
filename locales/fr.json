@@ -62,8 +62,6 @@
     "User ID": "Identifiant utilisateur",
     "Password": "Mot de passe",
     "Time (h:mm:ss):": "Heure (h:mm:ss) :",
-    "Text CAPTCHA": "CAPTCHA textuel",
-    "Image CAPTCHA": "CAPTCHA pictural",
     "Sign In": "S'identifier",
     "Register": "S'inscrire",
     "E-mail": "Courriel",
@@ -503,7 +501,7 @@
     "Download is disabled": "Le téléchargement est désactivé",
     "Import YouTube playlist (.csv)": "Importer des listes de lecture de Youtube (.csv)",
     "channel_tab_releases_label": "Parutions",
-    "channel_tab_podcasts_label": "Émissions audio",
+    "channel_tab_podcasts_label": "Podcasts",
     "Import YouTube watch history (.json)": "Importer l'historique de visionnement YouTube (.json)",
     "Add to playlist: ": "Ajouter à la playlist : ",
     "Add to playlist": "Ajouter à la playlist",
@@ -518,5 +516,13 @@
     "preferences_preload_label": "Précharger les données de la vidéo : ",
     "First page": "Première page",
     "channel_tab_courses_label": "Cours",
-    "channel_tab_posts_label": "Messages"
+    "channel_tab_posts_label": "Messages",
+    "timeline_parse_error_show_technical_details": "Afficher les détails techniques",
+    "preferences_default_playlist": "Playlist par défaut : ",
+    "preferences_default_playlist_none": "Aucune playlist par défaut définie",
+    "timeline_parse_error_placeholder_message": "Invidious a subi une erreur en essayant de récupérer (parse) cet item. Pour plus d'information, voir ci-dessous :",
+    "timeline_parse_error_placeholder_heading": "Impossible d'interpréter (parse) cet item",
+    "preferences_search_privacy_label": "Confidentialité des recherches: ",
+    "preferences_search_privacy_description": "Activer cette options empêchera que vos recherches soient enregistrées dans l'historique de votre navigateur.",
+    "Livestreams": "Diffusion Live"
 }

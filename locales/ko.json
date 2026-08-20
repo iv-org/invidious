@@ -36,8 +36,6 @@
     "Register": "회원가입",
     "Sign In": "로그인",
     "preferences_category_misc": "기타 설정",
-    "Image CAPTCHA": "이미지 캡차",
-    "Text CAPTCHA": "텍스트 캡차",
     "Time (h:mm:ss):": "시각 (h:mm:ss):",
     "Password": "비밀번호",
     "User ID": "사용자 ID",
@@ -484,5 +482,10 @@
     "First page": "첫 페이지",
     "Filipino (auto-generated)": "Filipino (auto-generated)",
     "channel_tab_posts_label": "게시글",
-    "channel_tab_courses_label": "코스"
+    "channel_tab_courses_label": "코스",
+    "preferences_default_playlist": "기본 재생목록: ",
+    "preferences_default_playlist_none": "기본 재생목록 미설정",
+    "timeline_parse_error_show_technical_details": "기술적 세부 사항 표시",
+    "timeline_parse_error_placeholder_heading": "항목을 구문 분석할 수 없습니다",
+    "timeline_parse_error_placeholder_message": "인비디어스에서 이 항목을 구문 분석하는 중 오류가 발생했습니다. 자세한 내용은 아래를 참조하세요:"
 }

@@ -16,7 +16,7 @@ struct YoutubeConnectionPool
   def client(&)
     conn = pool.checkout
     # Proxy needs to be reinstated every time we get a client from the pool
-    conn.proxy = make_configured_http_proxy_client() if CONFIG.http_proxy
+    configure_proxy(conn) if CONFIG.http_proxy
 
     begin
       response = yield conn
@@ -46,8 +46,27 @@ struct YoutubeConnectionPool
   end
 end
 
+# Packages a `HTTP::Client` to an Invidious companion instance alongside the configuration for that instance.
+#
+# This is used as the resource for the `CompanionPool` as to allow the ability to
+# proxy the requests to Invidious companion from Invidious directly.
+# Instead of setting up routes in a reverse proxy.
+struct CompanionWrapper
+  property client : HTTP::Client
+  property companion : Config::CompanionConfig
+
+  def initialize(companion : Config::CompanionConfig)
+    @companion = companion
+    @client = make_client(companion.private_url, use_http_proxy: false)
+  end
+
+  def close
+    @client.close
+  end
+end
+
 struct CompanionConnectionPool
-  property pool : DB::Pool(HTTP::Client)
+  property pool : DB::Pool(CompanionWrapper)
 
   def initialize(capacity = 5, timeout = 5.0)
     options = DB::Pool::Options.new(
@@ -57,26 +76,28 @@ struct CompanionConnectionPool
       checkout_timeout: timeout
     )
 
-    @pool = DB::Pool(HTTP::Client).new(options) do
+    @pool = DB::Pool(CompanionWrapper).new(options) do
       companion = CONFIG.invidious_companion.sample
-      next make_client(companion.private_url, use_http_proxy: false)
+      make_client(companion.private_url, use_http_proxy: false)
+      CompanionWrapper.new(companion: companion)
     end
   end
 
   def client(&)
-    conn = pool.checkout
+    wrapper = pool.checkout
 
     begin
-      response = yield conn
+      response = yield wrapper
     rescue ex
-      conn.close
+      wrapper.close
 
       companion = CONFIG.invidious_companion.sample
-      conn = make_client(companion.private_url, use_http_proxy: false)
+      make_client(companion.private_url, use_http_proxy: false)
+      wrapper = CompanionWrapper.new(companion: companion)
 
-      response = yield conn
+      response = yield wrapper
     ensure
-      pool.release(conn)
+      pool.release(wrapper)
     end
 
     response
@@ -85,7 +106,7 @@ end
 
 def add_yt_headers(request)
   request.headers.delete("User-Agent") if request.headers["User-Agent"] == "Crystal"
-  request.headers["User-Agent"] ||= "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
+  request.headers["User-Agent"] ||= "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"
 
   request.headers["Accept-Charset"] ||= "ISO-8859-1,utf-8;q=0.7,*;q=0.7"
   request.headers["Accept"] ||= "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
@@ -100,7 +121,7 @@ end
 
 def make_client(url : URI, region = nil, force_resolve : Bool = false, force_youtube_headers : Bool = false, use_http_proxy : Bool = true)
   client = HTTP::Client.new(url)
-  client.proxy = make_configured_http_proxy_client() if CONFIG.http_proxy && use_http_proxy
+  configure_proxy(client) if CONFIG.http_proxy && use_http_proxy
 
   # Force the usage of a specific configured IP Family
   if force_resolve
@@ -121,6 +142,26 @@ def make_client(url : URI, region = nil, force_resolve : Bool = false, use_http_
     yield client
   ensure
     client.close
+  end
+end
+
+# Attaches the configured outbound proxy (HTTP CONNECT or SOCKS5) to a client.
+# Only called when an outbound proxy is configured.
+def configure_proxy(client : HTTP::Client) : Nil
+  config_proxy = CONFIG.http_proxy.not_nil!
+
+  case config_proxy.type.downcase
+  when "http"
+    client.proxy = make_configured_http_proxy_client
+  when "socks5", "socks5h"
+    client.socks_proxy = SOCKS5::ProxyClient.new(
+      config_proxy.host,
+      config_proxy.port,
+      username: config_proxy.user,
+      password: config_proxy.password,
+    )
+  else
+    raise %(Invalid http_proxy.type #{config_proxy.type.inspect} (expected "http", "socks5", or "socks5h"))
   end
 end
 

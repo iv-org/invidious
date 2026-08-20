@@ -141,7 +141,7 @@ function get_reddit_comments() {
                     </b> \
                 </p> \
                 <b> \
-                    <a rel="noopener" target="_blank" href="https://reddit.com{permalink}">{redditPermalinkText}</a> \
+                    <a rel="noopener noreferrer" target="_blank" href="https://reddit.com{permalink}">{redditPermalinkText}</a> \
                 </b> \
             </div> \
             <div>{contentHtml}</div> \
@@ -182,6 +182,10 @@ addEventListener('load', function (e) {
     if (video_data.plid)
         get_playlist(video_data.plid);
 
+    if (!video_data.comments_enabled && video_data.params.comments.includes("youtube")) {
+        return;
+    }
+
     if (video_data.params.comments[0] === 'youtube') {
         get_youtube_comments();
     } else if (video_data.params.comments[0] === 'reddit') {
@@ -190,8 +194,7 @@ addEventListener('load', function (e) {
         get_youtube_comments();
     } else if (video_data.params.comments[1] === 'reddit') {
         get_reddit_comments();
-    } else {
-        var comments = document.getElementById('comments');
-        comments.innerHTML = '';
     }
 });
+
+document.getElementById("try-reddit-comments-link").onclick = swap_comments;

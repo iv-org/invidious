@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="<%= env.get("preferences").as(Preferences).locale %>">
+<html lang="<%= preferences.locale %>">
 
 <head>
     <meta charset="utf-8">
@@ -27,6 +27,13 @@
     "preferences" => preferences,
     "premiere_timestamp" => video.premiere_timestamp.try &.to_unix,
     "local_disabled" => CONFIG.disabled?("local")
+}.to_pretty_json
+%>
+</script>
+<script id="config" type="application/json">
+<%=
+{
+    "videojs" => CONFIG.videojs,
 }.to_pretty_json
 %>
 </script>

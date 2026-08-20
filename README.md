@@ -21,10 +21,6 @@
     <img alt="Translation Status" src="https://hosted.weblate.org/widgets/invidious/-/translations/svg-badge.svg">
   </a>
 
-  <a href="https://github.com/humanetech-community/awesome-humane-tech">
-    <img alt="Awesome Humane Tech" src="https://raw.githubusercontent.com/humanetech-community/awesome-humane-tech/main/humane-tech-badge.svg?sanitize=true">
-  </a>
-
   <h3>An open source alternative front-end to YouTube</h3>
 
   <a href="https://invidious.io/">Website</a>
@@ -129,7 +125,7 @@ You can read more here: https://docs.invidious.io/applications/
 1.  Fork it ( https://github.com/iv-org/invidious/fork ).
 1.  Create your feature branch (`git checkout -b my-new-feature`).
 1.  Stage your files (`git add .`).
-1.  Commit your changes (`git commit -am 'Add some feature'`).
+1.  Commit your changes (`git commit -m 'Add some feature'`).
 1.  Push to the branch (`git push origin my-new-feature`).
 1.  Create a new pull request ( https://github.com/iv-org/invidious/compare ).
 

@@ -8,7 +8,7 @@ module Invidious::Routes::API::V1::Authenticated
   #   topics = env.params.body["topics"]?.try &.split(",").uniq.first(1000)
   #   topics ||= [] of String
 
-  #   create_notification_stream(env, topics, connection_channel)
+  #   Helpers.create_notification_stream(env, topics, connection_channel)
   # end
 
   def self.get_preferences(env)
@@ -364,7 +364,7 @@ module Invidious::Routes::API::V1::Authenticated
       return error_json(404, "Playlist does not contain index")
     end
 
-    Invidious::Database::PlaylistVideos.delete(index)
+    Invidious::Database::PlaylistVideos.delete(index, plid)
     Invidious::Database::Playlists.update_video_removed(plid, index)
 
     env.response.status_code = 204
@@ -485,6 +485,6 @@ module Invidious::Routes::API::V1::Authenticated
     topics = raw_topics.try &.split(",").uniq.first(1000)
     topics ||= [] of String
 
-    create_notification_stream(env, topics, CONNECTION_CHANNEL)
+    Helpers.create_notification_stream(env, topics, CONNECTION_CHANNEL)
   end
 end

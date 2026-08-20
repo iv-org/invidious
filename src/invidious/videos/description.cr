@@ -1,6 +1,17 @@
 require "json"
 require "uri"
 
+# size < bytesize, so we need to count the number of characters that are
+# two UInt16 wide.
+# Taken from: https://github.com/crystal-lang/crystal/blob/8fa7f90c091aa3757821c04ee243c7ab5f67ac20/src/string/utf16.cr#L18-L20
+private def utf16_length(content : String) : Int32
+  u16_size = 0
+  content.each_char do |char|
+    u16_size += char.ord < 0x1_0000 ? 1 : 2
+  end
+  u16_size
+end
+
 private def copy_string(str : String::Builder, iter : Iterator, count : Int) : Int
   copied = 0
   while copied < count
@@ -40,7 +51,8 @@ def parse_description(desc, video_id : String) : String?
     # Slightly faster than HTML.escape, as we're only doing one pass on
     # the string instead of five for the standard library
     return String.build do |str|
-      copy_string(str, content.each_codepoint, content.size)
+      content_size = content.ascii_only? ? content.size : utf16_length(content)
+      copy_string(str, content.each_codepoint, content_size)
     end
   end
 
@@ -76,7 +88,8 @@ def parse_description(desc, video_id : String) : String?
     end
 
     # Copy the end of the string (past the last command).
-    remaining_length = content.size - index
+    content_size = content.ascii_only? ? content.size : utf16_length(content)
+    remaining_length = content_size - index
     copy_string(str, iter, remaining_length) if remaining_length > 0
   end
 end

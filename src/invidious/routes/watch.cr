@@ -2,7 +2,8 @@
 
 module Invidious::Routes::Watch
   def self.handle(env)
-    locale = env.get("preferences").as(Preferences).locale
+    preferences = env.get("preferences").as(Preferences)
+    locale = preferences.locale
     region = env.params.query["region"]?
 
     if env.params.query.to_s.includes?("%20") || env.params.query.to_s.includes?("+")
@@ -38,8 +39,6 @@ module Invidious::Routes::Watch
     nojs ||= "0"
     nojs = nojs == "1"
 
-    preferences = env.get("preferences").as(Preferences)
-
     user = env.get?("user").try &.as(User)
     if user
       subscriptions = user.subscriptions
@@ -48,7 +47,7 @@ module Invidious::Routes::Watch
     end
     subscriptions ||= [] of String
 
-    params = process_video_params(env.params.query, preferences)
+    params = Invidious::Videos.process_video_params(env.params.query, preferences)
     env.params.query.delete_all("listen")
 
     begin
@@ -80,7 +79,8 @@ module Invidious::Routes::Watch
 
     if nojs
       if preferences
-        source = preferences.comments[0]
+        source = video.comments? ? preferences.comments[0] : "reddit"
+
         if source.empty?
           source = preferences.comments[1]
         end
@@ -130,17 +130,20 @@ module Invidious::Routes::Watch
     video_streams = video.video_streams
     audio_streams = video.audio_streams
 
-    # Older videos may not have audio sources available.
-    # We redirect here so they're not unplayable
-    if audio_streams.empty? && !video.live_now
-      if params.quality == "dash"
-        env.params.query.delete_all("quality")
-        env.params.query["quality"] = "medium"
-        return env.redirect "/watch?#{env.params.query}"
-      elsif params.listen
-        env.params.query.delete_all("listen")
-        env.params.query["listen"] = "0"
-        return env.redirect "/watch?#{env.params.query}"
+    # Videos that are a premiere do not have audio streams.
+    if video.premiere_timestamp.nil?
+      # Older videos may not have audio sources available.
+      # We redirect here so they're not unplayable
+      if audio_streams.empty? && !video.live_now
+        if params.quality == "dash"
+          env.params.query.delete_all("quality")
+          env.params.query["quality"] = "medium"
+          return env.redirect "/watch?#{env.params.query}"
+        elsif params.listen
+          env.params.query.delete_all("listen")
+          env.params.query["listen"] = "0"
+          return env.redirect "/watch?#{env.params.query}"
+        end
       end
     end
 
@@ -194,10 +197,6 @@ module Invidious::Routes::Watch
 
     if CONFIG.invidious_companion.present?
       invidious_companion = CONFIG.invidious_companion.sample
-      env.response.headers["Content-Security-Policy"] =
-        env.response.headers["Content-Security-Policy"]
-          .gsub("media-src", "media-src #{invidious_companion.public_url}")
-          .gsub("connect-src", "connect-src #{invidious_companion.public_url}")
     end
 
     templated "watch"
@@ -278,7 +277,7 @@ module Invidious::Routes::Watch
 
     if video_id = response.dig?("endpoint", "watchEndpoint", "videoId")
       if params = response.dig?("endpoint", "watchEndpoint", "params").try &.as_s
-        start_time, end_time, _ = parse_clip_parameters(params)
+        start_time, end_time, _ = Invidious::Videos::Clip.parse_clip_parameters(params)
         env.params.query["start"] = start_time.to_s if start_time != nil
         env.params.query["end"] = end_time.to_s if end_time != nil
       end

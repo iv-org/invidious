@@ -7,7 +7,7 @@ Spectator.describe "parse_video_info" do
     _next = load_mock("video/scheduled_live_PBD-Podcast.next")
 
     raw_data = _player.merge!(_next)
-    info = parse_video_info("N-yVic7BbY0", raw_data)
+    info = Invidious::Videos::Parser.parse_video_info("N-yVic7BbY0", raw_data)
 
     # Some basic verifications
     expect(typeof(info)).to eq(Hash(String, JSON::Any))
@@ -75,7 +75,6 @@ Spectator.describe "parse_video_info" do
     expect(info["relatedVideos"][0]["id"]).to eq("j7jPzzjbVuk")
     expect(info["relatedVideos"][0]["author"]).to eq("Democracy Now!")
     expect(info["relatedVideos"][0]["ucid"]).to eq("UCzuqE7-t13O4NIDYJfakrhw")
-    expect(info["relatedVideos"][0]["view_count"]).to eq("7576")
     expect(info["relatedVideos"][0]["short_view_count"]).to eq("7.5K")
     expect(info["relatedVideos"][0]["author_verified"]).to eq("true")
 

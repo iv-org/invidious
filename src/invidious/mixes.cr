@@ -27,7 +27,7 @@ def fetch_mix(rdid, video_id, cookies = nil, locale = nil)
 
   video_id = "CvFH_6DNRCY" if rdid.starts_with? "OLAK5uy_"
   response = YT_POOL.client &.get("/watch?v=#{video_id}&list=#{rdid}&gl=US&hl=en", headers)
-  initial_data = extract_initial_data(response.body)
+  initial_data = Helpers.extract_initial_data(response.body)
 
   if !initial_data["contents"]["twoColumnWatchNextResults"]["playlist"]?
     raise InfoException.new("Could not create mix.")

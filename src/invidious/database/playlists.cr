@@ -194,13 +194,13 @@ module Invidious::Database::PlaylistVideos
     PG_DB.exec(request, args: video_array)
   end
 
-  def delete(index)
+  def delete(index, plid : String)
     request = <<-SQL
       DELETE FROM playlist_videos *
-      WHERE index = $1
+      WHERE index = $1 AND plid = $2
     SQL
 
-    PG_DB.exec(request, index)
+    PG_DB.exec(request, index, plid)
   end
 
   def delete_by_playlist(plid : String)

@@ -107,7 +107,11 @@ struct Playlist
 
       json.field "author", self.author
       json.field "authorId", self.ucid
-      json.field "authorUrl", "/channel/#{self.ucid}"
+      if !self.ucid.empty?
+        json.field "authorUrl", "/channel/#{self.ucid}"
+      else
+        json.field "authorUrl", ""
+      end
       json.field "subtitle", self.subtitle
 
       json.field "authorThumbnails" do
@@ -195,7 +199,7 @@ struct InvidiousPlaylist
       json.field "authorUrl", nil
       json.field "authorThumbnails", [] of String
 
-      json.field "description", html_to_content(self.description_html)
+      json.field "description", Helpers.html_to_content(self.description_html)
       json.field "descriptionHtml", self.description_html
       json.field "videoCount", self.video_count
 
@@ -359,6 +363,9 @@ def fetch_playlist(plid : String)
   thumbnail = playlist_info.dig?(
     "thumbnailRenderer", "playlistVideoThumbnailRenderer",
     "thumbnail", "thumbnails", 0, "url"
+  ).try &.as_s || playlist_info.dig?(
+    "thumbnailRenderer", "playlistCustomThumbnailRenderer",
+    "thumbnail", "thumbnails", 0, "url"
   ).try &.as_s
 
   views = 0_i64
@@ -377,7 +384,7 @@ def fetch_playlist(plid : String)
       video_count = text.gsub(/\D/, "").to_i? || 0
     elsif text.includes? "view"
       views = text.gsub(/\D/, "").to_i64? || 0_i64
-    else
+    elsif !text.includes? "Pay to watch"
       updated = decode_date(text.lchop("Last updated on ").lchop("Updated "))
     end
   end
@@ -438,7 +445,7 @@ def get_playlist_videos(playlist : InvidiousPlaylist | Playlist, offset : Int32,
       # 100 videos per request
       ctoken = produce_playlist_continuation(playlist.id, offset)
       initial_data = YoutubeAPI.browse(ctoken)
-      videos += extract_playlist_videos(initial_data)
+      videos += extract_playlist_videos(playlist.id, initial_data)
 
       offset += 100
     end
@@ -447,7 +454,11 @@ def get_playlist_videos(playlist : InvidiousPlaylist | Playlist, offset : Int32,
   end
 end
 
-def extract_playlist_videos(initial_data : Hash(String, JSON::Any))
+# TODO (2026-06-24): Migrate this function to use parsers instead, as it uses,
+# the same LockupViewModel used in Channel videos and Youtube playlists that
+# appears on searches (Invidious /search endpoint).
+# Related to https://github.com/iv-org/invidious/pull/5736
+def extract_playlist_videos(playlist_id : String, initial_data : Hash(String, JSON::Any))
   videos = [] of PlaylistVideo | ProblematicTimelineItem
 
   if initial_data["contents"]?
@@ -460,8 +471,7 @@ def extract_playlist_videos(initial_data : Hash(String, JSON::Any))
       tabs_contents = tabs_renderer.["contents"]? || tabs_renderer.["content"]
 
       list_renderer = tabs_contents.["sectionListRenderer"]["contents"][0]
-      item_renderer = list_renderer.["itemSectionRenderer"]["contents"][0]
-      contents = item_renderer.["playlistVideoListRenderer"]["contents"].as_a
+      contents = list_renderer.["itemSectionRenderer"]["contents"].as_a
     else
       # Continuation data
       contents = initial_data["onResponseReceivedActions"][0]?
@@ -472,15 +482,39 @@ def extract_playlist_videos(initial_data : Hash(String, JSON::Any))
   end
 
   contents.try &.each do |item|
-    if i = item["playlistVideoRenderer"]?
-      video_id = i["navigationEndpoint"]["watchEndpoint"]["videoId"].as_s
-      plid = i["navigationEndpoint"]["watchEndpoint"]["playlistId"].as_s
-      index = i["navigationEndpoint"]["watchEndpoint"]["index"].as_i64
+    if i = item["lockupViewModel"]?
+      thumbnail_view_model = i.dig?(
+        "contentImage", "thumbnailViewModel"
+      )
 
-      title = i["title"].try { |t| t["simpleText"]? || t["runs"]?.try &.[0]["text"]? }.try &.as_s || ""
-      author = i["shortBylineText"]?.try &.["runs"][0]["text"].as_s || ""
-      ucid = i["shortBylineText"]?.try &.["runs"][0]["navigationEndpoint"]["browseEndpoint"]["browseId"].as_s || ""
-      length_seconds = i["lengthSeconds"]?.try &.as_s.to_i
+      watch_endpoint = i.dig?("rendererContext", "commandContext", "onTap", "innertubeCommand", "watchEndpoint")
+      video_id = watch_endpoint.try &.["videoId"]?.try &.as_s
+      plid = watch_endpoint.try &.["playlistId"]?.try &.as_s || playlist_id
+      index = watch_endpoint.try &.["index"]?.try &.as_i64
+
+      metadata = i["metadata"]?
+      lockup_metadata_view_model = metadata.try &.dig?("lockupMetadataViewModel")
+      title = lockup_metadata_view_model.try &.dig?("title", "content").try &.as_s
+      lockup_metadata = lockup_metadata_view_model.try &.dig?("metadata")
+      metadata_rows = lockup_metadata.try &.dig?("contentMetadataViewModel", "metadataRows").try &.as_a
+
+      # Find the metadataParts with commandRuns inside, which contains author
+      # information.
+      metadata_parts = metadata_rows.try &.find { |row|
+        parts = row["metadataParts"]?.try &.as_a
+        parts && parts.any? { |item2| item2.dig?("text", "commandRuns").try &.as_a }
+      }.try &.["metadataParts"].as_a
+
+      if author_info = metadata_parts.try &.find(&.dig?("text", "commandRuns"))
+           .try &.["text"]
+        author = author_info["content"].as_s
+        ucid = author_info.dig?("commandRuns", 0, "onTap", "innertubeCommand", "browseEndpoint", "browseId")
+          .try &.as_s
+      end
+
+      length = thumbnail_view_model.try &.dig?("overlays", 0, "thumbnailBottomOverlayViewModel", "badges", 0, "thumbnailBadgeViewModel", "text").try &.as_s
+      length_seconds = decode_length_seconds(length) if length
+
       live = false
 
       if !length_seconds
@@ -489,15 +523,15 @@ def extract_playlist_videos(initial_data : Hash(String, JSON::Any))
       end
 
       videos << PlaylistVideo.new({
-        title:          title,
-        id:             video_id,
-        author:         author,
-        ucid:           ucid,
+        title:          title || "",
+        id:             video_id || "",
+        author:         author || "",
+        ucid:           ucid || "",
         length_seconds: length_seconds,
         published:      Time.utc,
         plid:           plid,
         live_now:       live,
-        index:          index,
+        index:          index || -1_i64,
       })
     end
   rescue ex

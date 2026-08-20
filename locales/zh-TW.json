@@ -44,8 +44,6 @@
     "User ID": "使用者 ID",
     "Password": "密碼",
     "Time (h:mm:ss):": "時間 (h:mm:ss):",
-    "Text CAPTCHA": "文字 CAPTCHA",
-    "Image CAPTCHA": "圖片 CAPTCHA",
     "Sign In": "登入",
     "Register": "註冊",
     "E-mail": "電子郵件",
@@ -484,5 +482,18 @@
     "Filipino (auto-generated)": "菲律賓語（自動產生）",
     "channel_tab_courses_label": "課程",
     "First page": "第一頁",
-    "channel_tab_posts_label": "貼文"
+    "channel_tab_posts_label": "貼文",
+    "timeline_parse_error_show_technical_details": "顯示技術細節",
+    "timeline_parse_error_placeholder_heading": "無法解析項目",
+    "timeline_parse_error_placeholder_message": "Invidious 在嘗試解析此項目時遇到錯誤。要取得更多資訊，請見下方：",
+    "preferences_default_playlist": "預設播放清單： ",
+    "preferences_default_playlist_none": "未設定預設播放清單",
+    "Livestreams": "即時串流",
+    "dmca_content": "由於收到一封針對本伺服器的數位千禧年版權法案 (DMCA)/版權侵權通知函，此影片無法在本伺服器上進行下載。",
+    "preferences_search_privacy_label": "搜尋隱私： ",
+    "preferences_search_privacy_description": "啟用此設定後，您的搜尋查詢將不會儲存於瀏覽器歷史紀錄中。",
+    "comments_youtube_disabled_text": "此影片已停用 Youtube 留言",
+    "comments_youtube_disabled_try_reddit": "嘗試 reddit 留言？",
+    "comments_invidious_disabled_text": "留言已根據使用者偏好設定隱藏",
+    "comments_youtube_disabled_try_reddit_no_js": "您好！您似乎把 JavaScript 關閉了。雖然上傳者已停用 YouTube 留言，但您仍可點擊此處檢視 Reddit 留言，但要記住，這可能會需要比較久的時間載入。"
 }

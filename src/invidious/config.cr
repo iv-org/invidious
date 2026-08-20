@@ -52,6 +52,9 @@ struct ConfigPreferences
   property vr_mode : Bool = true
   property show_nick : Bool = true
   property save_player_pos : Bool = false
+  @[YAML::Field(ignore: true)]
+  property default_playlist : String? = nil
+  property search_privacy : Bool = false
 
   def to_tuple
     {% begin %}
@@ -62,11 +65,17 @@ struct ConfigPreferences
   end
 end
 
+# Outbound proxy configuration. The name is kept for config backwards
+# compatibility; `type` selects the protocol (HTTP CONNECT or SOCKS5).
 struct HTTPProxyConfig
   include YAML::Serializable
 
-  property user : String
-  property password : String
+  # Proxy protocol: "http" (HTTP CONNECT, the default), "socks5", or "socks5h".
+  # SOCKS5 resolves target hostnames on the proxy side (SOCKS5h semantics).
+  property type : String = "http"
+  # Credentials are optional: omit both for an unauthenticated proxy.
+  property user : String? = nil
+  property password : String? = nil
   property host : String
   property port : Int32
 end
@@ -82,6 +91,9 @@ class Config
 
     @[YAML::Field(converter: Preferences::URIConverter)]
     property public_url : URI = URI.parse("")
+
+    # Indicates if this companion instance uses the built-in proxy
+    property builtin_proxy : Bool = false
   end
 
   # Number of threads to use for crawling videos from channels (for updating subscriptions)
@@ -115,6 +127,8 @@ class Config
   property hmac_key : String = ""
   # Domain to be used for links to resources on the site where an absolute URL is required
   property domain : String?
+  # Additional domain list that is going to be used for cookie domain validation
+  property alternative_domains : Array(String) = [] of String
   # Subscribe to channels using PubSubHubbub (requires domain, hmac_key)
   property use_pubsub_feeds : Bool | Int32 = false
   property popular_enabled : Bool = true
@@ -148,9 +162,6 @@ class Config
   @[YAML::Field(converter: Preferences::FamilyConverter)]
   property force_resolve : Socket::Family = Socket::Family::UNSPEC
 
-  # External signature solver server socket (either a path to a UNIX domain socket or "<IP>:<Port>")
-  property signature_server : String? = nil
-
   # Port to listen for connections (overridden by command line argument)
   property port : Int32 = 3000
   # Host to bind (overridden by command line argument)
@@ -165,11 +176,6 @@ class Config
   # Use Innertube's transcripts API instead of timedtext for closed captions
   property use_innertube_for_captions : Bool = false
 
-  # visitor data ID for Google session
-  property visitor_data : String? = nil
-  # poToken for passing bot attestation
-  property po_token : String? = nil
-
   # Invidious companion
   property invidious_companion : Array(CompanionConfig) = [] of CompanionConfig
 
@@ -182,6 +188,22 @@ class Config
 
   # Playlist length limit
   property playlist_length_limit : Int32 = 500
+
+  # Disable easy to abuse API endpoints
+  property disable_abusable_api : Bool = false
+
+  property videojs : VideoJSConfig = VideoJSConfig.from_yaml("")
+
+  struct VideoJSConfig
+    include YAML::Serializable
+    include JSON::Serializable
+
+    # This are the default values that VideoJS uses.
+    # See `assets/videojs/video.js/video.js` file
+    # and search for `GOAL_BUFFER_LENGTH` and `MAX_GOAL_BUFFER_LENGTH`
+    property goal_buffer_length : Int32? = 30
+    property max_goal_buffer_length : Int32? = 60
+  end
 
   def disabled?(option)
     case disabled = CONFIG.disable_proxy
@@ -257,11 +279,7 @@ class Config
     {% end %}
 
     if config.invidious_companion.present?
-      # invidious_companion and signature_server can't work together
-      if config.signature_server
-        puts "Config: You can not run inv_sig_helper and invidious_companion at the same time."
-        exit(1)
-      elsif config.invidious_companion_key.empty?
+      if config.invidious_companion_key.empty?
         puts "Config: Please configure a key if you are using invidious companion."
         exit(1)
       elsif config.invidious_companion_key == "CHANGE_ME!!"
@@ -271,10 +289,16 @@ class Config
         puts "Config: The value of 'invidious_companion_key' needs to be a size of 16 characters."
         exit(1)
       end
-    elsif config.signature_server
-      puts("WARNING: inv-sig-helper is deprecated. Please switch to Invidious companion: https://docs.invidious.io/companion-installation/")
+
+      # Set public_url to built-in proxy path when omitted
+      config.invidious_companion.each do |companion|
+        if companion.public_url.to_s.empty?
+          companion.public_url = URI.parse("/companion")
+          companion.builtin_proxy = true
+        end
+      end
     else
-      puts("WARNING: Invidious companion is required to view and playback videos. For more information see https://docs.invidious.io/companion-installation/")
+      puts("WARNING: Invidious companion is required to view and playback videos. For more information see https://docs.invidious.io/installation/")
     end
 
     # HMAC_key is mandatory

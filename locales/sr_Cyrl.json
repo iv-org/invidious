@@ -39,8 +39,6 @@
     "User ID": "ID корисника",
     "Password": "Лозинка",
     "Time (h:mm:ss):": "Време (ч:мм:сс):",
-    "Text CAPTCHA": "Текст CAPTCHA",
-    "Image CAPTCHA": "Слика CAPTCHA",
     "Sign In": "Пријава",
     "Register": "Регистрација",
     "E-mail": "Имејл",
@@ -518,5 +516,8 @@
     "Filipino (auto-generated)": "Филипински (аутоматски генерисано)",
     "channel_tab_courses_label": "Курсеви",
     "First page": "Прва страница",
-    "channel_tab_posts_label": "Објаве"
+    "channel_tab_posts_label": "Објаве",
+    "timeline_parse_error_show_technical_details": "Прикажи техничке детаље",
+    "timeline_parse_error_placeholder_heading": "Није могуће рашчланити предмет",
+    "timeline_parse_error_placeholder_message": "Invidious је наишао на грешку приликом покушаја рашчлањивања овог предмета. За више информација погледајте испод:"
 }

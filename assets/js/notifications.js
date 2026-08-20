@@ -77,7 +77,7 @@ function create_notification_stream(subscriptions) {
 function update_ticker_count() {
     var notification_ticker = document.getElementById('notification_ticker');
 
-    const notification_count = helpers.storage.get(STORAGE_KEY_STREAM);
+    const notification_count = helpers.storage.get(STORAGE_KEY_NOTIF_COUNT) || 0;
     if (notification_count > 0) {
         notification_ticker.innerHTML =
             '<span id="notification_count">' + notification_count + '</span> <i class="icon ion-ios-notifications"></i>';

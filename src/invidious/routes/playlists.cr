@@ -225,10 +225,10 @@ module Invidious::Routes::Playlists
   end
 
   def self.add_playlist_items_page(env)
-    prefs = env.get("preferences").as(Preferences)
-    locale = prefs.locale
+    preferences = env.get("preferences").as(Preferences)
+    locale = preferences.locale
 
-    region = env.params.query["region"]? || prefs.region
+    region = env.params.query["region"]? || preferences.region
 
     user = env.get? "user"
     sid = env.get? "sid"
@@ -357,8 +357,12 @@ module Invidious::Routes::Playlists
       Invidious::Database::PlaylistVideos.insert(playlist_video)
       Invidious::Database::Playlists.update_video_added(playlist_id, playlist_video.index)
     when "remove_video"
-      index = env.params.query["set_video_id"]
-      Invidious::Database::PlaylistVideos.delete(index)
+      index = env.params.query["set_video_id"].to_i64?
+      if index.nil? || !playlist.index.includes? index
+        return error_json(404, "Playlist does not contain index")
+      end
+
+      Invidious::Database::PlaylistVideos.delete(index, playlist_id)
       Invidious::Database::Playlists.update_video_removed(playlist_id, index)
     when "move_video_before"
       # TODO: Playlist stub
