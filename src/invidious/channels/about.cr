@@ -19,6 +19,92 @@ record AboutChannel,
   verified : Bool,
   is_age_gated : Bool
 
+# Topic channels keep the channel details inside one of the carousel entries.
+# The position of that entry varies between channels, so it is looked up by key
+# rather than by index.
+# ex: https://www.youtube.com/channel/UCEgdi0XIXXZ-qJOFPf4JSKw
+def extract_topic_channel_details(initdata : Hash(String, JSON::Any)) : JSON::Any?
+  contents = initdata.dig?("header", "carouselHeaderRenderer", "contents")
+  return nil if contents.nil?
+
+  contents.as_a
+    .find { |content| !content.dig?("topicChannelDetailsRenderer").nil? }
+    .try &.dig?("topicChannelDetailsRenderer")
+end
+
+# Auto-generated channels come with one of three header shapes. This is only
+# reached when the payload has no `metadata` object, i.e. when the regular
+# `channelMetadataRenderer` path is not available.
+def extract_auto_generated_channel_header(initdata : Hash(String, JSON::Any), ucid : String)
+  banner = nil
+  description_node = nil
+  tags = [] of String
+
+  if header = initdata.dig?("header", "interactiveTabbedHeaderRenderer")
+    author = header.dig("title", "simpleText").as_s
+    author_url = initdata.dig("microformat", "microformatDataRenderer", "urlCanonical").as_s
+    author_thumbnail = header.dig("boxArt", "thumbnails", 0, "url").as_s
+
+    banner = header.dig?("banner", "thumbnails").try &.[-1]?.try &.["url"].as_s?
+
+    description_base_node = header["description"]
+    # some channels have the description in a simpleText
+    # ex: https://www.youtube.com/channel/UCQvWX73GQygcwXOTSf_VDVg/
+    description_node = description_base_node.dig?("simpleText") || description_base_node
+
+    tags = header.dig?("badges")
+      .try &.as_a.map(&.["metadataBadgeRenderer"]["label"].as_s) || [] of String
+  elsif header = initdata.dig?("header", "pageHeaderRenderer")
+    # ex: https://www.youtube.com/channel/UCOpNcN46UbXVtpKMrmU4Abg
+    view_model = header.dig?("content", "pageHeaderViewModel")
+
+    author = view_model.try &.dig?("title", "dynamicTextViewModel", "text", "content").try &.as_s
+    author ||= header.dig?("pageTitle").try &.as_s
+    author ||= ucid
+
+    author_url = "https://www.youtube.com/channel/#{ucid}"
+
+    author_thumbnail = view_model.try &.dig?("image", "decoratedAvatarViewModel", "avatar", "avatarViewModel", "image", "sources", 0, "url").try &.as_s
+    author_thumbnail ||= view_model.try &.dig?("animatedImage", "contentPreviewImageViewModel", "image", "sources", 0, "url").try &.as_s
+    author_thumbnail ||= ""
+
+    banner = view_model.try &.dig?("banner", "imageBannerViewModel", "image", "sources")
+      .try &.[-1]?.try &.["url"].as_s?
+  elsif initdata.dig?("header", "carouselHeaderRenderer")
+    # ex: https://www.youtube.com/channel/UCEgdi0XIXXZ-qJOFPf4JSKw
+    # This shape carries neither a banner nor a description.
+    details = extract_topic_channel_details(initdata)
+
+    unless details
+      raise InfoException.new("Could not extract the carousel header of channel #{ucid}")
+    end
+
+    author = details.dig?("title", "simpleText").try &.as_s
+    author ||= raise InfoException.new("Could not extract the carousel title of channel #{ucid}")
+    author_url = "https://www.youtube.com/channel/#{ucid}"
+
+    # A missing avatar is not worth failing the whole page over, and the
+    # `pageHeaderRenderer` branch above falls back to an empty string too.
+    author_thumbnail = details.dig?("avatar", "thumbnails", 0, "url").try &.as_s || ""
+  else
+    raise InfoException.new("Could not extract the header of channel #{ucid}")
+  end
+
+  # `microformat` is absent from these payloads, so a missing flag defaults to
+  # safe. An explicit `false` is still preserved.
+  family_safe = initdata.dig?("microformat", "microformatDataRenderer", "familySafe").try(&.as_bool)
+
+  {
+    author:             author,
+    author_url:         author_url,
+    author_thumbnail:   author_thumbnail,
+    banner:             banner,
+    description_node:   description_node,
+    tags:               tags,
+    is_family_friendly: family_safe.nil? ? true : family_safe,
+  }
+end
+
 def get_about_info(ucid) : AboutChannel
   begin
     # Fetch channel information from channel home page
@@ -64,21 +150,14 @@ def get_about_info(ucid) : AboutChannel
     auto_generated = false
   else
     if auto_generated
-      author = initdata["header"]["interactiveTabbedHeaderRenderer"]["title"]["simpleText"].as_s
-      author_url = initdata["microformat"]["microformatDataRenderer"]["urlCanonical"].as_s
-      author_thumbnail = initdata["header"]["interactiveTabbedHeaderRenderer"]["boxArt"]["thumbnails"][0]["url"].as_s
-
-      # Raises a KeyError on failure.
-      banners = initdata["header"]["interactiveTabbedHeaderRenderer"]?.try &.["banner"]?.try &.["thumbnails"]?
-      banner = banners.try &.[-1]?.try &.["url"].as_s?
-
-      description_base_node = initdata["header"]["interactiveTabbedHeaderRenderer"]["description"]
-      # some channels have the description in a simpleText
-      # ex: https://www.youtube.com/channel/UCQvWX73GQygcwXOTSf_VDVg/
-      description_node = description_base_node.dig?("simpleText") || description_base_node
-
-      tags = initdata.dig?("header", "interactiveTabbedHeaderRenderer", "badges")
-        .try &.as_a.map(&.["metadataBadgeRenderer"]["label"].as_s) || [] of String
+      channel_header = extract_auto_generated_channel_header(initdata, ucid)
+      author = channel_header[:author]
+      author_url = channel_header[:author_url]
+      author_thumbnail = channel_header[:author_thumbnail]
+      banner = channel_header[:banner]
+      description_node = channel_header[:description_node]
+      tags = channel_header[:tags]
+      is_family_friendly = channel_header[:is_family_friendly]
     else
       author = initdata["metadata"]["channelMetadataRenderer"]["title"].as_s
       author_url = initdata["metadata"]["channelMetadataRenderer"]["channelUrl"].as_s
@@ -103,9 +182,9 @@ def get_about_info(ucid) : AboutChannel
 
       description_node = initdata["metadata"]["channelMetadataRenderer"]?.try &.["description"]?
       tags = initdata.dig?("microformat", "microformatDataRenderer", "tags").try &.as_a.map(&.as_s) || [] of String
+      is_family_friendly = initdata["microformat"]["microformatDataRenderer"]["familySafe"].as_bool
     end
 
-    is_family_friendly = initdata["microformat"]["microformatDataRenderer"]["familySafe"].as_bool
     if tabs_json = initdata["contents"]["twoColumnBrowseResultsRenderer"]["tabs"]?
       # Get the name of the tabs available on this channel
       tab_names = tabs_json.as_a.compact_map do |entry|
@@ -181,6 +260,16 @@ def get_about_info(ucid) : AboutChannel
       end
 
       break if sub_count != 0 && !pronouns.nil?
+    end
+  elsif (topic_details = extract_topic_channel_details(initdata))
+    # Topic channels carry the subscriber count as free text in the subtitle,
+    # ex: "74.3M subscribers". `subscriberCountText` is part of the same
+    # renderer but comes back null, so it is only used as a first choice.
+    sub_text = topic_details.dig?("subscriberCountText", "simpleText").try &.as_s
+    sub_text ||= topic_details.dig?("subtitle", "simpleText").try &.as_s
+
+    if sub_text && sub_text.includes?("subscriber")
+      sub_count = short_text_to_number(sub_text.split(" ")[0]).to_i32
     end
   end
 
