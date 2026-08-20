@@ -51,7 +51,7 @@ def content_to_comment_html(content, video_id : String? = "")
     # See: https://github.com/iv-org/invidious/issues/3096
     next if run.as_h.empty?
 
-    text = HTML.escape(run["text"].as_s)
+    text = HTML.escape(run["text"]?.try &.as_s || "")
 
     if navigation_endpoint = run.dig?("navigationEndpoint")
       text = parse_link_endpoint(navigation_endpoint, text, video_id)
@@ -66,14 +66,17 @@ def content_to_comment_html(content, video_id : String? = "")
       if run["emoji"]["isCustomEmoji"]?.try &.as_bool
         if emoji_image = run.dig?("emoji", "image")
           emoji_alt = emoji_image.dig?("accessibility", "accessibilityData", "label").try &.as_s || text
-          emoji_thumb = emoji_image["thumbnails"][0]
-          text = String.build do |str|
-            str << %(<img alt=") << emoji_alt << "\" "
-            str << %(src="/ggpht) << URI.parse(emoji_thumb["url"].as_s).request_target << "\" "
-            str << %(title=") << emoji_alt << "\" "
-            str << %(width=") << emoji_thumb["width"] << "\" "
-            str << %(height=") << emoji_thumb["height"] << "\" "
-            str << %(class="channel-emoji" />)
+          if emoji_thumb = emoji_image.dig?("thumbnails", 0)
+            text = String.build do |str|
+              str << %(<img alt=") << emoji_alt << "\" "
+              str << %(src="/ggpht) << URI.parse(emoji_thumb["url"].as_s).request_target << "\" "
+              str << %(title=") << emoji_alt << "\" "
+              str << %(width=") << emoji_thumb["width"]? << "\" "
+              str << %(height=") << emoji_thumb["height"]? << "\" "
+              str << %(class="channel-emoji" />)
+            end
+          else
+            text = emoji_alt
           end
         else
           # Hide deleted channel emoji
