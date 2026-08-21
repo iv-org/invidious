@@ -28,6 +28,19 @@ module Invidious::Videos::Parser
 
     ucid = channel_info.try { |ci| HelperExtractors.get_browse_id(ci) }
 
+    # Videos with multiple creators (collabs) have no browse endpoint on the
+    # byline run. YouTube instead embeds a "Collaborators" dialog under the
+    # run's navigation endpoint, where each list item carries the browse
+    # endpoint of one of the creators. Use the first one as fallback.
+    if ucid.try &.empty?
+      ucid = channel_info.try &.dig?(
+        "navigationEndpoint", "showDialogCommand", "panelLoadingStrategy",
+        "inlineContent", "dialogViewModel", "customContent", "listViewModel",
+        "listItems", 0, "listItemViewModel", "rendererContext", "commandContext",
+        "onTap", "innertubeCommand", "browseEndpoint", "browseId"
+      ).try &.as_s
+    end
+
     short_view_count = related.try do |r|
       HelperExtractors.get_short_view_count(r).to_s
     end
