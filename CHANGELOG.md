@@ -890,3 +890,4 @@ Other improvements:
  * API: convey info "is post live" from Youtube response (#4569, thanks @ChunkyProgrammer)
  * API: Parse channel's tags (#4294, thanks @ChunkyProgrammer)
  * Translations update from Hosted Weblate (#4164, thanks to our many translators)
+# bounty-fix-ref: https://github.com/iv-org/invidious/issues/5957
