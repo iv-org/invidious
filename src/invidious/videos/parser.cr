@@ -55,6 +55,145 @@ module Invidious::Videos::Parser
     }
   end
 
+  # Use to parse the "lockupViewModel" items from the watch page's related
+  # videos section (new format as of 2026-08). Produces the same hash as
+  # #parse_related_video.
+  #
+  # The author's channel link is stored in different places depending on
+  # whether the video is a collaboration: for regular videos it is attached
+  # to the avatar, while collaborations carry an avatar-stack dialog with one
+  # entry per channel. Only the first channel is kept, since the related
+  # videos hash exposes a single author/ucid pair.
+  def parse_related_lockup(lockup : JSON::Any) : Hash(String, JSON::Any)?
+    return nil if !lockup["contentId"]?
+    return nil if lockup["contentType"]?.try(&.as_s) != "LOCKUP_CONTENT_TYPE_VIDEO"
+
+    metadata = lockup.dig?("metadata", "lockupMetadataViewModel")
+    return nil unless metadata
+
+    title = metadata.dig?("title", "content").try(&.as_s) || ""
+
+    ucids = [] of String
+
+    if browse = lockup.dig?("contentImage", "thumbnailViewModel", "decoratedAvatarViewModel",
+         "rendererContext", "commandContext", "onTap", "innertubeCommand", "browseEndpoint")
+      self.add_channel_browse_id(ucids, browse)
+    end
+
+    avatar_stack_items = metadata.dig?("image", "avatarStackViewModel", "rendererContext",
+      "commandContext", "onTap", "innertubeCommand", "showDialogCommand", "panelLoadingStrategy",
+      "inlineContent", "dialogViewModel", "customContent", "listViewModel", "listItems")
+
+    avatar_stack_items.try &.as_a.each do |item|
+      if browse = item.dig?("listItemViewModel", "rendererContext", "commandContext",
+           "onTap", "innertubeCommand", "browseEndpoint")
+        self.add_channel_browse_id(ucids, browse)
+      end
+    end
+
+    author = ""
+    author_verified = false
+    short_view_count = ""
+    published_text = ""
+
+    metadata_rows = metadata.dig?("metadata", "contentMetadataViewModel", "metadataRows")
+    metadata_rows.try &.as_a.each do |row|
+      row.dig?("metadataParts").try &.as_a.each do |part|
+        text = part.dig?("text", "content").try(&.as_s)
+        next unless text
+
+        if part.dig?("text", "attachmentRuns").try &.as_a.any? { |attachment|
+             attachment.dig?("element", "type", "imageType", "image", "sources", 0,
+               "clientResource", "imageName").try(&.as_s) == "CHECK_CIRCLE_FILLED"
+           }
+          author_verified = true
+        end
+
+        if text.matches?(/ago/i)
+          published_text = text
+        elsif short_view_count.empty? && text.lstrip.matches?(/\d/)
+          short_view_count = text.gsub(/\s*views?$/i, "")
+        else
+          author = text if author.empty?
+        end
+      end
+    end
+
+    length_text = lockup.dig?("contentImage", "thumbnailViewModel", "overlays", 0,
+      "thumbnailBottomOverlayViewModel", "badges", 0, "thumbnailBadgeViewModel", "text")
+      .try(&.as_s)
+
+    length_seconds = length_text ? decode_length_seconds(length_text.not_nil!).to_s : "0"
+
+    published = published_text.empty? ? "" : self.decode_compact_published(published_text)
+
+    return {
+      "id"               => lockup["contentId"],
+      "title"            => JSON::Any.new(title),
+      "author"           => JSON::Any.new(author),
+      "ucid"             => JSON::Any.new(ucids.first? || ""),
+      "length_seconds"   => JSON::Any.new(length_seconds),
+      "short_view_count" => JSON::Any.new(short_view_count),
+      "author_verified"  => JSON::Any.new(author_verified.to_s),
+      "published"        => JSON::Any.new(published),
+    }
+  end
+
+  private def add_channel_browse_id(list : Array(String), browse_endpoint : JSON::Any)
+    browse_id = browse_endpoint.dig?("browseId").try(&.as_s)
+    list << browse_id if browse_id && browse_id.starts_with?("UC") && !list.includes?(browse_id)
+  end
+
+  # Handles the compact relative dates ("10d ago") used by lockups, falling
+  # back to the regular long forms ("10 days ago").
+  private def decode_compact_published(text : String) : String
+    if match = text.match(/(\d+)\s*([smhdwy])\s+ago/i)
+      amount = match[1].to_i64
+
+      time = case match[2].downcase
+             when "s" then Time.local - amount.seconds
+             when "m" then Time.local - amount.minutes
+             when "h" then Time.local - amount.hours
+             when "d" then Time.local - amount.days
+             when "w" then Time.local - amount.weeks
+             when "y" then Time.local - amount.years
+             else          Time.local - amount.days * 30
+             end
+
+      return time.to_rfc3339
+    end
+
+    return decode_date(text).to_rfc3339
+  rescue
+    return ""
+  end
+
+  # Parses the related videos section of a watch page. Supports both the
+  # legacy "compactVideoRenderer" items and the new "lockupViewModel"
+  # items wrapped in an item section (as of 2026-08).
+  def parse_related_videos(results : JSON::Any?) : Array(JSON::Any)
+    related = [] of JSON::Any
+
+    results.try &.as_a.each do |element|
+      if item = element["compactVideoRenderer"]?
+        related_video = self.parse_related_video(item)
+        related << JSON::Any.new(related_video) if related_video
+      elsif section = element["itemSectionRenderer"]?
+        section.dig?("contents").try &.as_a.each do |sub_element|
+          if item = sub_element["lockupViewModel"]?
+            related_video = self.parse_related_lockup(item)
+            related << JSON::Any.new(related_video) if related_video
+          elsif item = sub_element["compactVideoRenderer"]?
+            related_video = self.parse_related_video(item)
+            related << JSON::Any.new(related_video) if related_video
+          end
+        end
+      end
+    end
+
+    return related
+  end
+
   def extract_video_info(video_id : String)
     # Fetch data from the player endpoint
     player_response = YoutubeAPI.player(video_id: video_id)
@@ -240,15 +379,9 @@ module Invidious::Videos::Parser
 
     related = [] of JSON::Any
 
-    # Parse "compactVideoRenderer" items (under secondary results)
-    secondary_results = main_results
-      .dig?("secondaryResults", "secondaryResults", "results")
-    secondary_results.try &.as_a.each do |element|
-      if item = element["compactVideoRenderer"]?
-        related_video = self.parse_related_video(item)
-        related << JSON::Any.new(related_video) if related_video
-      end
-    end
+    related = self.parse_related_videos(
+      main_results.dig?("secondaryResults", "secondaryResults", "results")
+    )
 
     # If nothing was found previously, fall back to end screen renderer
     if related.empty?
