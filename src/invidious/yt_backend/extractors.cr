@@ -662,7 +662,12 @@ private module Parsers
         metadata = item_contents.dig("metadata", "lockupMetadataViewModel")
         title = metadata.dig("title", "content").as_s
         # Contains the views of the video and the published time of the video.
-        metadata_parts = metadata.dig("metadata", "contentMetadataViewModel", "metadataRows", 0, "metadataParts").try &.as_a
+        # NOTE: Collaboration videos have an additional metadata row containing
+        # the names of every channel involved, which means that the views and
+        # published data cannot be assumed to be located in the first row.
+        # See: https://github.com/iv-org/invidious/issues/5740
+        metadata_parts = metadata.dig?("metadata", "contentMetadataViewModel", "metadataRows")
+          .try &.as_a.try(&.flat_map { |row| row.dig?("metadataParts").try(&.as_a) || [] of JSON::Any })
 
         view_count_text = metadata_parts.try &.find { |item| item["icon"]?.nil? && item.dig?("text", "content").try &.as_s.includes?("views") }
           .try &.dig("text", "content").as_s
