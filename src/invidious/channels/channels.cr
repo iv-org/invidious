@@ -161,10 +161,14 @@ def fetch_channel(ucid, pull_all_videos : Bool)
 
   begin
     about_channel = get_about_info(ucid)
+    videos_ucid = ucid
   rescue ex : ChannelRedirect
     # Old-style UCIDs can be redirected to a new one by YouTube. The RSS
-    # endpoint used to follow those redirects transparently.
+    # endpoint used to follow those redirects transparently. Videos are
+    # fetched from the channel they actually live on, while the DB row
+    # keeps the originally requested ID to not break subscriptions.
     about_channel = get_about_info(ex.channel_id)
+    videos_ucid = ex.channel_id
   end
 
   LOGGER.trace("fetch_channel: #{ucid} : author = #{about_channel.author}, auto_generated = #{about_channel.auto_generated}")
@@ -178,7 +182,7 @@ def fetch_channel(ucid, pull_all_videos : Bool)
   })
 
   LOGGER.trace("fetch_channel: #{ucid} : Downloading channel videos page")
-  videos, continuation = IV::Channel::Tabs.get_videos(channel)
+  videos, continuation = IV::Channel::Tabs.get_videos(about_channel.author, videos_ucid)
 
   LOGGER.trace("fetch_channel: #{ucid} : Extracting videos from the channel videos tab")
   videos.select(SearchVideo).each do |video|
@@ -197,7 +201,7 @@ def fetch_channel(ucid, pull_all_videos : Bool)
 
     LOGGER.trace("fetch_channel: #{ucid} : video #{video.id} : Updating or inserting video")
 
-    was_insert = Invidious::Database::ChannelVideos.insert(channel_video)
+    was_insert = Invidious::Database::ChannelVideos.insert(channel_video, with_premiere_timestamp: true)
 
     if was_insert
       LOGGER.trace("fetch_channel: #{ucid} : video #{video.id} : Inserted, updating subscriptions")
