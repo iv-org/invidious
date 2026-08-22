@@ -46,8 +46,12 @@ def parse_description(desc, video_id : String) : String?
   content = desc["content"].as_s
   return "" if content.empty?
 
-  commands = desc["commandRuns"]?.try &.as_a
-  if commands.nil?
+  # attachmentRuns contains custom emoji URLs
+  attachments = desc["attachmentRuns"]?.try &.as_a || [] of JSON::Any
+
+  commands = desc["commandRuns"]?.try &.as_a || [] of JSON::Any
+
+  if commands.empty? && attachments.empty?
     # Slightly faster than HTML.escape, as we're only doing one pass on
     # the string instead of five for the standard library
     return String.build do |str|
@@ -65,9 +69,12 @@ def parse_description(desc, video_id : String) : String?
   index = 0
 
   return String.build do |str|
-    commands.each do |command|
-      cmd_start = command["startIndex"].as_i
-      cmd_length = command["length"].as_i
+    # Combine commandRuns and attachmentRuns into one array
+    events = commands + attachments
+
+    events.each do |event|
+      cmd_start = event["startIndex"].as_i
+      cmd_length = event["length"].as_i
 
       # Copy the text chunk between this command and the previous if needed.
       length = cmd_start - index
@@ -79,14 +86,38 @@ def parse_description(desc, video_id : String) : String?
         copy_string(str2, iter, cmd_length)
       end
 
-      link = cmd_content
-      if on_tap = command.dig?("onTap", "innertubeCommand")
-        link = parse_link_endpoint(on_tap, cmd_content, video_id)
-      end
-      str << link
-      index += cmd_length
-    end
+      # Check if event is an attachment AND a custom emoji using regex. Format is :<name>:
+      # Members-only custom emojis have prefix :_ Built in YouTube emojis do not
+      if (image = event.dig?("element", "type", "imageType", "image")) && cmd_content.matches?(/^:[^:\s]+:$/)
+        # Source contains the emoji URL, height, and width
+        source = image["sources"][0]
 
+        # Extract the emoji name
+        label = event.dig?("element", "properties", "accessibilityProperties", "label").try &.as_s || ""
+
+        # Apply channel-emoji CSS to add margin around emoji
+        str << %(<img class="channel-emoji" alt=")
+        str << HTML.escape(label)
+        str << %(" src="/ggpht)
+        str << URI.parse(url = source["url"].as_s).request_target
+        str << %(" title=")
+        str << HTML.escape(label)
+        str << %(" width=")
+        str << source["width"]?.to_s
+        str << %(" height=")
+        str << source["height"]?.to_s
+        str << %(" />)
+
+        index += cmd_length
+      else
+        link = cmd_content
+        if on_tap = event.dig?("onTap", "innertubeCommand")
+          link = parse_link_endpoint(on_tap, cmd_content, video_id)
+        end
+        str << link
+        index += cmd_length
+      end
+    end
     # Copy the end of the string (past the last command).
     content_size = content.ascii_only? ? content.size : utf16_length(content)
     remaining_length = content_size - index
