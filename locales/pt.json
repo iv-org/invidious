@@ -525,5 +525,8 @@
     "timeline_parse_error_show_technical_details": "Mostrar detalhes técnicos",
     "dmca_content": "Este vídeo não pode ser descarregado nesta instância devido a uma notificação de violação de direitos de autor/DMCA enviada ao administrador da instância.",
     "preferences_search_privacy_label": "Privacidade da pesquisa: ",
-    "preferences_search_privacy_description": "Se ativar esta preferência, as suas pesquisas não serão guardadas no histórico."
+    "preferences_search_privacy_description": "Se ativar esta preferência, as suas pesquisas não serão guardadas no histórico.",
+    "comments_youtube_disabled_text": "Neste vídeo, os comentários estão desativados.",
+    "comments_youtube_disabled_try_reddit": "Procurar comentários no Reddit?",
+    "comments_invidious_disabled_text": "Os comentários estão ocultos, como especificado nas definições"
 }
