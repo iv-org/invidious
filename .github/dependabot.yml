@@ -4,11 +4,17 @@ updates:
     directory: "/docker"
     schedule:
       interval: "weekly"
+    assignees:
+      - "Fijxu"
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: "weekly"
+    assignees:
+      - "Fijxu"
   - package-ecosystem: "nix"
     directory: /nix
     schedule:
       interval: "weekly"
+    assignees:
+      - "Fijxu"
