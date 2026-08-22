@@ -50,7 +50,7 @@ require "./invidious/routes/**"
 require "./invidious/jobs/base_job"
 require "./invidious/jobs/*"
 
-# Show a nice message for unsupported versions of the Crystal compiler,
+# Show a nice message in case the current Crystal compiler version is unsupoported```
 # encouraging the user compiling Invidious to update it```
 # version.
 {% begin %}
