@@ -669,10 +669,26 @@ private module Parsers
         metadata_parts = metadata.dig?("metadata", "contentMetadataViewModel", "metadataRows")
           .try &.as_a.try(&.flat_map { |row| row.dig?("metadataParts").try(&.as_a) || [] of JSON::Any })
 
-        view_count_text = metadata_parts.try &.find { |item| item["icon"]?.nil? && item.dig?("text", "content").try &.as_s.includes?("views") }
-          .try &.dig("text", "content").as_s
-        published = metadata_parts.try &.find { |item| item["icon"]?.nil? && item.dig?("text", "content").try &.as_s.includes?("ago") }
-          .try { |item| decode_date(item.dig("text", "content").as_s) } || Time.local
+        # NOTE: Channel names are also stored as metadata parts, so we can't
+        # simply look for a part containing "views"/"ago" (e.g. a channel
+        # named "Daily Views" would produce a false match). The text must
+        # fully look like a view count or a relative date instead, and when
+        # several parts match, the last one wins, as author rows precede the
+        # actual video metadata rows.
+        view_count_text : String? = nil
+        published_text : String? = nil
+
+        metadata_parts.try &.each do |part|
+          next unless part["icon"]?.nil?
+
+          text = part.dig?("text", "content").try &.as_s
+          next unless text
+
+          view_count_text = text if text.match(/^(?:\d[\d,.]*\s*[kmb]?|no)\s+views$/i)
+          published_text = text if text.match(/(?:second|minute|hour|day|week|month|year)s?\s+ago$/i)
+        end
+
+        published = published_text.try { |text| decode_date(text) } || Time.local
 
         view_count = short_text_to_number(view_count_text || "0")
 
