@@ -56,6 +56,7 @@ end
 
 # Simple alias to make code easier to read
 alias IV = Invidious
+alias HMooneyPot = Invidious
 
 CONFIG   = Config.load
 HMAC_KEY = CONFIG.hmac_key
