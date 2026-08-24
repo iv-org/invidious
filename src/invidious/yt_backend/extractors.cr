@@ -642,6 +642,13 @@ private module Parsers
     extend self
     include BaseParser
 
+    private VIEW_COUNT_TOKEN = /\d+\s+views/
+    private RELATIVE_DATE_TOKEN = /\d+\s+(second|minute|hour|day|week|month|year)s?\s+ago/
+
+    private def metadata_part_text(item : JSON::Any) : String?
+      item.dig?("text", "content").try &.as_s
+    end
+
     def process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["lockupViewModel"]?
         return self.parse(item_contents, author_fallback)
@@ -664,14 +671,16 @@ private module Parsers
         # Contains the views of the video and the published time of the video.
         # For collaboration videos, the first row contains the author names
         # instead, so we scan all rows for the one with view/publish info.
+        # Token-aware matching prevents author rows (e.g. "Chicago") from
+        # being mistaken for view-count or relative-date metadata.
         metadata_parts = metadata.dig?("metadata", "contentMetadataViewModel", "metadataRows")
           .try &.as_a
             .compact_map { |row| row.dig?("metadataParts").try &.as_a }
-            .find { |parts| parts.any? { |item| item.dig?("text", "content").try &.as_s.includes?("views") || item.dig?("text", "content").try &.as_s.includes?("ago") } }
+            .find { |parts| parts.any? { |item| metadata_part_text(item).try { |t| t.matches?(VIEW_COUNT_TOKEN) || t.matches?(RELATIVE_DATE_TOKEN) } } }
 
-        view_count_text = metadata_parts.try &.find { |item| item["icon"]?.nil? && item.dig?("text", "content").try &.as_s.includes?("views") }
+        view_count_text = metadata_parts.try &.find { |item| item["icon"]?.nil? && metadata_part_text(item).try(&.matches?(VIEW_COUNT_TOKEN)) }
           .try &.dig("text", "content").as_s
-        published = metadata_parts.try &.find { |item| item["icon"]?.nil? && item.dig?("text", "content").try &.as_s.includes?("ago") }
+        published = metadata_parts.try &.find { |item| item["icon"]?.nil? && metadata_part_text(item).try(&.matches?(RELATIVE_DATE_TOKEN)) }
           .try { |item| decode_date(item.dig("text", "content").as_s) } || Time.local
 
         view_count = short_text_to_number(view_count_text || "0")

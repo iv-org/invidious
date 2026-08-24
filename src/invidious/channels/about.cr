@@ -75,7 +75,7 @@ def get_about_info(ucid) : AboutChannel
         author_url = "https://www.youtube.com/channel/#{ucid}"
         author_thumbnail = phr_vm.try &.dig?("animatedImage", "contentPreviewImageViewModel", "image", "sources", 0, "url").try &.as_s || ""
         banner = nil
-        description_node = JSON.parse(%({"simpleText": ""}))
+        description_node = nil
         tags = [] of String
       else
         author = ithr["title"]["simpleText"].as_s

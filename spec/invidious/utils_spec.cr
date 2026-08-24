@@ -43,4 +43,17 @@ Spectator.describe "Utils" do
       expect(decode_date("8 years ago")).to be_close(Time.utc - 8.years, 500.milliseconds)
     end
   end
+
+  describe "linkify_hashtags" do
+    it "escapes apostrophes without creating false hashtag links" do
+      result = linkify_hashtags("Rock 'n' Roll `#music`")
+      expect(result).to_not contain("/hashtag/39")
+      expect(result).to contain("&#39;")
+      expect(result).to contain("<a href=\"/hashtag/music\">#music</a>")
+    end
+
+    it "links a plain hashtag" do
+      expect(linkify_hashtags("hello #music")).to eq("hello <a href=\"/hashtag/music\">#music</a>")
+    end
+  end
 end

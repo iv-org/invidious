@@ -94,7 +94,7 @@ we're going to need to do it here in order to allow for translations.
 <div class="h-box">
     <h1>
         <% if video.title.matches?(/#\w/) %>
-            <%= linkify_hashtags(title) %>
+            <%= linkify_hashtags(video.title) %>
         <% else %>
             <%= title %>
         <% end %>

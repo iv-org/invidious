@@ -20,14 +20,16 @@ module Invidious::Videos::Parser
     end
 
     # Both have "short", so the "long" option shouldn't be required
-    # Use the first run that has a valid browse endpoint.
+    # Use the first run that has a non-empty string browseId.
     # For collaboration videos, the first run is a plain text summary
     # without a link, while subsequent runs contain the channel links.
     byline_runs = (related["shortBylineText"]? || related["longBylineText"]?)
       .try &.dig?("runs").try &.as_a
 
     channel_info = byline_runs.try &.find do |run|
-      run.dig?("navigationEndpoint", "browseEndpoint", "browseId")
+      browse_id = run.dig?("navigationEndpoint", "browseEndpoint", "browseId")
+      text_id = browse_id.try &.as_s?
+      !text_id.nil? && !text_id.empty?
     end || byline_runs.try &.[0]?
 
     author = channel_info.try &.dig?("text")
