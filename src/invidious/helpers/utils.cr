@@ -386,6 +386,18 @@ def parse_link_endpoint(endpoint : JSON::Any, text : String, video_id : String)
   return text
 end
 
+def linkify_hashtags(title : String) : String
+  String.build do |str|
+    pos = 0
+    title.scan(/#([a-zA-Z0-9_]+)/) do |match|
+      str << title[pos...match.begin(0)]
+      str << %(<a href="/hashtag/#{URI.encode_path(match[1])}">#{match[0]}</a>)
+      pos = match.end(0)
+    end
+    str << title[pos..]
+  end
+end
+
 def encrypt_ecb_without_salt(data, key)
   cipher = OpenSSL::Cipher.new("aes-128-ecb")
   cipher.encrypt
