@@ -64,21 +64,33 @@ def get_about_info(ucid) : AboutChannel
     auto_generated = false
   else
     if auto_generated
-      author = initdata["header"]["interactiveTabbedHeaderRenderer"]["title"]["simpleText"].as_s
-      author_url = initdata["microformat"]["microformatDataRenderer"]["urlCanonical"].as_s
-      author_thumbnail = initdata["header"]["interactiveTabbedHeaderRenderer"]["boxArt"]["thumbnails"][0]["url"].as_s
+      ithr = initdata.dig?("header", "interactiveTabbedHeaderRenderer")
 
-      # Raises a KeyError on failure.
-      banners = initdata["header"]["interactiveTabbedHeaderRenderer"]?.try &.["banner"]?.try &.["thumbnails"]?
-      banner = banners.try &.[-1]?.try &.["url"].as_s?
+      if ithr.nil?
+        # Auto-generated channels (e.g. "Gaming") now return a
+        # pageHeaderRenderer without the fields the old renderer provided.
+        phr_vm = initdata.dig?("header", "pageHeaderRenderer", "content", "pageHeaderViewModel")
 
-      description_base_node = initdata["header"]["interactiveTabbedHeaderRenderer"]["description"]
-      # some channels have the description in a simpleText
-      # ex: https://www.youtube.com/channel/UCQvWX73GQygcwXOTSf_VDVg/
-      description_node = description_base_node.dig?("simpleText") || description_base_node
+        author = phr_vm.try &.dig?("title", "dynamicTextViewModel", "text", "content").try &.as_s || ucid
+        author_url = "https://www.youtube.com/channel/#{ucid}"
+        author_thumbnail = phr_vm.try &.dig?("animatedImage", "contentPreviewImageViewModel", "image", "sources", 0, "url").try &.as_s || ""
+        banner = nil
+        description_node = JSON.parse(%({"simpleText": ""}))
+        tags = [] of String
+      else
+        author = ithr["title"]["simpleText"].as_s
+        author_url = initdata["microformat"]["microformatDataRenderer"]["urlCanonical"].as_s
+        author_thumbnail = ithr["boxArt"]["thumbnails"][0]["url"].as_s
 
-      tags = initdata.dig?("header", "interactiveTabbedHeaderRenderer", "badges")
-        .try &.as_a.map(&.["metadataBadgeRenderer"]["label"].as_s) || [] of String
+        banners = ithr["banner"]?.try &.["thumbnails"]?
+        banner = banners.try &.[-1]?.try &.["url"].as_s?
+
+        description_base_node = ithr["description"]
+        description_node = description_base_node.dig?("simpleText") || description_base_node
+
+        tags = initdata.dig?("header", "interactiveTabbedHeaderRenderer", "badges")
+          .try &.as_a.map(&.["metadataBadgeRenderer"]["label"].as_s) || [] of String
+      end
     else
       author = initdata["metadata"]["channelMetadataRenderer"]["title"].as_s
       author_url = initdata["metadata"]["channelMetadataRenderer"]["channelUrl"].as_s
