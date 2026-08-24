@@ -664,10 +664,10 @@ private module Parsers
         # Contains the views of the video and the published time of the video.
         # For collaboration videos, the first row contains the author names
         # instead, so we scan all rows for the one with view/publish info.
-        metadata_parts = metadata.dig?("metadata", "contentMetadataViewModel", "metadataRows")
-          .try &.as_a
-            .compact_map { |row| row.dig?("metadataParts").try &.as_a }
-            .find { |parts| parts.any? { |item| item.dig?("text", "content").try &.as_s.includes?("views") || item.dig?("text", "content").try &.as_s.includes?("ago") } }
+        all_rows = metadata.dig?("metadata", "contentMetadataViewModel", "metadataRows")
+          .try &.as_a.compact_map { |row| row.dig?("metadataParts").try &.as_a }
+        metadata_parts = all_rows.try &.find { |parts| parts.any? { |item| item.dig?("text", "content").try &.as_s.includes?("views") || item.dig?("text", "content").try &.as_s.includes?("ago") } }
+        metadata_parts ||= all_rows.try &.first?
 
         view_count_text = metadata_parts.try &.find { |item| item["icon"]?.nil? && item.dig?("text", "content").try &.as_s.includes?("views") }
           .try &.dig("text", "content").as_s
