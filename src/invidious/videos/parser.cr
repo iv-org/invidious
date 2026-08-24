@@ -27,7 +27,9 @@ module Invidious::Videos::Parser
       .try &.dig?("runs").try &.as_a
 
     channel_info = byline_runs.try &.find do |run|
-      run.dig?("navigationEndpoint", "browseEndpoint", "browseId")
+      browse_id = run.dig?("navigationEndpoint", "browseEndpoint", "browseId")
+      text_id = browse_id.try &.as_s?
+      !text_id.nil? && !text_id.empty?
     end || byline_runs.try &.[0]?
 
     author = channel_info.try &.dig?("text")
