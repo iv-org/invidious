@@ -73,7 +73,7 @@
             api_captions_url = invidious_companion.public_url.to_s + api_captions_url if (invidious_companion)
             api_captions_check_id = "&check=#{invidious_companion_check_id}"
         %>
-            <track kind="captions" src="<%= api_captions_url %><%= video.id %>?label=<%= caption.name %><%= api_captions_check_id %>" label="<%= caption.name %>">
+            <track kind="captions" src="<%= api_captions_url %><%= video.id %>?label=<%= URI.encode_www_form(caption.name) %><%= api_captions_check_id %>" label="<%= caption.name %>">
         <% end %>
 
         <% captions.each do |caption|
@@ -81,7 +81,7 @@
             api_captions_url = invidious_companion.public_url.to_s + api_captions_url if (invidious_companion)
             api_captions_check_id = "&check=#{invidious_companion_check_id}"
         %>
-            <track kind="captions" src="<%= api_captions_url %><%= video.id %>?label=<%= caption.name %><%= api_captions_check_id %>" label="<%= caption.name %>">
+            <track kind="captions" src="<%= api_captions_url %><%= video.id %>?label=<%= URI.encode_www_form(caption.name) %><%= api_captions_check_id %>" label="<%= caption.name %>">
         <% end %>
     <% end %>
 </video>

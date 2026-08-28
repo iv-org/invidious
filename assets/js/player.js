@@ -46,6 +46,14 @@ embed_url = location.origin + '/embed/' + video_data.id + embed_url.search;
 
 var save_player_pos_key = 'save_player_pos';
 
+// Video.js removes the original <track> elements during initialization. Keep
+// their URLs so one candidate can be fetched into the browser cache without
+// changing TextTrack mode or rendering captions.
+var caption_track_sources = Array.prototype.map.call(
+    document.querySelectorAll('#player track[kind="captions"]'),
+    function (trackEl) { return trackEl.src; }
+);
+
 videojs.Vhs.xhr.beforeRequest = function(options) {
     // set local if requested not videoplayback
     if (!options.uri.includes('videoplayback')) {
@@ -607,11 +615,153 @@ const toggle_captions = (function () {
     };
 })();
 
+// --- Progressive Word-by-Word Caption Controller ---
+function processNodeChildren(container, currentTime) {
+    let currentTs = null;
+    const childNodes = container.childNodes;
+
+    for (let k = 0; k < childNodes.length; k++) {
+        const node = childNodes[k];
+
+        if (node.nodeType === 7 && (node.target === 'timestamp' || node.nodeName === 'timestamp')) {
+            const parsed = parseFloat(node.data);
+            if (!isNaN(parsed)) {
+                currentTs = parsed;
+            }
+        } else if (currentTs !== null) {
+            if (node.nodeType === 1) { // Node.ELEMENT_NODE
+                const shouldShow = currentTime >= currentTs;
+                const newVis = shouldShow ? '' : 'hidden';
+                if (node.style.visibility !== newVis) {
+                    node.style.visibility = newVis;
+                }
+            } else if (node.nodeType === 3 && node.textContent.trim().length > 0) { // Node.TEXT_NODE
+                const span = document.createElement('span');
+                span.textContent = node.textContent;
+                const shouldShow = currentTime >= currentTs;
+                span.style.visibility = shouldShow ? '' : 'hidden';
+                container.replaceChild(span, node);
+            }
+        }
+    }
+}
+
+function processCueElement(cueEl, currentTime) {
+    const contentContainers = cueEl.querySelectorAll('div');
+    if (contentContainers.length === 0) {
+        processNodeChildren(cueEl, currentTime);
+    } else {
+        for (let j = 0; j < contentContainers.length; j++) {
+            processNodeChildren(contentContainers[j], currentTime);
+        }
+    }
+}
+
+function applyProgressiveCaptions(currentTime) {
+    const cueElements = document.querySelectorAll('.vjs-text-track-cue');
+    if (!cueElements || cueElements.length === 0) return;
+
+    for (let i = 0; i < cueElements.length; i++) {
+        processCueElement(cueElements[i], currentTime);
+    }
+}
+
+(function initProgressiveCaptionsLoop() {
+    let rafId = null;
+    let rvfcId = null;
+    let isLoopRunning = false;
+
+    function updateCaptionFrame() {
+        if (!player || player.isDisposed()) {
+            stopCaptionLoop();
+            return;
+        }
+
+        const currentTime = player.currentTime();
+        applyProgressiveCaptions(currentTime);
+
+        const tech = player.tech(true);
+        const videoEl = tech && tech.el();
+
+        if (!player.paused() && !player.ended()) {
+            scheduleNextFrame(videoEl);
+        } else {
+            isLoopRunning = false;
+        }
+    }
+
+    function scheduleNextFrame(videoEl) {
+        isLoopRunning = true;
+        if (videoEl && typeof videoEl.requestVideoFrameCallback === 'function') {
+            rvfcId = videoEl.requestVideoFrameCallback(function () {
+                updateCaptionFrame();
+            });
+        } else {
+            rafId = window.requestAnimationFrame(function () {
+                updateCaptionFrame();
+            });
+        }
+    }
+
+    function startCaptionLoop() {
+        if (isLoopRunning) return;
+        const tech = player.tech(true);
+        const videoEl = tech && tech.el();
+        scheduleNextFrame(videoEl);
+    }
+
+    function stopCaptionLoop() {
+        isLoopRunning = false;
+        const tech = player.tech(true);
+        const videoEl = tech && tech.el();
+        if (videoEl && typeof videoEl.cancelVideoFrameCallback === 'function' && rvfcId !== null) {
+            videoEl.cancelVideoFrameCallback(rvfcId);
+        }
+        if (rafId !== null) {
+            window.cancelAnimationFrame(rafId);
+        }
+        rvfcId = null;
+        rafId = null;
+    }
+
+    player.on('play', startCaptionLoop);
+    player.on('playing', startCaptionLoop);
+    player.on('pause', function () {
+        stopCaptionLoop();
+        applyProgressiveCaptions(player.currentTime());
+    });
+    player.on('ended', function () {
+        stopCaptionLoop();
+        applyProgressiveCaptions(player.currentTime());
+    });
+    player.on('waiting', stopCaptionLoop);
+    player.on('seeked', function () {
+        applyProgressiveCaptions(player.currentTime());
+    });
+    player.on('seeking', function () {
+        applyProgressiveCaptions(player.currentTime());
+    });
+    player.on('timeupdate', function () {
+        applyProgressiveCaptions(player.currentTime());
+    });
+    player.on('ratechange', function () {
+        applyProgressiveCaptions(player.currentTime());
+    });
+    player.on('fullscreenchange', function () {
+        applyProgressiveCaptions(player.currentTime());
+    });
+    player.on('dispose', stopCaptionLoop);
+
+    if (player.textTracks()) {
+        player.textTracks().on('change', function () {
+            applyProgressiveCaptions(player.currentTime());
+        });
+    }
+})();
+
 // For real-time updates to captions (if currently showing)
 function update_captions() {
-    if (document.body.querySelector('.vjs-text-track-cue')) {
-        toggle_captions(); toggle_captions();
-    }
+    applyProgressiveCaptions(player.currentTime());
 }
 
 function toggle_fullscreen() {
@@ -797,17 +947,53 @@ addEventListener('keydown', function (e) {
 // Since videojs-share can sometimes be blocked, we defer it until last
 if (player.share) player.share(shareOptions);
 
-// show the preferred caption by default
-if (player_data.preferred_caption_found) {
-    player.ready(function () {
-        if (!video_data.params.listen && video_data.params.quality === 'dash') {
-            // play.textTracks()[0] on DASH mode is showing some debug messages
-            player.textTracks()[1].mode = 'showing';
-        } else {
-            player.textTracks()[0].mode = 'showing';
+// Show the preferred caption or prefetch the first caption track. Remote text
+// tracks can be added after player.ready(), so also initialize on addtrack.
+(function initCaptionLoading() {
+    const tracks = player.textTracks();
+    let preferredTrackSelected = false;
+    let prefetchStarted = false;
+
+    function prefetchCaptionSource() {
+        if (caption_track_sources.length === 0 || typeof fetch !== 'function') return;
+
+        fetch(caption_track_sources[0], {
+            credentials: 'same-origin'
+        }).catch(function () {
+            // Selecting captions later lets Video.js perform its normal retry.
+        });
+    }
+
+    function initializeCaptionTracks() {
+        let firstCaptionTrack = null;
+
+        for (let i = 0; i < tracks.length; i++) {
+            const track = tracks[i];
+            if (track.kind !== 'captions') continue;
+
+            if (!firstCaptionTrack) firstCaptionTrack = track;
+            if (track.mode === 'showing') {
+                preferredTrackSelected = preferredTrackSelected ||
+                    player_data.preferred_caption_found;
+            }
         }
+
+        if (player_data.preferred_caption_found && !preferredTrackSelected && firstCaptionTrack) {
+            preferredTrackSelected = true;
+            firstCaptionTrack.mode = 'showing';
+        } else if (!player_data.preferred_caption_found && !prefetchStarted &&
+                   caption_track_sources.length > 0) {
+            prefetchStarted = true;
+            prefetchCaptionSource();
+        }
+    }
+
+    player.ready(initializeCaptionTracks);
+    tracks.on('addtrack', function () {
+        // Let Video.js finish registering the new remote track first.
+        window.setTimeout(initializeCaptionTracks, 0);
     });
-}
+})();
 
 // Safari audio double duration fix
 if (navigator.vendor === 'Apple Computer, Inc.' && video_data.params.listen) {
