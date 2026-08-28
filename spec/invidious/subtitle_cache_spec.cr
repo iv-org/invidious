@@ -11,6 +11,13 @@ require "../../src/invidious/config"
 
 CONFIG.invidious_companion_key = "1234567890123456"
 
+private def subtitle_response(status_code : Int32, content_type : String, body : String)
+  headers = HTTP::Headers.new
+  headers["Content-Type"] = content_type
+  headers["Access-Control-Allow-Origin"] = "*"
+  Invidious::SubtitleCache::Response.new(status_code, headers, body)
+end
+
 Spectator.describe Invidious::SubtitleCache do
   describe "check verification" do
     it "verifies valid tokens" do
@@ -77,22 +84,22 @@ Spectator.describe Invidious::SubtitleCache do
       fetch_count = 0
       vtt = "WEBVTT\n\n00:00:00.000 --> 00:00:01.000\nHello"
 
-      entry1, status1 = cache.get_or_fetch("video:abc") do
+      result1 = cache.get_or_fetch("video:abc") do
         fetch_count += 1
-        {200, "text/vtt", vtt}
+        subtitle_response(200, "text/vtt", vtt)
       end
 
-      expect(status1).to eq("miss")
-      expect(entry1.try &.body).to eq(vtt)
+      expect(result1.cache_status).to eq("miss")
+      expect(result1.entry.try &.body).to eq(vtt)
       expect(fetch_count).to eq(1)
 
-      entry2, status2 = cache.get_or_fetch("video:abc") do
+      result2 = cache.get_or_fetch("video:abc") do
         fetch_count += 1
-        {200, "text/vtt", vtt}
+        subtitle_response(200, "text/vtt", vtt)
       end
 
-      expect(status2).to eq("hit")
-      expect(entry2.try &.body).to eq(vtt)
+      expect(result2.cache_status).to eq("hit")
+      expect(result2.entry.try &.body).to eq(vtt)
       expect(fetch_count).to eq(1)
     end
 
@@ -104,12 +111,12 @@ Spectator.describe Invidious::SubtitleCache do
 
       5.times do
         spawn do
-          entry, status = cache.get_or_fetch("video:concurrent") do
+          result = cache.get_or_fetch("video:concurrent") do
             fetch_count += 1
             sleep 0.05.seconds
-            {200, "text/vtt", vtt}
+            subtitle_response(200, "text/vtt", vtt)
           end
-          done_ch.send(status)
+          done_ch.send(result.cache_status)
         end
       end
 
@@ -159,12 +166,28 @@ Spectator.describe Invidious::SubtitleCache do
 
     it "does not cache failed or non-vtt responses" do
       cache = Invidious::SubtitleCache.new
-      entry, status = cache.get_or_fetch("video:bad") do
-        {404, "application/json", "{\"error\":\"not found\"}"}
+      result = cache.get_or_fetch("video:bad") do
+        subtitle_response(404, "application/json", "{\"error\":\"not found\"}")
       end
 
-      expect(status).to eq("bypass")
-      expect(entry).to be_nil
+      expect(result.cache_status).to eq("bypass")
+      expect(result.entry).to be_nil
+      expect(result.response.try &.body).to eq("{\"error\":\"not found\"}")
+      expect(result.response.try &.headers["Access-Control-Allow-Origin"]).to eq("*")
+      expect(cache.size).to eq(0)
+    end
+
+    it "does not cache oversized fetch responses" do
+      cache = Invidious::SubtitleCache.new
+      oversized = "WEBVTT\n" + ("x" * (Invidious::SubtitleCache::MAX_ENTRY_BYTES + 1))
+
+      result = cache.get_or_fetch("video:oversized") do
+        subtitle_response(200, "text/vtt", oversized)
+      end
+
+      expect(result.cache_status).to eq("bypass")
+      expect(result.entry).to be_nil
+      expect(result.response.try &.body).to eq(oversized)
       expect(cache.size).to eq(0)
     end
   end

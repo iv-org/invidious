@@ -82,36 +82,37 @@ module Invidious::Routes::Companion
 
     cache_key = "video:#{video_id}|label:#{label}|lang:#{lang}|tlang:#{tlang}"
 
-    entry, cache_status = SUBTITLE_CACHE.get_or_fetch(cache_key) do
+    result = SUBTITLE_CACHE.get_or_fetch(cache_key) do
       fetch_from_companion(url, env.request.headers)
     end
 
-    if entry
+    if entry = result.entry
       env.response.status_code = 200
+      env.response.headers["Access-Control-Allow-Origin"] = "*"
       env.response.headers["Content-Type"] = entry.content_type
       env.response.headers["Cache-Control"] = "private, max-age=21600"
-      env.response.headers["X-Invidious-Subtitle-Cache"] = cache_status
+      env.response.headers["X-Invidious-Subtitle-Cache"] = result.cache_status
       env.response.print entry.body
       return
-    else
-      begin
-        COMPANION_POOL.client do |wrapper|
-          wrapper.client.get(url, env.request.headers) do |resp|
-            env.response.headers["X-Invidious-Subtitle-Cache"] = cache_status
-            return self.proxy_companion(env, resp)
-          end
-        end
-      rescue ex
+    elsif response = result.response
+      env.response.status_code = response.status_code
+      response.headers.each do |key, value|
+        env.response.headers[key] = value
       end
+      env.response.headers["X-Invidious-Subtitle-Cache"] = result.cache_status
+      env.response.print response.body
     end
   end
 
-  private def self.fetch_from_companion(url : String, headers : HTTP::Headers) : Tuple(Int32, String, String)?
+  private def self.fetch_from_companion(url : String, headers : HTTP::Headers) : Invidious::SubtitleCache::Response?
     COMPANION_POOL.client do |wrapper|
       wrapper.client.get(url, headers) do |resp|
         body = resp.body_io.gets_to_end
-        content_type = resp.headers["Content-Type"]? || "text/vtt; charset=utf-8"
-        return {resp.status_code, content_type, body}
+        response_headers = HTTP::Headers.new
+        resp.headers.each do |key, value|
+          response_headers[key] = value
+        end
+        return Invidious::SubtitleCache::Response.new(resp.status_code, response_headers, body)
       end
     end
   rescue ex
