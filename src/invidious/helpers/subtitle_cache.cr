@@ -37,6 +37,7 @@ module Invidious
     DEFAULT_MAX_BYTES   = 64 * 1024 * 1024 # 64 MiB
     DEFAULT_TTL         = 6.hours          # 21600 seconds
     MAX_ENTRY_BYTES     = 2 * 1024 * 1024  # 2 MiB
+    READ_CHUNK_BYTES    = 64 * 1024
 
     getter max_entries : Int32
     getter max_bytes : Int32
@@ -55,7 +56,26 @@ module Invidious
     def self.valid_vtt?(body : String) : Bool
       return false if body.empty?
       trimmed = body.lstrip("\uFEFF \t\r\n")
-      trimmed.starts_with?("WEBVTT")
+      return false unless trimmed.starts_with?("WEBVTT")
+
+      header_end = "WEBVTT".size
+      header_end == trimmed.size || " \t\r\n".includes?(trimmed[header_end])
+    end
+
+    def self.read_limited_body(input : IO, limit : Int32 = MAX_ENTRY_BYTES) : String?
+      output = IO::Memory.new
+      buffer = Bytes.new(READ_CHUNK_BYTES)
+
+      while output.bytesize < limit
+        remaining = limit - output.bytesize
+        chunk_size = Math.min(READ_CHUNK_BYTES, remaining)
+        bytes_read = input.read(buffer[0, chunk_size])
+        break if bytes_read == 0
+        output.write(buffer[0, bytes_read])
+      end
+
+      return nil if input.read_byte
+      output.to_s
     end
 
     def size : Int32

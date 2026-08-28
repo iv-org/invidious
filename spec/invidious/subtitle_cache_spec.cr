@@ -49,7 +49,9 @@ Spectator.describe Invidious::SubtitleCache do
       expect(Invidious::SubtitleCache.valid_vtt?("WEBVTT\n\n00:00:00.000 --> 00:00:01.000\nHello")).to be_true
       expect(Invidious::SubtitleCache.valid_vtt?("\uFEFFWEBVTT\n\n00:00:00.000 --> 00:00:01.000\nHello")).to be_true
       expect(Invidious::SubtitleCache.valid_vtt?("  \nWEBVTT\n\n")).to be_true
+      expect(Invidious::SubtitleCache.valid_vtt?("WEBVTT")).to be_true
       expect(Invidious::SubtitleCache.valid_vtt?("")).to be_false
+      expect(Invidious::SubtitleCache.valid_vtt?("WEBVTT-error")).to be_false
       expect(Invidious::SubtitleCache.valid_vtt?("{\"error\": \"not found\"}")).to be_false
       expect(Invidious::SubtitleCache.valid_vtt?("<!DOCTYPE html><html></html>")).to be_false
     end
@@ -189,6 +191,14 @@ Spectator.describe Invidious::SubtitleCache do
       expect(result.entry).to be_nil
       expect(result.response.try &.body).to eq(oversized)
       expect(cache.size).to eq(0)
+    end
+
+    it "stops reading bodies beyond the entry size limit" do
+      valid_body = "WEBVTT\n"
+      expect(Invidious::SubtitleCache.read_limited_body(IO::Memory.new(valid_body))).to eq(valid_body)
+
+      oversized_body = "x" * (Invidious::SubtitleCache::MAX_ENTRY_BYTES + 1)
+      expect(Invidious::SubtitleCache.read_limited_body(IO::Memory.new(oversized_body))).to be_nil
     end
   end
 end

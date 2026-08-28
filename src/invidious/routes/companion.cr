@@ -107,7 +107,8 @@ module Invidious::Routes::Companion
   private def self.fetch_from_companion(url : String, headers : HTTP::Headers) : Invidious::SubtitleCache::Response?
     COMPANION_POOL.client do |wrapper|
       wrapper.client.get(url, headers) do |resp|
-        body = resp.body_io.gets_to_end
+        body = Invidious::SubtitleCache.read_limited_body(resp.body_io)
+        return nil unless body
         response_headers = HTTP::Headers.new
         resp.headers.each do |key, value|
           response_headers[key] = value
