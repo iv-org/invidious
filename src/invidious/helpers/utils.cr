@@ -404,3 +404,40 @@ def invidious_companion_encrypt(data)
   encrypted_data = encrypt_ecb_without_salt("#{timestamp}|#{data}", CONFIG.invidious_companion_key)
   return Base64.urlsafe_encode(encrypted_data)
 end
+
+def decrypt_ecb_without_salt(data : Bytes | IO, key : String) : IO::Memory
+  cipher = OpenSSL::Cipher.new("aes-128-ecb")
+  cipher.decrypt
+  cipher.key = key
+
+  io = IO::Memory.new
+  io.write(cipher.update(data))
+  io.write(cipher.final)
+  io.rewind
+
+  return io
+end
+
+def invidious_companion_verify_check(check : String, expected_video_id : String, max_age_seconds : Int64 = 21600_i64) : Bool
+  return false if check.empty? || CONFIG.invidious_companion_key.size != 16
+
+  raw_bytes = Base64.decode(check) rescue nil
+  return false unless raw_bytes
+
+  decrypted_io = decrypt_ecb_without_salt(raw_bytes, CONFIG.invidious_companion_key) rescue nil
+  return false unless decrypted_io
+
+  plain = decrypted_io.to_s
+  parts = plain.split('|', 2)
+  return false unless parts.size == 2
+
+  timestamp = parts[0].to_i64?
+  return false unless timestamp
+
+  video_id = parts[1]
+  return false unless video_id == expected_video_id
+
+  now = Time.utc.to_unix
+  diff = (now - timestamp).abs
+  return diff <= max_age_seconds
+end
