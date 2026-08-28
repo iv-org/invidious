@@ -658,7 +658,7 @@ function processCueElement(cueEl, currentTime) {
 }
 
 function applyProgressiveCaptions(currentTime) {
-    const cueElements = document.querySelectorAll('.vjs-text-track-cue');
+    const cueElements = player.el().querySelectorAll('.vjs-text-track-cue');
     if (!cueElements || cueElements.length === 0) return;
 
     for (let i = 0; i < cueElements.length; i++) {
@@ -669,6 +669,7 @@ function applyProgressiveCaptions(currentTime) {
 (function initProgressiveCaptionsLoop() {
     let rafId = null;
     let rvfcId = null;
+    let rvfcVideoEl = null;
     let isLoopRunning = false;
 
     function updateCaptionFrame() {
@@ -693,6 +694,7 @@ function applyProgressiveCaptions(currentTime) {
     function scheduleNextFrame(videoEl) {
         isLoopRunning = true;
         if (videoEl && typeof videoEl.requestVideoFrameCallback === 'function') {
+            rvfcVideoEl = videoEl;
             rvfcId = videoEl.requestVideoFrameCallback(function () {
                 updateCaptionFrame();
             });
@@ -712,15 +714,14 @@ function applyProgressiveCaptions(currentTime) {
 
     function stopCaptionLoop() {
         isLoopRunning = false;
-        const tech = player.tech(true);
-        const videoEl = tech && tech.el();
-        if (videoEl && typeof videoEl.cancelVideoFrameCallback === 'function' && rvfcId !== null) {
-            videoEl.cancelVideoFrameCallback(rvfcId);
+        if (rvfcVideoEl && typeof rvfcVideoEl.cancelVideoFrameCallback === 'function' && rvfcId !== null) {
+            rvfcVideoEl.cancelVideoFrameCallback(rvfcId);
         }
         if (rafId !== null) {
             window.cancelAnimationFrame(rafId);
         }
         rvfcId = null;
+        rvfcVideoEl = null;
         rafId = null;
     }
 
@@ -762,6 +763,11 @@ function applyProgressiveCaptions(currentTime) {
 // For real-time updates to captions (if currently showing)
 function update_captions() {
     applyProgressiveCaptions(player.currentTime());
+    const textTrackDisplay = player.getChild('textTrackDisplay');
+    if (textTrackDisplay && typeof textTrackDisplay.updateDisplay === 'function') {
+        textTrackDisplay.updateDisplay();
+        applyProgressiveCaptions(player.currentTime());
+    }
 }
 
 function toggle_fullscreen() {
@@ -952,6 +958,7 @@ if (player.share) player.share(shareOptions);
 (function initCaptionLoading() {
     const tracks = player.textTracks();
     let preferredTrackSelected = false;
+    let captionTrackShowing = false;
     let prefetchStarted = false;
 
     function prefetchCaptionSource() {
@@ -973,6 +980,7 @@ if (player.share) player.share(shareOptions);
 
             if (!firstCaptionTrack) firstCaptionTrack = track;
             if (track.mode === 'showing') {
+                captionTrackShowing = true;
                 preferredTrackSelected = preferredTrackSelected ||
                     player_data.preferred_caption_found;
             }
@@ -981,8 +989,7 @@ if (player.share) player.share(shareOptions);
         if (player_data.preferred_caption_found && !preferredTrackSelected && firstCaptionTrack) {
             preferredTrackSelected = true;
             firstCaptionTrack.mode = 'showing';
-        } else if (!player_data.preferred_caption_found && !prefetchStarted &&
-                   caption_track_sources.length > 0) {
+        } else if (!captionTrackShowing && !prefetchStarted && caption_track_sources.length > 0) {
             prefetchStarted = true;
             prefetchCaptionSource();
         }
