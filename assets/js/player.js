@@ -958,7 +958,6 @@ if (player.share) player.share(shareOptions);
 (function initCaptionLoading() {
     const tracks = player.textTracks();
     let preferredTrackSelected = false;
-    let captionTrackShowing = false;
     let prefetchStarted = false;
 
     function prefetchCaptionSource() {
@@ -973,6 +972,7 @@ if (player.share) player.share(shareOptions);
 
     function initializeCaptionTracks() {
         let firstCaptionTrack = null;
+        let anyTrackShowing = false;
 
         for (let i = 0; i < tracks.length; i++) {
             const track = tracks[i];
@@ -980,7 +980,7 @@ if (player.share) player.share(shareOptions);
 
             if (!firstCaptionTrack) firstCaptionTrack = track;
             if (track.mode === 'showing') {
-                captionTrackShowing = true;
+                anyTrackShowing = true;
                 preferredTrackSelected = preferredTrackSelected ||
                     player_data.preferred_caption_found;
             }
@@ -989,7 +989,7 @@ if (player.share) player.share(shareOptions);
         if (player_data.preferred_caption_found && !preferredTrackSelected && firstCaptionTrack) {
             preferredTrackSelected = true;
             firstCaptionTrack.mode = 'showing';
-        } else if (!captionTrackShowing && !prefetchStarted && caption_track_sources.length > 0) {
+        } else if (!anyTrackShowing && !prefetchStarted && caption_track_sources.length > 0) {
             prefetchStarted = true;
             prefetchCaptionSource();
         }
