@@ -616,6 +616,32 @@ const toggle_captions = (function () {
 })();
 
 // --- Progressive Word-by-Word Caption Controller ---
+function parseCaptionTimestamp(value) {
+    if (typeof value !== 'string') return null;
+
+    const trimmed = value.trim();
+    if (trimmed === '') return null;
+
+    const clockParts = trimmed.split(':');
+    if (clockParts.length > 3) return null;
+
+    let seconds = 0;
+    for (let i = 0; i < clockParts.length; i++) {
+        const part = clockParts[i];
+        if (part === '' || !/^\d+(?:\.\d+)?$/.test(part)) return null;
+
+        const parsedPart = parseFloat(part);
+        if (!isFinite(parsedPart)) return null;
+
+        if (i < clockParts.length - 1 && parsedPart >= 60) return null;
+        if (i === clockParts.length - 1 && clockParts.length > 1 && parsedPart >= 60) return null;
+        if (i === clockParts.length - 1) seconds += parsedPart;
+        else seconds += parsedPart * Math.pow(60, clockParts.length - i - 1);
+    }
+
+    return seconds;
+}
+
 function processNodeChildren(container, currentTime) {
     let currentTs = null;
     const childNodes = container.childNodes;
@@ -624,8 +650,8 @@ function processNodeChildren(container, currentTime) {
         const node = childNodes[k];
 
         if (node.nodeType === 7 && (node.target === 'timestamp' || node.nodeName === 'timestamp')) {
-            const parsed = parseFloat(node.data);
-            if (!isNaN(parsed)) {
+            const parsed = parseCaptionTimestamp(node.data);
+            if (parsed !== null) {
                 currentTs = parsed;
             }
         } else if (currentTs !== null) {
