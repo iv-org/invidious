@@ -80,7 +80,7 @@ module Invidious::Routes::Companion
       return
     end
 
-    cache_key = "video:#{video_id}|label:#{label}|lang:#{lang}|tlang:#{tlang}"
+    cache_key = Invidious::SubtitleCache.caption_cache_key(video_id, label, lang, tlang)
 
     result = SUBTITLE_CACHE.get_or_fetch(cache_key) do
       fetch_from_companion(url, env.request.headers)

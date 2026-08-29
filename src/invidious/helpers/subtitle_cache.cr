@@ -72,6 +72,10 @@ module Invidious
       header_end == trimmed.size || " \t\r\n".includes?(trimmed[header_end])
     end
 
+    def self.caption_cache_key(video_id : String, label : String, lang : String, tlang : String) : String
+      [video_id, label, lang, tlang].map { |value| Base64.urlsafe_encode(value) }.join('|')
+    end
+
     def self.read_limited_body(input : IO, limit : Int32 = MAX_ENTRY_BYTES) : LimitedBody
       output = IO::Memory.new
       buffer = Bytes.new(READ_CHUNK_BYTES)

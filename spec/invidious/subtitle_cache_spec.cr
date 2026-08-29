@@ -81,6 +81,13 @@ Spectator.describe Invidious::SubtitleCache do
       expect(cache.get("video:123|label:Chinese|lang:zh|tlang:").try &.body).to eq(vtt_zh)
     end
 
+    it "builds cache keys that isolate delimiter-containing values" do
+      key_a = Invidious::SubtitleCache.caption_cache_key("video", "English|lang:x", "en", "")
+      key_b = Invidious::SubtitleCache.caption_cache_key("video", "English", "lang:x", "")
+
+      expect(key_a).not_to eq(key_b)
+    end
+
     it "returns miss on first fetch and hit on subsequent fetch" do
       cache = Invidious::SubtitleCache.new
       fetch_count = 0
