@@ -1,5 +1,7 @@
 module Invidious
   class SubtitleCache
+    CAPTION_PATH_REGEX = %r{^/(?:companion/)?api/v1/captions/([^/?#]+)$}
+
     struct Entry
       getter body : String
       getter content_type : String
@@ -33,6 +35,14 @@ module Invidious
       end
     end
 
+    struct LimitedBody
+      getter body : String?
+      getter oversized : Bool
+
+      def initialize(@body : String?, @oversized : Bool)
+      end
+    end
+
     DEFAULT_MAX_ENTRIES = 256
     DEFAULT_MAX_BYTES   = 64 * 1024 * 1024 # 64 MiB
     DEFAULT_TTL         = 6.hours          # 21600 seconds
@@ -62,7 +72,7 @@ module Invidious
       header_end == trimmed.size || " \t\r\n".includes?(trimmed[header_end])
     end
 
-    def self.read_limited_body(input : IO, limit : Int32 = MAX_ENTRY_BYTES) : String?
+    def self.read_limited_body(input : IO, limit : Int32 = MAX_ENTRY_BYTES) : LimitedBody
       output = IO::Memory.new
       buffer = Bytes.new(READ_CHUNK_BYTES)
 
@@ -74,8 +84,8 @@ module Invidious
         output.write(buffer[0, bytes_read])
       end
 
-      return nil if input.read_byte
-      output.to_s
+      oversized = !input.read_byte.nil?
+      LimitedBody.new(oversized ? nil : output.to_s, oversized)
     end
 
     def size : Int32
@@ -120,6 +130,7 @@ module Invidious
 
     private def put_internal(key : String, body : String, content_type : String) : Entry?
       return nil unless SubtitleCache.valid_vtt?(body)
+      return nil if @max_entries <= 0 || @max_bytes <= 0
       return nil if body.bytesize > MAX_ENTRY_BYTES || body.bytesize > @max_bytes
 
       if old = @entries.delete(key)

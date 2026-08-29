@@ -149,6 +149,26 @@ Spectator.describe Invidious::SubtitleCache do
       expect(cache.get("k2")).to be_nil
     end
 
+    it "rejects entries when entry capacity is zero" do
+      cache = Invidious::SubtitleCache.new(max_entries: 0)
+      vtt = "WEBVTT\n\n00:00:00.000 --> 00:00:01.000\nZero capacity"
+
+      expect(cache.put("k", vtt, "text/vtt")).to be_nil
+      expect(cache.size).to eq(0)
+
+      byte_limited = Invidious::SubtitleCache.new(max_bytes: 0)
+      expect(byte_limited.put("k", vtt, "text/vtt")).to be_nil
+      expect(byte_limited.size).to eq(0)
+    end
+
+    it "matches exact caption proxy paths only" do
+      regex = Invidious::SubtitleCache::CAPTION_PATH_REGEX
+
+      expect(regex.match("/api/v1/captions/video_id").try &.[1]).to eq("video_id")
+      expect(regex.match("/companion/api/v1/captions/video_id").try &.[1]).to eq("video_id")
+      expect(regex.match("/api/v1/captions/video_id/extra")).to be_nil
+    end
+
     it "evicts oldest entries when max_bytes is exceeded" do
       cache = Invidious::SubtitleCache.new(max_entries: 10, max_bytes: 60)
       vtt1 = "WEBVTT\n\n12345678901234567890" # ~30 bytes
@@ -195,10 +215,14 @@ Spectator.describe Invidious::SubtitleCache do
 
     it "stops reading bodies beyond the entry size limit" do
       valid_body = "WEBVTT\n"
-      expect(Invidious::SubtitleCache.read_limited_body(IO::Memory.new(valid_body))).to eq(valid_body)
+      valid_result = Invidious::SubtitleCache.read_limited_body(IO::Memory.new(valid_body))
+      expect(valid_result.oversized).to be_false
+      expect(valid_result.body).to eq(valid_body)
 
       oversized_body = "x" * (Invidious::SubtitleCache::MAX_ENTRY_BYTES + 1)
-      expect(Invidious::SubtitleCache.read_limited_body(IO::Memory.new(oversized_body))).to be_nil
+      oversized_result = Invidious::SubtitleCache.read_limited_body(IO::Memory.new(oversized_body))
+      expect(oversized_result.oversized).to be_true
+      expect(oversized_result.body).to be_nil
     end
   end
 end
