@@ -110,7 +110,8 @@ module Invidious::Routes::Companion
         limited_body = Invidious::SubtitleCache.read_limited_body(resp.body_io)
         if limited_body.oversized
           resp.body_io.close
-          return oversized_caption_response
+          wrapper.close
+          return Invidious::SubtitleCache.oversized_caption_response
         end
 
         body = limited_body.body
@@ -124,14 +125,6 @@ module Invidious::Routes::Companion
     end
   rescue ex
     nil
-  end
-
-  private def self.oversized_caption_response
-    headers = HTTP::Headers.new
-    headers["Access-Control-Allow-Origin"] = "*"
-    headers["Cache-Control"] = "no-store"
-    headers["Content-Type"] = "text/plain; charset=utf-8"
-    Invidious::SubtitleCache::Response.new(413, headers, "Caption response exceeds size limit\n")
   end
 
   private def self.proxy_companion(env, response)

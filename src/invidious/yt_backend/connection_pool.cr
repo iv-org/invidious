@@ -51,9 +51,10 @@ end
 # This is used as the resource for the `CompanionPool` as to allow the ability to
 # proxy the requests to Invidious companion from Invidious directly.
 # Instead of setting up routes in a reverse proxy.
-struct CompanionWrapper
+class CompanionWrapper
   property client : HTTP::Client
   property companion : Config::CompanionConfig
+  @closed = false
 
   def initialize(companion : Config::CompanionConfig)
     @companion = companion
@@ -61,7 +62,12 @@ struct CompanionWrapper
   end
 
   def close
+    @closed = true
     @client.close
+  end
+
+  def closed? : Bool
+    @closed
   end
 end
 

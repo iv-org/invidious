@@ -43,14 +43,17 @@ module Invidious
       end
     end
 
-    DEFAULT_MAX_ENTRIES = 256
-    DEFAULT_MAX_BYTES   = 64 * 1024 * 1024 # 64 MiB
-    DEFAULT_TTL         = 6.hours          # 21600 seconds
-    MAX_ENTRY_BYTES     = 2 * 1024 * 1024  # 2 MiB
-    READ_CHUNK_BYTES    = 64 * 1024
+    DEFAULT_MAX_ENTRIES  = 256
+    DEFAULT_MAX_BYTES    = 64 * 1024 * 1024 # 64 MiB
+    DEFAULT_TTL          = 6.hours          # 21600 seconds
+    MAX_ENTRY_BYTES      = 2 * 1024 * 1024  # 2 MiB
+    READ_CHUNK_BYTES     = 64 * 1024
+    MAX_IN_FLIGHT_KEYS   = 64
+    MAX_WAITING_FETCHERS = 64
 
     getter max_entries : Int32
     getter max_bytes : Int32
+    getter max_in_flight : Int32
     getter ttl : Time::Span
     getter total_bytes : Int32
 
@@ -61,6 +64,8 @@ module Invidious
       @total_bytes = 0
       @mutex = Mutex.new
       @in_flight = Hash(String, Array(::Channel(FetchResult))).new
+      @max_in_flight = {@max_entries, MAX_IN_FLIGHT_KEYS}.min
+      @max_in_flight = 1 if @max_in_flight <= 0
     end
 
     def self.valid_vtt?(body : String) : Bool
@@ -74,6 +79,14 @@ module Invidious
 
     def self.caption_cache_key(video_id : String, label : String, lang : String, tlang : String) : String
       [video_id, label, lang, tlang].map { |value| Base64.urlsafe_encode(value) }.join('|')
+    end
+
+    def self.oversized_caption_response : Response
+      headers = HTTP::Headers.new
+      headers["Access-Control-Allow-Origin"] = "*"
+      headers["Cache-Control"] = "no-store"
+      headers["Content-Type"] = "text/plain; charset=utf-8"
+      Response.new(413, headers, "Caption response exceeds size limit\n")
     end
 
     def self.read_limited_body(input : IO, limit : Int32 = MAX_ENTRY_BYTES) : LimitedBody
@@ -94,6 +107,10 @@ module Invidious
 
     def size : Int32
       @mutex.synchronize { @entries.size }
+    end
+
+    def in_flight_size : Int32
+      @mutex.synchronize { @in_flight.size }
     end
 
     def clear : Nil
@@ -159,6 +176,7 @@ module Invidious
 
     def get_or_fetch(key : String, &fetch_block : -> Response?) : FetchResult
       wait_ch : ::Channel(FetchResult)? = nil
+      direct_fetch = false
 
       @mutex.synchronize do
         if entry = get_internal(key)
@@ -166,16 +184,33 @@ module Invidious
         end
 
         if waiting_list = @in_flight[key]?
-          ch = ::Channel(FetchResult).new(1)
-          waiting_list << ch
-          wait_ch = ch
+          if waiting_list.size < MAX_WAITING_FETCHERS
+            ch = ::Channel(FetchResult).new(1)
+            waiting_list << ch
+            wait_ch = ch
+          else
+            direct_fetch = true
+          end
         else
-          @in_flight[key] = Array(::Channel(FetchResult)).new
+          if @in_flight.size < @max_in_flight
+            @in_flight[key] = Array(::Channel(FetchResult)).new
+          else
+            direct_fetch = true
+          end
         end
       end
 
       if ch = wait_ch
         return ch.receive
+      end
+
+      if direct_fetch
+        response = begin
+          fetch_block.call
+        rescue
+          nil
+        end
+        return FetchResult.new(nil, response, "bypass")
       end
 
       # Primary fetcher for this key

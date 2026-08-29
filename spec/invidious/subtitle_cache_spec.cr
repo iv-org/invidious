@@ -137,6 +137,36 @@ Spectator.describe Invidious::SubtitleCache do
       expect(results.count("hit")).to eq(4)
     end
 
+    it "bounds distinct pending fetches" do
+      cache = Invidious::SubtitleCache.new(max_entries: 2)
+      started = ::Channel(String).new
+      release = ::Channel(Nil).new
+      done = ::Channel(String).new
+
+      3.times do |i|
+        spawn do
+          key = "video:pending-#{i}"
+          result = cache.get_or_fetch(key) do
+            started.send(key)
+            release.receive
+            subtitle_response(200, "text/vtt", "WEBVTT\n")
+          end
+          done.send(result.cache_status)
+        end
+      end
+
+      3.times { started.receive }
+      expect(cache.in_flight_size).to eq(2)
+
+      3.times { release.send(nil) }
+      results = Array(String).new
+      3.times { results << done.receive }
+
+      expect(results.count("miss")).to eq(2)
+      expect(results.count("bypass")).to eq(1)
+      expect(cache.in_flight_size).to eq(0)
+    end
+
     it "evicts oldest entries when max_entries is exceeded (LRU)" do
       cache = Invidious::SubtitleCache.new(max_entries: 2)
       vtt = "WEBVTT\n\n00:00:00.000 --> 00:00:01.000\nLine"
@@ -230,6 +260,11 @@ Spectator.describe Invidious::SubtitleCache do
       oversized_result = Invidious::SubtitleCache.read_limited_body(IO::Memory.new(oversized_body))
       expect(oversized_result.oversized).to be_true
       expect(oversized_result.body).to be_nil
+
+      response = Invidious::SubtitleCache.oversized_caption_response
+      expect(response.status_code).to eq(413)
+      expect(response.headers["Cache-Control"]).to eq("no-store")
+      expect(response.body).to eq("Caption response exceeds size limit\n")
     end
   end
 end
