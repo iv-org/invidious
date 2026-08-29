@@ -633,7 +633,7 @@ function parseCaptionTimestamp(value) {
         const parsedPart = parseFloat(part);
         if (!isFinite(parsedPart)) return null;
 
-        if (i < clockParts.length - 1 && parsedPart >= 60) return null;
+        if (i > 0 && i < clockParts.length - 1 && parsedPart >= 60) return null;
         if (i === clockParts.length - 1 && clockParts.length > 1 && parsedPart >= 60) return null;
         if (i === clockParts.length - 1) seconds += parsedPart;
         else seconds += parsedPart * Math.pow(60, clockParts.length - i - 1);
@@ -651,9 +651,7 @@ function processNodeChildren(container, currentTime) {
 
         if (node.nodeType === 7 && (node.target === 'timestamp' || node.nodeName === 'timestamp')) {
             const parsed = parseCaptionTimestamp(node.data);
-            if (parsed !== null) {
-                currentTs = parsed;
-            }
+            currentTs = parsed;
         } else if (currentTs !== null) {
             if (node.nodeType === 1) { // Node.ELEMENT_NODE
                 const shouldShow = currentTime >= currentTs;
