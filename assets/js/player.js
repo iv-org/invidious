@@ -633,10 +633,14 @@ function parseCaptionTimestamp(value) {
         const parsedPart = parseFloat(part);
         if (!isFinite(parsedPart)) return null;
 
-        if (i > 0 && i < clockParts.length - 1 && parsedPart >= 60) return null;
+        if (clockParts.length === 3 && i === 1 && parsedPart >= 60) return null;
         if (i === clockParts.length - 1 && clockParts.length > 1 && parsedPart >= 60) return null;
         if (i === clockParts.length - 1) seconds += parsedPart;
-        else seconds += parsedPart * Math.pow(60, clockParts.length - i - 1);
+        else {
+            const multiplier = clockParts.length === 2 && i === 0 && parsedPart >= 60 ?
+                3600 : Math.pow(60, clockParts.length - i - 1);
+            seconds += parsedPart * multiplier;
+        }
     }
 
     return seconds;
