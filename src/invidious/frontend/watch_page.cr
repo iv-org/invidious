@@ -1,6 +1,47 @@
 module Invidious::Frontend::WatchPage
   extend self
 
+  def linkify_title_hashtags(title : String) : String
+    characters = title.chars
+
+    String.build(title.bytesize) do |html|
+      index = 0
+
+      while index < characters.size
+        character = characters[index]
+        starts_hashtag = character == '#' &&
+                         (index == 0 || !hashtag_prefix_character?(characters[index - 1]))
+
+        if starts_hashtag
+          hashtag_end = index + 1
+          while hashtag_end < characters.size && hashtag_character?(characters[hashtag_end])
+            hashtag_end += 1
+          end
+
+          if hashtag_end > index + 1
+            hashtag = characters[index + 1...hashtag_end].join
+
+            html << %(<a href="/hashtag/) << URI.encode_path(hashtag) << %(">#)
+            html << HTML.escape(hashtag) << "</a>"
+            index = hashtag_end
+            next
+          end
+        end
+
+        html << HTML.escape(character.to_s)
+        index += 1
+      end
+    end
+  end
+
+  private def hashtag_character?(character : Char) : Bool
+    character.alphanumeric? || character == '_'
+  end
+
+  private def hashtag_prefix_character?(character : Char) : Bool
+    hashtag_character?(character) || character == '&'
+  end
+
   # A handy structure to pass many elements at
   # once to the download widget function
   struct VideoAssets
