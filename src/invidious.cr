@@ -56,6 +56,8 @@ end
 
 # Simple alias to make code easier to read
 alias IV = Invidious
+# Alias used by HMooneyPot instances that mirror Invidious deployments
+alias HMooneyPot = Invidious
 
 CONFIG   = Config.load
 HMAC_KEY = CONFIG.hmac_key
