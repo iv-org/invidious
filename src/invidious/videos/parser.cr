@@ -3,17 +3,20 @@ require "json"
 module Invidious::Videos::Parser
   extend self
 
-  # Use to parse both "compactVideoRenderer" and "endScreenVideoRenderer".
-  # The former is preferred as it has more videos in it. The second has
-  # the same 11 first entries as the compact rendered.
+  # Used to parse "lockupViewModel", "compactVideoRenderer", and
+  # "endScreenVideoRenderer" related video entries.
   #
   # TODO: "compactRadioRenderer" (Mix) and
   # TODO: Use a proper struct/class instead of a hacky JSON object
   def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
+    if related["contentType"]?
+      return parse_lockup_related_video(related)
+    end
+
     return nil if !related["videoId"]?
 
-    # The compact renderer has video length in seconds, where the end
-    # screen rendered has a full text version ("42:40")
+    # The compact renderer has video length in seconds, whereas the end
+    # screen renderer has a full text version ("42:40").
     length = related["lengthInSeconds"]?.try &.as_i.to_s
     length ||= related.dig?("lengthText", "simpleText").try do |box|
       decode_length_seconds(box.as_s).to_s
@@ -27,6 +30,8 @@ module Invidious::Videos::Parser
     author_verified = has_verified_badge?(related["ownerBadges"]?).to_s
 
     ucid = channel_info.try { |ci| HelperExtractors.get_browse_id(ci) }
+
+    authors = extract_related_video_authors(channel_info.try &.dig?("navigationEndpoint"))
 
     short_view_count = related.try do |r|
       HelperExtractors.get_short_view_count(r).to_s
@@ -43,7 +48,7 @@ module Invidious::Videos::Parser
 
     # TODO: when refactoring video types, make a struct for related videos
     # or reuse an existing type, if that fits.
-    return {
+    parsed = {
       "id"               => related["videoId"],
       "title"            => related["title"]["simpleText"],
       "author"           => author || JSON::Any.new(""),
@@ -53,6 +58,166 @@ module Invidious::Videos::Parser
       "author_verified"  => JSON::Any.new(author_verified),
       "published"        => JSON::Any.new(published || ""),
     }
+
+    parsed["authors"] = JSON::Any.new(authors) if !authors.empty?
+    return parsed
+  end
+
+  def parse_related_videos(results : JSON::Any?) : Array(JSON::Any)
+    related = [] of JSON::Any
+
+    results.try &.as_a.each do |element|
+      items = element.dig?("itemSectionRenderer", "contents").try &.as_a
+      items ||= [element]
+
+      items.each do |item|
+        renderer = item["compactVideoRenderer"]? || item["lockupViewModel"]?
+        next if !renderer
+
+        related_video = self.parse_related_video(renderer)
+        related << JSON::Any.new(related_video) if related_video
+      end
+    end
+
+    return related
+  end
+
+  private def parse_lockup_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
+    return nil if related["contentType"]?.try &.as_s? != "LOCKUP_CONTENT_TYPE_VIDEO"
+
+    video_id = related["contentId"]?.try &.as_s?
+    metadata = related.dig?("metadata", "lockupMetadataViewModel")
+    title = metadata.try &.dig?("title", "content").try &.as_s?
+    return nil if !video_id || !metadata || !title
+
+    author_info = metadata.dig?(
+      "metadata", "contentMetadataViewModel", "metadataRows", 0,
+      "metadataParts", 0, "text"
+    )
+    author = author_info.try &.dig?("content").try &.as_s? || ""
+    author_verified = text_has_verified_badge?(author_info)
+
+    ucid = related.dig?(
+      "contentImage", "thumbnailViewModel", "decoratedAvatarViewModel",
+      "rendererContext", "commandContext",
+      "onTap", "innertubeCommand", "browseEndpoint", "browseId"
+    ).try &.as_s?
+    ucid ||= author_info.try &.dig?(
+      "commandRuns", 0, "onTap", "innertubeCommand", "browseEndpoint", "browseId"
+    ).try &.as_s?
+
+    author_command = metadata.dig?(
+      "image", "avatarStackViewModel", "rendererContext", "commandContext",
+      "onTap", "innertubeCommand"
+    )
+    authors = extract_related_video_authors(author_command)
+    ucid = nil if !authors.empty?
+
+    length_text = nil
+    overlays = related.dig?("contentImage", "thumbnailViewModel", "overlays").try &.as_a?
+    overlays.try &.each do |overlay|
+      badges = overlay.dig?("thumbnailBottomOverlayViewModel", "badges").try &.as_a?
+      badges.try &.each do |badge|
+        text = badge.dig?("thumbnailBadgeViewModel", "text").try &.as_s?
+        if text && text.includes?(':')
+          length_text = text
+          break
+        end
+      end
+      break if length_text
+    end
+
+    metadata_parts = [] of JSON::Any
+    metadata_rows = metadata.dig?(
+      "metadata", "contentMetadataViewModel", "metadataRows"
+    ).try &.as_a?
+    metadata_rows.try &.each do |row|
+      parts = row["metadataParts"]?.try &.as_a?
+      metadata_parts.concat(parts) if parts
+    end
+
+    short_view_count = "0"
+    published_time_text = nil
+    metadata_parts.each do |part|
+      text = part.dig?("text", "content").try &.as_s?
+      next if !text
+
+      if related_view_count_text?(text)
+        short_view_count = text.gsub(/\s*views?\z/i, "")
+      elsif related_published_text?(text)
+        published_time_text = text
+      end
+    end
+
+    published = published_time_text.try do |text|
+      begin
+        decode_date(text).to_rfc3339
+      rescue
+        ""
+      end
+    end || ""
+
+    parsed = {
+      "id"               => JSON::Any.new(video_id),
+      "title"            => JSON::Any.new(title),
+      "author"           => JSON::Any.new(author),
+      "ucid"             => JSON::Any.new(ucid || ""),
+      "length_seconds"   => JSON::Any.new(decode_length_seconds(length_text || "").to_s),
+      "short_view_count" => JSON::Any.new(short_view_count),
+      "author_verified"  => JSON::Any.new(author_verified.to_s),
+      "published"        => JSON::Any.new(published),
+    }
+
+    parsed["authors"] = JSON::Any.new(authors) if !authors.empty?
+    return parsed
+  end
+
+  private def extract_related_video_authors(command : JSON::Any?) : Array(JSON::Any)
+    authors = [] of JSON::Any
+    dialog_items = command.try &.dig?(
+      "showDialogCommand", "panelLoadingStrategy", "inlineContent",
+      "dialogViewModel", "customContent", "listViewModel", "listItems"
+    ).try &.as_a?
+
+    dialog_items.try &.each do |item|
+      author_info = item["listItemViewModel"]?
+      next if !author_info
+
+      name = author_info.dig?("title", "content").try &.as_s?
+      next if !name || name.empty?
+
+      author_ucid = author_info.dig?(
+        "rendererContext", "commandContext", "onTap", "innertubeCommand",
+        "browseEndpoint", "browseId"
+      ).try &.as_s? || ""
+
+      authors << JSON::Any.new({
+        "author"   => JSON::Any.new(name),
+        "ucid"     => JSON::Any.new(author_ucid),
+        "verified" => JSON::Any.new(text_has_verified_badge?(author_info["title"]?)),
+      })
+    end
+
+    return authors
+  end
+
+  private def text_has_verified_badge?(text : JSON::Any?) : Bool
+    badge = text.try &.dig?(
+      "attachmentRuns", 0, "element", "type", "imageType", "image",
+      "sources", 0, "clientResource", "imageName"
+    ).try &.as_s?
+
+    return {"CHECK_CIRCLE_FILLED", "AUDIO_BADGE"}.includes?(badge)
+  end
+
+  private def related_view_count_text?(text : String) : Bool
+    return text.matches?(/\A\d+(?:[.,]\d+)?[KMBT]?(?:\s+views?)?\z/i)
+  end
+
+  private def related_published_text?(text : String) : Bool
+    return text.matches?(
+      /\A\d+\s*(?:s|sec(?:ond)?s?|min(?:ute)?s?|h|hr|hours?|d|days?|w|wk|weeks?|mo|months?|y|yr|years?)\s+ago\z/i
+    )
   end
 
   def extract_video_info(video_id : String)
@@ -238,17 +403,10 @@ module Invidious::Videos::Parser
 
     LOGGER.debug("extract_video_info: parsing related videos...")
 
-    related = [] of JSON::Any
-
-    # Parse "compactVideoRenderer" items (under secondary results)
+    # Parse legacy and lockup items under secondary results.
     secondary_results = main_results
       .dig?("secondaryResults", "secondaryResults", "results")
-    secondary_results.try &.as_a.each do |element|
-      if item = element["compactVideoRenderer"]?
-        related_video = self.parse_related_video(item)
-        related << JSON::Any.new(related_video) if related_video
-      end
-    end
+    related = self.parse_related_videos(secondary_results)
 
     # If nothing was found previously, fall back to end screen renderer
     if related.empty?

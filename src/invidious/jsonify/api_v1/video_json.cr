@@ -238,16 +238,16 @@ module Invidious::JSONify::APIv1
           video.related_videos.each do |rv|
             if rv["id"]?
               json.object do
-                json.field "videoId", rv["id"]
-                json.field "title", rv["title"]
+                json.field "videoId", rv["id"].as_s
+                json.field "title", rv["title"].as_s
                 json.field "videoThumbnails" do
-                  self.thumbnails(json, rv["id"])
+                  self.thumbnails(json, rv["id"].as_s)
                 end
 
-                json.field "author", rv["author"]
-                json.field "authorUrl", "/channel/#{rv["ucid"]?}"
-                json.field "authorId", rv["ucid"]?
-                json.field "authorVerified", rv["author_verified"] == "true"
+                json.field "author", rv["author"].as_s
+                json.field "authorUrl", "/channel/#{rv["ucid"]?.try &.as_s}"
+                json.field "authorId", rv["ucid"]?.try &.as_s
+                json.field "authorVerified", rv["author_verified"].as_s == "true"
                 if rv["author_thumbnail"]?
                   json.field "authorThumbnails" do
                     json.array do
@@ -255,7 +255,7 @@ module Invidious::JSONify::APIv1
 
                       qualities.each do |quality|
                         json.object do
-                          json.field "url", rv["author_thumbnail"].gsub(/s\d+-/, "s#{quality}-")
+                          json.field "url", rv["author_thumbnail"].as_s.gsub(/s\d+-/, "s#{quality}-")
                           json.field "width", quality
                           json.field "height", quality
                         end
@@ -264,11 +264,11 @@ module Invidious::JSONify::APIv1
                   end
                 end
 
-                json.field "lengthSeconds", rv["length_seconds"]?.try &.to_i
-                json.field "viewCountText", rv["short_view_count"]?
-                json.field "published", rv["published"]?
-                if rv["published"]?.try &.presence
-                  json.field "publishedText", I18n.translate(locale, "`x` ago", recode_date(Time.parse_rfc3339(rv["published"].to_s), locale))
+                json.field "lengthSeconds", rv["length_seconds"]?.try &.as_s.to_i
+                json.field "viewCountText", rv["short_view_count"]?.try &.as_s
+                json.field "published", rv["published"]?.try &.as_s
+                if rv["published"]?.try &.as_s.presence
+                  json.field "publishedText", I18n.translate(locale, "`x` ago", recode_date(Time.parse_rfc3339(rv["published"].as_s), locale))
                 else
                   json.field "publishedText", ""
                 end

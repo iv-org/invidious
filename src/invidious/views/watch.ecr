@@ -58,7 +58,7 @@ we're going to need to do it here in order to allow for translations.
     "plid" => plid,
     "length_seconds" => video.length_seconds.to_f,
     "play_next" => !video.related_videos.empty? && !plid && params.continue,
-    "next_video" => video.related_videos.select { |rv| rv["id"]? }[0]?.try &.["id"],
+    "next_video" => video.related_videos.select { |rv| rv["id"]? }[0]?.try &.["id"].as_s,
     "youtube_comments_text" => HTML.escape(I18n.translate(locale, "View YouTube comments")),
     "comments_youtube_disabled_text" => HTML.escape(I18n.translate(locale, "comments_youtube_disabled_text")),
     "comments_youtube_disabled_try_reddit" => HTML.escape(I18n.translate(locale, "comments_youtube_disabled_try_reddit")),
@@ -369,36 +369,50 @@ we're going to need to do it here in order to allow for translations.
 
                             <div class="thumbnail">
                                 <%- if !env.get("preferences").as(Preferences).thin_mode -%>
-                                    <a tabindex="-1" href="/watch?v=<%= rv["id"] %>&listen=<%= params.listen %>">
-                                        <img loading="lazy" class="thumbnail" src="/vi/<%= rv["id"] %>/mqdefault.jpg" alt="" />
+                                    <a tabindex="-1" href="/watch?v=<%= rv["id"].as_s %>&listen=<%= params.listen %>">
+                                        <img loading="lazy" class="thumbnail" src="/vi/<%= rv["id"].as_s %>/mqdefault.jpg" alt="" />
                                     </a>
                                 <%- else -%>
                                     <div class="thumbnail-placeholder"></div>
                                 <%- end -%>
 
                                 <div class="bottom-right-overlay">
-                                    <%- if (length_seconds = rv["length_seconds"]?.try &.to_i?) && length_seconds != 0 -%>
+                                    <%- if (length_seconds = rv["length_seconds"]?.try &.as_s.to_i?) && length_seconds != 0 -%>
                                         <p class="length"><%= recode_length_seconds(length_seconds) %></p>
                                     <%- end -%>
                                 </div>
                             </div>
 
                             <div class="video-card-row">
-                                <a href="/watch?v=<%= rv["id"] %>&listen=<%= params.listen %>"><p dir="auto"><%= HTML.escape(rv["title"]) %></p></a>
+                                <a href="/watch?v=<%= rv["id"].as_s %>&listen=<%= params.listen %>"><p dir="auto"><%= HTML.escape(rv["title"].as_s) %></p></a>
                             </div>
 
                             <h5 class="pure-g">
                                 <div class="pure-u-14-24">
-                                    <% if !rv["ucid"].empty? %>
-                                        <b style="width:100%"><a href="/channel/<%= rv["ucid"] %>"><%= rv["author"]? %><% if rv["author_verified"]? == "true" %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></a></b>
+                                    <% if authors = rv["authors"]?.try &.as_a? %>
+                                        <b style="width:100%">
+                                            <% authors.each_with_index do |related_author, index| %>
+                                                <% if index > 0 %><% if index == authors.size - 1 %> and <% else %>, <% end %><% end %>
+                                                <% related_author_name = related_author["author"].as_s %>
+                                                <% related_author_ucid = related_author["ucid"].as_s %>
+                                                <% if !related_author_ucid.empty? %>
+                                                    <a href="/channel/<%= URI.encode_www_form(related_author_ucid) %>"><%= HTML.escape(related_author_name) %></a>
+                                                <% else %>
+                                                    <%= HTML.escape(related_author_name) %>
+                                                <% end %>
+                                                <% if related_author["verified"].as_bool %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %>
+                                            <% end %>
+                                        </b>
+                                    <% elsif !rv["ucid"].as_s.empty? %>
+                                        <b style="width:100%"><a href="/channel/<%= URI.encode_www_form(rv["ucid"].as_s) %>"><%= HTML.escape(rv["author"]?.try &.as_s || "") %><% if rv["author_verified"]?.try &.as_s == "true" %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></a></b>
                                     <% else %>
-                                        <b style="width:100%"><%= rv["author"]? %><% if rv["author_verified"]? == "true" %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></b>
+                                        <b style="width:100%"><%= HTML.escape(rv["author"]?.try &.as_s || "") %><% if rv["author_verified"]?.try &.as_s == "true" %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></b>
                                     <% end %>
                                 </div>
 
                                 <div class="pure-u-10-24" style="text-align:right">
                                     <b class="width:100%"><%=
-                                        views = short_text_to_number(rv["short_view_count"]? || "0")
+                                        views = short_text_to_number(rv["short_view_count"]?.try &.as_s || "0")
                                         I18n.translate_count(locale, "generic_views_count", views, I18n::NumberFormatting::Short)
                                     %></b>
                                 </div>
