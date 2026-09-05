@@ -27,7 +27,6 @@ Spectator.describe Invidious::Videos::Captions do
       expect(matched.map(&.name)).to eq(["English (United States)", "English (United Kingdom)"])
     end
 
-
     it "matches English preference to a code-labeled en track" do
       code_only = Invidious::Videos::Captions::Metadata.new("en", "en", "http://x", true)
       arabic = Invidious::Videos::Captions::Metadata.new("ar", "ar", "http://x", true)
@@ -42,6 +41,14 @@ Spectator.describe Invidious::Videos::Captions do
 
       matched = Invidious::Videos::Captions.matching([german, regional], ["English"])
       expect(matched.map(&.name)).to eq(["en-US"])
+    end
+
+    it "prefers en-US over en-GB for English (United States)" do
+      us = Invidious::Videos::Captions::Metadata.new("en-US", "en-US", "http://x", false)
+      uk = Invidious::Videos::Captions::Metadata.new("en-GB", "en-GB", "http://x", false)
+
+      matched = Invidious::Videos::Captions.matching([uk, us], ["English (United States)"])
+      expect(matched.map(&.name)).to eq(["en-US", "en-GB"])
     end
 
     it "ignores blank preference slots" do
