@@ -51,6 +51,14 @@ Spectator.describe Invidious::Videos::Captions do
       expect(matched.map(&.name)).to eq(["en-US", "en-GB"])
     end
 
+    it "prefers human base-language English over exact regional auto-generated" do
+      human = Invidious::Videos::Captions::Metadata.new("English", "en", "http://x", false)
+      auto_us = Invidious::Videos::Captions::Metadata.new("en-US", "en-US", "http://x", true)
+
+      matched = Invidious::Videos::Captions.matching([auto_us, human], ["English (United States)"])
+      expect(matched.map(&.name)).to eq(["English", "en-US"])
+    end
+
     it "ignores blank preference slots" do
       arabic = Invidious::Videos::Captions::Metadata.new("Arabic (auto-generated)", "ar", "http://x", true)
       matched = Invidious::Videos::Captions.matching([arabic], ["", "", ""])

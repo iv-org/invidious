@@ -87,7 +87,8 @@ module Invidious::Videos
     end
 
     # Tracks whose name or language matches the user's caption preferences,
-    # ranked by preference slot then human tracks before auto-generated.
+    # ranked by preference slot, then human tracks before auto-generated,
+    # then more-specific language matches ahead of base-language fallbacks.
     def self.matching(captions : Array(Metadata), names : Array(String)) : Array(Metadata)
       wanted = names.map(&.strip).reject(&.empty?)
       return [] of Metadata if wanted.empty?
@@ -208,7 +209,7 @@ module Invidious::Videos
       end
 
       auto_rank = caption.auto_generated ? 1 : 0
-      {pref_rank, specificity, auto_rank}
+      {pref_rank, auto_rank, specificity}
     end
 
     # List of all caption languages available on Youtube.
