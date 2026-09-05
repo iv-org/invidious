@@ -86,6 +86,49 @@ module Invidious::Videos
       end
     end
 
+    # Tracks whose name or language matches the user's caption preferences,
+    # ranked by preference slot then human tracks before auto-generated.
+    def self.matching(captions : Array(Metadata), names : Array(String)) : Array(Metadata)
+      wanted = names.map(&.strip).reject(&.empty?)
+      return [] of Metadata if wanted.empty?
+
+      selected = captions.select { |caption| matches?(caption, wanted) }
+      selected.sort_by! { |caption| rank(caption, wanted) }
+      selected
+    end
+
+    def self.matches?(caption : Metadata, names : Array(String)) : Bool
+      names.any? { |name| name_matches?(caption, name) }
+    end
+
+    private def self.name_matches?(caption : Metadata, name : String) : Bool
+      needle = name.strip.downcase
+      return false if needle.empty?
+
+      caption_name = caption.name.downcase
+      lang = caption.language_code.downcase
+      base_lang = lang.split("-")[0]
+
+      caption_name == needle ||
+        caption_name.starts_with?(needle + " (") ||
+        caption_name.starts_with?(needle + " - ") ||
+        lang == needle ||
+        base_lang == needle
+    end
+
+    private def self.rank(caption : Metadata, names : Array(String)) : Tuple(Int32, Int32)
+      pref_rank = names.size
+      names.each_with_index do |name, index|
+        if name_matches?(caption, name)
+          pref_rank = index
+          break
+        end
+      end
+
+      auto_rank = caption.auto_generated ? 1 : 0
+      {pref_rank, auto_rank}
+    end
+
     # List of all caption languages available on Youtube.
     LANGUAGES = {
       "",
