@@ -505,5 +505,12 @@
     "Zulu": "Zulu",
     "preferences_default_playlist": "Standard-Widergabelischte: ",
     "preferences_default_playlist_none": "Kei Standard-Widergabelischte gsetzt",
-    "Livestreams": "Livestreams"
+    "Livestreams": "Livestreams",
+    "preferences_search_privacy_label": "Datenschutz bei der Suche: ",
+    "preferences_search_privacy_description": "Wenn Sie diese Einstellung aktivieren, werden Ihre Suchanfragen nicht im Browserverlauf gespeichert.",
+    "comments_youtube_disabled_text": "YouTube Kommentär sind bi dem Video deaktiviert",
+    "comments_youtube_disabled_try_reddit": "Reddit Kommentär versuche?",
+    "comments_invidious_disabled_text": "Kommentär sind gemäss de Benutzeristellige usblendet",
+    "comments_youtube_disabled_try_reddit_no_js": "Hoi! Es gseht so us als hetsch JavaScript deaktiviert. Obwohl de Uploader YouTube-Kommentär deaktiviert het, chasch trotzdem do klicke zum versueche d Reddit-Kommentär azzeige. Beachte jedoch, dass das Lade chli länger chan dure.",
+    "dmca_content": "Das Video chan uf dere Instanz ufgrund vonere DMCA/Urheberrechtsverletzigsmittel, wo a de Instanzadministrator gsendet worde isch, nöd abeglade werde."
 }
