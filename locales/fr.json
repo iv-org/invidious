@@ -199,7 +199,7 @@
     "Password cannot be empty": "Le mot de passe ne peut pas être vide",
     "Password cannot be longer than 55 characters": "Le mot de passe ne doit pas comporter plus de 55 caractères",
     "Please log in": "Veuillez vous connecter",
-    "Invidious Private Feed for `x`": "Flux RSS privé pour `x`",
+    "Invidious Private Feed for `x`": "Flux privé Invidious pour `x`",
     "channel:`x`": "chaîne :`x`",
     "Deleted or invalid channel": "Chaîne supprimée ou invalide",
     "This channel does not exist.": "Cette chaine n'existe pas.",
@@ -524,5 +524,10 @@
     "timeline_parse_error_placeholder_heading": "Impossible d'interpréter (parse) cet item",
     "preferences_search_privacy_label": "Confidentialité des recherches: ",
     "preferences_search_privacy_description": "Activer cette options empêchera que vos recherches soient enregistrées dans l'historique de votre navigateur.",
-    "Livestreams": "Diffusion Live"
+    "Livestreams": "Diffusion Live",
+    "comments_youtube_disabled_text": "Les commentaires YouTube ont été déactiver sur cette vidéo",
+    "comments_youtube_disabled_try_reddit": "Essayer les commentaires reddit ?",
+    "comments_invidious_disabled_text": "Les commentaires ont été masqués conformément aux préférences de l'utilisateur",
+    "comments_youtube_disabled_try_reddit_no_js": "Bonjour ! Il semblerait que votre JavaScript soit désactivé. Même si la section commentaire a été fermé par l'auteur, vous pouvez toujours consulter les commentaires Reddit, ils pourraient cependant prendre plus de temps à charger.",
+    "dmca_content": "Cette vidéo ne peux pas être téléchargé sur cette instance à cause de la lettre de DMCA/copyright envoyé à l'administrateur de l'instance."
 }
