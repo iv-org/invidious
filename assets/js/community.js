@@ -25,10 +25,11 @@ function show_youtube_replies(event) {
     var body = target.parentNode.parentNode.children[1];
     body.style.display = '';
 
-    target.innerHTML = inner_text;
+    target.innerHTML = sub_text; // Corrected to display "hide replies"
     target.onclick = hide_youtube_replies;
-    target.setAttribute('data-inner-text', sub_text);
-    target.setAttribute('data-sub-text', inner_text);
+    // Swap data attributes for next toggle
+    target.setAttribute('data-inner-text', inner_text);
+    target.setAttribute('data-sub-text', sub_text);
 }
 
 function get_youtube_replies(target, load_more) {
