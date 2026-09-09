@@ -662,7 +662,12 @@ private module Parsers
         metadata = item_contents.dig("metadata", "lockupMetadataViewModel")
         title = metadata.dig("title", "content").as_s
         # Contains the views of the video and the published time of the video.
-        metadata_parts = metadata.dig("metadata", "contentMetadataViewModel", "metadataRows", 0, "metadataParts").try &.as_a
+        # For collaboration videos the first metadataRows entry lists co-authors,
+        # with views/"ago" in a later row — search every row (nil-safe).
+        metadata_rows = metadata.dig?("metadata", "contentMetadataViewModel", "metadataRows").try &.as_a
+        metadata_parts = metadata_rows.try &.compact_map { |row|
+          row["metadataParts"]?.try &.as_a
+        }.try &.flatten
 
         view_count_text = metadata_parts.try &.find { |item| item["icon"]?.nil? && item.dig?("text", "content").try &.as_s.includes?("views") }
           .try &.dig("text", "content").as_s
