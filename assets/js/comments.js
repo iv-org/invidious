@@ -83,7 +83,6 @@ function get_youtube_comments() {
         } else {
             comments.innerHTML = fallback; 
         }
-
     };
 
     if (video_data.params.comments[1] === 'youtube')
@@ -113,10 +112,6 @@ function get_youtube_comments() {
                 contentHtml: response.contentHtml,
                 redditComments: video_data.reddit_comments_text,
                 commentsText: video_data.comments_text.supplant({
-                    // toLocaleString correctly splits number with local thousands separator. e.g.:
-                    // '1,234,567.89' for user with English locale
-                    // '1 234 567,89' for user with Russian locale
-                    // '1.234.567,89' for user with Portuguese locale
                     commentCount: response.commentCount.toLocaleString()
                 })
             });
@@ -126,7 +121,7 @@ function get_youtube_comments() {
                 comments.children[0].children[1].children[0].onclick = swap_comments;
             }
         },
-        onNon200: onNon200, // declared above
+        onNon200: onNon200,
         onError: function (xhr) {
             comments.innerHTML = spinnerHTML;
         },
@@ -184,7 +179,6 @@ function get_youtube_replies(target, load_more, load_replies) {
             body.innerHTML = fallback;
         },
         onTimeout: function (xhr) {
-            console.warn('Pulling comments failed');
             body.innerHTML = fallback;
         }
     });
