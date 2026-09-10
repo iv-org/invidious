@@ -36,21 +36,23 @@ function toggle_comments(event) {
     }
 }
 
+// WeakMap to preserve original DOM nodes with event handlers
+const fallbackMap = new WeakMap();
+
 function hide_youtube_replies(event) {
     var target = event.target;
     var sub_text = target.getAttribute('data-inner-text');
     var inner_text = target.getAttribute('data-sub-text');
     var body = target.parentNode.parentNode.children[1];
     
-    // Preserve original DOM nodes
-    var fallbackContent = body.cloneNode(true);
+    // Preserve original DOM node with event handlers
+    fallbackMap.set(target, body.cloneNode(true));
     body.style.display = 'none';
 
     target.textContent = sub_text;
     target.onclick = show_youtube_replies;
     target.setAttribute('data-inner-text', inner_text);
     target.setAttribute('data-sub-text', sub_text);
-    target.dataset.fallback = JSON.stringify(fallbackContent.innerHTML);
 }
 
 function show_youtube_replies(event) {
@@ -59,9 +61,11 @@ function show_youtube_replies(event) {
     var inner_text = target.getAttribute('data-sub-text');
     var body = target.parentNode.parentNode.children[1];
     
-    body.style.display = '';
-    body.innerHTML = target.dataset.fallback ? JSON.parse(target.dataset.fallback) : '';
-
+    if (fallbackMap.has(target)) {
+        const preservedNode = fallbackMap.get(target);
+        body.parentNode.replaceChild(preservedNode, body);
+    }
+    
     target.textContent = sub_text;
     target.onclick = hide_youtube_replies;
     target.setAttribute('data-inner-text', inner_text);
@@ -71,7 +75,12 @@ function show_youtube_replies(event) {
 function get_youtube_comments() {
     var comments = document.getElementById('comments');
     var originalContent = comments.cloneNode(true);
-    comments.innerHTML = spinnerHTML;
+    var parent = comments.parentNode;
+    
+    // Create spinner and replace original content
+    var spinner = document.createElement('div');
+    spinner.innerHTML = spinnerHTML;
+    parent.replaceChild(spinner, comments);
 
     const validateUrl = (url) => {
         try {
@@ -93,64 +102,81 @@ function get_youtube_comments() {
     }
 
     var onNon200 = function (xhr) {
-        comments.innerHTML = '';
-        comments.appendChild(originalContent);
+        // Restore original content with preserved event handlers
+        parent.replaceChild(originalContent, spinner);
         
         if (!video_data.comments_enabled) {
-            comments.innerHTML = `
-            <div id="comments-turned-off-on-video-message" class="h-box v-box">
-                <p><b>${video_data.comments_youtube_disabled_text}</b></p>
+            const safeCommentsDisabled = document.createElement('div');
+            safeCommentsDisabled.id = "comments-turned-off-on-video-message";
+            safeCommentsDisabled.className = "h-box v-box";
+            safeCommentsDisabled.innerHTML = `
+                <p><b>${escapeHtml(video_data.comments_youtube_disabled_text)}</b></p>
                 <p><b><button href="javascript:void(0)" data-comments="reddit" id="try-reddit-comments-link" class="simulated_a">
-                    ${video_data.comments_youtube_disabled_try_reddit}
-                </button></b></p>
-            </div>`;
-            document.getElementById("try-reddit-comments-link").onclick = swap_comments;
+                    ${escapeHtml(video_data.comments_youtube_disabled_try_reddit)}
+                </button></b></p>`;
+            
+            safeCommentsDisabled.querySelector("#try-reddit-comments-link").onclick = swap_comments;
+            parent.appendChild(safeCommentsDisabled);
         }
     };
 
     if (video_data.params.comments[1] === 'youtube') {
-        onNon200 = function (xhr) {
-            comments.innerHTML = originalContent.innerHTML;
-        };
+        // Request handling with proper error recovery
+        fetch(url)
+            .then(response => {
+                if (!response.ok) throw new Error('Network error');
+                return response.text();
+            })
+            .then(html => {
+                const temp = document.createElement('div');
+                temp.innerHTML = html;
+                parent.replaceChild(temp.firstChild, spinner);
+            })
+            .catch(() => onNon200());
     }
-
-    helpers.xhr('GET', url, {retries: 5, entity_name: 'comments'}, {
-        on200: function (response) {
-            var commentInnerHtml = `
-            <div>
-                <h3>
-                    <a href="javascript:void(0)" onclick="toggle_comments(event)">[ − ]</a>
-                    ${video_data.comments_text.supplant({
-                        commentCount: video_data.commentCount || 0
-                    })}
-                </h3>
-                <b>
-                    ${video_data.support_reddit ? `
-                    <a href="javascript:void(0)" data-comments="reddit" onclick="swap_comments(event)">
-                        ${video_data.reddit_comments_text}
-                    </a>` : ''}
-                </b>
-            </div>
-            <div>${response.contentHtml}</div>
-            <hr>`;
-
-            // Handle multiple authors
-            const authorsHtml = video_data.authors?.map(author => `
-                <div class="author-info">
-                    <a href="${validateUrl(author.url) ? author.url : 'javascript:void(0)'}">${author.name}</a>
-                    <span>${author.publishedText}</span>
-                    <span>${author.viewCountText}</span>
-                </div>`).join('') || '';
-
-            comments.innerHTML = commentInnerHtml + authorsHtml;
-        },
-        onError: onNon200,
-        onTimeout: onNon200
-    });
 }
 
-// Added URL validation and escaping in rendering paths
-function renderComment(comment) {
-    const safeUrl = (url) => validateUrl(url) ? escapeHtml(url) : 'javascript:void(0)';
-    // ... rest of rendering logic with URL validation
+// Enhanced metadata handling for collaborative videos
+function renderVideoMetadata() {
+    const metadataContainer = document.getElementById('video-metadata');
+    if (!metadataContainer) return;
+
+    const authors = video_data.authors || [video_data.author];
+    const authorsHtml = authors.map(a => `<a href="${escapeHtml(a.url)}" class="author-link">${escapeHtml(a.name)}</a>`).join(', ');
+    
+    const metadataTemplate = `
+        <div class="metadata-published">
+            ${video_data.published_text} • 
+            ${video_data.view_count_text} views
+        </div>
+        <div class="metadata-authors">${authorsHtml}</div>
+    `;
+    
+    metadataContainer.innerHTML = metadataTemplate;
 }
+
+// Initialize metadata rendering
+renderVideoMetadata();
+
+// URL validation middleware for all link creation
+function createSafeLink(url, text) {
+    if (!validateUrl(url)) return document.createTextNode(text);
+    
+    const link = document.createElement('a');
+    link.href = escapeHtml(url);
+    link.textContent = text;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    return link;
+}
+
+// Apply URL validation to all comment rendering paths
+document.querySelectorAll('.comment-link').forEach(link => {
+    const url = link.getAttribute('href');
+    if (!validateUrl(url)) {
+        link.removeAttribute('href');
+        link.classList.add('unsafe-link');
+    } else {
+        link.textContent = escapeHtml(link.textContent);
+    }
+});
