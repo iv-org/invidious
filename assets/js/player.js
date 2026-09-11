@@ -39,11 +39,6 @@ if (player_data.aspect_ratio) {
     options.aspectRatio = player_data.aspect_ratio;
 }
 
-var embed_url = new URL(location);
-embed_url.searchParams.delete('v');
-var short_url = location.origin + '/' + video_data.id + embed_url.search;
-embed_url = location.origin + '/embed/' + video_data.id + embed_url.search;
-
 var save_player_pos_key = 'save_player_pos';
 
 videojs.Vhs.xhr.beforeRequest = function(options) {
@@ -64,6 +59,13 @@ if (CONFIG.videojs.max_goal_buffer_length) {
 }
 
 var player = videojs('player', options);
+var playerGestures = installPlayerGestures(player);
+player.on('dispose', function () { playerGestures.dispose(); });
+var speedHoldIndicator = document.createElement('span');
+speedHoldIndicator.className = 'speed-hold-indicator';
+speedHoldIndicator.textContent = '2×';
+speedHoldIndicator.setAttribute('aria-hidden', 'true');
+player.el().appendChild(speedHoldIndicator);
 
 player.on('error', function () {
     if (video_data.params.quality === 'dash') return;
@@ -185,22 +187,6 @@ player.on('timeupdate', function () {
 });
 
 
-var shareOptions = {
-    socials: ['fbFeed', 'tw', 'reddit', 'email'],
-
-    get url() {
-        return addCurrentTimeToURL(short_url);
-    },
-    title: player_data.title,
-    description: player_data.description,
-    image: player_data.thumbnail,
-    get embedCode() {
-        // Single quotes inside here required. HTML inserted as is into value attribute of input
-        return "<iframe id='ivplayer' width='640' height='360' src='" +
-            addCurrentTimeToURL(embed_url) + "' style='border:none;'></iframe>";
-    }
-};
-
 if (location.pathname.startsWith('/embed/')) {
     var overlay_content = '<h1><a rel="noopener noreferrer" target="_blank" href="' + location.origin + '/watch?v=' + video_data.id + '">' + player_data.title + '</a></h1>';
     player.overlay({
@@ -247,11 +233,8 @@ if (isMobile()) {
     var playback_element = document.getElementsByClassName('vjs-playback-rate')[0];
     operations_bar_element.append(playback_element);
 
-    // The share and http source selector element can't be fetched till the players ready.
+    // The HTTP source selector can't be fetched until the player is ready.
     player.one('playing', function () {
-        var share_element = document.getElementsByClassName('vjs-share-control')[0];
-        operations_bar_element.append(share_element);
-
         if (!video_data.params.listen && video_data.params.quality === 'dash') {
             var http_source_selector = document.getElementsByClassName('vjs-http-source-selector vjs-menu-button')[0];
             operations_bar_element.append(http_source_selector);
@@ -351,7 +334,7 @@ function updateCookie(newVolume, newSpeed) {
 }
 
 player.on('ratechange', function () {
-    updateCookie(null, player.playbackRate());
+    if (!playerGestures.isHolding()) updateCookie(null, player.playbackRate());
     if (isMobile()) {
         player.mobileUi({ touchControls: { seekSeconds: 5 * player.playbackRate() } });
     }
@@ -451,8 +434,56 @@ if (!video_data.params.listen && video_data.params.quality === 'dash') {
 
 player.vttThumbnails({
     src: '/api/v1/storyboards/' + video_data.id + '?height=90',
-    showTimestamp: true
 });
+
+// The plugin concatenates root-relative sprite paths onto the API directory.
+// Resolve URLs with browser semantics before its asynchronous VTT response arrives.
+player.ready(function () {
+    var thumbnails = player.vttThumbnails;
+    thumbnails.getFullyQualifiedUrl = function (path, base) {
+        return new URL(path, base).href;
+    };
+    var showThumbnail = thumbnails.showThumbnailHolder;
+    thumbnails.showThumbnailHolder = function () {
+        this.thumbnailHolder.style.display = 'block';
+        showThumbnail.call(this);
+    };
+    var hideThumbnail = thumbnails.hideThumbnailHolder;
+    thumbnails.hideThumbnailHolder = function () {
+        hideThumbnail.call(this);
+        this.thumbnailHolder.style.display = 'none';
+    };
+    var updateThumbnail = thumbnails.updateThumbnailStyle;
+    thumbnails.updateThumbnailStyle = function (x, width) {
+        updateThumbnail.call(this, x, width);
+        if (!this.thumbnailHolder) return;
+        var thumbWidth = this.thumbnailHolder.offsetWidth;
+        var center = Math.max(thumbWidth / 2, Math.min(width - thumbWidth / 2, x));
+        this.thumbnailHolder.style.transform = 'translateX(' + center + 'px)';
+        this.thumbnailHolder.setAttribute('data-time', videojs.formatTime(
+            Math.max(0, Math.min(1, x / width)) * player.duration(), player.duration()));
+    };
+});
+
+var theaterToggle = document.getElementById('theater-mode-toggle');
+if (theaterToggle) {
+    var theaterLabel = document.querySelector('label[for="theater-mode-toggle"]');
+    var theaterButton = player.controlBar.addChild('button', {
+        controlText: theaterLabel.textContent.trim()
+    });
+    theaterButton.addClass('vjs-theater-control');
+    player.controlBar.el().insertBefore(theaterButton.el(), player.controlBar.fullscreenToggle.el());
+    theaterButton.el().setAttribute('title', theaterLabel.textContent.trim());
+    theaterButton.el().setAttribute('aria-pressed', String(theaterToggle.checked));
+    theaterButton.on('click', function () {
+        theaterToggle.checked = !theaterToggle.checked;
+        theaterToggle.dispatchEvent(new Event('change'));
+    });
+    theaterToggle.addEventListener('change', function () {
+        theaterButton.el().setAttribute('aria-pressed', String(theaterToggle.checked));
+    });
+    theaterToggle.closest('.watch-page').classList.add('has-player-theater-control');
+}
 
 // Enable annotations
 if (!video_data.params.listen && video_data.params.annotations) {
@@ -614,9 +645,38 @@ function update_captions() {
     }
 }
 
-function toggle_fullscreen() {
-    player.isFullscreen() ? player.exitFullscreen() : player.requestFullscreen();
+var fullscreenFallbackTimer;
+function exit_window_fullscreen() {
+    if (!player.isFullWindow) return;
+    player.exitFullWindow();
+    player.isFullscreen(false);
 }
+function toggle_fullscreen() {
+    clearTimeout(fullscreenFallbackTimer);
+    if (player.isFullWindow) { exit_window_fullscreen(); return; }
+    if (player.isFullscreen()) { player.exitFullscreen(); return; }
+    // Some embedded browsers leave the native fullscreen promise pending.
+    // Fall back to the same player's full-window mode without replacing media.
+    function useWindow() {
+        if (!document.fullscreenElement && !player.isDisposed()) {
+            player.enterFullWindow();
+            player.isFullscreen(true);
+        }
+    }
+    fullscreenFallbackTimer = setTimeout(useWindow, 700);
+    var request = player.requestFullscreen();
+    if (request && request.catch) request.catch(function () {
+        clearTimeout(fullscreenFallbackTimer);
+        useWindow();
+    });
+}
+player.controlBar.fullscreenToggle.handleClick = toggle_fullscreen;
+player.controlBar.fullscreenToggle.off('click');
+player.controlBar.fullscreenToggle.on('click', toggle_fullscreen);
+player.on('dispose', function () { clearTimeout(fullscreenFallbackTimer); });
+addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' && player.isFullWindow) exit_window_fullscreen();
+}, true);
 
 function increase_playback_rate(steps) {
     const maxIndex = options.playbackRates.length - 1;
@@ -655,7 +715,8 @@ function toggle_caption_opacity() {
 }
 
 addEventListener('keydown', function (e) {
-    if (e.target.tagName.toLowerCase() === 'input') {
+    if (!player.el().contains(document.activeElement) || !player.controls()) return;
+    if (e.target.closest('input, textarea, select, a, summary, [role="slider"], .vjs-menu, [contenteditable]:not([contenteditable="false"])')) {
         // Ignore input when focus is on certain elements, e.g. form fields.
         return;
     }
@@ -676,8 +737,6 @@ addEventListener('keydown', function (e) {
         + (e.metaKey ? '+meta' : '')
         ;
     switch (decoratedKey) {
-        case ' ':
-        case 'k':
         case 'MediaPlayPause':
             action = toggle_play;
             break;
@@ -704,12 +763,6 @@ addEventListener('keydown', function (e) {
         case 'ArrowLeft':
         case 'MediaTrackPrevious':
             action = skip_seconds.bind(this, -5 * player.playbackRate());
-            break;
-        case 'l':
-            action = skip_seconds.bind(this, 10 * player.playbackRate());
-            break;
-        case 'j':
-            action = skip_seconds.bind(this, -10 * player.playbackRate());
             break;
 
         case '0':
@@ -793,9 +846,6 @@ addEventListener('keydown', function (e) {
     player.on('mousewheel', mouseScroll);
     player.on('DOMMouseScroll', mouseScroll);
 }());
-
-// Since videojs-share can sometimes be blocked, we defer it until last
-if (player.share) player.share(shareOptions);
 
 // show the preferred caption by default
 if (player_data.preferred_caption_found) {

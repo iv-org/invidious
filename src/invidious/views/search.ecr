@@ -9,18 +9,35 @@
 <% end %>
 
 <!-- Search redirection and filtering UI -->
-<%= Invidious::Frontend::SearchFilters.generate(query.filters, query.text, query.page, locale) %>
-<hr/>
+<section class="redesign-search-page" aria-label="<%= I18n.translate(locale, "Search results") %>">
+    <%= Invidious::Frontend::SearchFilters.generate(query.filters, query.text, query.page, locale) %>
 
 
-<%- if items.empty? -%>
-<div class="h-box no-results-error">
-    <div>
-        <%= I18n.translate(locale, "search_message_no_results") %><br/><br/>
-        <%= I18n.translate(locale, "search_message_change_filters_or_query") %><br/><br/>
-        <%= I18n.translate(locale, "search_message_use_another_instance", redirect_url) %>
+
+    <%- if items.empty? -%>
+    <div class="h-box no-results-error">
+        <div>
+            <%= I18n.translate(locale, "search_message_no_results") %><br/><br/>
+            <%= I18n.translate(locale, "search_message_change_filters_or_query") %><br/><br/>
+            <%= I18n.translate(locale, "search_message_use_another_instance", redirect_url) %>
+        </div>
     </div>
-</div>
-<%- else -%>
-    <%= rendered "components/items_paginated" %>
-<%- end -%>
+    <%- else -%>
+        <% channel_items = items.select { |item| item.is_a?(SearchChannel) } %>
+        <% unless channel_items.empty? %>
+            <section class="redesign-channel-matches" aria-labelledby="channel-matches-title">
+                <h2 id="channel-matches-title"><%= I18n.translate(locale, "Channels") %></h2>
+                <div class="redesign-channel-rail">
+                    <% channel_items.each do |item| %>
+                        <%= rendered "components/item" %>
+                    <% end %>
+                </div>
+            </section>
+        <% end %>
+        <% items = items.reject { |item| item.is_a?(SearchChannel) } %>
+        <section class="redesign-media-matches" aria-label="<%= I18n.translate(locale, "Search results") %>">
+            <% unless channel_items.empty? || items.empty? %><h2><%= I18n.translate(locale, "Search results") %></h2><% end %>
+            <%= rendered "components/items_paginated" %>
+        </section>
+    <%- end -%>
+</section>

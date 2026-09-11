@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Invidious UI refinement</title>
+  <style>
+    :root {
+      --canvas: #0b0c0e;
+      --surface: #15161a;
+      --control: #111216;
+      --text: #f4f4f5;
+      --muted: #a9abb1;
+      --line: #303239;
+      --accent: #83b5fc;
+      --accent-hover: #b2d0ff;
+      --on-accent: #121315;
+      --focus: #83b5fc;
+      --radius: 8px;
+      --control-radius: 6px;
+      --space-1: 8px;
+      --space-2: 12px;
+      --space-3: 16px;
+      --space-4: 24px;
+      --shadow: 0 1px 2px rgb(0 0 0 / 0.38);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      background: var(--canvas);
+      color: var(--text);
+      font: 16px/1.45 BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
+      margin: 0;
+    }
+    main { margin: 0 auto; max-width: 1160px; padding: 40px 24px 72px; }
+    h1 { font-size: 24px; letter-spacing: -.025em; margin: 0 0 8px; }
+    h2 { font-size: 18px; margin: 40px 0 16px; }
+    p { margin: 0; }
+    .intro { color: var(--muted); max-width: 68ch; }
+    .caption { color: var(--muted); font-size: 13px; margin-top: 10px; }
+    .tokens { display: grid; gap: 8px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .token { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); min-height: 84px; padding: 12px; }
+    .swatch { border-radius: 4px; height: 24px; margin-bottom: 8px; }
+    .token b { display: block; font-size: 13px; }
+    .token span { color: var(--muted); font-size: 12px; }
+    .spacing { align-items: end; display: flex; gap: 16px; margin-top: 16px; }
+    .spacing div { background: var(--accent); border-radius: 2px 2px 0 0; color: var(--on-accent); font-size: 12px; padding: 4px; text-align: center; }
+    .light-theme-reference { background: #f7f8fa; border: 1px solid #d9dce2; border-radius: var(--radius); color: #17181b; margin-top: 16px; padding: 16px; }
+    .light-theme-reference h3 { font-size: 14px; margin: 0 0 12px; }
+    .light-theme-reference .token { background: #ffffff; border-color: #d9dce2; }
+    .light-theme-reference .token span { color: #656a73; }
+    .app { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+    .bar { align-items: center; border-bottom: 1px solid var(--line); display: flex; gap: 24px; min-height: 64px; padding: 12px 24px; }
+    .brand { font-weight: 700; letter-spacing: -.025em; }
+    .search { background: var(--control); border: 1px solid var(--line); border-radius: var(--control-radius); color: var(--muted); margin: auto; max-width: 480px; padding: 10px 12px; width: 48%; }
+    .nav { color: var(--muted); font-size: 14px; }
+    .page { padding: 24px; }
+    .channel { align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); display: flex; gap: 20px; padding: 24px; }
+    .avatar { background: #464a54; border-radius: 50%; flex: 0 0 auto; height: 72px; width: 72px; }
+    .channel h3 { font-size: 22px; line-height: 1.3; margin: 0; }
+    .metadata, .description { color: var(--muted); font-size: 14px; }
+    .description { margin-top: 8px; max-width: 680px; }
+    .cards { display: grid; gap: 16px; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 16px; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+    .thumb { aspect-ratio: 16 / 9; background: linear-gradient(135deg, #353b49, #1d2027); position: relative; }
+    .duration { background: rgb(8 8 8 / .9); border-radius: 3px; bottom: 6px; font-size: 13px; font-weight: 600; padding: 2px 5px; position: absolute; right: 6px; }
+    .card-body { padding: 16px; }
+    .title { font-size: 16px; font-weight: 650; line-height: 1.32; }
+    .author { color: var(--muted); font-size: 14px; margin-top: 8px; }
+    .card-meta { color: var(--muted); font-size: 13px; margin-top: 4px; }
+    .login-demo { margin: 64px auto; max-width: 352px; padding: 0; }
+    .login-demo h3 { font-size: 32px; margin: 0 0 24px; }
+    label { display: block; font-size: 14px; font-weight: 600; margin: 16px 0 6px; }
+    input { background: var(--control); border: 1px solid var(--line); border-radius: var(--control-radius); color: var(--text); min-height: 44px; padding: 10px 12px; width: 100%; }
+    button { background: var(--accent); border: 1px solid var(--accent); border-radius: var(--control-radius); color: var(--on-accent); font: inherit; font-weight: 650; margin-top: 24px; min-height: 44px; width: 100%; }
+    .captcha { background: #e8eaed; border: 1px solid var(--line); border-radius: var(--control-radius); color: #17181b; font-family: monospace; margin-top: 20px; padding: 18px; width: 50%; }
+    .focus-sample:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+    .narrow { margin: 20px auto 0; max-width: 390px; }
+    .narrow .cards { grid-template-columns: 1fr; }
+    .channel-rail { display:flex; gap:12px; overflow:auto; margin-bottom:24px; }
+    .channel-rail .channel { flex:0 0 304px; padding:16px; box-sizing:border-box; }
+    .channel-rail .avatar { width:48px; height:48px; }
+    .channel-rail .channel h3 { font-size:16px; }
+    .narrow .channel { align-items: flex-start; gap: 16px; padding: 16px; }
+    .narrow .avatar { height: 56px; width: 56px; }
+    .narrow .channel h3 { font-size: 19px; }
+    @media (max-width: 680px) {
+      main { padding: 28px 16px 56px; }
+      .tokens { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .bar { flex-wrap: wrap; gap: 12px; padding: 14px; }
+      .search { margin: 0; order: 3; width: 100%; }
+      .cards { grid-template-columns: 1fr; }
+      .channel { align-items: flex-start; gap: 12px; padding: 16px; }
+      .avatar { height: 56px; width: 56px; }
+      .channel h3 { font-size: 19px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Invidious UI refinement</h1>
+    <p class="intro">Approved dark-theme reference for shared navigation, channel identity, contained video cards, and compact authentication. The source of truth for behaviour is <code>DESIGN.md</code>.</p>
+
+    <h2>Dark theme tokens</h2>
+    <div class="tokens" aria-label="Token reference">
+      <div class="token"><div class="swatch" style="background:#0b0c0e"></div><b>Canvas</b><span>#0b0c0e</span></div>
+      <div class="token"><div class="swatch" style="background:#15161a"></div><b>Surface</b><span>#15161a</span></div>
+      <div class="token"><div class="swatch" style="background:#111216"></div><b>Control</b><span>#111216</span></div>
+      <div class="token"><div class="swatch" style="background:#f4f4f5"></div><b>Primary text</b><span>#f4f4f5</span></div>
+      <div class="token"><div class="swatch" style="background:#a9abb1"></div><b>Muted text</b><span>#a9abb1</span></div>
+      <div class="token"><div class="swatch" style="background:#303239"></div><b>Boundary</b><span>#303239</span></div>
+      <div class="token"><div class="swatch" style="background:#83b5fc"></div><b>Accent / focus</b><span>#83b5fc</span></div>
+      <div class="token"><div class="swatch" style="background:#b2d0ff"></div><b>Accent hover</b><span>#b2d0ff</span></div>
+    </div>
+    <div class="light-theme-reference">
+      <h3>Light-theme pairings</h3>
+      <div class="tokens">
+        <div class="token"><div class="swatch" style="background:#f7f8fa;border:1px solid #d9dce2"></div><b>Canvas</b><span>#f7f8fa</span></div>
+        <div class="token"><div class="swatch" style="background:#ffffff;border:1px solid #d9dce2"></div><b>Surface</b><span>#ffffff</span></div>
+        <div class="token"><div class="swatch" style="background:#fbfcfd;border:1px solid #d9dce2"></div><b>Control</b><span>#fbfcfd</span></div>
+        <div class="token"><div class="swatch" style="background:#17181b"></div><b>Primary text</b><span>#17181b</span></div>
+        <div class="token"><div class="swatch" style="background:#656a73"></div><b>Muted text</b><span>#656a73</span></div>
+        <div class="token"><div class="swatch" style="background:#d9dce2"></div><b>Boundary</b><span>#d9dce2</span></div>
+        <div class="token"><div class="swatch" style="background:#255fbe"></div><b>Accent</b><span>#255fbe</span></div>
+        <div class="token"><div class="swatch" style="background:#174a9f"></div><b>Accent hover</b><span>#174a9f</span></div>
+      </div>
+    </div>
+    <div class="spacing" aria-label="Spacing tokens">
+      <div style="height:32px;width:48px">8 px</div><div style="height:40px;width:56px">12 px</div><div style="height:48px;width:64px">16 px</div><div style="height:56px;width:72px">24 px</div>
+    </div>
+    <p class="caption">Spacing: <code>--redesign-space-1</code> 8 px, <code>--redesign-space-2</code> 12 px, <code>--redesign-space-3</code> 16 px, <code>--redesign-space-4</code> 24 px. Card surfaces use an 8 px radius and the shared 1 px / 2 px edge shadow.</p>
+
+    <h2>Wide search results</h2>
+    <section class="app" aria-label="Wide search-result specimen">
+      <div class="bar"><span class="brand">INVIDIOUS</span><div class="search">Search</div><span class="nav">Preferences &nbsp; Log in</span></div>
+      <div class="page">
+        <div class="channel-rail"><article class="channel">
+          <div class="avatar" aria-hidden="true"></div>
+          <div><h3>Theo - t3.gg<span style="color:#3ea6ff;margin-inline-start:.2em">✓</span></h3><p class="metadata">@t3dotgg · 564K subscribers</p><p class="description">Software development, AI, and TypeScript videos. Select the channel to browse its videos.</p></div>
+        </article><article class="channel"><div class="avatar"></div><div><h3>Theo Von</h3><p class="metadata">@TheoVon · 4.7M subscribers</p></div></article></div><p>Search results</p>
+        <div class="cards">
+          <article class="card"><div class="thumb"><span class="duration">28:36</span></div><div class="card-body"><p class="title">Stop Pretending You Understand Your Codebase</p><p class="author">Theo - t3.gg</p><p class="card-meta">163K views</p><p class="card-meta">3 days ago <span style="float:right">Quick actions</span></p></div></article>
+          <article class="card"><div class="thumb"><span class="duration">49:22</span></div><div class="card-body"><p class="title">You’re using AI agents wrong</p><p class="author">Theo - t3.gg</p><p class="card-meta">163K views</p><p class="card-meta">3 days ago <span style="float:right">Quick actions</span></p></div></article>
+          <article class="card"><div class="thumb"><span class="duration">1:16:52</span></div><div class="card-body"><p class="title">Fable Vs Astra Debate Is Over</p><p class="author">Theo - t3.gg</p><p class="card-meta">163K views</p><p class="card-meta">3 days ago <span style="float:right">Quick actions</span></p></div></article>
+        </div>
+      </div>
+    </section>
+
+    <h2>Account disclosure</h2>
+    <section class="app" style="padding:24px;min-height:220px"><div style="display:flex;justify-content:flex-end;gap:16px"><span>♧</span><details style="position:relative"><summary style="border:1px solid var(--line);border-radius:50%;width:32px;height:32px;display:grid;place-items:center;cursor:pointer">N</summary><div style="position:absolute;right:0;width:200px;background:var(--surface);padding:16px;border:1px solid var(--line);border-radius:8px"><p>nr</p><p>Preferences</p><p>Light mode</p><p>Dark mode</p><p>Log out</p></div></details></div></section>
+    <p class="caption">Local initial avatar or generic person icon when the nickname is hidden. Native disclosure works without scripts. Actual notification and menu actions use the existing icon family.</p>
+    <h2>Quiet login, CAPTCHA, and focus</h2>
+    <section class="login-demo" aria-label="Login form specimen">
+      <h3>Log in</h3>
+      <label for="user-id">User ID</label><input id="user-id" placeholder="User ID">
+      <label for="password">Password</label><input id="password" type="password" placeholder="Password">
+      <div class="captcha" aria-label="CAPTCHA example">0:08:24</div>
+      <label for="captcha-answer">Time (h:mm:ss)</label><input id="captcha-answer" placeholder="h:mm:ss">
+      <button class="focus-sample">Sign In / Register</button>
+    </section>
+    <p class="caption">Focus is a 3 px blue outline with a 3 px offset. Controls retain native semantics in the app; this page is visual evidence only.</p>
+
+    <h2>Narrow composition</h2>
+    <section class="app narrow" aria-label="Narrow result specimen">
+      <div class="bar"><span class="brand">INVIDIOUS</span><div class="search">Search</div></div>
+      <div class="page"><div class="channel-rail"><article class="channel"><div class="avatar" aria-hidden="true"></div><div><h3>Theo - t3.gg<span style="color:#3ea6ff;margin-inline-start:.2em">✓</span></h3><p class="metadata">@t3dotgg<br>564K subscribers</p></div></article></div><p>Search results</p><div class="cards"><article class="card"><div class="thumb"><span class="duration">28:36</span></div><div class="card-body"><p class="title">Stop Pretending You Understand Your Codebase</p><p class="author">Theo - t3.gg</p><p class="card-meta">163K views</p><p class="card-meta">3 days ago <span style="float:right">Quick actions</span></p></div></article></div></div>
+    </section>
+    <h2>Search relationships and navigation</h2>
+    <p class="caption">Channel matches appear together in a scrollable top row; the continuous media grid follows below. A channel never labels unrelated videos. Channel pages use horizontal content tabs and a compact sort row; account controls reserve space and search uses an icon disclosure below 600px.</p>
+    <div class="app" style="padding:24px"><div style="display:flex;gap:24px;overflow:auto"><a href="#">Theo - t3.gg</a><a href="#">Theo Von</a><a href="#">Theo VRFS</a></div><hr><div style="display:flex;justify-content:space-between;align-items:center;margin:16px 0"><b>Search results</b><button>Next page ›</button></div><div class="cards"><div class="card"><div class="thumb"></div><div class="card-body">Stop Pretending You Understand Your Codebase<p class="metadata">Theo - t3.gg</p></div></div><div class="card"><div class="thumb"></div><div class="card-body">Bishop Robert Barron<p class="metadata">Theo Von</p></div></div></div></div>
+    <h2>Watch composition and player behavior</h2>
+    <section class="app" aria-label="Watch composition">
+      <div style="display:grid;grid-template-columns:minmax(0,3fr) minmax(0,1fr);gap:24px;padding:24px">
+        <div><div class="thumb" style="aspect-ratio:16/9;display:grid;place-items:center">▶</div><h3 style="font-size:25px;line-height:1.28">You're using AI agents wrong</h3><div style="height:4px;background:#62646a;margin-top:12px"><div style="width:35%;height:4px;background:#3ea6ff"></div></div><div style="display:flex;align-items:center;gap:16px;padding:12px 0"><span aria-label="Play">▶</span><span>12:35 / 49:21</span><span style="margin-left:auto">1×</span><span aria-label="Theater mode">▭</span><span aria-label="Fullscreen">⛶</span></div><div style="display:flex;align-items:center;justify-content:space-between"><span>Theo - t3.gg <span style="color:#3ea6ff">✓</span></span><button style="background:#d92332;color:white;border:0">Subscribe | 564K</button></div><div style="display:flex;align-items:center;gap:16px;margin-top:12px;flex-wrap:wrap"><span>163K views</span><a href="#" style="margin-left:auto">Audio mode</a><a href="#" title="Watch on YouTube" aria-label="Watch on YouTube" style="display:inline-grid;place-items:center;width:36px;height:36px">▶</a><details><summary>Share</summary><p>Invidious URL · YouTube URL</p></details><details><summary>↓ Download</summary><p>Existing formats and native download form.</p></details><details><summary>More</summary><p>Genre, license and remaining metadata.</p></details></div></div>
+        <div><div class="thumb" style="aspect-ratio:16/9"></div><p>Fable Vs Astra Debate Is Over</p><p class="metadata">Theo - t3.gg · 41K views</p></div>
+      </div>
+    </section>
+    <p class="caption">Theater mode is the default and expands the same video above the related rail. Below 900 px, related videos follow the main content. The visible seek track has its own row at every width, with theater beside fullscreen. Clip start/end markers remain functional but are visually hidden so the blue progress rail is the only position signal.</p>
+    <p class="caption">Player actions use existing Video.js icons and accessible names; time and speed remain text. With focus inside the player or on Play, J/L seek ten seconds, K and Space tap toggle playback, and Space or mouse holds temporarily play at 2× before restoring the prior rate and paused state. Enhancements remain optional.</p>
+  </main>
+</body>
+</html>

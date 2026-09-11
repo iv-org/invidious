@@ -250,26 +250,19 @@ module Invidious::Routes::PreferencesRoute
     redirect ||= "true"
     redirect = redirect == "true"
 
+    requested_theme = env.params.query["mode"]?
+    requested_theme = nil unless {"light", "dark"}.includes?(requested_theme)
+
     if user = env.get? "user"
       user = user.as(User)
 
-      case user.preferences.dark_mode
-      when "dark"
-        user.preferences.dark_mode = "light"
-      else
-        user.preferences.dark_mode = "dark"
-      end
+      user.preferences.dark_mode = requested_theme || (user.preferences.dark_mode == "dark" ? "light" : "dark")
 
       Invidious::Database::Users.update_preferences(user)
     else
       preferences = env.get("preferences").as(Preferences)
 
-      case preferences.dark_mode
-      when "dark"
-        preferences.dark_mode = "light"
-      else
-        preferences.dark_mode = "dark"
-      end
+      preferences.dark_mode = requested_theme || (preferences.dark_mode == "dark" ? "light" : "dark")
 
       host = env.get("header_x-forwarded-host")
       if alt = CONFIG.alternative_domains.index(host)

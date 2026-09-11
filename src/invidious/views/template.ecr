@@ -23,18 +23,22 @@
     <link rel="stylesheet" href="/css/ionicons.min.css?v=<%= ASSET_COMMIT %>">
     <link rel="stylesheet" href="/css/default.css?v=<%= ASSET_COMMIT %>">
     <link rel="stylesheet" href="/css/carousel.css?v=<%= ASSET_COMMIT %>">
+    <link rel="stylesheet" href="/css/redesign.css?v=<%= ASSET_COMMIT %>">
     <script src="/js/_helpers.js?v=<%= ASSET_COMMIT %>"></script>
 </head>
 
-<body class="<%= dark_mode.blank? ? "no" : dark_mode %>-theme">
+<body class="<%= dark_mode.blank? ? "no" : dark_mode %>-theme redesign-ui">
     <span style="display:none" id="dark_mode_pref"><%= dark_mode %></span>
+    <a class="redesign-skip-link" href="#main-content"><%= I18n.translate(locale, "Skip to content") %></a>
     <div class="pure-g">
         <div class="pure-u-1 pure-u-xl-20-24" id="contents">
-            <div class="pure-g navbar h-box">
+            <header class="pure-g navbar h-box redesign-navbar">
                 <% if navbar_search %>
                     <div class="pure-u-1 pure-u-md-4-24">
                         <a href="/" class="index-link pure-menu-heading">Invidious</a>
                     </div>
+                    <input id="header-search-toggle" class="redesign-search-toggle" type="checkbox" aria-label="<%= I18n.translate(locale, "search") %>">
+                    <label for="header-search-toggle" class="redesign-search-trigger" title="<%= I18n.translate(locale, "search") %>"><i class="icon ion-ios-search" aria-hidden="true"></i></label>
                     <div class="pure-u-1 pure-u-md-12-24 searchbar">
                         <% autofocus = false %><%= rendered "components/search_box" %>
                     </div>
@@ -42,17 +46,8 @@
 
                 <div class="pure-u-1 pure-u-md-8-24 user-field">
                     <% if env.get? "user" %>
-                        <div class="pure-u-1-4">
-                            <a id="toggle_theme" href="/toggle_theme?referer=<%= env.get?("current_page") %>" class="pure-menu-heading" title="<%= I18n.translate(locale, "toggle_theme") %>">
-                                <% if dark_mode == "dark" %>
-                                    <i class="icon ion-ios-sunny"></i>
-                                <% else %>
-                                    <i class="icon ion-ios-moon"></i>
-                                <% end %>
-                            </a>
-                        </div>
-                        <div class="pure-u-1-4">
-                            <a id="notification_ticker" title="<%= I18n.translate(locale, "Subscriptions") %>" href="/feed/subscriptions" class="pure-menu-heading">
+                        <div>
+                            <a id="notification_ticker" title="<%= I18n.translate(locale, "Subscriptions") %>" aria-label="<%= I18n.translate(locale, "Subscriptions") %>" href="/feed/subscriptions" class="pure-menu-heading">
                                 <% notification_count = env.get("user").as(Invidious::User).notifications.size %>
                                 <% if CONFIG.enable_user_notifications && notification_count > 0 %>
                                     <span id="notification_count"><%= notification_count %></span> <i class="icon ion-ios-notifications"></i>
@@ -61,24 +56,30 @@
                                 <% end %>
                             </a>
                         </div>
-                        <div class="pure-u-1-4">
-                            <a title="<%= I18n.translate(locale, "Preferences") %>" href="/preferences?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
-                                <i class="icon ion-ios-cog"></i>
-                            </a>
-                        </div>
-                        <% if env.get("preferences").as(Preferences).show_nick %>
-                            <div class="pure-u-1-4" style="overflow: hidden; white-space: nowrap;">
-                                <span id="user_name"><%= HTML.escape(env.get("user").as(Invidious::User).email) %></span>
+                                <a class="redesign-theme-choice" title="<%= I18n.translate(locale, "Light mode") %>" aria-label="<%= I18n.translate(locale, "Light mode") %>" data-theme="light" href="/toggle_theme?mode=light&referer=<%= env.get?("current_page") %>" <% if dark_mode == "light" %>aria-current="true"<% end %>><i class="icon ion-ios-sunny" aria-hidden="true"></i></a>
+                                <a class="redesign-theme-choice" title="<%= I18n.translate(locale, "Dark mode") %>" aria-label="<%= I18n.translate(locale, "Dark mode") %>" data-theme="dark" href="/toggle_theme?mode=dark&referer=<%= env.get?("current_page") %>" <% if dark_mode == "dark" %>aria-current="true"<% end %>><i class="icon ion-ios-moon" aria-hidden="true"></i></a>
+                        <details class="redesign-account-menu">
+                            <summary class="redesign-account-trigger" aria-label="<%= I18n.translate(locale, "Account") %>" title="<%= I18n.translate(locale, "Account") %>">
+                                <span class="redesign-account-avatar" aria-hidden="true">
+                                    <% if preferences.show_nick %>
+                                        <%= HTML.escape(env.get("user").as(Invidious::User).email[0, 1].upcase) %>
+                                    <% else %>
+                                        <i class="icon ion-ios-person"></i>
+                                    <% end %>
+                                </span>
+                            </summary>
+                            <div class="redesign-account-panel">
+                                <% if preferences.show_nick %>
+                                    <div class="redesign-account-identity"><span id="user_name"><%= HTML.escape(env.get("user").as(Invidious::User).email) %></span></div>
+                                <% end %>
+                                <a href="/preferences?referer=<%= env.get?("current_page") %>"><i class="icon ion-ios-cog" aria-hidden="true"></i><%= I18n.translate(locale, "Preferences") %></a>
+                                <form action="/signout?referer=<%= env.get?("current_page") %>" method="post">
+                                    <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
+                                    <button class="redesign-signout" type="submit"><i class="icon ion-ios-log-out" aria-hidden="true"></i><%= I18n.translate(locale, "Log out") %></button>
+                                </form>
                             </div>
-                        <% end %>
-                        <div class="pure-u-1-4">
-                            <form action="/signout?referer=<%= env.get?("current_page") %>" method="post">
-                                <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
-                                <a class="pure-menu-heading" href="#">
-                                    <input style="all:unset" type="submit" value="<%= I18n.translate(locale, "Log out") %>">
-                                </a>
-                            </form>
-                        </div>
+                        </details>
+                        <script src="/js/account-menu.js?v=<%= ASSET_COMMIT %>" defer></script>
                     <% else %>
                         <div class="pure-u-1-3">
                             <a id="toggle_theme" href="/toggle_theme?referer=<%= env.get?("current_page") %>" class="pure-menu-heading" title="<%= I18n.translate(locale, "toggle_theme") %>">
@@ -103,17 +104,19 @@
                         <% end %>
                     <% end %>
                 </div>
-            </div>
+            </header>
 
-            <% if CONFIG.banner %>
-                <div class="h-box">
-                    <h3><%= CONFIG.banner %></h3>
-                </div>
-            <% end %>
+            <main id="main-content" class="redesign-main">
+                <% if CONFIG.banner %>
+                    <div class="h-box redesign-banner">
+                        <h3><%= CONFIG.banner %></h3>
+                    </div>
+                <% end %>
 
-            <%= content %>
+                <%= content %>
+            </main>
 
-            <footer>
+            <footer class="redesign-footer">
                 <div class="pure-g">
                     <div class="pure-u-1 pure-u-md-1-3">
                         <span>

@@ -5,29 +5,27 @@
 
 <%= rendered "components/feed_menu" %>
 
-<div class="pure-g h-box">
-    <div class="pure-u-1-3">
-        <h3>
-            <a href="/subscription_manager"><%= I18n.translate(locale, "Manage subscriptions") %></a>
-        </h3>
-    </div>
-    <div class="pure-u-1-3">
-        <h3 style="text-align:center">
-            <a href="/feed/history"><%= I18n.translate(locale, "Watch history") %></a>
-        </h3>
-    </div>
-    <div class="pure-u-1-3">
-        <h3 style="text-align:right">
-            <a href="/feed/private?token=<%= token %>"><i class="icon ion-logo-rss"></i></a>
-        </h3>
+<section class="redesign-subscriptions">
+<div class="h-box redesign-feed-heading">
+    <h1><%= I18n.translate(locale, "Subscriptions") %></h1>
+    <div class="redesign-feed-actions">
+        <a href="/subscription_manager"><%= I18n.translate(locale, "Manage subscriptions") %></a>
+        <a href="/feed/history"><%= I18n.translate(locale, "Watch history") %></a>
+        <a href="/feed/private?token=<%= token %>" title="<%= I18n.translate(locale, "generic_button_rss") %>"><i class="icon ion-logo-rss"></i></a>
     </div>
 </div>
+<% if videos.empty? && notifications.empty? %>
+    <div class="redesign-feed-empty">
+        <p><%= I18n.translate(locale, "No videos in this feed yet.") %></p>
+        <a href="/subscription_manager"><%= I18n.translate(locale, "Manage subscriptions") %></a>
+    </div>
+<% end %>
 
 <% if CONFIG.enable_user_notifications %>
 
-<center>
+<p class="h-box redesign-feed-status">
     <%= I18n.translate_count(locale, "subscriptions_unseen_notifs_count", notifications.size) %>
-</center>
+</p>
 
 <% if !notifications.empty? %>
     <div class="h-box">
@@ -72,3 +70,5 @@
     show_next: ((videos.size + notifications.size) == max_results)
   )
 %>
+
+</section>

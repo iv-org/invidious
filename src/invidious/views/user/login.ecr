@@ -2,43 +2,43 @@
 <title><%= I18n.translate(locale, "Log in") %> - Invidious</title>
 <% end %>
 
-<div class="pure-g">
-    <div class="pure-u-1 pure-u-lg-1-5"></div>
-    <div class="pure-u-1 pure-u-lg-3-5">
-        <div class="h-box">
+<section class="pure-g redesign-login" aria-labelledby="login-title">
+    <div class="pure-u-1">
+        <div class="h-box redesign-login__content">
             <% case account_type when %>
             <% else # "invidious" %>
-                <form class="pure-form pure-form-stacked" action="/login?referer=<%= URI.encode_www_form(referer) %>&type=invidious" method="post">
+                <form class="pure-form pure-form-stacked redesign-login-form" action="/login?referer=<%= URI.encode_www_form(referer) %>&type=invidious" method="post">
+                    <h1 id="login-title"><%= I18n.translate(locale, "Log in") %></h1>
                     <fieldset>
                         <% if email %>
                             <input name="email" type="hidden" value="<%= HTML.escape(email) %>">
                         <% else %>
-                            <label for="email"><%= I18n.translate(locale, "User ID") %> :</label>
-                            <input required class="pure-input-1" name="email" type="text" placeholder="<%= I18n.translate(locale, "User ID") %>">
+                            <label for="email"><%= I18n.translate(locale, "User ID") %></label>
+                            <input required class="pure-input-1" id="email" name="email" type="text" placeholder="<%= I18n.translate(locale, "User ID") %>">
                         <% end %>
 
                         <% if password %>
                             <input name="password" type="hidden" value="<%= HTML.escape(password) %>">
                         <% else %>
-                            <label for="password"><%= I18n.translate(locale, "Password") %> :</label>
-                            <input required class="pure-input-1" name="password" type="password" placeholder="<%= I18n.translate(locale, "Password") %>">
+                            <label for="password"><%= I18n.translate(locale, "Password") %></label>
+                            <input required class="pure-input-1" id="password" name="password" type="password" placeholder="<%= I18n.translate(locale, "Password") %>">
                         <% end %>
 
                         <% if captcha %>
                             <% captcha = captcha.not_nil! %>
-                            <img style="width:50%" src='<%= captcha[:question] %>'/>
+                            <img class="redesign-login-form__captcha" src='<%= captcha[:question] %>'/>
                             <% captcha[:tokens].each_with_index do |token, i| %>
                                 <input type="hidden" name="token[<%= i %>]" value="<%= HTML.escape(token) %>">
                             <% end %>
                             <label for="answer"><%= I18n.translate(locale, "Time (h:mm:ss):") %></label>
-                            <input type="text" name="answer" type="text" placeholder="h:mm:ss">
+                            <input id="answer" type="text" name="answer" placeholder="h:mm:ss">
 
                             <button type="submit" name="action" value="signin" class="pure-button pure-button-primary">
                                 <%= I18n.translate(locale, "Register") %>
                             </button>
                         <% else %>
                             <button type="submit" name="action" value="signin" class="pure-button pure-button-primary">
-                                <%= I18n.translate(locale, "Sign In") %>/<%= I18n.translate(locale, "Register") %>
+                                <%= I18n.translate(locale, "Sign In") %> / <%= I18n.translate(locale, "Register") %>
                             </button>
                         <% end %>
                     </fieldset>
@@ -46,5 +46,4 @@
             <% end %>
         </div>
     </div>
-    <div class="pure-u-1 pure-u-lg-1-5"></div>
-</div>
+</section>

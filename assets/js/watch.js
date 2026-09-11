@@ -197,4 +197,5 @@ addEventListener('load', function (e) {
     }
 });
 
-document.getElementById("try-reddit-comments-link").onclick = swap_comments;
+var redditCommentsLink = document.getElementById("try-reddit-comments-link");
+if (redditCommentsLink) redditCommentsLink.onclick = swap_comments;

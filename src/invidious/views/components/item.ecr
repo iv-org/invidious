@@ -2,34 +2,50 @@
   thin_mode = env.get("preferences").as(Preferences).thin_mode
   item_watched = !item.is_a?(SearchChannel | SearchHashtag | SearchPlaylist | InvidiousPlaylist | Category | ProblematicTimelineItem) && env.get?("user").try &.as(User).watched.index(item.id) != nil
   author_verified = item.responds_to?(:author_verified) && item.author_verified
+  item_classes = if item.is_a?(SearchChannel)
+                   "redesign-item redesign-channel-result"
+                 elsif item.is_a?(SearchHashtag)
+                   "redesign-item redesign-collection-result"
+                 elsif item.is_a?(SearchPlaylist | InvidiousPlaylist)
+                   "redesign-item redesign-video-result redesign-collection-result"
+                 elsif item.is_a?(Category)
+                   "redesign-item redesign-category-result"
+                 elsif item.is_a?(ProblematicTimelineItem)
+                   "redesign-item redesign-special-result"
+                 else
+                   "redesign-item redesign-video-result"
+                 end
 -%>
 
-<div class="pure-u-1 pure-u-md-1-4">
-    <div class="h-box">
+<div class="pure-u-1 pure-u-md-1-4 <%= item_classes %>">
+    <article class="h-box redesign-item-card">
         <% case item when %>
         <% when SearchChannel %>
-            <% if !thin_mode %>
-                <a tabindex="-1" href="/channel/<%= item.ucid %>">
-                    <center>
-                        <img loading="lazy" style="width:56.25%" src="/ggpht<%= URI.parse(item.author_thumbnail).request_target.gsub(/=s\d+/, "=s176") %>" alt="" />
-                    </center>
-                </a>
-            <%- else -%>
-                <div class="thumbnail-placeholder" style="width:56.25%"></div>
-            <% end %>
+            <div class="redesign-channel-result__identity">
+                <% if !thin_mode %>
+                    <a tabindex="-1" class="redesign-channel-result__avatar-link" href="/channel/<%= item.ucid %>">
+                        <img loading="lazy" class="redesign-channel-result__avatar" src="/ggpht<%= URI.parse(item.author_thumbnail).request_target.gsub(/=s\d+/, "=s176") %>" alt="" />
+                    </a>
+                <%- else -%>
+                    <div class="thumbnail-placeholder redesign-channel-result__avatar"></div>
+                <% end %>
 
-            <div class="video-card-row flexible">
-                <div class="flex-left"><a href="/channel/<%= item.ucid %>">
-                    <p class="channel-name" dir="auto"><%= HTML.escape(item.author) %>
-                        <%- if author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end -%>
-                    </p>
-                </a></div>
+                <div class="redesign-channel-result__body">
+                    <a href="/channel/<%= item.ucid %>">
+                        <p class="channel-name redesign-channel-result__name" dir="auto"><%= HTML.escape(item.author) %>
+                            <%- if author_verified %><i class="icon ion ion-md-checkmark-circle"></i><% end -%>
+                        </p>
+                    </a>
+
+                    <div class="redesign-channel-result__metadata">
+                        <% if !item.channel_handle.nil? %><span class="channel-name" dir="auto"><%= item.channel_handle %></span><% end %>
+                        <span><%= I18n.translate_count(locale, "generic_subscribers_count", item.subscriber_count, I18n::NumberFormatting::Separator) %></span>
+                        <% if !item.auto_generated && item.channel_handle.nil? %><span><%= I18n.translate_count(locale, "generic_videos_count", item.video_count, I18n::NumberFormatting::Separator) %></span><% end %>
+                    </div>
+
+                    <div class="redesign-channel-result__description" dir="auto"><%= item.description_html %></div>
+                </div>
             </div>
-
-            <% if !item.channel_handle.nil? %><p class="channel-name" dir="auto"><%= item.channel_handle %></p><% end %>
-            <p><%= I18n.translate_count(locale, "generic_subscribers_count", item.subscriber_count, I18n::NumberFormatting::Separator) %></p>
-            <% if !item.auto_generated && item.channel_handle.nil? %><p><%= I18n.translate_count(locale, "generic_videos_count", item.video_count, I18n::NumberFormatting::Separator) %></p><% end %>
-            <h5><%= item.description_html %></h5>
         <% when SearchHashtag %>
             <% if !thin_mode %>
                 <a tabindex="-1" href="<%= item.url %>">
@@ -77,21 +93,21 @@
                 </div>
             </div>
 
-            <div class="video-card-row">
+            <div class="video-card-row redesign-item-title">
                 <a href="<%= link_url %>"><p dir="auto"><%= HTML.escape(item.title) %></p></a>
             </div>
 
-            <div class="video-card-row flexible">
+            <div class="video-card-row flexible redesign-item-author">
                 <div class="flex-left">
                     <% if !item.ucid.to_s.empty? %>
                         <a href="/channel/<%= item.ucid %>">
                             <p class="channel-name" dir="auto"><%= HTML.escape(item.author) %>
-                                <%- if author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end -%>
+                                <%- if author_verified %><i class="icon ion ion-md-checkmark-circle"></i><% end -%>
                             </p>
                         </a>
                     <% else %>
                         <p class="channel-name" dir="auto"><%= HTML.escape(item.author) %>
-                            <%- if author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end -%>
+                            <%- if author_verified %><i class="icon ion ion-md-checkmark-circle"></i><% end -%>
                         </p>
                     <% end %>
                 </div>
@@ -175,34 +191,22 @@
                 </div>
             </div>
 
-            <div class="video-card-row">
+            <div class="video-card-row redesign-item-title">
                 <a href="<%= link_url %>"><p dir="auto"><%= HTML.escape(item.title) %></p></a>
             </div>
 
-            <div class="video-card-row flexible">
+            <div class="video-card-row flexible redesign-item-author">
                 <div class="flex-left">
                     <% if !item.ucid.to_s.empty? %>
                         <a href="/channel/<%= item.ucid %>">
                             <p class="channel-name" dir="auto"><%= HTML.escape(item.author) %>
-                                <%- if author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end -%>
+                                <%- if author_verified %><i class="icon ion ion-md-checkmark-circle"></i><% end -%>
                             </p>
                         </a>
                     <% else %>
                         <p class="channel-name" dir="auto"><%= HTML.escape(item.author) %>
-                            <%- if author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end -%>
+                            <%- if author_verified %><i class="icon ion ion-md-checkmark-circle"></i><% end -%>
                         </p>
-                    <% end %>
-                </div>
-
-                <%= rendered "components/video-context-buttons" %>
-            </div>
-
-            <div class="video-card-row flexible">
-                <div class="flex-left">
-                    <% if item.responds_to?(:premiere_timestamp) && item.premiere_timestamp.try &.> Time.utc %>
-                        <p class="video-data" dir="auto"><%= I18n.translate(locale, "Premieres in `x`", recode_date((item.premiere_timestamp.as(Time) - Time.utc).ago, locale)) %></p>
-                    <% elsif item.responds_to?(:published) && (Time.utc - item.published) > 1.minute %>
-                        <p class="video-data" dir="auto"><%= I18n.translate(locale, "Shared `x` ago", recode_date(item.published, locale)) %></p>
                     <% end %>
                 </div>
 
@@ -212,6 +216,18 @@
                 </div>
                 <% end %>
             </div>
+
+            <div class="video-card-row flexible redesign-item-meta">
+                <div class="flex-left">
+                    <% if item.responds_to?(:premiere_timestamp) && item.premiere_timestamp.try &.> Time.utc %>
+                        <p class="video-data" dir="auto"><%= I18n.translate(locale, "Premieres in `x`", recode_date((item.premiere_timestamp.as(Time) - Time.utc).ago, locale)) %></p>
+                    <% elsif item.responds_to?(:published) && (Time.utc - item.published) > 1.minute %>
+                        <p class="video-data" dir="auto"><%= I18n.translate(locale, "Shared `x` ago", recode_date(item.published, locale)) %></p>
+                    <% end %>
+                </div>
+
+                <%= rendered "components/video-context-buttons" %>
+            </div>
         <% end %>
-    </div>
+    </article>
 </div>
