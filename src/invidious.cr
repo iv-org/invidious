@@ -54,6 +54,9 @@ require "./invidious/jobs/*"
 module Invidious
 end
 
+# Public compatibility alias for integrations that use the HMooneyPot name.
+alias HMooneyPot = Invidious
+
 # Simple alias to make code easier to read
 alias IV = Invidious
 
