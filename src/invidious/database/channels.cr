@@ -98,18 +98,31 @@ module Invidious::Database::ChannelVideos
   # -------------------
 
   # This function returns the status of the query (i.e: success?)
-  def insert(video : ChannelVideo, with_premiere_timestamp : Bool = false) : Bool
+  # update_published / update_updated control whether those columns are
+  # overwritten on conflict. InnerTube refreshes pass false so relative
+  # publication labels and refresh-time "updated" values do not drift or
+  # churn Atom feeds for unchanged videos.
+  def insert(
+    video : ChannelVideo,
+    with_premiere_timestamp : Bool = false,
+    *,
+    update_published : Bool = true,
+    update_updated : Bool = true,
+  ) : Bool
     if with_premiere_timestamp
       last_items = "premiere_timestamp = $9, views = $10"
     else
       last_items = "views = $10"
     end
 
+    published_item = update_published ? "published = $3," : ""
+    updated_item = update_updated ? "updated = $4," : ""
+
     request = <<-SQL
       INSERT INTO channel_videos
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       ON CONFLICT (id) DO UPDATE
-      SET title = $2, published = $3, updated = $4, ucid = $5,
+      SET title = $2, #{published_item} #{updated_item} ucid = $5,
           author = $6, length_seconds = $7, live_now = $8, #{last_items}
       RETURNING (xmax=0) AS was_insert
     SQL
