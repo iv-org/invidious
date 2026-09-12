@@ -8,6 +8,7 @@ module Invidious::Frontend::ChannelPage
     Podcasts
     Releases
     Courses
+    Shows
     Playlists
     Posts
     Channels

@@ -53,3 +53,12 @@ def fetch_channel_courses(ucid, author, continuation)
   end
   return extract_items(initial_data, author, ucid)
 end
+
+def fetch_channel_shows(ucid, author, continuation)
+  if continuation
+    initial_data = YoutubeAPI.browse(continuation)
+  else
+    initial_data = YoutubeAPI.browse(ucid, params: "EgVzaG93c_IGBAoCYgA%3D")
+  end
+  return extract_items(initial_data, author, ucid)
+end

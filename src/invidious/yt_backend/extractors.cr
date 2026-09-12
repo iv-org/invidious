@@ -15,6 +15,7 @@ private ITEM_PARSERS = {
   Parsers::VideoRendererParser,
   Parsers::ChannelRendererParser,
   Parsers::GridPlaylistRendererParser,
+  Parsers::GridShowRenderer,
   Parsers::PlaylistRendererParser,
   Parsers::CategoryRendererParser,
   Parsers::ReelItemRendererParser,
@@ -338,6 +339,43 @@ private module Parsers
     end
   end
 
+  module GridShowRenderer
+    extend self
+    include BaseParser
+
+    def process(item : JSON::Any, author_fallback : AuthorFallback)
+      if item_contents = item["gridShowRenderer"]?
+        return self.parse(item_contents, author_fallback)
+      end
+    end
+
+    private def parse_internal(item_contents, author_fallback)
+      title = extract_text(item_contents["title"]) || ""
+      plid = item_contents.dig?("navigationEndpoint", "commandMetadata", "webCommandMetadata", "url").try &.as_s.gsub("/show/VL", "").split("?sbp")[0] || ""
+      author_verified = has_verified_badge?(item_contents["ownerBadges"]?)
+
+      video_count_node = item_contents.dig?("thumbnaiext")
+      video_count_node ||= item_contents.dig?("thumbnailOverlays", 0, "thumbnailOverlayBottomPanelRenderer", "text", "runs", 0, "text")
+
+      video_count = video_count_node.try(&.as_s.to_i) || 0
+      playlist_thumbnail = HelperExtractors.get_thumbnails(item_contents.dig("thumbnailRenderer", "showCustomThumbnailRenderer"))
+
+      SearchPlaylist.new({
+        title:           title,
+        id:              plid,
+        author:          author_fallback.name,
+        ucid:            author_fallback.id,
+        video_count:     video_count,
+        videos:          [] of SearchPlaylistVideo,
+        thumbnail:       playlist_thumbnail,
+        author_verified: author_verified,
+      })
+    end
+
+    def self.parser_name
+      return {{@type.name}}
+    end
+  end
   # Parses a InnerTube playlistRenderer into a SearchPlaylist. Returns nil when the given object isn't a playlistRenderer
   #
   # A playlistRenderer renders a playlist to click on within the YouTube and Invidious UI. It is **not** the playlist itself.
@@ -522,6 +560,7 @@ private module Parsers
       child ||= ReelItemRendererParser.process(item_contents, author_fallback)
       child ||= PlaylistRendererParser.process(item_contents, author_fallback)
       child ||= LockupViewModelParser.process(item_contents, author_fallback)
+      child ||= GridShowRenderer.process(item_contents, author_fallback)
       child ||= ShortsLockupViewModelParser.process(item_contents, author_fallback)
       return child
     end
