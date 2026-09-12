@@ -217,6 +217,26 @@ module Invidious::Routes::Channels
     templated "channel"
   end
 
+  def self.shows(env)
+    data = self.fetch_basic_information(env)
+    return data if !data.is_a?(Tuple)
+
+    locale, user, subscriptions, continuation, ucid, channel = data
+
+    sort_by = ""
+    sort_options = [] of String
+
+    items, next_continuation = fetch_channel_shows(
+      channel.ucid, channel.author, continuation
+    )
+
+    items = items.select(SearchPlaylist)
+    items.each(&.author = "")
+
+    selected_tab = Frontend::ChannelPage::TabsAvailable::Shows
+    templated "channel"
+  end
+
   def self.community(env)
     return env.redirect env.request.path.sub("posts", "community") if env.request.path.split("/").last == "posts"
 
@@ -331,7 +351,7 @@ module Invidious::Routes::Channels
 
   private KNOWN_TABS = {
     "home", "videos", "shorts", "streams", "podcasts",
-    "releases", "courses", "playlists", "community", "channels", "about",
+    "releases", "courses", "shows", "playlists", "community", "channels", "about",
     "posts",
   }
 
