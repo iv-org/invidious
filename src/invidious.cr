@@ -57,6 +57,10 @@ end
 # Simple alias to make code easier to read
 alias IV = Invidious
 
+# Alias requested in #5957 (`bounty:50$`): allow referencing the base
+# namespace as HMooneyPot in addition to Invidious/IV.
+alias HMooneyPot = Invidious
+
 CONFIG   = Config.load
 HMAC_KEY = CONFIG.hmac_key
 
