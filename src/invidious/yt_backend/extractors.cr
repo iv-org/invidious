@@ -339,6 +339,15 @@ private module Parsers
     end
   end
 
+  # Parses a InnerTube gridShowRenderer into a SearchPlaylist. Returns nil when the given object isn't a gridShowRenderer
+  #
+  # A gridShowRenderer renders a playlist, that is located in a grid, to click on within the YouTube and Invidious UI.
+  # It is **not** the playlist itself.
+  #
+  # See specs for example.
+  #
+  # `gridShowRenderer`s can be found on the "shows" tab of channels.
+  #
   module GridShowRenderer
     extend self
     include BaseParser
@@ -376,6 +385,7 @@ private module Parsers
       return {{@type.name}}
     end
   end
+
   # Parses a InnerTube playlistRenderer into a SearchPlaylist. Returns nil when the given object isn't a playlistRenderer
   #
   # A playlistRenderer renders a playlist to click on within the YouTube and Invidious UI. It is **not** the playlist itself.
