@@ -178,6 +178,7 @@ module Invidious::Routing
 
   def register_yt_playlist_routes
     get "/playlist", Routes::Playlists, :show
+    get "/show/:id", Routes::Playlists, :show
     get "/mix", Routes::Playlists, :mix
     get "/watch_videos", Routes::Playlists, :watch_videos
   end
