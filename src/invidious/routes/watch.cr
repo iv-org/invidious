@@ -235,7 +235,7 @@ module Invidious::Routes::Watch
     token = env.params.body["csrf_token"]?
 
     id = env.params.query["id"]?
-    if !id
+    unless id && validate_video_id(id)
       env.response.status_code = 400
       return
     end

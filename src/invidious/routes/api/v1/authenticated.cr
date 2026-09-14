@@ -81,9 +81,10 @@ module Invidious::Routes::API::V1::Authenticated
       return error_json(409, "Watch history is disabled in preferences.")
     end
 
+    # Sanity checks
     id = env.params.url["id"]
-    if !id.match(/^[a-zA-Z0-9_-]{11}$/)
-      return error_json(400, "Invalid video id.")
+    unless validate_video_id(id)
+      return error_json(400, InvalidVideoID.new(id))
     end
 
     Invidious::Database::Users.mark_watched(user, id)
@@ -309,8 +310,9 @@ module Invidious::Routes::API::V1::Authenticated
     end
 
     video_id = env.params.json["videoId"].try &.as(String)
-    if !video_id
-      return error_json(403, "Invalid videoId")
+    # Sanity checks
+    unless video_id && validate_video_id(video_id)
+      return error_json(403, InvalidVideoID.new(video_id))
     end
 
     begin

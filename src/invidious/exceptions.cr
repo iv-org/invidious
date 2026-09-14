@@ -38,3 +38,15 @@ end
 # some important informations, and that the query should be sent again.
 class RetryOnceException < Exception
 end
+
+# Exception for invalid video IDs.
+class InvalidVideoID < InfoException
+  getter id : String?
+
+  def initialize(@id)
+  end
+
+  def message
+    return "Invalid video ID '#{id}'"
+  end
+end
