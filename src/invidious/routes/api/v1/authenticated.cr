@@ -48,10 +48,12 @@ module Invidious::Routes::API::V1::Authenticated
                "{}"
              end
       Invidious::User::Import.from_invidious(user, body)
-    rescue
+      env.response.status_code = 204
+    rescue ex : InfoException
+      return error_json(400, ex)
+    rescue ex
+      return error_json(500, ex)
     end
-
-    env.response.status_code = 204
   end
 
   def self.get_history(env)

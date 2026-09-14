@@ -97,7 +97,12 @@ struct Invidious::User
       end
 
       if data["watch_history"]?
-        user.watched += data["watch_history"].as_a.map(&.as_s)
+        user.watched += data["watch_history"].as_a.map do |video_id|
+          video_id = video_id.as_s
+          # Sanity check for the imported video IDs
+          raise InvalidVideoID.new(video_id) unless validate_video_id(video_id)
+          video_id
+        end
         user.watched.reverse!.uniq!.reverse!
         Invidious::Database::Users.update_watch_history(user)
       end

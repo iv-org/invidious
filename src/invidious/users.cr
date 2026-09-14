@@ -52,12 +52,7 @@ def get_subscription_feed(user, max_results = 40, page = 1)
         # Show latest video from a channel that a user hasn't watched
         # "unseen_only" isn't really correct here, more accurate would be "unwatched_only"
 
-        if user.watched.empty?
-          values = "'{}'"
-        else
-          values = "VALUES #{user.watched.map { |id| %(('#{id}')) }.join(",")}"
-        end
-        videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} WHERE NOT id = ANY (#{values}) ORDER BY ucid, published DESC", as: ChannelVideo)
+        videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} WHERE NOT id = ANY ($1::text[]) ORDER BY ucid, published DESC", user.watched, as: ChannelVideo)
       else
         # Show latest video from each channel
 
@@ -69,12 +64,7 @@ def get_subscription_feed(user, max_results = 40, page = 1)
       if user.preferences.unseen_only
         # Only show unwatched
 
-        if user.watched.empty?
-          values = "'{}'"
-        else
-          values = "VALUES #{user.watched.map { |id| %(('#{id}')) }.join(",")}"
-        end
-        videos = PG_DB.query_all("SELECT * FROM #{view_name} WHERE NOT id = ANY (#{values}) ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
+        videos = PG_DB.query_all("SELECT * FROM #{view_name} WHERE NOT id = ANY ($1::text[]) ORDER BY published DESC LIMIT $2 OFFSET $3", user.watched, limit, offset, as: ChannelVideo)
       else
         # Sort subscriptions as normal
 
