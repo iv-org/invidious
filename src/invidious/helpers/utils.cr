@@ -409,5 +409,5 @@ def validate_video_id(id : String) : Bool
   # This is the video ID regex. May be need to be changed
   # if Youtube ever decides to add more characters to their
   # video IDs.
-  /^[a-zA-Z0-9_-]{11}$/.matches?(id)
+  /\A[a-zA-Z0-9_-]{11}\z/.matches?(id)
 end
