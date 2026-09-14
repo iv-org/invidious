@@ -583,9 +583,9 @@ module YoutubeAPI
     # true if logged in into a Google account on Youtube, therefore
     # we set it to true if the instance has cookies enabled.
     logged_in = if !CONFIG.cookies.empty?
-                  true
+                  "true"
                 else
-                  false
+                  "false"
                 end
 
     headers = HTTP::Headers{
