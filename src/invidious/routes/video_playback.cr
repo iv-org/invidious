@@ -269,7 +269,7 @@ module Invidious::Routes::VideoPlayback
 
     # Sanity checks
     unless id && validate_video_id(id)
-      return error_json(400, InvalidVideoID.new(id))
+      return error_template(400, InvalidVideoID.new(id))
     end
 
     if !itag.nil? && (itag <= 0 || itag >= 1000)
