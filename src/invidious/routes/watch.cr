@@ -18,14 +18,8 @@ module Invidious::Routes::Watch
         return error_template(400, "Invalid parameters.")
       end
 
-      if id.size > 11
-        url = "/watch?v=#{id[0, 11]}"
-        env.params.query.delete_all("v")
-        if env.params.query.size > 0
-          url += "&#{env.params.query}"
-        end
-
-        return env.redirect url
+      unless validate_video_id(id)
+        return error_template(400, InvalidVideoID.new(id))
       end
     else
       return env.redirect "/"
