@@ -312,7 +312,7 @@ module Invidious::Routes::API::V1::Authenticated
     video_id = env.params.json["videoId"].try &.as(String)
     # Sanity checks
     unless video_id && validate_video_id(video_id)
-      return error_json(403, InvalidVideoID.new(video_id))
+      return error_json(400, InvalidVideoID.new(video_id))
     end
 
     begin
