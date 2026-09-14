@@ -580,12 +580,20 @@ module YoutubeAPI
     # Query parameters
     url = "#{endpoint}?prettyPrint=false"
 
+    # true if logged in into a Google account on Youtube, therefore
+    # we set it to true if the instance has cookies enabled.
+    logged_in = if !CONFIG.cookies.empty?
+                  true
+                else
+                  false
+                end
+
     headers = HTTP::Headers{
-      "Content-Type"              => "application/json; charset=UTF-8",
-      "Accept-Encoding"           => "gzip, deflate",
-      "x-goog-api-format-version" => "2",
-      "x-youtube-client-name"     => client_config.name_proto,
-      "x-youtube-client-version"  => client_config.version,
+      "Content-Type"                  => "application/json",
+      "Accept-Encoding"               => "gzip, deflate",
+      "x-youtube-bootstrap-logged-in" => logged_in,
+      "x-youtube-client-name"         => client_config.name_proto,
+      "x-youtube-client-version"      => client_config.version,
     }
 
     if user_agent = client_config.user_agent
