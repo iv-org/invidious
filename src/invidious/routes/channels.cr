@@ -223,6 +223,10 @@ module Invidious::Routes::Channels
 
     locale, user, subscriptions, continuation, ucid, channel = data
 
+    if !channel.tabs.includes? "shows"
+      return env.redirect "/channel/#{channel.ucid}"
+    end
+
     sort_by = ""
     sort_options = [] of String
 
