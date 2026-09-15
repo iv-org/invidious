@@ -87,7 +87,7 @@ module Invidious::Videos::Parser
 
       # Although technically not a call to /videoplayback the fact that YouTube is returning the
       # wrong video means that we should count it as a failure.
-      Helpers.get_playback_statistic["totalRequests"] += 1
+      Invidious::Helpers.get_playback_statistic["totalRequests"] += 1
 
       return {
         "version" => JSON::Any.new(Video::SCHEMA_VERSION.to_i64),

@@ -12,7 +12,7 @@ module Invidious::Routes::Playlists
 
     user = user.as(User)
     sid = sid.as(String)
-    csrf_token = generate_response(sid, {":create_playlist"}, HMAC_KEY)
+    csrf_token = Invidious::Helpers::Tokens.generate_response(sid, {":create_playlist"}, HMAC_KEY)
 
     templated "create_playlist"
   end
@@ -31,26 +31,26 @@ module Invidious::Routes::Playlists
     token = env.params.body["csrf_token"]?
 
     begin
-      validate_request(token, sid, env.request, HMAC_KEY, locale)
+      Invidious::Helpers::Tokens.validate_request(token, sid, env.request, HMAC_KEY, locale)
     rescue ex
-      return error_template(400, ex)
+      return Errors.error_template(400, ex)
     end
 
     title = env.params.body["title"]?.try &.as(String)
     if !title || title.empty?
-      return error_template(400, "Title cannot be empty.")
+      return Errors.error_template(400, "Title cannot be empty.")
     end
 
     privacy = PlaylistPrivacy.parse?(env.params.body["privacy"]?.try &.as(String) || "")
     if !privacy
-      return error_template(400, "Invalid privacy setting.")
+      return Errors.error_template(400, "Invalid privacy setting.")
     end
 
     if Invidious::Database::Playlists.count_owned_by(user.email) >= 100
-      return error_template(400, "User cannot have more than 100 playlists.")
+      return Errors.error_template(400, "User cannot have more than 100 playlists.")
     end
 
-    playlist = create_playlist(title, privacy, user)
+    playlist = Invidious::Playlists::Playlists.create_playlist(title, privacy, user)
 
     env.redirect "/playlist?list=#{playlist.id}"
   end
@@ -67,13 +67,13 @@ module Invidious::Routes::Playlists
 
     playlist_id = env.params.query["list"]
     begin
-      playlist = get_playlist(playlist_id)
+      playlist = Invidious::Playlists::Playlists.get_playlist(playlist_id)
     rescue ex : NotFoundException
-      return error_template(404, ex)
+      return Errors.error_template(404, ex)
     rescue ex
-      return error_template(500, ex)
+      return Errors.error_template(500, ex)
     end
-    subscribe_playlist(user, playlist)
+    Invidious::Playlists::Playlists.subscribe_playlist(user, playlist)
 
     env.redirect "/playlist?list=#{playlist.id}"
   end
@@ -92,7 +92,7 @@ module Invidious::Routes::Playlists
 
     plid = env.params.query["list"]?
     if !plid || plid.empty?
-      return error_template(400, "A playlist ID is required")
+      return Errors.error_template(400, "A playlist ID is required")
     end
 
     playlist = Invidious::Database::Playlists.select(id: plid)
@@ -100,7 +100,7 @@ module Invidious::Routes::Playlists
       return env.redirect referer
     end
 
-    csrf_token = generate_response(sid, {":delete_playlist"}, HMAC_KEY)
+    csrf_token = Invidious::Helpers::Tokens.generate_response(sid, {":delete_playlist"}, HMAC_KEY)
 
     templated "delete_playlist"
   end
@@ -122,9 +122,9 @@ module Invidious::Routes::Playlists
     token = env.params.body["csrf_token"]?
 
     begin
-      validate_request(token, sid, env.request, HMAC_KEY, locale)
+      Invidious::Helpers::Tokens.validate_request(token, sid, env.request, HMAC_KEY, locale)
     rescue ex
-      return error_template(400, ex)
+      return Errors.error_template(400, ex)
     end
 
     playlist = Invidious::Database::Playlists.select(id: plid)
@@ -163,12 +163,12 @@ module Invidious::Routes::Playlists
     end
 
     begin
-      items = get_playlist_videos(playlist, offset: (page - 1) * 100)
+      items = Invidious::Playlists::Playlists.get_playlist_videos(playlist, offset: (page - 1) * 100)
     rescue ex
       items = [] of PlaylistVideo
     end
 
-    csrf_token = generate_response(sid, {":edit_playlist"}, HMAC_KEY)
+    csrf_token = Invidious::Helpers::Tokens.generate_response(sid, {":edit_playlist"}, HMAC_KEY)
 
     # Pagination
     page_nav_html = Frontend::Pagination.nav_numeric(locale,
@@ -197,9 +197,9 @@ module Invidious::Routes::Playlists
     token = env.params.body["csrf_token"]?
 
     begin
-      validate_request(token, sid, env.request, HMAC_KEY, locale)
+      Invidious::Helpers::Tokens.validate_request(token, sid, env.request, HMAC_KEY, locale)
     rescue ex
-      return error_template(400, ex)
+      return Errors.error_template(400, ex)
     end
 
     playlist = Invidious::Database::Playlists.select(id: plid)
@@ -286,7 +286,7 @@ module Invidious::Routes::Playlists
       if redirect
         return env.redirect referer
       else
-        return error_json(403, "No such user")
+        return Errors.error_json(403, "No such user")
       end
     end
 
@@ -295,26 +295,26 @@ module Invidious::Routes::Playlists
     token = env.params.body["csrf_token"]?
 
     begin
-      validate_request(token, sid, env.request, HMAC_KEY, locale)
+      Invidious::Helpers::Tokens.validate_request(token, sid, env.request, HMAC_KEY, locale)
     rescue ex
       if redirect
-        return error_template(400, ex)
+        return Errors.error_template(400, ex)
       else
-        return error_json(400, ex)
+        return Errors.error_json(400, ex)
       end
     end
 
     begin
       playlist_id = env.params.query["playlist_id"]
-      playlist = get_playlist(playlist_id).as(InvidiousPlaylist)
+      playlist = Invidious::Playlists::Playlists.get_playlist(playlist_id).as(InvidiousPlaylist)
       raise "Invalid user" if playlist.author != user.email
     rescue ex : NotFoundException
-      return error_json(404, ex)
+      return Errors.error_json(404, ex)
     rescue ex
       if redirect
-        return error_template(400, ex)
+        return Errors.error_template(400, ex)
       else
-        return error_json(400, ex)
+        return Errors.error_json(400, ex)
       end
     end
 
@@ -322,9 +322,9 @@ module Invidious::Routes::Playlists
     when "add_video"
       if playlist.index.size >= CONFIG.playlist_length_limit
         if redirect
-          return error_template(400, "Playlist cannot have more than #{CONFIG.playlist_length_limit} videos")
+          return Errors.error_template(400, "Playlist cannot have more than #{CONFIG.playlist_length_limit} videos")
         else
-          return error_json(400, "Playlist cannot have more than #{CONFIG.playlist_length_limit} videos")
+          return Errors.error_json(400, "Playlist cannot have more than #{CONFIG.playlist_length_limit} videos")
         end
       end
 
@@ -333,12 +333,12 @@ module Invidious::Routes::Playlists
       begin
         video = get_video(video_id)
       rescue ex : NotFoundException
-        return error_json(404, ex)
+        return Errors.error_json(404, ex)
       rescue ex
         if redirect
-          return error_template(500, ex)
+          return Errors.error_template(500, ex)
         else
-          return error_json(500, ex)
+          return Errors.error_json(500, ex)
         end
       end
 
@@ -359,7 +359,7 @@ module Invidious::Routes::Playlists
     when "remove_video"
       index = env.params.query["set_video_id"].to_i64?
       if index.nil? || !playlist.index.includes? index
-        return error_json(404, "Playlist does not contain index")
+        return Errors.error_json(404, "Playlist does not contain index")
       end
 
       Invidious::Database::PlaylistVideos.delete(index, playlist_id)
@@ -367,9 +367,9 @@ module Invidious::Routes::Playlists
     when "move_video_before"
       # TODO: Playlist stub
     when nil
-      return error_json(400, "Missing action")
+      return Errors.error_json(400, "Missing action")
     else
-      return error_json(400, "Unsupported action #{action}")
+      return Errors.error_json(400, "Unsupported action #{action}")
     end
 
     if redirect
@@ -399,11 +399,11 @@ module Invidious::Routes::Playlists
     end
 
     begin
-      playlist = get_playlist(plid)
+      playlist = Invidious::Playlists::Playlists.get_playlist(plid)
     rescue ex : NotFoundException
-      return error_template(404, ex)
+      return Errors.error_template(404, ex)
     rescue ex
-      return error_template(500, ex)
+      return Errors.error_template(500, ex)
     end
 
     if playlist.is_a? InvidiousPlaylist
@@ -419,17 +419,17 @@ module Invidious::Routes::Playlists
     end
 
     if playlist.privacy == PlaylistPrivacy::Private && playlist.author != user.try &.email
-      return error_template(403, "This playlist is private.")
+      return Errors.error_template(403, "This playlist is private.")
     end
 
     begin
       if playlist.is_a? InvidiousPlaylist
-        items = get_playlist_videos(playlist, offset: (page - 1) * 100)
+        items = Invidious::Playlists::Playlists.get_playlist_videos(playlist, offset: (page - 1) * 100)
       else
-        items = get_playlist_videos(playlist, offset: (page - 1) * 200)
+        items = Invidious::Playlists::Playlists.get_playlist_videos(playlist, offset: (page - 1) * 200)
       end
     rescue ex
-      return error_template(500, "Error encountered while retrieving playlist videos.<br>#{ex.message}")
+      return Errors.error_template(500, "Error encountered while retrieving playlist videos.<br>#{ex.message}")
     end
 
     if playlist.author == user.try &.email
@@ -460,7 +460,7 @@ module Invidious::Routes::Playlists
     begin
       mix = fetch_mix(rdid, continuation, locale: locale)
     rescue ex
-      return error_template(500, ex)
+      return Errors.error_template(500, ex)
     end
 
     templated "mix"

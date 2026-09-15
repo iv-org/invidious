@@ -1,7 +1,7 @@
-module Invidious::Hashtag
+module Invidious::Search::Hashtag
   extend self
 
-  def fetch(hashtag : String, page : Int, region : String? = nil) : Array(SearchItem)
+  def fetch_hashtag(hashtag : String, page : Int, region : String? = nil) : Array(SearchItem)
     cursor = (page - 1) * 60
     ctoken = generate_continuation(hashtag, cursor)
 

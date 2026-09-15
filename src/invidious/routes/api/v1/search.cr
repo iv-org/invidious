@@ -10,7 +10,7 @@ module Invidious::Routes::API::V1::Search
     begin
       search_results = query.process
     rescue ex
-      return error_json(400, ex)
+      return Errors.error_json(400, ex)
     end
 
     JSON.build do |json|
@@ -53,7 +53,7 @@ module Invidious::Routes::API::V1::Search
         end
       end
     rescue ex
-      return error_json(500, ex)
+      return Errors.error_json(500, ex)
     end
   end
 
@@ -67,9 +67,9 @@ module Invidious::Routes::API::V1::Search
     env.response.content_type = "application/json"
 
     begin
-      results = Invidious::Hashtag.fetch(hashtag, page, region)
+      results = Invidious::Search::Hashtag.fetch_hashtag(hashtag, page, region)
     rescue ex
-      return error_json(400, ex)
+      return Errors.error_json(400, ex)
     end
 
     JSON.build do |json|
