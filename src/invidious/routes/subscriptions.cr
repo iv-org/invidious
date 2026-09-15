@@ -14,7 +14,7 @@ module Invidious::Routes::Subscriptions
       if redirect
         return env.redirect referer
       else
-        return error_json(403, "No such user")
+        return Errors.error_json(403, "No such user")
       end
     end
 
@@ -23,12 +23,12 @@ module Invidious::Routes::Subscriptions
     token = env.params.body["csrf_token"]?
 
     begin
-      validate_request(token, sid, env.request, HMAC_KEY, locale)
+      Invidious::Helpers::Tokens.validate_request(token, sid, env.request, HMAC_KEY, locale)
     rescue ex
       if redirect
-        return error_template(400, ex)
+        return Errors.error_template(400, ex)
       else
-        return error_json(400, ex)
+        return Errors.error_json(400, ex)
       end
     end
 
@@ -38,13 +38,13 @@ module Invidious::Routes::Subscriptions
     case action = env.params.query["action"]?
     when "create_subscription_to_channel"
       if !user.subscriptions.includes? channel_id
-        get_channel(channel_id)
+        Invidious::Channels::Channels.get_channel(channel_id)
         Invidious::Database::Users.subscribe_channel(user, channel_id)
       end
     when "remove_subscriptions"
       Invidious::Database::Users.unsubscribe_channel(user, channel_id)
     else
-      return error_json(400, "Unsupported action #{action}")
+      return Errors.error_json(400, "Unsupported action #{action}")
     end
 
     if redirect

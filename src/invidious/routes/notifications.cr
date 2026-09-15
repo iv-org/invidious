@@ -18,7 +18,7 @@ module Invidious::Routes::Notifications
       if redirect
         return env.redirect referer
       else
-        return error_json(403, "No such user")
+        return Errors.error_json(403, "No such user")
       end
     end
 

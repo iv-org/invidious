@@ -53,9 +53,9 @@ module Invidious::Routes::Feeds
     region ||= preferences.region
 
     begin
-      trending, plid = fetch_trending(trending_type, region, locale)
+      trending, plid = Invidious::Feeds::Trending.fetch(trending_type, region, locale)
     rescue ex
-      return error_template(500, ex)
+      return Errors.error_template(500, ex)
     end
 
     templated "feeds/trending"
@@ -91,7 +91,7 @@ module Invidious::Routes::Feeds
     page = env.params.query["page"]?.try &.to_i?
     page ||= 1
 
-    videos, notifications = get_subscription_feed(user, max_results, page)
+    videos, notifications = Invidious::User::Users.get_subscription_feed(user, max_results, page)
 
     if CONFIG.enable_user_notifications
       # "updated" here is used for delivering new notifications, so if
@@ -150,7 +150,7 @@ module Invidious::Routes::Feeds
     if env.params.url["ucid"].matches?(/^[\w-]+$/)
       ucid = env.params.url["ucid"]
     else
-      return error_atom(400, InfoException.new("Invalid channel ucid provided."))
+      return Errors.error_atom(400, InfoException.new("Invalid channel ucid provided."))
     end
 
     params = HTTP::Params.parse(env.params.query["params"]? || "")
@@ -162,7 +162,7 @@ module Invidious::Routes::Feeds
     }
 
     response = YT_POOL.client &.get("/feeds/videos.xml?channel_id=#{ucid}")
-    return error_atom(404, NotFoundException.new("Channel does not exist.")) if response.status_code == 404
+    return Errors.error_atom(404, NotFoundException.new("Channel does not exist.")) if response.status_code == 404
     rss = XML.parse(response.body)
 
     videos = rss.xpath_nodes("//default:feed/default:entry", namespaces).map do |entry|
@@ -250,7 +250,7 @@ module Invidious::Routes::Feeds
 
     params = HTTP::Params.parse(env.params.query["params"]? || "")
 
-    videos, notifications = get_subscription_feed(user, max_results, page)
+    videos, notifications = Invidious::User::Users.get_subscription_feed(user, max_results, page)
 
     XML.build(indent: "  ", encoding: "UTF-8") do |xml|
       xml.element("feed", "xmlns:yt": "http://www.youtube.com/xml/schemas/2015",
@@ -281,11 +281,11 @@ module Invidious::Routes::Feeds
 
     if plid.starts_with? "IV"
       if playlist = Invidious::Database::Playlists.select(id: plid)
-        videos = get_playlist_videos(playlist, offset: 0)
+        videos = Invidious::Playlists::Playlists.get_playlist_videos(playlist, offset: 0)
 
         user = env.get?("user").try &.as(User)
         if !playlist || playlist.privacy.private? && playlist.author != user.try &.email
-          return error_atom(404, "Playlist does not exist.")
+          return Errors.error_atom(404, "Playlist does not exist.")
         end
 
         return XML.build(indent: "  ", encoding: "UTF-8") do |xml|
@@ -317,7 +317,7 @@ module Invidious::Routes::Feeds
     end
 
     response = YT_POOL.client &.get("/feeds/videos.xml?playlist_id=#{plid}")
-    return error_atom(404, NotFoundException.new("Playlist does not exist.")) if response.status_code == 404
+    return Errors.error_atom(404, NotFoundException.new("Playlist does not exist.")) if response.status_code == 404
 
     document = XML.parse(response.body)
     document.xpath_nodes(%q(//*[@href]|//*[@url])).each do |node|
