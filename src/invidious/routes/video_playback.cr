@@ -268,8 +268,8 @@ module Invidious::Routes::VideoPlayback
     itag = env.params.query["itag"]?.try &.to_i?
 
     # Sanity checks
-    if id.nil? || id.size != 11 || !id.matches?(/^[\w-]+$/)
-      return error_template(400, "Invalid video ID")
+    unless id && validate_video_id(id)
+      return error_template(400, InvalidVideoID.new(id))
     end
 
     if !itag.nil? && (itag <= 0 || itag >= 1000)
