@@ -35,10 +35,10 @@ dependencies:
 development_dependencies:
   spectator:
     github: icy-arctic-fox/spectator
-    version: ~> 0.10.4
+    version: ~> 0.12.4
   ameba:
     github: crystal-ameba/ameba
-    version: ~> 1.6.1
+    version: ~> 1.6.4
 
 crystal: ">= 1.14.1, < 2.0.0"
 
