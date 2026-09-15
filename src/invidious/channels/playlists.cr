@@ -1,55 +1,59 @@
-def fetch_channel_playlists(ucid, author, continuation, sort_by)
-  if continuation
-    initial_data = YoutubeAPI.browse(continuation)
-  else
-    params =
-      case sort_by
-      when "last", "last_added"
-        # Equivalent to "&sort=lad"
-        # {"2:string": "playlists", "3:varint": 4, "4:varint": 1, "6:varint": 1, "110:embedded": {"1:embedded": {"8:string": ""}}}
-        "EglwbGF5bGlzdHMYBCABMAHyBgQKAkIA"
-      when "oldest", "oldest_created"
-        # formerly "&sort=da"
-        # Not available anymore :c or maybe ??
-        # {"2:string": "playlists", "3:varint": 2, "4:varint": 1, "6:varint": 1, "110:embedded": {"1:embedded": {"8:string": ""}}}
-        "EglwbGF5bGlzdHMYAiABMAHyBgQKAkIA"
-        # {"2:string": "playlists", "3:varint": 1, "4:varint": 1, "6:varint": 1}
-        # "EglwbGF5bGlzdHMYASABMAE%3D"
-      when "newest", "newest_created"
-        # Formerly "&sort=dd"
-        # {"2:string": "playlists", "3:varint": 3, "4:varint": 1, "6:varint": 1, "110:embedded": {"1:embedded": {"8:string": ""}}}
-        "EglwbGF5bGlzdHMYAyABMAHyBgQKAkIA"
-      end
+module Invidious::Channels::Playlists
+  extend self
 
-    initial_data = YoutubeAPI.browse(ucid, params: params || "")
+  def fetch_channel_playlists(ucid, author, continuation, sort_by)
+    if continuation
+      initial_data = YoutubeAPI.browse(continuation)
+    else
+      params =
+        case sort_by
+        when "last", "last_added"
+          # Equivalent to "&sort=lad"
+          # {"2:string": "playlists", "3:varint": 4, "4:varint": 1, "6:varint": 1, "110:embedded": {"1:embedded": {"8:string": ""}}}
+          "EglwbGF5bGlzdHMYBCABMAHyBgQKAkIA"
+        when "oldest", "oldest_created"
+          # formerly "&sort=da"
+          # Not available anymore :c or maybe ??
+          # {"2:string": "playlists", "3:varint": 2, "4:varint": 1, "6:varint": 1, "110:embedded": {"1:embedded": {"8:string": ""}}}
+          "EglwbGF5bGlzdHMYAiABMAHyBgQKAkIA"
+          # {"2:string": "playlists", "3:varint": 1, "4:varint": 1, "6:varint": 1}
+          # "EglwbGF5bGlzdHMYASABMAE%3D"
+        when "newest", "newest_created"
+          # Formerly "&sort=dd"
+          # {"2:string": "playlists", "3:varint": 3, "4:varint": 1, "6:varint": 1, "110:embedded": {"1:embedded": {"8:string": ""}}}
+          "EglwbGF5bGlzdHMYAyABMAHyBgQKAkIA"
+        end
+
+      initial_data = YoutubeAPI.browse(ucid, params: params || "")
+    end
+
+    return extract_items(initial_data, author, ucid)
   end
 
-  return extract_items(initial_data, author, ucid)
-end
-
-def fetch_channel_podcasts(ucid, author, continuation)
-  if continuation
-    initial_data = YoutubeAPI.browse(continuation)
-  else
-    initial_data = YoutubeAPI.browse(ucid, params: "Eghwb2RjYXN0c_IGBQoDugEA")
+  def fetch_channel_podcasts(ucid, author, continuation)
+    if continuation
+      initial_data = YoutubeAPI.browse(continuation)
+    else
+      initial_data = YoutubeAPI.browse(ucid, params: "Eghwb2RjYXN0c_IGBQoDugEA")
+    end
+    return extract_items(initial_data, author, ucid)
   end
-  return extract_items(initial_data, author, ucid)
-end
 
-def fetch_channel_releases(ucid, author, continuation)
-  if continuation
-    initial_data = YoutubeAPI.browse(continuation)
-  else
-    initial_data = YoutubeAPI.browse(ucid, params: "EghyZWxlYXNlc_IGBQoDsgEA")
+  def fetch_channel_releases(ucid, author, continuation)
+    if continuation
+      initial_data = YoutubeAPI.browse(continuation)
+    else
+      initial_data = YoutubeAPI.browse(ucid, params: "EghyZWxlYXNlc_IGBQoDsgEA")
+    end
+    return extract_items(initial_data, author, ucid)
   end
-  return extract_items(initial_data, author, ucid)
-end
 
-def fetch_channel_courses(ucid, author, continuation)
-  if continuation
-    initial_data = YoutubeAPI.browse(continuation)
-  else
-    initial_data = YoutubeAPI.browse(ucid, params: "Egdjb3Vyc2Vz8gYFCgPCAQA%3D")
+  def fetch_channel_courses(ucid, author, continuation)
+    if continuation
+      initial_data = YoutubeAPI.browse(continuation)
+    else
+      initial_data = YoutubeAPI.browse(ucid, params: "Egdjb3Vyc2Vz8gYFCgPCAQA%3D")
+    end
+    return extract_items(initial_data, author, ucid)
   end
-  return extract_items(initial_data, author, ucid)
 end

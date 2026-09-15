@@ -50,16 +50,16 @@ module Invidious::Routes::API::V1::Misc
     end
 
     begin
-      playlist = get_playlist(plid)
+      playlist = Invidious::Playlists::Playlists.get_playlist(plid)
     rescue ex : InfoException
-      return error_json(404, ex)
+      return Errors.error_json(404, ex)
     rescue ex
-      return error_json(404, "Playlist does not exist.")
+      return Errors.error_json(404, "Playlist does not exist.")
     end
 
     user = env.get?("user").try &.as(User)
     if !playlist || playlist.privacy.private? && playlist.author != user.try &.email
-      return error_json(404, "Playlist does not exist.")
+      return Errors.error_json(404, "Playlist does not exist.")
     end
 
     # includes into the playlist a maximum of 20 videos, before the offset
@@ -88,7 +88,7 @@ module Invidious::Routes::API::V1::Misc
     end
 
     if format == "html"
-      playlist_html = template_playlist(json_response, listen)
+      playlist_html = Invidious::Playlists::Playlists.template_playlist(json_response, listen)
       index, next_video = json_response["videos"].as_a.skip(1 + lookback).select { |video| !video["author"].as_s.empty? }[0]?.try { |v| {v["index"], v["videoId"]} } || {nil, nil}
 
       response = {
@@ -127,7 +127,7 @@ module Invidious::Routes::API::V1::Misc
 
       mix.videos = mix.videos[index..-1]
     rescue ex
-      return error_json(500, ex)
+      return Errors.error_json(500, ex)
     end
 
     response = JSON.build do |json|
@@ -178,14 +178,14 @@ module Invidious::Routes::API::V1::Misc
     env.response.content_type = "application/json"
     url = env.params.query["url"]?
 
-    return error_json(400, "Missing URL to resolve") if !url
+    return Errors.error_json(400, "Missing URL to resolve") if !url
 
     begin
       resolved_url = YoutubeAPI.resolve_url(url.as(String))
       endpoint = resolved_url["endpoint"]
       page_type = endpoint.dig?("commandMetadata", "webCommandMetadata", "webPageType").try &.as_s || ""
       if page_type == "WEB_PAGE_TYPE_UNKNOWN"
-        return error_json(400, "Unknown url")
+        return Errors.error_json(400, "Unknown url")
       end
 
       sub_endpoint = endpoint["watchEndpoint"]? || endpoint["browseEndpoint"]? || endpoint
@@ -204,7 +204,7 @@ module Invidious::Routes::API::V1::Misc
         post_id = nil
       end
     rescue ex
-      return error_json(500, ex)
+      return Errors.error_json(500, ex)
     end
     JSON.build do |json|
       json.object do
