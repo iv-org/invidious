@@ -35,7 +35,6 @@ module Invidious::Routes::API::V1::Channels
         # playlist doesnt exist.
         videos = [] of PlaylistVideo
       end
-      next_continuation = nil
     else
       begin
         videos, _ = Channel::Tabs.get_videos(channel, sort_by: sort_by)

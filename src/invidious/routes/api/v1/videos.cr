@@ -340,6 +340,9 @@ module Invidious::Routes::API::V1::Videos
     format ||= "json"
 
     action = env.params.query["action"]?
+    # 2026-09-14 TODO: Check if action is or can be used somewhere
+    # as is unused currently, but for some reason is it here.
+    # ameba:disable Lint/UselessAssign
     action ||= "action_get_comments"
 
     continuation = env.params.query["continuation"]?
