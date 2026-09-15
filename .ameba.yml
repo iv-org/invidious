@@ -7,7 +7,7 @@ Lint/UselessAssign:
   Excluded:
   - src/invidious.cr
   - src/invidious/helpers/errors.cr
-  - src/invidious/routes/**/*.cr
+  - src/invidious/routes/*.cr
 
 # Ignore false negative (if !db.query_one?...)
 Lint/UnreachableCode:
