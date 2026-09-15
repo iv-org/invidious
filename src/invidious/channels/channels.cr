@@ -21,6 +21,14 @@ struct ChannelVideo
   property live_now : Bool = false
   property premiere_timestamp : Time? = nil
   property views : Int64? = nil
+  @[DB::Field(converter: ChannelVideo::VideoTypeConverter)]
+  property video_type : VideoType = VideoType::Video
+
+  module VideoTypeConverter
+    def self.from_rs(rs)
+      return VideoType.parse(String.new(rs.read(Slice(UInt8))))
+    end
+  end
 
   def to_json(locale, json : JSON::Builder)
     json.object do
@@ -200,6 +208,8 @@ def fetch_channel(ucid, pull_all_videos : Bool)
   LOGGER.trace("fetch_channel: #{ucid} : Extracting videos from channel RSS feed")
   rss.xpath_nodes("//default:feed/default:entry", namespaces).each do |entry|
     video_id = entry.xpath_node("yt:videoId", namespaces).not_nil!.content
+    database_video = Invidious::Database::ChannelVideos.select([video_id])
+
     title = entry.xpath_node("default:title", namespaces).not_nil!.content
 
     published = Time.parse_rfc3339(
@@ -216,30 +226,46 @@ def fetch_channel(ucid, pull_all_videos : Bool)
       .xpath_node("media:group/media:community/media:statistics", namespaces)
       .try &.["views"]?.try &.to_i64? || 0_i64
 
-    channel_video = videos
-      .select(SearchVideo)
-      .select(&.id.== video_id)[0]?
+    # If there is no update for the video, only update the views
+    if database_video.size > 0 && updated == database_video[0].updated
+      video = database_video[0]
+      video.views = views
+    else
+      channel_video = videos
+        .select(SearchVideo)
+        .select(&.id.== video_id)[0]?
 
-    length_seconds = channel_video.try &.length_seconds
-    length_seconds ||= 0
+      # Not a video, either a short or a livestream
+      # Fetch individual for info
+      if channel_video.nil?
+        short_or_live = fetch_video(video_id, "")
+        video_type = short_or_live.video_type
+        length_seconds = short_or_live.length_seconds
+        live_now = short_or_live.live_now
+        premiere_timestamp = short_or_live.premiere_timestamp
+      else
+        video_type = VideoType::Video
+        length_seconds = channel_video.try &.length_seconds
+        live_now = channel_video.try &.badges.live_now?
+      end
 
-    live_now = channel_video.try &.badges.live_now?
-    live_now ||= false
+      length_seconds ||= 0
+      live_now ||= false
 
-    premiere_timestamp = channel_video.try &.premiere_timestamp
-
-    video = ChannelVideo.new({
-      id:                 video_id,
-      title:              title,
-      published:          published,
-      updated:            updated,
-      ucid:               ucid,
-      author:             author,
-      length_seconds:     length_seconds,
-      live_now:           live_now,
-      premiere_timestamp: premiere_timestamp,
-      views:              views,
-    })
+      video = ChannelVideo.new({
+        id:                 video_id,
+        title:              title,
+        published:          published,
+        updated:            updated,
+        ucid:               ucid,
+        author:             author,
+        length_seconds:     length_seconds,
+        live_now:           live_now,
+        premiere_timestamp: premiere_timestamp,
+        views:              views,
+        video_type:         video_type,
+      })
+    end
 
     LOGGER.trace("fetch_channel: #{ucid} : video #{video_id} : Updating or inserting video")
 
@@ -274,6 +300,7 @@ def fetch_channel(ucid, pull_all_videos : Bool)
           live_now:           video.badges.live_now?,
           premiere_timestamp: video.premiere_timestamp,
           views:              video.views,
+          video_type:         VideoType::Video
         })
 
         # We are notified of Red videos elsewhere (PubSub), which includes a correct published date,
