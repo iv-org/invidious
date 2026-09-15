@@ -6,6 +6,7 @@ RELEASE  := 1
 STATIC   := 0
 
 NO_DBG_SYMBOLS := 0
+SKIP_VERSION_CHECK := 0
 
 FLAGS ?=
 
@@ -27,6 +28,9 @@ ifeq ($(API_ONLY), 1)
   FLAGS += -Dapi_only
 endif
 
+ifeq ($(SKIP_VERSION_CHECK), 1)
+  FLAGS += -Dskip_version_check
+endif
 
 # -----------------------
 #  Main
@@ -103,11 +107,12 @@ help:
 	@echo ""
 	@echo "Build options available for this Makefile:"
 	@echo ""
-	@echo "  RELEASE          Make a release build            (Default: 1)"
-	@echo "  STATIC           Link libraries statically       (Default: 0)"
+	@echo "  RELEASE              Make a release build                     (Default: 1)"
+	@echo "  STATIC               Link libraries statically                (Default: 0)"
 	@echo ""
-	@echo "  API_ONLY         Build invidious without a GUI   (Default: 0)"
-	@echo "  NO_DBG_SYMBOLS   Strip debug symbols             (Default: 0)"
+	@echo "  API_ONLY             Build invidious without a GUI            (Default: 0)"
+	@echo "  NO_DBG_SYMBOLS       Strip debug symbols                      (Default: 0)"
+	@echo "  SKIP_VERSION_CHECK   Skips the Crystal compiler version check (Default: 0)"
 
 
 
