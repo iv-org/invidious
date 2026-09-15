@@ -51,7 +51,7 @@ module Invidious::Routes::Images
   end
 
   # ??? maybe also for storyboards?
-  def self.s_p_image(env)
+  def self.s_p_image(env, authority = "i9")
     id = env.params.url["id"]
     name = env.params.url["name"]
     url = env.request.resource
@@ -65,11 +65,21 @@ module Invidious::Routes::Images
     end
 
     begin
-      get_ytimg_pool("i9").client &.get(url, headers) do |resp|
+      get_ytimg_pool(authority).client &.get(url, headers) do |resp|
         return self.proxy_image(env, resp)
       end
     rescue ex
     end
+  end
+
+  # Both pl_c and tvfilm_banner use the same logic used in s_p_image(env)
+  # just with a different authority ("i").
+  def self.pl_c_image(env)
+    self.s_p_image(env, "i")
+  end
+
+  def self.tvfilm_banner_image(env)
+    self.s_p_image(env, "i")
   end
 
   def self.yts_image(env)
@@ -96,7 +106,7 @@ module Invidious::Routes::Images
           break
         end
 
-        proxy_file(response, env)
+        Helpers.proxy_file(response, env)
       end
     rescue ex
     end
@@ -148,6 +158,6 @@ module Invidious::Routes::Images
       return env.response.headers.delete("Transfer-Encoding")
     end
 
-    return proxy_file(response, env)
+    return Helpers.proxy_file(response, env)
   end
 end

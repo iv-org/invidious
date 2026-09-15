@@ -11,9 +11,9 @@
 <script id="pagination-data" type="application/json">
 <%=
 {
-   "next_page" => translate(locale, "Next page"),
-   "prev_page" => translate(locale, "Previous page"),
-   "is_rtl"    => locale_is_rtl?(locale)
+   "next_page" => I18n.translate(locale, "Next page"),
+   "prev_page" => I18n.translate(locale, "Previous page"),
+   "is_rtl"    => I18n.locale_is_rtl?(locale)
 }.to_pretty_json
 %>
 </script>

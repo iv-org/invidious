@@ -59,6 +59,7 @@ struct Preferences
   property default_playlist : String? = nil
   property hide_shorts : Bool = CONFIG.default_user_preferences.hide_shorts
   property hide_livestreams : Bool = CONFIG.default_user_preferences.hide_livestreams
+  property search_privacy : Bool = CONFIG.default_user_preferences.search_privacy
 
   module BoolToString
     def self.to_json(value : String, json : JSON::Builder)

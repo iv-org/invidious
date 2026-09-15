@@ -128,6 +128,8 @@ module Invidious::Comments
         json.field "comments" do
           json.array do
             contents.as_a.each do |node|
+              next if node["commentFilterContextViewModel"]?
+
               json.object do
                 if node["commentThreadRenderer"]?
                   node = node["commentThreadRenderer"]
@@ -155,17 +157,7 @@ module Invidious::Comments
                     json.field "authorUrl", "/channel/#{comment_author["channelId"].as_s}"
                     json.field "author", comment_author["displayName"].as_s
                     json.field "verified", comment_author["isVerified"].as_bool
-                    json.field "authorThumbnails" do
-                      json.array do
-                        comment_mutation.dig?("payload", "commentEntityPayload", "avatar", "image", "sources").try &.as_a.each do |thumbnail|
-                          json.object do
-                            json.field "url", thumbnail["url"]
-                            json.field "width", thumbnail["width"]
-                            json.field "height", thumbnail["height"]
-                          end
-                        end
-                      end
-                    end
+                    json.field "authorThumbnail", comment_author["avatarThumbnailUrl"].as_s
 
                     json.field "authorIsChannelOwner", comment_author["isCreator"].as_bool
                     json.field "isSponsor", (comment_author["sponsorBadgeUrl"]? != nil)
@@ -254,7 +246,7 @@ module Invidious::Comments
                 end
 
                 content_html = html_content || ""
-                json.field "content", html_to_content(content_html)
+                json.field "content", Helpers.html_to_content(content_html)
                 json.field "contentHtml", content_html
 
                 if published_text != nil
@@ -268,7 +260,7 @@ module Invidious::Comments
                   end
 
                   json.field "published", published.to_unix
-                  json.field "publishedText", translate(locale, "`x` ago", recode_date(published, locale))
+                  json.field "publishedText", I18n.translate(locale, "`x` ago", recode_date(published, locale))
                 end
 
                 if node_replies && !response["commentRepliesContinuation"]?

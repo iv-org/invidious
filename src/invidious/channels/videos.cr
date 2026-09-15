@@ -114,7 +114,11 @@ module Invidious::Channel::Tabs
         "2:embedded" => {
           "1:string" => "00000000-0000-0000-0000-000000000000",
         },
-        "4:varint" => sort_options_videos_short(sort_by),
+        "4:varint"   => sort_options_videos_short(sort_by),
+        "8:embedded" => {
+          "1:string" => "00000000-0000-0000-0000-000000000000",
+          "3:varint" => sort_options_videos_short(sort_by),
+        },
       },
     }
 
@@ -130,7 +134,11 @@ module Invidious::Channel::Tabs
         "2:embedded" => {
           "1:string" => "00000000-0000-0000-0000-000000000000",
         },
-        "4:varint" => sort_options_videos_short(sort_by),
+        "4:varint"   => sort_options_videos_short(sort_by),
+        "7:embedded" => {
+          "1:string" => "00000000-0000-0000-0000-000000000000",
+          "3:varint" => sort_options_videos_short(sort_by),
+        },
       },
     }
 
@@ -154,7 +162,11 @@ module Invidious::Channel::Tabs
         "2:embedded" => {
           "1:string" => "00000000-0000-0000-0000-000000000000",
         },
-        "5:varint" => sort_by_numerical,
+        "5:varint"   => sort_by_numerical,
+        "8:embedded" => {
+          "1:string" => "00000000-0000-0000-0000-000000000000",
+          "3:varint" => sort_by_numerical,
+        },
       },
     }
 

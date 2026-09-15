@@ -1,9 +1,13 @@
 name: invidious
-version: 2.20250913.0-dev
+version: 2.20260804.1-dev
 
 authors:
   - Invidious team <contact@invidious.io>
   - Contributors!
+
+targets:
+  invidious:
+    main: src/invidious.cr
 
 description: |
    Invidious is an alternative front-end to YouTube 

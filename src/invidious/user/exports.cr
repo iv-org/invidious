@@ -15,7 +15,7 @@ struct Invidious::User
               playlists.each do |playlist|
                 json.object do
                   json.field "title", playlist.title
-                  json.field "description", html_to_content(playlist.description_html)
+                  json.field "description", Helpers.html_to_content(playlist.description_html)
                   json.field "privacy", playlist.privacy.to_s
                   json.field "videos" do
                     json.array do

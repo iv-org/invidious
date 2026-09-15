@@ -10,7 +10,7 @@ module Invidious::Routes::Embed
         videos = get_playlist_videos(playlist, offset: offset)
         if videos.empty?
           url = "/playlist?list=#{plid}"
-          raise NotFoundException.new(translate(locale, "error_video_not_in_playlist", url))
+          raise NotFoundException.new(I18n.translate(locale, "error_video_not_in_playlist", url))
         end
 
         first_playlist_video = videos[0].as(PlaylistVideo)
@@ -71,7 +71,7 @@ module Invidious::Routes::Embed
           videos = get_playlist_videos(playlist, offset: offset)
           if videos.empty?
             url = "/playlist?list=#{plid}"
-            raise NotFoundException.new(translate(locale, "error_video_not_in_playlist", url))
+            raise NotFoundException.new(I18n.translate(locale, "error_video_not_in_playlist", url))
           end
 
           first_playlist_video = videos[0].as(PlaylistVideo)
@@ -122,7 +122,7 @@ module Invidious::Routes::Embed
     else nil # Continue
     end
 
-    params = process_video_params(env.params.query, preferences)
+    params = Invidious::Videos.process_video_params(env.params.query, preferences)
 
     user = env.get?("user").try &.as(User)
     if user
@@ -208,17 +208,6 @@ module Invidious::Routes::Embed
 
     if CONFIG.invidious_companion.present?
       invidious_companion = CONFIG.invidious_companion.sample
-      invidious_companion_urls = CONFIG.invidious_companion.reject(&.builtin_proxy).map do |companion|
-        uri =
-          "#{companion.public_url.scheme}://#{companion.public_url.host}#{companion.public_url.port ? ":#{companion.public_url.port}" : ""}"
-      end.join(" ")
-
-      if !invidious_companion_urls.empty?
-        env.response.headers["Content-Security-Policy"] =
-          env.response.headers["Content-Security-Policy"]
-            .gsub("media-src", "media-src #{invidious_companion_urls}")
-            .gsub("connect-src", "connect-src #{invidious_companion_urls}")
-      end
     end
 
     rendered "embed"

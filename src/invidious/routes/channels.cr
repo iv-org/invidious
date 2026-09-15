@@ -231,8 +231,10 @@ module Invidious::Routes::Channels
       env.redirect "/post/#{URI.encode_www_form(lb)}?ucid=#{URI.encode_www_form(ucid)}"
     end
 
-    thin_mode = env.params.query["thin_mode"]? || env.get("preferences").as(Preferences).thin_mode
-    thin_mode = thin_mode == "true"
+    preferences = env.get("preferences").as(Preferences)
+
+    thin_mode = env.params.query["thin_mode"]?
+    thin_mode = (thin_mode == "true") || preferences.thin_mode
 
     continuation = env.params.query["continuation"]?
 
@@ -349,10 +351,10 @@ module Invidious::Routes::Channels
     invidious_url_params.delete_all("user")
 
     begin
-      resolved_url = YoutubeAPI.resolve_url("https://youtube.com#{env.request.path}#{yt_url_params.size > 0 ? "?#{yt_url_params}" : ""}")
+      resolved_url = YoutubeAPI.resolve_url("https://www.youtube.com#{env.request.path}#{yt_url_params.size > 0 ? "?#{yt_url_params}" : ""}")
       ucid = resolved_url["endpoint"]["browseEndpoint"]["browseId"]
     rescue ex : InfoException | KeyError
-      return error_template(404, translate(locale, "This channel does not exist."))
+      return error_template(404, I18n.translate(locale, "This channel does not exist."))
     end
 
     selected_tab = env.params.url["tab"]?
@@ -431,7 +433,7 @@ module Invidious::Routes::Channels
     continuation = env.params.query["continuation"]?
 
     begin
-      channel = get_about_info(ucid, locale)
+      channel = get_about_info(ucid)
     rescue ex : ChannelRedirect
       return env.redirect env.request.resource.gsub(ucid, ex.channel_id)
     rescue ex : NotFoundException

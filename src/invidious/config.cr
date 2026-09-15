@@ -56,6 +56,7 @@ struct ConfigPreferences
   property save_player_pos : Bool = false
   @[YAML::Field(ignore: true)]
   property default_playlist : String? = nil
+  property search_privacy : Bool = false
 
   def to_tuple
     {% begin %}
@@ -66,11 +67,17 @@ struct ConfigPreferences
   end
 end
 
+# Outbound proxy configuration. The name is kept for config backwards
+# compatibility; `type` selects the protocol (HTTP CONNECT or SOCKS5).
 struct HTTPProxyConfig
   include YAML::Serializable
 
-  property user : String
-  property password : String
+  # Proxy protocol: "http" (HTTP CONNECT, the default), "socks5", or "socks5h".
+  # SOCKS5 resolves target hostnames on the proxy side (SOCKS5h semantics).
+  property type : String = "http"
+  # Credentials are optional: omit both for an unauthenticated proxy.
+  property user : String? = nil
+  property password : String? = nil
   property host : String
   property port : Int32
 end
@@ -122,6 +129,8 @@ class Config
   property hmac_key : String = ""
   # Domain to be used for links to resources on the site where an absolute URL is required
   property domain : String?
+  # Additional domain list that is going to be used for cookie domain validation
+  property alternative_domains : Array(String) = [] of String
   # Subscribe to channels using PubSubHubbub (requires domain, hmac_key)
   property use_pubsub_feeds : Bool | Int32 = false
   property popular_enabled : Bool = true
@@ -181,6 +190,22 @@ class Config
 
   # Playlist length limit
   property playlist_length_limit : Int32 = 500
+
+  # Disable easy to abuse API endpoints
+  property disable_abusable_api : Bool = false
+
+  property videojs : VideoJSConfig = VideoJSConfig.from_yaml("")
+
+  struct VideoJSConfig
+    include YAML::Serializable
+    include JSON::Serializable
+
+    # This are the default values that VideoJS uses.
+    # See `assets/videojs/video.js/video.js` file
+    # and search for `GOAL_BUFFER_LENGTH` and `MAX_GOAL_BUFFER_LENGTH`
+    property goal_buffer_length : Int32? = 30
+    property max_goal_buffer_length : Int32? = 60
+  end
 
   def disabled?(option)
     case disabled = CONFIG.disable_proxy

@@ -7,3 +7,11 @@
 /invidious
 /sentry
 /config/config.yml
+
+# direnv directory used for the Nix Flake.
+.direnv
+
+# Invidious object file that gets generated when compiling
+# Invidious with `--cross-compile` argument
+# Example: `crystal build src/invidious.cr --cross-compile`
+/invidious.o

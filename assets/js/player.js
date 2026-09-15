@@ -1,6 +1,7 @@
 'use strict';
 var player_data = JSON.parse(document.getElementById('player_data').textContent);
 var video_data = JSON.parse(document.getElementById('video_data').textContent);
+const CONFIG = JSON.parse(document.getElementById('config').textContent);
 
 var options = {
     liveui: true,
@@ -54,6 +55,14 @@ videojs.Vhs.xhr.beforeRequest = function(options) {
     return options;
 };
 
+// Buffer limits
+if (CONFIG.videojs.goal_buffer_length) {
+    videojs.Vhs.GOAL_BUFFER_LENGTH = CONFIG.videojs.goal_buffer_length;
+}
+if (CONFIG.videojs.max_goal_buffer_length) {
+    videojs.Vhs.MAX_GOAL_BUFFER_LENGTH = CONFIG.videojs.max_goal_buffer_length;
+}
+
 var player = videojs('player', options);
 
 player.on('error', function () {
@@ -104,14 +113,15 @@ if (video_data.params.quality === 'dash') {
  *
  * @param {String} url
  * @param {String} [base]
+ * @param {'t' | 'start'} param
  * @returns {URL} urlWithTimeArg
  */
-function addCurrentTimeToURL(url, base) {
+function addCurrentTimeToURL(url, base, param = 't') {
     var urlUsed = new URL(url, base);
     urlUsed.searchParams.delete('start');
     var currentTime = Math.ceil(player.currentTime());
     if (currentTime > 0)
-        urlUsed.searchParams.set('t', currentTime);
+        urlUsed.searchParams.set(param, currentTime);
     else if (urlUsed.searchParams.has('t'))
         urlUsed.searchParams.delete('t');
     return urlUsed;
@@ -132,7 +142,7 @@ var timeupdate_last_ts = 5;
 player.on('timeupdate', function () {
     // Only update once every second
     let current_ts = Math.floor(player.currentTime());
-    if (current_ts > timeupdate_last_ts) timeupdate_last_ts = current_ts;
+    if (current_ts != timeupdate_last_ts) timeupdate_last_ts = current_ts;
     else return;
 
     // YouTube links
@@ -143,11 +153,11 @@ player.on('timeupdate', function () {
             let base_url_yt_watch = elem_yt_watch.getAttribute('data-base-url');
             elem_yt_watch.href = addCurrentTimeToURL(base_url_yt_watch);
         }
-        
+
         let elem_yt_embed = document.getElementById('link-yt-embed');
         if (elem_yt_embed) {
             let base_url_yt_embed = elem_yt_embed.getAttribute('data-base-url');
-            elem_yt_embed.href = addCurrentTimeToURL(base_url_yt_embed);
+            elem_yt_embed.href = addCurrentTimeToURL(base_url_yt_embed, undefined, 'start');
         }
     }
 
@@ -160,11 +170,17 @@ player.on('timeupdate', function () {
         let base_url_iv_embed = elem_iv_embed.getAttribute('data-base-url');
         elem_iv_embed.href = addCurrentTimeToURL(base_url_iv_embed, domain);
     }
-    
+
     let elem_iv_other = document.getElementById('link-iv-other');
     if (elem_iv_other) {
         let base_url_iv_other = elem_iv_other.getAttribute('data-base-url');
         elem_iv_other.href = addCurrentTimeToURL(base_url_iv_other, domain);
+    }
+
+    let elem_iv_listen = document.getElementById('link-iv-listen');
+    if (elem_iv_listen) {
+        let base_url_iv_listen = elem_iv_listen.getAttribute('data-base-url');
+        elem_iv_listen.href = addCurrentTimeToURL(base_url_iv_listen, domain);
     }
 });
 
@@ -628,7 +644,7 @@ function toggle_caption_window() {
     player.textTrackSettings.setValues({ windowOpacity: options.windowOpacity[newIndex] });
     update_captions();
 }
-  
+
 function toggle_caption_opacity() {
     const numOptions = options.textOpacity.length;
     const textOpacity = player.textTrackSettings.getValues().textOpacity || '1';
@@ -733,7 +749,7 @@ addEventListener('keydown', function (e) {
 
         case '>': action = increase_playback_rate.bind(this, 1); break;
         case '<': action = increase_playback_rate.bind(this, -1); break;
-        
+
         case '=': action = increase_caption_size.bind(this, 1); break;
         case '-': action = increase_caption_size.bind(this, -1); break;
 

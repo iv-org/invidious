@@ -519,5 +519,8 @@
     "channel_tab_posts_label": "Дописи",
     "timeline_parse_error_placeholder_heading": "Неможливо розібрати елемент",
     "timeline_parse_error_show_technical_details": "Показати технічні подробиці",
-    "timeline_parse_error_placeholder_message": "Invidious зіткнувся з помилкою під час спроби розібрати цей елемент. Докладнішу інформацію читайте нижче:"
+    "timeline_parse_error_placeholder_message": "Invidious зіткнувся з помилкою під час спроби розібрати цей елемент. Докладнішу інформацію читайте нижче:",
+    "preferences_default_playlist": "Типовий список відтворення: ",
+    "preferences_default_playlist_none": "Типового списку відтворення не обрано",
+    "Livestreams": "Прямі трансляції"
 }

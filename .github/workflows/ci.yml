@@ -24,6 +24,10 @@ on:
       - .github/ISSUE_TEMPLATE/*
       - kubernetes/**
 
+      # Nix development files that are not used here.
+      - .envrc
+      - "nix/**"
+
 jobs:
   build:
 
@@ -43,12 +47,15 @@ jobs:
           - 1.16.3
           - 1.17.1
           - 1.18.2
+          - 1.19.2
+          - 1.20.3
+          - 1.21.0
         include:
           - crystal: nightly
             stable: false
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           submodules: true
 
@@ -58,12 +65,12 @@ jobs:
         shell: bash
 
       - name: Install Crystal
-        uses: crystal-lang/install-crystal@v1.9.1
+        uses: crystal-lang/install-crystal@v1.9.2
         with:
           crystal: ${{ matrix.crystal }}
 
       - name: Cache Shards
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ./lib
@@ -73,14 +80,14 @@ jobs:
       - name: Install Shards
         run: |
           if ! shards check; then
-            shards install
+            shards install --skip-postinstall --skip-executables
           fi
 
       - name: Run tests
         run: crystal spec
 
       - name: Build
-        run: crystal build --warnings all --error-on-warnings --error-trace src/invidious.cr
+        run: crystal build --warnings all --error-on-warnings --stats --time --progress --error-trace src/invidious.cr
 
   build-docker:
     strategy:
@@ -96,11 +103,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v6
-
-      - name: Use ARM64 Dockerfile if ARM64
-        if: ${{ matrix.name == 'ARM64' }}
-        run: sed -i 's/Dockerfile/Dockerfile.arm64/' docker-compose.yml
+      - uses: actions/checkout@v7
 
       - name: Build Docker
         run: docker compose build
@@ -128,18 +131,18 @@ jobs:
     continue-on-error: true
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           submodules: true
 
       - name: Install Crystal
         id: lint_step_install_crystal
-        uses: crystal-lang/install-crystal@v1.9.1
+        uses: crystal-lang/install-crystal@v1.9.2
         with:
-          crystal: latest
+          crystal: 1.20.3
 
       - name: Cache Shards
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ./lib

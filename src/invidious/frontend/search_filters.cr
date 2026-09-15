@@ -6,7 +6,7 @@ module Invidious::Frontend::SearchFilters
     return String.build(8000) do |str|
       str << "<div id='filters'>\n"
       str << "\t<details id='filters-collapse'>"
-      str << "\t\t<summary>" << translate(locale, "search_filters_title") << "</summary>\n"
+      str << "\t\t<summary>" << I18n.translate(locale, "search_filters_title") << "</summary>\n"
 
       str << "\t\t<div id='filters-box'><form action='/search' method='get'>\n"
 
@@ -25,7 +25,7 @@ module Invidious::Frontend::SearchFilters
 
       str << "\t\t\t<div id='filters-apply'>"
       str << "<button type='submit' class=\"pure-button pure-button-primary\">"
-      str << translate(locale, "search_filters_apply_button")
+      str << I18n.translate(locale, "search_filters_apply_button")
       str << "</button></div>\n"
 
       str << "\t\t</form></div>\n"
@@ -41,7 +41,7 @@ module Invidious::Frontend::SearchFilters
     str << "\t\t\t\t<div class=\"filter-column\"><fieldset>\n"
 
     str << "\t\t\t\t\t<legend><div class=\"filter-name underlined\">"
-    str << translate(locale, "search_filters_{{name}}_label")
+    str << I18n.translate(locale, "search_filters_{{name}}_label")
     str << "</div></legend>\n"
 
     str << "\t\t\t\t\t<div class=\"filter-options\">\n"
@@ -62,7 +62,7 @@ module Invidious::Frontend::SearchFilters
       str << '>'
 
       str << "<label for='filter-date-{{date}}'>"
-      str << translate(locale, "search_filters_date_option_{{date}}")
+      str << I18n.translate(locale, "search_filters_date_option_{{date}}")
       str << "</label></div>\n"
     {% end %}
   end
@@ -78,7 +78,7 @@ module Invidious::Frontend::SearchFilters
       str << '>'
 
       str << "<label for='filter-type-{{type}}'>"
-      str << translate(locale, "search_filters_type_option_{{type}}")
+      str << I18n.translate(locale, "search_filters_type_option_{{type}}")
       str << "</label></div>\n"
     {% end %}
   end
@@ -94,7 +94,7 @@ module Invidious::Frontend::SearchFilters
       str << '>'
 
       str << "<label for='filter-duration-{{duration}}'>"
-      str << translate(locale, "search_filters_duration_option_{{duration}}")
+      str << I18n.translate(locale, "search_filters_duration_option_{{duration}}")
       str << "</label></div>\n"
     {% end %}
   end
@@ -111,7 +111,7 @@ module Invidious::Frontend::SearchFilters
         str << '>'
 
         str << "<label for='filter-feature-{{feature}}'>"
-        str << translate(locale, "search_filters_features_option_{{feature}}")
+        str << I18n.translate(locale, "search_filters_features_option_{{feature}}")
         str << "</label></div>\n"
       {% end %}
     {% end %}
@@ -128,7 +128,7 @@ module Invidious::Frontend::SearchFilters
       str << '>'
 
       str << "<label for='filter-sort-{{sort}}'>"
-      str << translate(locale, "search_filters_sort_option_{{sort}}")
+      str << I18n.translate(locale, "search_filters_sort_option_{{sort}}")
       str << "</label></div>\n"
     {% end %}
   end

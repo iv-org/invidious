@@ -185,6 +185,7 @@ module Invidious::Routing
     get "/opensearch.xml", Routes::Search, :opensearch
     get "/results", Routes::Search, :results
     get "/search", Routes::Search, :search
+    post "/search", Routes::Search, :search
     get "/hashtag/:hashtag", Routes::Search, :hashtag
   end
 
@@ -222,6 +223,8 @@ module Invidious::Routing
     get "/s_p/:id/:name", Routes::Images, :s_p_image
     get "/yts/img/:name", Routes::Images, :yts_image
     get "/vi/:id/:name", Routes::Images, :thumbnails
+    get "/pl_c/:id/:name", Routes::Images, :pl_c_image
+    get "/tvfilm_banner/:id/:name", Routes::Images, :tvfilm_banner_image
   end
 
   def register_companion_routes
