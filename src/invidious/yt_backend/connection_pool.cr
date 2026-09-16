@@ -133,8 +133,8 @@ def make_client(url : URI, region = nil, force_resolve : Bool = false, force_you
 
   # ytimg.com does not contain any cookies, so we skip the youtube cookies
   # for that domain and subdomains (i9.ytimg.com, i.ytimg.com, etc)
-  yt = url.host.try &.ends_with?("youtube.com")
-  ytimg = url.host.try &.ends_with?("ytimg.com")
+  yt = url.host.try { |host| host == "youtube.com" || host.ends_with?(".youtube.com") }
+  ytimg = url.host.try { |host| host == "ytimg.com" || host.ends_with?(".ytimg.com") }
   youtube_domain = yt || ytimg
 
   client.before_request do |r|
