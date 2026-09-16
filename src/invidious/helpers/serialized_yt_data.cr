@@ -9,6 +9,9 @@ enum VideoBadges
   VR180
   VR360
   ClosedCaptions
+  # Appended rather than inserted: these are @[Flags] bit values, and reordering
+  # would silently change the meaning of any already-stored badge set.
+  Shorts
 end
 
 struct SearchVideo
@@ -133,6 +136,11 @@ struct SearchVideo
       json.field "isVr360", self.badges.vr360?
       json.field "is3d", self.badges.three_d?
       json.field "hasCaptions", self.badges.closed_captions?
+      # Whether YouTube served this as a Short. Worth stating outright: the
+      # duration cannot be used to infer it, because YouTube no longer reports a
+      # real one for Shorts and the parsers substitute an approximate 60s — so a
+      # genuine 60-second upload is otherwise indistinguishable from a Short.
+      json.field "isShort", self.badges.shorts?
     end
   end
 
