@@ -7,6 +7,7 @@
 /invidious
 /sentry
 /config/config.yml
+node_modules/
 
 # direnv directory used for the Nix Flake.
 .direnv

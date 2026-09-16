@@ -1,0 +1,895 @@
+/**
+ * SABR Player - Main player initialization for SABR streaming
+ *
+ * Re-engineered (from the kira-based POC) to use FreeTube's SABR engine:
+ * - Builds a data:application/sabr+json manifest from the youtube.js VideoInfo
+ * - Registers FreeTube's sabr: networking scheme (sabr_scheme_plugin.js)
+ * - Drives Shaka 5 via the application/sabr+json manifest parser
+ *
+ * PoToken is minted browser-side via bgutils-js BotGuard and proxied through
+ * the Invidious /proxy route for CSP compliance.
+ */
+
+'use strict';
+
+var SABRPlayer = (function () {
+  var VOLUME_KEY = 'youtube_player_volume';
+  var PLAYBACK_POSITION_KEY = 'youtube_playback_positions';
+  var SAVE_POSITION_INTERVAL_MS = 5000;
+
+  var DEFAULT_ABR_CONFIG = {
+    enabled: true,
+    // Adapt quality to the player element size (like FreeTube), NOT a hard 480p cap.
+    // A maxHeight:480 cap made shaka request the 480p format, which then set
+    // stickyResolution/lastManualSelectedResolution=480 in the SABR request, so the
+    // server LOCKED playback to a blurry 480p even after the cap was lifted.
+    restrictToElementSize: true,
+    switchInterval: 4,
+    useNetworkInformation: false
+  };
+
+  // TEMP: bypass the Onesie player-response fetch and use a plain WEB getInfo()
+  // instead. The Onesie path yields a ustreamerConfig that does NOT opt us into
+  // SABR contexts (server never sends SABR_CONTEXT_UPDATE / context 5), which
+  // breaks seeking. A normal WEB getInfo() (like FreeTube's createInnertube)
+  // returns the full ustreamerConfig. Onesie to be revisited separately.
+  var BYPASS_ONESIE = false;
+
+  // bg-helper-server /generate endpoint. Mints an ATTESTED (StreamProtectionStatus=1)
+  // PO token server-side, where jsdom presents a youtube.com origin. In-browser BotGuard
+  // (Invidious origin) can only get status 2 (pending), so it's used only as a fallback.
+  var BG_HELPER_URL = 'http://127.0.0.1:4416/generate';
+
+  // State
+  var player = null;
+  var ui = null;
+  var videoElement = null;
+  var shakaContainer = null;
+  var currentVideoId = '';
+  var isLive = false;
+  var innertube = null;
+  var clientConfig = null;
+  var savePositionInterval = null;
+  var playbackWebPoToken = null;
+  var coldStartToken = null;
+  var playbackWebPoTokenContentBinding = null;
+  var playbackWebPoTokenCreationLock = false;
+
+  var sabrStream = null;         // handle returned by setupSabrScheme
+  // Guards so per-player-instance listeners/filters are installed once, not once
+  // per reload (loadVideo re-runs on every SABR reload).
+  var requestFiltersInstalled = false;
+  var loadedListenerInstalled = false;
+  var keydownInstalled = false;
+  var sabrManifest = null;       // captured from player.getManifest() on 'loaded'
+  var currentLoadOptions = null; // for onReloadOnce -> re-run loadVideo
+  var reloadCount = 0;           // cap reloads to prevent infinite loop on blocked/throttled videos
+  // YouTube walls SABR playback at ~60s of content on some videos and only lets a
+  // fresh player response (new server_abr_streaming_url) through. FreeTube recovers
+  // by reloading the SABR player several times (observed: ~4 reloads before it sticks),
+  // so cap high enough to actually recover instead of giving up early — matching
+  // FreeTube's behaviour — while still bounding a truly blocked/throttled video.
+  var MAX_RELOADS = 10;
+
+  function getSavedVolume() {
+    try {
+      var v = localStorage.getItem(VOLUME_KEY);
+      return v ? parseFloat(v) : 1;
+    } catch (e) { return 1; }
+  }
+  function saveVolume(volume) {
+    try { localStorage.setItem(VOLUME_KEY, volume.toString()); } catch (e) {}
+  }
+  function getPlaybackPositions() {
+    try {
+      var p = localStorage.getItem(PLAYBACK_POSITION_KEY);
+      return p ? JSON.parse(p) : {};
+    } catch (e) { return {}; }
+  }
+  function savePlaybackPosition(videoId, time) {
+    if (!videoId || time < 1) return;
+    try {
+      var positions = getPlaybackPositions();
+      positions[videoId] = time;
+      localStorage.setItem(PLAYBACK_POSITION_KEY, JSON.stringify(positions));
+    } catch (e) {}
+  }
+  function getPlaybackPosition(videoId) {
+    var positions = getPlaybackPositions();
+    return positions[videoId] || 0;
+  }
+
+  function base64ToU8(base64) {
+    // base64ToU8 from googlevideo handles websafe, but for client config we need raw.
+    var binary = atob(base64);
+    var bytes = new Uint8Array(binary.length);
+    for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return bytes;
+  }
+
+  async function initInnertube() {
+    if (innertube) return innertube;
+    try {
+      console.info('[SABRPlayer]', 'Initializing InnerTube API');
+      if (typeof Innertube === 'undefined') throw new Error('youtubei.js not loaded');
+
+      // Set up Platform.shim.eval for URL deciphering (browser bundle lacks Jinter).
+      if (typeof Platform !== 'undefined' && Platform.shim) {
+        Platform.shim.eval = async function (data, env) {
+          var properties = [];
+          if (env.n) properties.push('n: exportedVars.nFunction("' + env.n + '")');
+          if (env.sig) properties.push('sig: exportedVars.sigFunction("' + env.sig + '")');
+          var code = data.output + '\nreturn { ' + properties.join(', ') + ' }';
+          return new Function(code)();
+        };
+        console.info('[SABRPlayer]', 'Platform.shim.eval configured for URL deciphering');
+      } else {
+        console.warn('[SABRPlayer]', 'Platform.shim not available, URL deciphering may fail');
+      }
+
+      innertube = await Innertube.create({
+        fetch: SABRHelpers.fetchWithProxy,
+        retrieve_player: true,
+        generate_session_locally: true
+      });
+
+      // NOTE: the in-browser BotguardService is NOT eagerly initialized anymore. The PO
+      // token is minted by the bg-helper-server (/generate), where jsdom presents a
+      // youtube.com origin and the token actually attests. In-browser BotGuard could only
+      // ever produce a StreamProtectionStatus=2 (pending) token AND fired a redundant
+      // GenerateIT request on every video. It remains only as an on-demand fallback
+      // (mintContentWebPO -> BotguardService.reinit) if the helper is unreachable.
+
+      // Preload the redirector URL.
+      try {
+        var redirectorResponse = await SABRHelpers.fetchWithProxy(
+          'https://redirector.googlevideo.com/initplayback?source=youtube&itag=0&pvi=0&pai=0&owc=yes&cmo:sensitive_content=yes&alr=yes&id=' + Math.round(Math.random() * 1e5),
+          { method: 'GET' }
+        );
+        var redirectorResponseUrl = await redirectorResponse.text();
+        if (redirectorResponseUrl.indexOf('https://') === 0) {
+          localStorage.setItem(SABRHelpers.REDIRECTOR_STORAGE_KEY, redirectorResponseUrl);
+        }
+      } catch (e) {
+        console.warn('[SABRPlayer]', 'Failed to preload redirector URL', e);
+      }
+
+      return innertube;
+    } catch (error) {
+      console.error('[SABRPlayer]', 'Failed to initialize Innertube', error);
+      return null;
+    }
+  }
+
+  async function fetchOnesieConfig() {
+    if (clientConfig && SABRHelpers.isConfigValid(clientConfig)) return clientConfig;
+    // Do NOT read a persisted (localStorage) config: its baseUrl embeds the egress IP
+    // that YouTube saw at fetch time, so a cached config goes stale when the proxy/egress
+    // IP changes and the CDN rejects the mismatched IP. Always refetch fresh.
+    try {
+      var tvConfigResponse = await SABRHelpers.fetchWithProxy(
+        'https://www.youtube.com/tv_config?action_get_config=true&client=lb4&theme=cl',
+        {
+          method: 'GET',
+          headers: { 'User-Agent': 'Mozilla/5.0 (ChromiumStylePlatform) Cobalt/Version' }
+        }
+      );
+      var tvConfigText = await tvConfigResponse.text();
+      var tvConfigJson = JSON.parse(tvConfigText.slice(4));
+      var webPlayerContextConfig = tvConfigJson.webPlayerContextConfig.WEB_PLAYER_CONTEXT_CONFIG_ID_LIVING_ROOM_WATCH;
+      var onesieHotConfig = webPlayerContextConfig.onesieHotConfig;
+
+      clientConfig = {
+        clientKeyData: base64ToU8(onesieHotConfig.clientKey),
+        keyExpiresInSeconds: onesieHotConfig.keyExpiresInSeconds,
+        encryptedClientKey: base64ToU8(onesieHotConfig.encryptedClientKey),
+        onesieUstreamerConfig: base64ToU8(onesieHotConfig.onesieUstreamerConfig),
+        baseUrl: onesieHotConfig.baseUrl,
+        timestamp: Date.now()
+      };
+      // Not persisted to localStorage on purpose (baseUrl embeds a now-stale-on-proxy-change ip).
+      return clientConfig;
+    } catch (error) {
+      console.error('[SABRPlayer]', 'Failed to fetch Onesie client config', error);
+      return null;
+    }
+  }
+
+  async function mintContentWebPO() {
+    if (!playbackWebPoTokenContentBinding || playbackWebPoTokenCreationLock) return;
+    playbackWebPoTokenCreationLock = true;
+    try {
+      coldStartToken = BotguardService.mintColdStartToken(playbackWebPoTokenContentBinding);
+
+      // Prefer the bg-helper-server: it mints an ATTESTED token (youtube.com-origin jsdom).
+      // The token is bound to our session's visitorData, so we send that.
+      var sessionCtx = innertube && innertube.session && innertube.session.context;
+      var visitorData = sessionCtx && sessionCtx.client && sessionCtx.client.visitorData;
+      if (visitorData) {
+        var helperToken = await fetchHelperPoToken(visitorData, currentVideoId, sessionCtx);
+        if (helperToken) {
+          playbackWebPoToken = helperToken;
+          console.info('[SABRPlayer]', 'WebPO token from bg-helper (attested):', helperToken.substring(0, 30) + '...');
+          return;
+        }
+      }
+
+      // Fallback: in-browser BotGuard (only StreamProtectionStatus=2/pending, no youtube.com origin).
+      console.warn('[SABRPlayer]', 'bg-helper unavailable, falling back to in-browser BotGuard (unattested)');
+      if (!BotguardService.isInitialized()) {
+        await BotguardService.reinit(innertube && innertube.session && innertube.session.context);
+      }
+      if (BotguardService.isInitialized()) {
+        playbackWebPoToken = await BotguardService.mintWebPoToken(decodeURIComponent(playbackWebPoTokenContentBinding));
+        console.info('[SABRPlayer]', 'WebPO token created (in-browser):', playbackWebPoToken ? playbackWebPoToken.substring(0, 30) + '...' : 'null');
+      } else {
+        console.warn('[SABRPlayer]', 'BotGuard still not initialized after reinit');
+      }
+    } catch (err) {
+      console.error('[SABRPlayer]', 'Error minting WebPO token', err);
+    } finally {
+      playbackWebPoTokenCreationLock = false;
+    }
+  }
+
+  // Fetch an attested PO token from the bg-helper-server, bound to the video id
+  // (content binding, like FreeTube). The full InnerTube session context is sent so the
+  // helper's att/get challenge is session-bound to our visitorData.
+  async function fetchHelperPoToken(visitorData, videoId, context) {
+    try {
+      var resp = await fetch(BG_HELPER_URL, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ visitorData: visitorData, videoId: videoId, context: context })
+      });
+      if (!resp.ok) {
+        console.warn('[SABRPlayer]', 'bg-helper /generate returned', resp.status);
+        return null;
+      }
+      var data = await resp.json();
+      return data && data.poToken ? data.poToken : null;
+    } catch (err) {
+      console.warn('[SABRPlayer]', 'bg-helper /generate fetch failed', err && err.message);
+      return null;
+    }
+  }
+
+  // Mint a brand new content-bound WebPO token for the current video. Used by the
+  // sabr: scheme when the server answers with StreamProtectionStatus 3
+  // (ATTESTATION_REQUIRED) and refuses to send any more media until we re-attest.
+  async function mintFreshPoToken() {
+    if (!currentVideoId) return null;
+    try {
+      // Re-mint via the bg-helper (attested), same as the initial mint. The in-browser
+      // BotguardService can't attest (no youtube.com origin) so it must NOT be used here —
+      // doing so threw BGError: PMD:Undefined and never satisfied the attestation.
+      var sessionCtx = innertube && innertube.session && innertube.session.context;
+      var visitorData = sessionCtx && sessionCtx.client && sessionCtx.client.visitorData;
+      var token = null;
+      if (visitorData) {
+        token = await fetchHelperPoToken(visitorData, currentVideoId, sessionCtx);
+      }
+      if (!token) {
+        // Fallback: in-browser (unattested) only if the helper is unreachable.
+        if (!BotguardService.isInitialized()) {
+          await BotguardService.reinit(sessionCtx);
+        }
+        if (BotguardService.isInitialized()) {
+          token = await BotguardService.mintWebPoToken(currentVideoId);
+        }
+      }
+      if (token) {
+        playbackWebPoToken = token;
+        console.info('[SABRPlayer]', 'Re-minted WebPO token after attestation request');
+      }
+      return token;
+    } catch (err) {
+      console.warn('[SABRPlayer]', 'Failed to re-mint WebPO token', err);
+      return null;
+    }
+  }
+
+  async function initializeShakaPlayer(containerElement, listenMode) {
+    if (!shaka.Player.isBrowserSupported()) {
+      throw new Error('Shaka Player is not supported in this browser');
+    }
+    shaka.polyfill.installAll();
+
+    shakaContainer = document.createElement('div');
+    // Start in the loading state so the spinner is visible during the initial SABR init.
+    shakaContainer.className = 'sabr-player-container is-loading';
+    shakaContainer.style.width = '100%';
+    shakaContainer.style.height = '100%';
+
+    videoElement = document.createElement('video');
+    videoElement.autoplay = true;
+    videoElement.style.width = '100%';
+    videoElement.style.height = '100%';
+    videoElement.style.backgroundColor = '#000';
+
+    shakaContainer.appendChild(videoElement);
+
+    // Loading spinner shown during our custom SABR init (Innertube/Onesie/PO token/load)
+    // and whenever the video is buffering. Shaka's own spinner only covers its own
+    // buffering phase (after player.load), not the pre-load init, so we drive our own.
+    var spinnerEl = document.createElement('div');
+    spinnerEl.className = 'sabr-loading-spinner';
+    shakaContainer.appendChild(spinnerEl);
+
+    containerElement.appendChild(shakaContainer);
+
+    player = new shaka.Player();
+    player.configure({
+      abr: DEFAULT_ABR_CONFIG,
+      streaming: {
+        // Match FreeTube's SABR streaming config exactly (values YouTube itself uses):
+        // large buffering goal, tiny rebuffering goal, big bufferBehind, and a doubled
+        // (60s) retry timeout to tolerate the larger SABR UMP responses.
+        bufferingGoal: 180,
+        rebufferingGoal: 0.02,
+        bufferBehind: 300,
+        retryParameters: { timeout: 60 * 1000 }
+      },
+      manifest: {
+        // disableVideo is read by our SabrManifestParser to skip video streams for audio-only/listen mode.
+        disableVideo: !!listenMode
+      }
+    });
+
+    videoElement.volume = getSavedVolume();
+    videoElement.addEventListener('volumechange', function () { saveVolume(videoElement.volume); });
+    videoElement.addEventListener('playing', function () {
+      player.configure('abr.restrictions.maxHeight', Infinity);
+      hideSpinner();
+    });
+    videoElement.addEventListener('waiting', function () { showSpinner(); });
+    videoElement.addEventListener('canplay', function () { hideSpinner(); });
+    videoElement.addEventListener('pause', function () {
+      if (currentVideoId) savePlaybackPosition(currentVideoId, videoElement.currentTime);
+    });
+
+    // Page-level keyboard shortcuts (installed once per SABRPlayer instance).
+    if (!keydownInstalled) {
+      document.addEventListener('keydown', handleKeydown);
+      keydownInstalled = true;
+    }
+
+    await player.attach(videoElement);
+
+    if (shaka.ui && shaka.ui.Overlay) {
+      ui = new shaka.ui.Overlay(player, shakaContainer, videoElement);
+      ui.configure({
+        overflowMenuButtons: ['captions', 'quality', 'language', 'playback_rate', 'loop', 'picture_in_picture']
+      });
+    }
+
+    return player;
+  }
+
+  // Route non-sabr: requests (captions, storyboards, image tiles) through the
+  // Invidious /proxy so they satisfy CSP. The sabr: scheme is handled
+  // separately by setupSabrScheme and also routes through /proxy internally.
+  function setupRequestFilters() {
+    var networkingEngine = player && player.getNetworkingEngine ? player.getNetworkingEngine() : null;
+    if (!networkingEngine) return;
+
+    networkingEngine.registerRequestFilter(function (type, request) {
+      var uri = request.uris[0];
+      if (!uri) return;
+      // sabr: is owned by the SABR scheme plugin; never rewrite it here.
+      if (uri.indexOf('sabr:') === 0) return;
+      try {
+        var url = new URL(uri);
+      } catch (e) { return; }
+
+      var isGoogleVideo = url.hostname.endsWith('.googlevideo.com') || url.hostname.indexOf('googlevideo') !== -1;
+      var isYouTube = url.hostname.endsWith('.youtube.com');
+      if (!isGoogleVideo && !isYouTube) return;
+
+      // Reuse the shared proxy helper so __host/__headers are set consistently.
+      var proxied = SABRHelpers.proxyUrl(url, request.headers || {});
+      proxied.searchParams.set('alr', 'yes');
+      request.uris[0] = proxied.toString();
+    });
+  }
+
+  // Map a youtube.js Format to the SabrManifest "formats" entry shape expected
+  // by sabr_manifest_parser.js (port of FreeTube's SabrManifestParser).
+  function mapFormatToManifestEntry(fmt) {
+    var audioTrack = fmt.audio_track || null;
+    var colorInfo = fmt.color_info || null;
+    return {
+      itag: fmt.itag,
+      lastModified: fmt.last_modified_ms,
+      mimeType: fmt.mime_type,
+      xtags: fmt.xtags,
+      bitrate: fmt.bitrate,
+      initRange: fmt.init_range,
+      indexRange: fmt.index_range,
+      width: fmt.width,
+      height: fmt.height,
+      frameRate: fmt.fps,
+      quality: fmt.quality,
+      language: fmt.language,
+      audioSampleRate: fmt.audio_sample_rate,
+      audioChannels: fmt.audio_channels,
+      isDrc: fmt.is_drc,
+      isVoiceBoost: fmt.is_vb,
+      isOriginal: fmt.is_original,
+      isDubbed: fmt.is_dubbed,
+      isAutoDubbed: fmt.is_auto_dubbed,
+      isDescriptive: fmt.is_descriptive,
+      isSecondary: fmt.is_secondary,
+      spatialAudio: !!(fmt.spatial_audio_type),
+      label: audioTrack ? audioTrack.display_name : undefined,
+      colorTransferCharacteristics: colorInfo ? colorInfo.transfer_characteristics : undefined,
+      colorPrimaries: colorInfo ? colorInfo.primaries : undefined
+    };
+  }
+
+  function buildCaptions(videoInfo) {
+    var out = [];
+    var tracks = videoInfo.captions && videoInfo.captions.caption_tracks;
+    if (!tracks) return out;
+    for (var i = 0; i < tracks.length; i++) {
+      var c = tracks[i];
+      var url;
+      try {
+        url = new URL(c.base_url);
+        url.searchParams.set('fmt', 'vtt');
+        url = url.toString();
+      } catch (e) {
+        url = c.base_url;
+      }
+      out.push({
+        id: c.vss_id,
+        url: url,
+        label: c.name ? c.name.text : (c.language_code || ''),
+        language: c.language_code || 'und',
+        mimeType: 'text/vtt'
+      });
+    }
+    return out;
+  }
+
+  // Rewrite a storyboard template URL to a same-origin URL so the seek-bar thumbnail tiles
+  // load under CSP img-src 'self'. Reuses Invidious's EXISTING storyboard proxy route (the
+  // one the classic video.js player uses), matching src/invidious/videos/storyboard.cr:
+  //   https://<authority>.ytimg.com/sb/<rest>  ->  /sb/<authority>/<rest>
+  // A raw string swap (not URL parsing) preserves the '$M' tile placeholder and the literal
+  // '$' inside the signature (sigh=rs$AOn...).
+  function proxyStoryboardUrl(templateUrl) {
+    var m = templateUrl.match(/^https?:\/\/(i\d?)\.ytimg\.com\/sb\/(.*)$/);
+    if (m) {
+      return '/sb/' + m[1] + '/' + m[2];
+    }
+    // Fallback for non-ytimg hosts: generic SABR /proxy (same-origin for CSP).
+    try {
+      var u = new URL(templateUrl);
+      return '/proxy' + u.pathname +
+        (u.search ? u.search + '&' : '?') +
+        '__host=' + encodeURIComponent(u.host) + '&__headers=%5B%5D';
+    } catch (e) {
+      return templateUrl;
+    }
+  }
+
+  function buildStoryboards(videoInfo) {
+    var out = [];
+    var sb = videoInfo.storyboards;
+    if (!sb || sb.type !== 'PlayerStoryboardSpec') return out;
+    var boards = sb.boards || [];
+    // Pick the highest-res storyboard (matches FreeTube behaviour).
+    var board = boards.length ? boards[boards.length - 1] : null;
+    if (!board) return out;
+    out.push({
+      templateUrl: proxyStoryboardUrl(board.template_url),
+      mimeType: 'image/webp',
+      columns: board.columns,
+      rows: board.rows,
+      thumbnailCount: board.thumbnail_count,
+      thumbnailWidth: board.thumbnail_width,
+      thumbnailHeight: board.thumbnail_height,
+      storyboardCount: board.storyboard_count,
+      interval: board.interval > 0 ? board.interval / 1000 : 0
+    });
+    return out;
+  }
+
+  function buildChapters(videoInfo) {
+    var out = [];
+    var ch = videoInfo.chapters;
+    if (!ch || !ch.get) return out;
+    try {
+      var list = ch.get();
+      if (!list || !list.length) return out;
+      for (var i = 0; i < list.length; i++) {
+        var c = list[i];
+        out.push({
+          title: c.title || '',
+          startSeconds: c.start || 0,
+          endSeconds: c.end || (i + 1 < list.length ? (list[i + 1].start || 0) : 0)
+        });
+      }
+    } catch (e) {
+      // chapters not available for this video - harmless
+    }
+    return out;
+  }
+
+  // Build a data:application/sabr+json manifest URI from a youtube.js VideoInfo.
+  // Port of FreeTube's Watch.js#createLocalSabrManifest.
+  function buildSabrManifest(videoInfo, poToken, clientInfo) {
+    var streamingData = videoInfo.streaming_data;
+    if (!streamingData || !streamingData.server_abr_streaming_url || !streamingData.adaptive_formats) {
+      return null;
+    }
+
+    var url = new URL(streamingData.server_abr_streaming_url);
+    url.searchParams.set('alr', 'yes');
+    if (videoInfo.cpn) url.searchParams.set('cpn', videoInfo.cpn);
+
+    var sabrData = {
+      url: url.toString(),
+      poToken: poToken || '',
+      ustreamerConfig: videoInfo.player_config &&
+        videoInfo.player_config.media_common_config &&
+        videoInfo.player_config.media_common_config.media_ustreamer_request_config &&
+        videoInfo.player_config.media_common_config.media_ustreamer_request_config.video_playback_ustreamer_config || '',
+      clientInfo: clientInfo
+    };
+    SABRPlayer._lastSabrData = sabrData;
+
+    var adaptiveFormats = streamingData.adaptive_formats;
+    var duration = Infinity;
+    for (var i = 0; i < adaptiveFormats.length; i++) {
+      var d = adaptiveFormats[i].approx_duration_ms;
+      if (typeof d === 'number' && d < duration) duration = d;
+    }
+    if (!isFinite(duration)) duration = (videoInfo.basic_info && videoInfo.basic_info.duration) ? videoInfo.basic_info.duration * 1000 : 0;
+    duration = duration / 1000;
+
+    var formats = [];
+    for (var j = 0; j < adaptiveFormats.length; j++) {
+      formats.push(mapFormatToManifestEntry(adaptiveFormats[j]));
+    }
+
+    var sabrManifest = {
+      duration: duration,
+      formats: formats,
+      captions: buildCaptions(videoInfo),
+      storyboards: buildStoryboards(videoInfo),
+      chapters: buildChapters(videoInfo)
+    };
+
+    return 'data:' + window.MANIFEST_TYPE_SABR + ',' + encodeURIComponent(JSON.stringify(sabrManifest));
+  }
+
+  function getPlayerWidth() { return videoElement ? videoElement.clientWidth : 1280; }
+  function getPlayerHeight() { return videoElement ? videoElement.clientHeight : 720; }
+  function getPlayer() { return player; }
+  function getManifest() { return sabrManifest; }
+
+  // Loading spinner: toggled via an 'is-loading' class on the player container.
+  function showSpinner() { if (shakaContainer) shakaContainer.classList.add('is-loading'); }
+  function hideSpinner() { if (shakaContainer) shakaContainer.classList.remove('is-loading'); }
+
+  // Global keyboard shortcuts (YouTube-style). Shaka's built-in shortcuts only fire when a
+  // control is focused, so we add a page-level handler. Ignored while typing in a field.
+  function handleKeydown(e) {
+    if (!player || !videoElement) return;
+    if (e.ctrlKey || e.altKey || e.metaKey) return;
+    var t = e.target;
+    var tag = (t && t.tagName) || '';
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test(tag) || (t && t.isContentEditable)) return;
+    var dur = isFinite(videoElement.duration) ? videoElement.duration : Infinity;
+    var handled = true;
+    switch (e.key) {
+      case ' ':
+      case 'k':
+        if (videoElement.paused) videoElement.play().catch(function () {}); else videoElement.pause();
+        break;
+      case 'ArrowLeft':
+        videoElement.currentTime = Math.max(0, videoElement.currentTime - 5);
+        break;
+      case 'ArrowRight':
+        videoElement.currentTime = Math.min(dur, videoElement.currentTime + 5);
+        break;
+      case 'j':
+        videoElement.currentTime = Math.max(0, videoElement.currentTime - 10);
+        break;
+      case 'l':
+        videoElement.currentTime = Math.min(dur, videoElement.currentTime + 10);
+        break;
+      case 'ArrowUp':
+        videoElement.volume = Math.min(1, videoElement.volume + 0.05);
+        break;
+      case 'ArrowDown':
+        videoElement.volume = Math.max(0, videoElement.volume - 0.05);
+        break;
+      case 'm':
+        videoElement.muted = !videoElement.muted;
+        break;
+      case 'f':
+        if (document.fullscreenElement) { document.exitFullscreen(); }
+        else if (shakaContainer && shakaContainer.requestFullscreen) { shakaContainer.requestFullscreen(); }
+        break;
+      default:
+        // number keys 0-9 -> seek to that fraction of the video
+        if (e.key >= '0' && e.key <= '9' && isFinite(dur)) {
+          videoElement.currentTime = dur * (parseInt(e.key, 10) / 10);
+        } else {
+          handled = false;
+        }
+    }
+    if (handled) e.preventDefault();
+  }
+
+  function wireSabrStream(loadFn) {
+    if (!sabrStream) return;
+    sabrStream.onBackoffRequested(function (info) {
+      var ms = info && info.backoffMs ? info.backoffMs : 0;
+      console.warn('[SABRPlayer] SABR backoff requested:', ms, 'ms');
+      var toast = document.querySelector('.sabr-backoff-toast');
+      if (!toast && shakaContainer) {
+        toast = document.createElement('div');
+        toast.className = 'sabr-backoff-toast';
+        toast.style.cssText = 'position:absolute;bottom:48px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.75);color:#fff;padding:6px 12px;border-radius:4px;font-size:13px;pointer-events:none;z-index:10';
+        shakaContainer.appendChild(toast);
+      }
+      if (toast) {
+        toast.textContent = 'SABR throttled by YouTube, retrying in ' + (ms / 1000).toFixed(1) + 's…';
+        clearTimeout(toast._t);
+        toast._t = setTimeout(function () { if (toast.parentNode) toast.parentNode.removeChild(toast); }, Math.max(ms + 500, 2000));
+      }
+    });
+    sabrStream.onReloadOnce(function () {
+      reloadCount++;
+      if (reloadCount >= MAX_RELOADS) {
+        console.error('[SABRPlayer] SABR reload limit reached; giving up on video', currentVideoId);
+        if (shakaContainer) {
+          var errDiv = document.createElement('div');
+          errDiv.className = 'sabr-error-display';
+          errDiv.innerHTML = '<p>This video is currently unavailable via SABR.</p>' +
+            '<p>YouTube is throttling this request.</p>' +
+            '<p><a href="?quality=dash">Try DASH player instead</a></p>';
+          shakaContainer.appendChild(errDiv);
+        }
+        return;
+      }
+      console.warn('[SABRPlayer] SABR reload requested by server; re-loading video (attempt ' + reloadCount + '/' + MAX_RELOADS + ')');
+      // Match FreeTube's reloadView(): re-fetch with a FRESH innertube session
+      // (new visitorData) and a re-attested BotGuard, instead of reusing the same
+      // session identity. The 60s SABR wall is tied to the session/streaming
+      // context, so a fresh session is what actually lets the reload recover.
+      var resumeAt = (videoElement && isFinite(videoElement.currentTime)) ? videoElement.currentTime : undefined;
+      var wasPaused = !!(videoElement && videoElement.paused);
+      innertube = null;
+      clientConfig = null;
+      playbackWebPoToken = null;
+      coldStartToken = null;
+      try { BotguardService.dispose(); } catch (e) {}
+      var reloadOptions = Object.assign({}, currentLoadOptions || {});
+      if (resumeAt !== undefined && resumeAt > 1) reloadOptions.startTime = resumeAt;
+      // Don't force playback if the user had paused: a server-requested reload should
+      // resume at the same position AND keep the paused state (not "play again").
+      reloadOptions.startPaused = wasPaused;
+      if (currentVideoId && loadFn) loadFn(currentVideoId, shakaContainer, reloadOptions);
+    });
+  }
+
+  async function loadVideo(videoId, containerElement, options) {
+    options = options || {};
+    if (videoId !== currentVideoId) reloadCount = 0;
+    currentVideoId = videoId;
+    currentLoadOptions = options;
+    playbackWebPoToken = null;
+    playbackWebPoTokenContentBinding = videoId;
+    showSpinner(); // re-show on reloads (container already exists)
+
+    try {
+      // Start Shaka player init (DOM + polyfills) in parallel with network init.
+      var shakaPromise;
+      if (!player) {
+        requestFiltersInstalled = false;
+        loadedListenerInstalled = false;
+        shakaPromise = initializeShakaPlayer(containerElement, options.listen);
+      } else {
+        player.configure('abr', DEFAULT_ABR_CONFIG);
+        player.configure('manifest.disableVideo', !!options.listen);
+        shakaPromise = Promise.resolve();
+      }
+
+      // Network init chain: Innertube → Onesie config → PoToken.
+      var netPromise = (async function () {
+        if (!innertube) {
+          innertube = await initInnertube();
+          if (!innertube) throw new Error('Failed to initialize Innertube');
+        }
+        if (!clientConfig) {
+          await fetchOnesieConfig();
+        }
+        // Mint a content-bound PoToken before getInfo so streaming_data includes
+        // the server_abr_streaming_url and so the SABR requests authenticate.
+        try { await mintContentWebPO(); } catch (e) { console.warn('[SABRPlayer] poToken mint failed, continuing', e); }
+      })();
+
+      await Promise.all([shakaPromise, netPromise]);
+      var poToken = playbackWebPoToken || coldStartToken || '';
+      if (!requestFiltersInstalled) {
+        setupRequestFilters();
+        requestFiltersInstalled = true;
+      }
+
+      // Fetch the player response through Onesie (WEB client) so the SABR
+      // streaming URL isn't bound to the proxy's egress IP. Falls back to a
+      // plain getInfo() if the onesie path is unavailable. Media still flows
+      // over SABR (sabr_scheme_plugin.js) either way.
+      var videoInfo;
+      try {
+        if (BYPASS_ONESIE) {
+          throw new Error('Onesie bypassed (BYPASS_ONESIE) - using plain WEB getInfo');
+        }
+        if (typeof window.fetchOnesiePlayerResponse !== 'function' || !window.YT || !window.YT.VideoInfo) {
+          throw new Error('Onesie support not loaded');
+        }
+        var playerResponse = await window.fetchOnesiePlayerResponse(innertube, videoId, poToken || undefined, clientConfig);
+        videoInfo = new window.YT.VideoInfo(
+          [{ success: true, status_code: 200, data: playerResponse }],
+          innertube.actions,
+          SABRHelpers.generateRandomString(16)
+        );
+        console.info('[SABRPlayer]', 'Player response fetched via Onesie (WEB)');
+      } catch (onesieErr) {
+        console.warn('[SABRPlayer]', 'Onesie player request failed, falling back to getInfo:', onesieErr);
+        videoInfo = await innertube.getInfo(videoId, { po_token: poToken || undefined });
+      }
+      if (!videoInfo || !videoInfo.playability_status || videoInfo.playability_status.status !== 'OK') {
+        var reason = (videoInfo && videoInfo.playability_status && videoInfo.playability_status.reason) || 'Unknown error';
+        throw new Error('Video unavailable: ' + reason);
+      }
+      isLive = !!(videoInfo.basic_info && videoInfo.basic_info.is_live);
+
+      var streamingData = videoInfo.streaming_data;
+      if (!streamingData) throw new Error('No streaming data available');
+
+      // Derive clientInfo from the innertube session (matches FreeTube's local.js).
+      var ctxClient = innertube.session && innertube.session.context && innertube.session.context.client;
+      var clientName = ctxClient ? ctxClient.clientName : 'ANDROID';
+      var clientInfo = {
+        clientName: (typeof Constants !== 'undefined' && Constants.CLIENT_NAME_IDS && Constants.CLIENT_NAME_IDS[clientName]) || 3,
+        clientVersion: ctxClient ? ctxClient.clientVersion : (Constants.CLIENTS && Constants.CLIENTS.ANDROID ? Constants.CLIENTS.ANDROID.VERSION : '19.09.37'),
+        osName: ctxClient ? ctxClient.osName : 'Android',
+        osVersion: ctxClient ? ctxClient.osVersion : '14'
+      };
+
+      var manifestUri;
+      if (isLive) {
+        // Live: don't route through the SABR parser yet; use HLS/DASH.
+        manifestUri = streamingData.hls_manifest_url || streamingData.dash_manifest_url;
+        if (streamingData.hls_manifest_url) {
+          if (innertube.session && innertube.session.player && innertube.session.player.decipher) {
+            try { streamingData.hls_manifest_url = await innertube.session.player.decipher(streamingData.hls_manifest_url); } catch (e) {}
+          }
+          manifestUri = streamingData.hls_manifest_url;
+        }
+      } else {
+        if (streamingData.server_abr_streaming_url && innertube.session && innertube.session.player && innertube.session.player.decipher) {
+          try {
+            streamingData.server_abr_streaming_url = await innertube.session.player.decipher(streamingData.server_abr_streaming_url);
+          } catch (e) {
+            console.warn('[SABRPlayer] Failed to decipher server_abr_streaming_url', e);
+          }
+        }
+
+        manifestUri = buildSabrManifest(videoInfo, poToken, clientInfo);
+        if (!manifestUri) {
+          // No SABR URL available - fall back to DASH.
+          var dashManifest = await videoInfo.toDash({ manifest_options: { captions_format: 'vtt', include_thumbnails: false } });
+          manifestUri = 'data:application/dash+xml;base64,' + btoa(dashManifest);
+        }
+      }
+
+      if (!manifestUri) throw new Error('Could not find a valid manifest URI');
+
+      // Register the sabr: scheme before loading (idempotent re-registration is fine).
+      if (!isLive && window.setupSabrScheme && SABRPlayer._lastSabrData) {
+        if (sabrStream) {
+          try { sabrStream.cleanup(); } catch (e) {}
+        }
+        sabrStream = window.setupSabrScheme(
+          SABRPlayer._lastSabrData, getPlayer, getManifest, getPlayerWidth, getPlayerHeight, mintFreshPoToken
+        );
+        wireSabrStream(loadVideo);
+      }
+
+      // Capture the parsed manifest once Shaka has loaded it, so the sabr:
+      // scheme plugin can read variant/segment indices from it. Install once per
+      // player instance (loadVideo re-runs on every reload).
+      if (!loadedListenerInstalled) {
+        player.addEventListener('loaded', function () {
+          if (typeof player.getManifest === 'function') {
+            sabrManifest = player.getManifest();
+          }
+        });
+        loadedListenerInstalled = true;
+      }
+
+      // Default to the ORIGINAL audio language (e.g. English), not a dubbed track.
+      // Without a preferredAudioLanguage, shaka picks the first variant (often a dub);
+      // it doesn't honor our `primary`/original flag on its own. Derive the original
+      // language from the adaptive format flagged is_original and set it as preferred.
+      if (!isLive && streamingData.adaptive_formats) {
+        var originalAudioLang = null;
+        for (var afi = 0; afi < streamingData.adaptive_formats.length; afi++) {
+          var af = streamingData.adaptive_formats[afi];
+          if (af.is_original && af.language) { originalAudioLang = af.language; break; }
+        }
+        if (originalAudioLang) {
+          try { player.configure('preferredAudioLanguage', originalAudioLang); } catch (e) {}
+        }
+      }
+
+      var startTime = options.startTime;
+      if (startTime === undefined && options.savePlayerPos !== false) {
+        startTime = getPlaybackPosition(videoId);
+      }
+
+      var mimeType = (!isLive && manifestUri.indexOf('data:' + window.MANIFEST_TYPE_SABR) === 0)
+        ? window.MANIFEST_TYPE_SABR
+        : undefined;
+      await player.load(manifestUri, isLive ? undefined : startTime, mimeType);
+
+      // Don't auto-play on a reload that happened while the user had the video paused
+      // (options.startPaused set by the SABR reload handler).
+      if (!options.startPaused) {
+        videoElement.play().catch(function (err) {
+          if (err.name === 'NotAllowedError') console.warn('[SABRPlayer]', 'Autoplay was prevented by the browser');
+        });
+      }
+
+      if (savePositionInterval) clearInterval(savePositionInterval);
+      savePositionInterval = setInterval(function () {
+        if (videoElement && currentVideoId && !videoElement.paused) {
+          savePlaybackPosition(currentVideoId, videoElement.currentTime);
+        }
+      }, SAVE_POSITION_INTERVAL_MS);
+
+      return { player: player, videoElement: videoElement, videoInfo: videoInfo };
+    } catch (error) {
+      console.error('[SABRPlayer]', 'Error loading video:', error);
+      hideSpinner();
+      throw error;
+    }
+  }
+
+  async function dispose() {
+    if (savePositionInterval) { clearInterval(savePositionInterval); savePositionInterval = null; }
+    if (keydownInstalled) { document.removeEventListener('keydown', handleKeydown); keydownInstalled = false; }
+    if (videoElement && currentVideoId) savePlaybackPosition(currentVideoId, videoElement.currentTime);
+
+    if (sabrStream) { try { sabrStream.cleanup(); } catch (e) {} sabrStream = null; }
+    if (player) { await player.destroy(); player = null; }
+    if (ui) { ui.destroy(); ui = null; }
+    if (shakaContainer && shakaContainer.parentNode) shakaContainer.parentNode.removeChild(shakaContainer);
+
+    videoElement = null;
+    shakaContainer = null;
+    currentVideoId = '';
+    sabrManifest = null;
+  }
+
+  function getPlayerInstance() { return player; }
+  function getVideoElement() { return videoElement; }
+
+  return {
+    loadVideo: loadVideo,
+    dispose: dispose,
+    getPlayer: getPlayerInstance,
+    getVideoElement: getVideoElement,
+    initInnertube: initInnertube,
+    fetchOnesieConfig: fetchOnesieConfig
+  };
+})();
+
+window.SABRPlayer = SABRPlayer;
