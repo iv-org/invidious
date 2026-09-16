@@ -124,9 +124,11 @@ module Invidious::Routes::Account
     end
 
     view_name = "subscriptions_#{sha256(user.email)}"
-    Invidious::Database::Users.delete(user)
-    Invidious::Database::SessionIDs.delete(email: user.email)
-    PG_DB.exec("DROP MATERIALIZED VIEW #{view_name}")
+    PG_DB.transaction do |tx|
+      Invidious::Database::Users.delete(user, conn: tx.connection)
+      Invidious::Database::SessionIDs.delete(email: user.email, conn: tx.connection)
+      tx.connection.exec("DROP MATERIALIZED VIEW #{view_name}")
+    end
 
     env.request.cookies.each do |cookie|
       cookie.expires = Time.utc(1990, 1, 1)
