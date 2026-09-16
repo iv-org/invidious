@@ -104,7 +104,7 @@ struct CompanionConnectionPool
   end
 end
 
-def add_yt_headers(request)
+def add_yt_headers(request, no_cookies)
   request.headers.delete("User-Agent") if request.headers["User-Agent"] == "Crystal"
   request.headers["User-Agent"] ||= "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"
 
@@ -112,10 +112,12 @@ def add_yt_headers(request)
   request.headers["Accept"] ||= "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
   request.headers["Accept-Language"] ||= "en-us,en;q=0.5"
 
-  # Preserve original cookies and add new YT consent cookie for EU servers
-  request.headers["Cookie"] = "#{request.headers["cookie"]?}; CONSENT=PENDING+#{Random.rand(100..999)}"
-  if !CONFIG.cookies.empty?
-    request.headers["Cookie"] = "#{(CONFIG.cookies.map { |c| "#{c.name}=#{c.value}" }).join("; ")}; #{request.headers["cookie"]?}"
+  unless no_cookies
+    # Preserve original cookies and add new YT consent cookie for EU servers
+    request.headers["Cookie"] = "#{request.headers["cookie"]?}; CONSENT=PENDING+#{Random.rand(100..999)}"
+    if !CONFIG.cookies.empty?
+      request.headers["Cookie"] = "#{(CONFIG.cookies.map { |c| "#{c.name}=#{c.value}" }).join("; ")}; #{request.headers["cookie"]?}"
+    end
   end
 end
 
@@ -129,7 +131,16 @@ def make_client(url : URI, region = nil, force_resolve : Bool = false, force_you
     client.family = Socket::Family::INET if client.family == Socket::Family::UNSPEC
   end
 
-  client.before_request { |r| add_yt_headers(r) } if url.host.try &.ends_with?("youtube.com") || force_youtube_headers
+  # ytimg.com does not contain any cookies, so we skip the youtube cookies
+  # for that domain and subdomains (i9.ytimg.com, i.ytimg.com, etc)
+  yt = url.host.try { |host| host == "youtube.com" || host.ends_with?(".youtube.com") }
+  ytimg = url.host.try { |host| host == "ytimg.com" || host.ends_with?(".ytimg.com") }
+  youtube_domain = yt || ytimg
+
+  client.before_request do |r|
+    add_yt_headers(r, ytimg) if youtube_domain || force_youtube_headers
+  end
+
   client.read_timeout = 10.seconds
   client.connect_timeout = 10.seconds
 
