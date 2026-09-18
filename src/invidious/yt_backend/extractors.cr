@@ -363,10 +363,7 @@ private module Parsers
       plid = item_contents.dig?("navigationEndpoint", "commandMetadata", "webCommandMetadata", "url").try &.as_s.gsub("/show/VL", "").split("?sbp")[0] || ""
       author_verified = has_verified_badge?(item_contents["ownerBadges"]?)
 
-      video_count_node = item_contents.dig?("thumbnaiext")
-      video_count_node ||= item_contents.dig?("thumbnailOverlays", 0, "thumbnailOverlayBottomPanelRenderer", "text", "runs", 0, "text")
-
-      video_count = video_count_node.try(&.as_s.to_i) || 0
+      video_count = item_contents.dig?("thumbnailOverlays", 0, "thumbnailOverlayBottomPanelRenderer", "text", "runs", 0, "text").try(&.as_s.to_i) || 0
       playlist_thumbnail = HelperExtractors.get_thumbnails(item_contents.dig("thumbnailRenderer", "showCustomThumbnailRenderer"))
 
       SearchPlaylist.new({
