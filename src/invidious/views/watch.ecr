@@ -391,8 +391,16 @@ we're going to need to do it here in order to allow for translations.
                                 <div class="pure-u-14-24">
                                     <% if !rv["ucid"].empty? %>
                                         <b style="width:100%"><a href="/channel/<%= rv["ucid"] %>"><%= rv["author"]? %><% if rv["author_verified"]? == "true" %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></a></b>
-                                    <% else %>
+                                    <% elsif rv["ucid"].empty? && !rv["author"].empty? %>
                                         <b style="width:100%"><%= rv["author"]? %><% if rv["author_verified"]? == "true" %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></b>
+                                    <% else %>
+                                        <b style="width:100%">
+                                           <% if author_list = JSON.parse(rv["author_list"]).as_a? %>
+                                                <% author_list.each_with_index do |author_item, index| %>
+                                                   <a href="/channel/<%= author_item["ucid"].as_s? || "" %>"><%= author_item["username"].as_s? || "" %><% if rv["author_verified"]? == "true" %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></a><% if index < author_list.size - 1 %>, <% end %>
+                                               <% end %>
+                                           <% end %>
+                                       </b>
                                     <% end %>
                                 </div>
 
