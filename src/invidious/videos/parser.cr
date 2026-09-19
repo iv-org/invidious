@@ -31,10 +31,15 @@ module Invidious::Videos::Parser
     # Multi-creator ("collab") videos split the byline into several runs and
     # the channel link isn't always attached to the first one, which left
     # ucid empty and the related-video card without an author hyperlink (#5722).
-    # Scan every byline run for a browse id instead of only the first one.
+    # Fall back to the first run that carries a browse id, keeping author and
+    # ucid a matched pair so the displayed name always matches the linked channel.
     if ucid.try(&.empty?) && (byline_runs = (related["shortBylineText"]? || related["longBylineText"]?)
         .try &.dig?("runs").try &.as_a)
-      ucid = byline_runs.map { |run| HelperExtractors.get_browse_id(run) }.find { |id| !id.empty? }
+      matched = byline_runs.find { |run| !HelperExtractors.get_browse_id(run).empty? }
+      if matched
+        author = matched.dig?("text")
+        ucid = HelperExtractors.get_browse_id(matched)
+      end
     end
 
     short_view_count = related.try do |r|
