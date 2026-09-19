@@ -51,8 +51,43 @@ module Invidious::Videos::Parser
       "length_seconds"   => JSON::Any.new(length || "0"),
       "short_view_count" => JSON::Any.new(short_view_count || "0"),
       "author_verified"  => JSON::Any.new(author_verified),
+      "author_channels"  => JSON::Any.new(parse_related_authors(related).to_json),
       "published"        => JSON::Any.new(published || ""),
     }
+  end
+
+  def parse_related_authors(related : JSON::Any) : Array(Hash(String, String))
+    authors = [] of Hash(String, String)
+    runs = (related["shortBylineText"]? || related["longBylineText"]?).try &.dig?("runs").try &.as_a
+    return authors unless runs
+
+    runs.each do |run|
+      items = run.dig?("navigationEndpoint", "showDialogCommand", "panelLoadingStrategy",
+        "inlineContent", "dialogViewModel", "customContent", "listViewModel", "listItems")
+      if items
+        items.as_a.each do |item|
+          next unless creator = item["listItemViewModel"]?
+          next unless name = creator.dig?("title", "content").try &.as_s
+
+          ucid = creator.dig?("rendererContext", "commandContext", "onTap", "innertubeCommand",
+            "browseEndpoint", "browseId").try &.as_s
+          verified = creator.dig?("title", "attachmentRuns").try &.as_a.any? do |attachment|
+            sources = attachment.dig?("element", "type", "imageType", "image", "sources")
+            sources.try &.as_a.any? { |source| source.dig?("clientResource", "imageName") == "CHECK_CIRCLE_FILLED" }
+          end
+          authors << {"name" => name, "ucid" => ucid || "", "verified" => (!!verified).to_s}
+        end
+      else
+        ucid = HelperExtractors.get_browse_id(run)
+        next if ucid.empty?
+        next unless name = run["text"]?.try &.as_s
+
+        verified = runs.size == 1 && has_verified_badge?(related["ownerBadges"]?)
+        authors << {"name" => name, "ucid" => ucid, "verified" => verified.to_s}
+      end
+    end
+
+    return authors
   end
 
   def extract_video_info(video_id : String)

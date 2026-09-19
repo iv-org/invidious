@@ -1,0 +1,14 @@
+<%-
+  authors = rv["author_channels"]?.try { |value| Array(Hash(String, String)).from_json(value) } || [] of Hash(String, String)
+  if authors.empty?
+    authors << {"name" => rv["author"]? || "", "ucid" => rv["ucid"], "verified" => rv["author_verified"]? || "false"}
+  end
+-%>
+<b style="width:100%">
+    <%- authors.each_with_index do |author, index| -%>
+        <%- if index > 0 -%>, <% end -%>
+        <%- unless author["ucid"].empty? -%><a href="/channel/<%= HTML.escape(author["ucid"]) %>"><% end -%>
+        <%= HTML.escape(author["name"]) %><% if author["verified"] == "true" %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end -%>
+        <%- unless author["ucid"].empty? -%></a><% end -%>
+    <%- end -%>
+</b>
