@@ -1,0 +1,43 @@
+{
+  "videoId": "collaboration",
+  "title": {"simpleText": "A collaboration"},
+  "shortBylineText": {
+    "runs": [{
+      "text": "Alpha & Friends et Beta <Live>",
+      "navigationEndpoint": {
+        "showDialogCommand": {
+          "panelLoadingStrategy": {
+            "inlineContent": {
+              "dialogViewModel": {
+                "header": {"dialogHeaderViewModel": {"headline": {"content": "Collaborateurs"}}},
+                "customContent": {
+                  "listViewModel": {
+                    "listItems": [
+                      {"listItemViewModel": {
+                        "title": {
+                          "content": "Alpha & Friends",
+                          "attachmentRuns": [{"element": {"type": {"imageType": {"image": {"sources": [
+                            {"clientResource": {"imageName": "CHECK_CIRCLE_FILLED"}}
+                          ]}}}}}]
+                        },
+                        "rendererContext": {"commandContext": {"onTap": {"innertubeCommand": {
+                          "browseEndpoint": {"browseId": "UC-alpha"}
+                        }}}}
+                      }},
+                      {"listItemViewModel": {
+                        "title": {"content": "Beta <Live>"},
+                        "rendererContext": {"commandContext": {"onTap": {"innertubeCommand": {
+                          "browseEndpoint": {"browseId": "UC-beta"}
+                        }}}}
+                      }}
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }]
+  }
+}
