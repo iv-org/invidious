@@ -113,7 +113,7 @@
     "Token manager": "Tokenverwaltung",
     "Token": "Token",
     "Import/export": "Importieren/Exportieren",
-    "unsubscribe": "abbestellen",
+    "unsubscribe": "deabonnieren",
     "revoke": "widerrufen",
     "Subscriptions": "Abonnements",
     "search": "Suchen",
@@ -410,7 +410,7 @@
     "generic_count_hours_plural": "{{count}} Stunden",
     "generic_count_minutes": "{{count}} Minute",
     "generic_count_minutes_plural": "{{count}} Minuten",
-    "crash_page_read_the_faq": "Das <a href=\"`x`\">FAQ</a> gelesen hast",
+    "crash_page_read_the_faq": "Lesen Sie die <a href=\"`x`\">Frequently Asked Questions (FAQ)</a>",
     "crash_page_search_issue": "Nach <a href=\"`x`\">bereits gemeldeten Bugs auf GitHub</a> gesucht hast",
     "crash_page_report_issue": "Wenn all dies nicht geholfen hat, <a href=\"`x`\">öffne bitte ein neues Problem (issue) auf GitHub</a> (vorzugsweise auf Englisch) und füge den folgenden Text in deine Nachricht ein (bitte übersetze diesen Text NICHT):",
     "generic_views_count": "{{count}} Aufruf",
@@ -506,5 +506,11 @@
     "preferences_default_playlist": "Standard-Wiedergabeliste: ",
     "preferences_default_playlist_none": "Keine Standard-Wiedergabeliste gesetzt",
     "Livestreams": "Livestreams",
-    "dmca_content": "Dieses Video kann auf dieser Instanz aufgrund einer DMCA-/Urheberrechtsverletzungsmitteilung, die an den Instanzadministrator gesendet wurde, nicht heruntergeladen werden."
+    "dmca_content": "Dieses Video kann auf dieser Instanz aufgrund einer DMCA-/Urheberrechtsverletzungsmitteilung, die an den Instanzadministrator gesendet wurde, nicht heruntergeladen werden.",
+    "preferences_search_privacy_label": "Datenschutz bei der Suche: ",
+    "preferences_search_privacy_description": "Wenn Sie diese Einstellung aktivieren, werden Ihre Suchanfragen nicht im Browserverlauf gespeichert.",
+    "comments_youtube_disabled_text": "YouTube Kommentare sind bei diesem Video deaktiviert",
+    "comments_youtube_disabled_try_reddit": "Reddit Kommentare versuchen?",
+    "comments_invidious_disabled_text": "Kommentare sind gemäss den Benutzereinstellungen ausgeblendet",
+    "comments_youtube_disabled_try_reddit_no_js": "Hallo! Es sieht so aus, als hättest du JavaScript deaktiviert. Obwohl der Uploader YouTube-Kommentare deaktiviert hat, kannst du trotzdem hier klicken, um zu versuchen, die Reddit-Kommentare anzuzeigen. Beachte jedoch, dass das Laden etwas länger dauern kann."
 }
