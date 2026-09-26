@@ -289,6 +289,9 @@ private def fetch_video_published_at(video_id : String) : Time?
   return date_text.try do |text|
     parse_video_published_date(text.lchop("Scheduled for "))
   end
+rescue ex
+  LOGGER.debug("fetch_video_published_at: #{video_id}: #{ex.message}")
+  return nil
 end
 
 private def parse_video_published_at(published : String) : Time
