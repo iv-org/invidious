@@ -98,18 +98,30 @@ module Invidious::Database::ChannelVideos
   # -------------------
 
   # This function returns the status of the query (i.e: success?)
-  def insert(video : ChannelVideo, with_premiere_timestamp : Bool = false) : Bool
+  def insert(
+    video : ChannelVideo,
+    with_premiere_timestamp : Bool = false,
+    preserve_timestamps_on_conflict : Bool = false,
+  ) : Bool
     if with_premiere_timestamp
       last_items = "premiere_timestamp = $9, views = $10"
     else
       last_items = "views = $10"
     end
 
+    if preserve_timestamps_on_conflict
+      published_on_conflict = "published = COALESCE(channel_videos.published, EXCLUDED.published)"
+      updated_on_conflict = "updated = CASE WHEN channel_videos.title IS DISTINCT FROM EXCLUDED.title OR channel_videos.ucid IS DISTINCT FROM EXCLUDED.ucid OR channel_videos.author IS DISTINCT FROM EXCLUDED.author OR channel_videos.length_seconds IS DISTINCT FROM EXCLUDED.length_seconds OR channel_videos.live_now IS DISTINCT FROM EXCLUDED.live_now THEN EXCLUDED.updated ELSE channel_videos.updated END"
+    else
+      published_on_conflict = "published = $3"
+      updated_on_conflict = "updated = $4"
+    end
+
     request = <<-SQL
       INSERT INTO channel_videos
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       ON CONFLICT (id) DO UPDATE
-      SET title = $2, published = $3, updated = $4, ucid = $5,
+      SET title = $2, #{published_on_conflict}, #{updated_on_conflict}, ucid = $5,
           author = $6, length_seconds = $7, live_now = $8, #{last_items}
       RETURNING (xmax=0) AS was_insert
     SQL
