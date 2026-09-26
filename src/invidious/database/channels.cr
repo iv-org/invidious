@@ -108,7 +108,7 @@ module Invidious::Database::ChannelVideos
     if preserve_timestamps_on_conflict
       published_on_conflict = "published = COALESCE(channel_videos.published, EXCLUDED.published)"
       views_on_conflict = "views = CASE WHEN EXCLUDED.views = 0 AND channel_videos.views > 0 THEN channel_videos.views ELSE EXCLUDED.views END"
-      updated_on_conflict = "updated = CASE WHEN channel_videos.title IS DISTINCT FROM EXCLUDED.title OR channel_videos.ucid IS DISTINCT FROM EXCLUDED.ucid OR channel_videos.author IS DISTINCT FROM EXCLUDED.author OR channel_videos.length_seconds IS DISTINCT FROM EXCLUDED.length_seconds OR channel_videos.live_now IS DISTINCT FROM EXCLUDED.live_now OR channel_videos.views IS DISTINCT FROM CASE WHEN EXCLUDED.views = 0 AND channel_videos.views > 0 THEN channel_videos.views ELSE EXCLUDED.views END THEN EXCLUDED.updated ELSE channel_videos.updated END"
+      updated_on_conflict = "updated = CASE WHEN channel_videos.title IS DISTINCT FROM EXCLUDED.title OR channel_videos.ucid IS DISTINCT FROM EXCLUDED.ucid OR channel_videos.author IS DISTINCT FROM EXCLUDED.author OR channel_videos.length_seconds IS DISTINCT FROM EXCLUDED.length_seconds OR channel_videos.live_now IS DISTINCT FROM EXCLUDED.live_now THEN EXCLUDED.updated ELSE channel_videos.updated END"
     else
       published_on_conflict = "published = $3"
       updated_on_conflict = "updated = $4"

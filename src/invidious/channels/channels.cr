@@ -199,7 +199,7 @@ private def update_all_channel_videos(ucid : String, channel : InvidiousChannel,
     videos = items.select(SearchVideo)
     update_channel_videos(ucid, videos, skip_recent: true)
 
-    break if videos.size < 25
+    break if continuation.nil?
     sleep 500.milliseconds
   end
 end
@@ -212,7 +212,7 @@ private def update_all_channel_shorts(ucid : String, channel : AboutChannel, con
     videos = items.select(SearchVideo)
     update_channel_videos(ucid, videos, skip_recent: true)
 
-    break if videos.size < 25
+    break if continuation.nil?
     sleep 500.milliseconds
   end
 end
@@ -225,7 +225,7 @@ private def update_all_channel_livestreams(ucid : String, channel : AboutChannel
     videos = items.select(SearchVideo)
     update_channel_videos(ucid, videos, skip_recent: true)
 
-    break if videos.size < 25
+    break if continuation.nil?
     sleep 500.milliseconds
   end
 end
@@ -281,21 +281,24 @@ private def fetch_video_published_at(video_id : String) : Time?
     return parse_video_published_at(published)
   end
 
-  date_text = response.dig?(
-    "contents", "twoColumnWatchNextResults", "results", "results", "contents", 0,
-    "videoPrimaryInfoRenderer", "dateText", "simpleText"
-  ).try(&.as_s)
+  date_text = response.dig?("contents", "twoColumnWatchNextResults", "results", "results", "contents")
+    .try &.as_a.find(&.["videoPrimaryInfoRenderer"]?)
+      .try &.dig?("videoPrimaryInfoRenderer", "dateText", "simpleText")
+        .try &.as_s
 
   return date_text.try do |text|
-    Time.parse(text.lchop("Scheduled for "), "%b %-d, %Y", Time::Location::UTC)
+    parse_video_published_date(text.lchop("Scheduled for "))
   end
-rescue ex
-  LOGGER.debug("fetch_video_published_at: #{video_id}: #{ex.message}")
-  return nil
 end
 
 private def parse_video_published_at(published : String) : Time
   return Time.parse_rfc3339(published)
 rescue
   return Time.parse(published, "%Y-%m-%d", Time::Location::UTC)
+end
+
+private def parse_video_published_date(published : String) : Time?
+  return Time.parse(published, "%b %-d, %Y", Time::Location::UTC)
+rescue
+  return nil
 end
