@@ -171,15 +171,86 @@ def fetch_channel(ucid, pull_all_videos : Bool)
     subscribed: nil,
   })
 
-  LOGGER.trace("fetch_channel: #{ucid} : Downloading channel videos page")
+  LOGGER.trace("fetch_channel: #{ucid} : Downloading channel videos, shorts, and streams pages")
   videos, continuation = IV::Channel::Tabs.get_videos(channel)
+  shorts, shorts_continuation = IV::Channel::Tabs.get_shorts(channel_info)
+  livestreams, livestreams_continuation = IV::Channel::Tabs.get_livestreams(channel_info)
 
-  LOGGER.trace("fetch_channel: #{ucid} : Extracting videos from channel")
-  videos.select(SearchVideo).each do |video|
+  LOGGER.trace("fetch_channel: #{ucid} : Extracting channel tab videos")
+  update_channel_videos(ucid, videos.select(SearchVideo))
+  update_channel_videos(ucid, shorts.select(SearchVideo))
+  update_channel_videos(ucid, livestreams.select(SearchVideo))
+
+  if pull_all_videos
+    update_all_channel_videos(ucid, channel, continuation)
+    update_all_channel_shorts(ucid, channel_info, shorts_continuation)
+    update_all_channel_livestreams(ucid, channel_info, livestreams_continuation)
+  end
+
+  channel.updated = Time.utc
+  return channel
+end
+
+private def update_all_channel_videos(ucid : String, channel : InvidiousChannel, continuation : String?)
+  loop do
+    break if continuation.nil?
+
+    items, continuation = IV::Channel::Tabs.get_videos(channel, continuation: continuation)
+    videos = items.select(SearchVideo)
+    update_channel_videos(ucid, videos, skip_recent: true)
+
+    break if videos.size < 25
+    sleep 500.milliseconds
+  end
+end
+
+private def update_all_channel_shorts(ucid : String, channel : AboutChannel, continuation : String?)
+  loop do
+    break if continuation.nil?
+
+    items, continuation = IV::Channel::Tabs.get_shorts(channel, continuation: continuation)
+    videos = items.select(SearchVideo)
+    update_channel_videos(ucid, videos, skip_recent: true)
+
+    break if videos.size < 25
+    sleep 500.milliseconds
+  end
+end
+
+private def update_all_channel_livestreams(ucid : String, channel : AboutChannel, continuation : String?)
+  loop do
+    break if continuation.nil?
+
+    items, continuation = IV::Channel::Tabs.get_livestreams(channel, continuation: continuation)
+    videos = items.select(SearchVideo)
+    update_channel_videos(ucid, videos, skip_recent: true)
+
+    break if videos.size < 25
+    sleep 500.milliseconds
+  end
+end
+
+private def update_channel_videos(ucid : String, videos : Array(SearchVideo), skip_recent : Bool = false)
+  stored_videos = {} of String => ChannelVideo
+  Invidious::Database::ChannelVideos.select(videos.map(&.id)).each do |video|
+    stored_videos[video.id] = video
+  end
+
+  videos.each do |video|
+    published = stored_videos[video.id]?.try(&.published) || fetch_video_published_at(video.id)
+    unless published
+      LOGGER.warn("fetch_channel: #{ucid} : video #{video.id} : Could not fetch publication date")
+      next
+    end
+
+    # We are notified of Red videos elsewhere (PubSub), which includes a correct published date,
+    # so since they don't provide a published date here we can safely ignore them.
+    next if skip_recent && Time.utc - published <= 1.minute
+
     channel_video = ChannelVideo.new({
       id:                 video.id,
       title:              video.title,
-      published:          video.published,
+      published:          published,
       updated:            Time.utc,
       ucid:               video.ucid,
       author:             video.author,
@@ -192,7 +263,7 @@ def fetch_channel(ucid, pull_all_videos : Bool)
     LOGGER.trace("fetch_channel: #{ucid} : video #{video.id} : Updating or inserting video")
 
     # We don't include the 'premiere_timestamp' here because channel pages don't include them,
-    # meaning the above timestamp is always null
+    # meaning the above timestamp is always null.
     was_insert = Invidious::Database::ChannelVideos.insert(channel_video, preserve_timestamps_on_conflict: true)
 
     if was_insert
@@ -202,43 +273,29 @@ def fetch_channel(ucid, pull_all_videos : Bool)
       LOGGER.trace("fetch_channel: #{ucid} : video #{video.id} : Updated")
     end
   end
+end
 
-  if pull_all_videos
-    loop do
-      # Keep fetching videos using the continuation token retrieved earlier
-      videos, continuation = IV::Channel::Tabs.get_videos(channel, continuation: continuation)
-
-      count = 0
-      videos.select(SearchVideo).each do |video|
-        count += 1
-        video = ChannelVideo.new({
-          id:                 video.id,
-          title:              video.title,
-          published:          video.published,
-          updated:            Time.utc,
-          ucid:               video.ucid,
-          author:             video.author,
-          length_seconds:     video.length_seconds,
-          live_now:           video.badges.live_now?,
-          premiere_timestamp: video.premiere_timestamp,
-          views:              video.views,
-        })
-
-        # We are notified of Red videos elsewhere (PubSub), which includes a correct published date,
-        # so since they don't provide a published date here we can safely ignore them.
-        if Time.utc - video.published > 1.minute
-          was_insert = Invidious::Database::ChannelVideos.insert(video, preserve_timestamps_on_conflict: true)
-          if was_insert
-            NOTIFICATION_CHANNEL.send(VideoNotification.from_video(video))
-          end
-        end
-      end
-
-      break if count < 25
-      sleep 500.milliseconds
-    end
+private def fetch_video_published_at(video_id : String) : Time?
+  response = YoutubeAPI.next({"videoId" => video_id, "params" => ""})
+  if published = response.dig?("microformat", "playerMicroformatRenderer", "publishDate").try(&.as_s)
+    return parse_video_published_at(published)
   end
 
-  channel.updated = Time.utc
-  return channel
+  date_text = response.dig?(
+    "contents", "twoColumnWatchNextResults", "results", "results", "contents", 0,
+    "videoPrimaryInfoRenderer", "dateText", "simpleText"
+  ).try(&.as_s)
+
+  return date_text.try do |text|
+    Time.parse(text.lchop("Scheduled for "), "%b %-d, %Y", Time::Location::UTC)
+  end
+rescue ex
+  LOGGER.debug("fetch_video_published_at: #{video_id}: #{ex.message}")
+  return nil
+end
+
+private def parse_video_published_at(published : String) : Time
+  return Time.parse_rfc3339(published)
+rescue
+  return Time.parse(published, "%Y-%m-%d", Time::Location::UTC)
 end

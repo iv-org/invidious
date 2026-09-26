@@ -103,18 +103,16 @@ module Invidious::Database::ChannelVideos
     with_premiere_timestamp : Bool = false,
     preserve_timestamps_on_conflict : Bool = false,
   ) : Bool
-    if with_premiere_timestamp
-      last_items = "premiere_timestamp = $9, views = $10"
-    else
-      last_items = "views = $10"
-    end
+    premiere_timestamp_on_conflict = with_premiere_timestamp ? "premiere_timestamp = $9," : ""
 
     if preserve_timestamps_on_conflict
       published_on_conflict = "published = COALESCE(channel_videos.published, EXCLUDED.published)"
-      updated_on_conflict = "updated = CASE WHEN channel_videos.title IS DISTINCT FROM EXCLUDED.title OR channel_videos.ucid IS DISTINCT FROM EXCLUDED.ucid OR channel_videos.author IS DISTINCT FROM EXCLUDED.author OR channel_videos.length_seconds IS DISTINCT FROM EXCLUDED.length_seconds OR channel_videos.live_now IS DISTINCT FROM EXCLUDED.live_now THEN EXCLUDED.updated ELSE channel_videos.updated END"
+      views_on_conflict = "views = CASE WHEN EXCLUDED.views = 0 AND channel_videos.views > 0 THEN channel_videos.views ELSE EXCLUDED.views END"
+      updated_on_conflict = "updated = CASE WHEN channel_videos.title IS DISTINCT FROM EXCLUDED.title OR channel_videos.ucid IS DISTINCT FROM EXCLUDED.ucid OR channel_videos.author IS DISTINCT FROM EXCLUDED.author OR channel_videos.length_seconds IS DISTINCT FROM EXCLUDED.length_seconds OR channel_videos.live_now IS DISTINCT FROM EXCLUDED.live_now OR channel_videos.views IS DISTINCT FROM CASE WHEN EXCLUDED.views = 0 AND channel_videos.views > 0 THEN channel_videos.views ELSE EXCLUDED.views END THEN EXCLUDED.updated ELSE channel_videos.updated END"
     else
       published_on_conflict = "published = $3"
       updated_on_conflict = "updated = $4"
+      views_on_conflict = "views = $10"
     end
 
     request = <<-SQL
@@ -122,7 +120,8 @@ module Invidious::Database::ChannelVideos
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       ON CONFLICT (id) DO UPDATE
       SET title = $2, #{published_on_conflict}, #{updated_on_conflict}, ucid = $5,
-          author = $6, length_seconds = $7, live_now = $8, #{last_items}
+          author = $6, length_seconds = $7, live_now = $8,
+          #{premiere_timestamp_on_conflict} #{views_on_conflict}
       RETURNING (xmax=0) AS was_insert
     SQL
 
