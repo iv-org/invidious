@@ -156,6 +156,18 @@ private module Parsers
         end
       end
 
+      # A Short is marked by the thumbnail's time-status overlay, which carries
+      # the literal text "SHORTS" where a duration would be. The length branch
+      # above already special-cases it — approximating 60s, because YouTube no
+      # longer reports a real duration for Shorts — but then discards the *fact*,
+      # leaving clients to re-derive it from that approximated length or from a
+      # "#shorts" title tag. Neither works: a genuine 60-second upload looks
+      # identical, and the tag is only a convention.
+      is_shorts_overlay = item_contents["thumbnailOverlays"]?.try &.as_a.any? do |overlay|
+        overlay.dig?("thumbnailOverlayTimeStatusRenderer", "text", "simpleText").try &.as_s == "SHORTS"
+      end
+      badges |= VideoBadges::Shorts if is_shorts_overlay
+
       SearchVideo.new({
         title:              title,
         id:                 video_id,
@@ -609,6 +621,8 @@ private module Parsers
 
       duration = (minutes*60 + seconds)
 
+      # Shorts is certain here rather than inferred: this parser only ever runs
+      # on a reel renderer, which YouTube uses exclusively for Shorts.
       SearchVideo.new({
         title:              title,
         id:                 video_id,
@@ -621,7 +635,7 @@ private module Parsers
         premiere_timestamp: Time.unix(0),
         author_verified:    false,
         author_thumbnail:   nil,
-        badges:             VideoBadges::None,
+        badges:             VideoBadges::Shorts,
       })
     end
 
@@ -872,6 +886,10 @@ private module Parsers
       # TODO: Maybe use -1 as an error value and handle that on the frontend?
       duration = 60_i32
 
+      # Shorts is certain here rather than inferred: this parser only ever runs
+      # on a shorts renderer. Without the badge, the approximated 60s above is
+      # the only hint a client has left, and it cannot be told apart from a real
+      # 60-second upload.
       SearchVideo.new({
         title:              title,
         id:                 video_id,
@@ -884,7 +902,7 @@ private module Parsers
         premiere_timestamp: Time.unix(0),
         author_verified:    false,
         author_thumbnail:   nil,
-        badges:             VideoBadges::None,
+        badges:             VideoBadges::Shorts,
       })
     end
 
