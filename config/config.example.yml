@@ -912,6 +912,18 @@ default_user_preferences:
   #quality_dash: auto
 
   ##
+  ## Default dash video codec.
+  ##
+  ## Note: this setting only takes effect if the
+  ## 'quality' parameter is set to "dash".
+  ##
+  ## Accepted values:
+  ##    av1, h264
+  ## Default: h264
+  ##
+  #codec_dash: h264
+
+  ##
   ## Default video playback speed.
   ##
   ## Accepted values: 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0
