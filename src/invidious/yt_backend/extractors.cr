@@ -156,6 +156,22 @@ private module Parsers
         end
       end
 
+      # A livestream no longer necessarily carries a "LIVE" entry in `badges`.
+      # On the trending feed — which is the livestreams feed since YouTube
+      # removed the aggregated trending page — `badges` is absent altogether and
+      # the only marker is the thumbnail's time-status overlay, which carries
+      # `{"style": "LIVE", "text": {"simpleText": "LIVE"}}` in place of a duration.
+      #
+      # Without this, every item on that feed is serialised as
+      # `liveNow: false`, directly contradicting `/api/v1/videos` for the same
+      # video id. (`length_seconds` needs no equivalent fix: the overlay text is
+      # "LIVE", which `decode_length_seconds` already reduces to 0 — correct for
+      # a stream with no fixed duration.)
+      is_live_overlay = item_contents["thumbnailOverlays"]?.try &.as_a.any? do |overlay|
+        overlay.dig?("thumbnailOverlayTimeStatusRenderer", "style").try &.as_s == "LIVE"
+      end
+      badges |= VideoBadges::LiveNow if is_live_overlay
+
       SearchVideo.new({
         title:              title,
         id:                 video_id,
