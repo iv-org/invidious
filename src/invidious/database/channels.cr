@@ -100,14 +100,14 @@ module Invidious::Database::ChannelVideos
   # This function returns the status of the query (i.e: success?)
   def insert(video : ChannelVideo, with_premiere_timestamp : Bool = false) : Bool
     if with_premiere_timestamp
-      last_items = "premiere_timestamp = $9, views = $10"
+      last_items = "premiere_timestamp = $9, views = $10, video_type = $11"
     else
-      last_items = "views = $10"
+      last_items = "views = $10, video_type = $11"
     end
 
     request = <<-SQL
       INSERT INTO channel_videos
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
       ON CONFLICT (id) DO UPDATE
       SET title = $2, published = $3, updated = $4, ucid = $5,
           author = $6, length_seconds = $7, live_now = $8, #{last_items}
