@@ -387,6 +387,7 @@ module Invidious::Routes::Playlists
     referer = get_referer(env)
 
     plid = env.params.query["list"]?.try &.gsub(/[^a-zA-Z0-9_-]/, "")
+    plid ||= env.params.url["id"]?.try &.[2..]
     if !plid
       return env.redirect "/"
     end
