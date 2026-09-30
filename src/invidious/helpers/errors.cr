@@ -2,26 +2,29 @@
 #  Issue template
 # -------------------
 
-macro error_template(*args)
-  error_template_helper(env, {{args.splat}})
-end
+module Errors
+  extend self
 
-def github_details(summary : String, content : String)
-  details = %(\n<details>)
-  details += %(\n<summary>#{summary}</summary>)
-  details += %(\n<p>)
-  details += %(\n   \n```\n)
-  details += content.strip
-  details += %(\n```)
-  details += %(\n</p>)
-  details += %(\n</details>)
-  return HTML.escape(details)
-end
+  macro error_template(*args)
+    Errors.error_template_helper(env, {{args.splat}})
+  end
 
-def get_issue_template(env : HTTP::Server::Context, exception : Exception) : Tuple(String, String)
-  issue_title = "#{exception.message} (#{exception.class})"
+  def github_details(summary : String, content : String)
+    details = %(\n<details>)
+    details += %(\n<summary>#{summary}</summary>)
+    details += %(\n<p>)
+    details += %(\n   \n```\n)
+    details += content.strip
+    details += %(\n```)
+    details += %(\n</p>)
+    details += %(\n</details>)
+    return HTML.escape(details)
+  end
 
-  issue_template = <<-TEXT
+  def get_issue_template(env : HTTP::Server::Context, exception : Exception) : Tuple(String, String)
+    issue_title = "#{exception.message} (#{exception.class})"
+
+    issue_template = <<-TEXT
   Title: `#{HTML.escape(issue_title)}`
   Date: `#{Time::Format::ISO_8601_DATE_TIME.format(Time.utc)}`
   Route: `#{HTML.escape(env.request.resource)}`
@@ -29,39 +32,39 @@ def get_issue_template(env : HTTP::Server::Context, exception : Exception) : Tup
 
   TEXT
 
-  issue_template += github_details("Backtrace", exception.inspect_with_backtrace)
+    issue_template += github_details("Backtrace", exception.inspect_with_backtrace)
 
-  return issue_title, issue_template
-end
-
-def error_template_helper(env : HTTP::Server::Context, status_code : Int32, exception : Exception)
-  if exception.is_a?(InfoException)
-    return error_template_helper(env, status_code, exception.message || "")
+    return issue_title, issue_template
   end
 
-  locale = env.get("preferences").as(Preferences).locale
+  def error_template_helper(env : HTTP::Server::Context, status_code : Int32, exception : Exception)
+    if exception.is_a?(InfoException)
+      return error_template_helper(env, status_code, exception.message || "")
+    end
 
-  env.response.content_type = "text/html"
-  env.response.status_code = status_code
+    locale = env.get("preferences").as(Preferences).locale
 
-  # Unpacking into issue_title, issue_template directly causes a compiler error
-  # I have no idea why.
-  issue_template_components = get_issue_template(env, exception)
-  issue_title, issue_template = issue_template_components
+    env.response.content_type = "text/html"
+    env.response.status_code = status_code
 
-  # URLs for the error message below
-  url_faq = "https://github.com/iv-org/documentation/blob/master/docs/faq.md"
-  url_search_issues = "https://github.com/iv-org/invidious/issues"
-  url_search_issues += "?q=is:issue+is:open+"
-  url_search_issues += URI.encode_www_form("[Bug] #{issue_title}")
+    # Unpacking into issue_title, issue_template directly causes a compiler error
+    # I have no idea why.
+    issue_template_components = self.get_issue_template(env, exception)
+    issue_title, issue_template = issue_template_components
 
-  url_switch = "https://redirect.invidious.io" + env.request.resource
+    # URLs for the error message below
+    url_faq = "https://github.com/iv-org/documentation/blob/master/docs/faq.md"
+    url_search_issues = "https://github.com/iv-org/invidious/issues"
+    url_search_issues += "?q=is:issue+is:open+"
+    url_search_issues += URI.encode_www_form("[Bug] #{issue_title}")
 
-  url_new_issue = "https://github.com/iv-org/invidious/issues/new"
-  url_new_issue += "?labels=bug&template=bug_report.md&title="
-  url_new_issue += URI.encode_www_form("[Bug] " + issue_title)
+    url_switch = "https://redirect.invidious.io" + env.request.resource
 
-  error_message = <<-END_HTML
+    url_new_issue = "https://github.com/iv-org/invidious/issues/new"
+    url_new_issue += "?labels=bug&template=bug_report.md&title="
+    url_new_issue += URI.encode_www_form("[Bug] " + issue_title)
+
+    error_message = <<-END_HTML
     <div class="error_message">
       <h2>#{I18n.translate(locale, "crash_page_you_found_a_bug")}</h2>
       <br/><br/>
@@ -82,116 +85,116 @@ def error_template_helper(env : HTTP::Server::Context, status_code : Int32, exce
     </div>
   END_HTML
 
-  # Don't show the usual "next steps" widget. The same options are
-  # proposed above the error message, just worded differently.
-  next_steps = ""
+    # Don't show the usual "next steps" widget. The same options are
+    # proposed above the error message, just worded differently.
+    next_steps = ""
 
-  return templated "error"
-end
-
-def error_template_helper(env : HTTP::Server::Context, status_code : Int32, message : String)
-  env.response.content_type = "text/html"
-  env.response.status_code = status_code
-
-  locale = env.get("preferences").as(Preferences).locale
-
-  error_message = I18n.translate(locale, message)
-  next_steps = error_redirect_helper(env)
-
-  return templated "error"
-end
-
-# -------------------
-#  Atom feeds
-# -------------------
-
-macro error_atom(*args)
-  error_atom_helper(env, {{args.splat}})
-end
-
-def error_atom_helper(env : HTTP::Server::Context, status_code : Int32, exception : Exception)
-  if exception.is_a?(InfoException)
-    return error_atom_helper(env, status_code, exception.message || "")
+    return templated "error"
   end
 
-  env.response.content_type = "application/atom+xml"
-  env.response.status_code = status_code
+  def error_template_helper(env : HTTP::Server::Context, status_code : Int32, message : String)
+    env.response.content_type = "text/html"
+    env.response.status_code = status_code
 
-  return "<error>#{exception.inspect_with_backtrace}</error>"
-end
+    locale = env.get("preferences").as(Preferences).locale
 
-def error_atom_helper(env : HTTP::Server::Context, status_code : Int32, message : String)
-  env.response.content_type = "application/atom+xml"
-  env.response.status_code = status_code
+    error_message = I18n.translate(locale, message)
+    next_steps = error_redirect_helper(env)
 
-  return "<error>#{message}</error>"
-end
-
-# -------------------
-#  JSON
-# -------------------
-
-macro error_json(*args)
-  error_json_helper(env, {{args.splat}})
-end
-
-def error_json_helper(
-  env : HTTP::Server::Context,
-  status_code : Int32,
-  exception : Exception,
-  additional_fields : Hash(String, Object) | Nil = nil,
-)
-  if exception.is_a?(InfoException)
-    return error_json_helper(env, status_code, exception.message || "", additional_fields)
+    return templated "error"
   end
 
-  env.response.content_type = "application/json"
-  env.response.status_code = status_code
+  # -------------------
+  #  Atom feeds
+  # -------------------
 
-  error_message = {"error" => exception.message, "errorBacktrace" => exception.inspect_with_backtrace}
-
-  if additional_fields
-    error_message = error_message.merge(additional_fields)
+  macro error_atom(*args)
+    Errors.error_atom_helper(env, {{args.splat}})
   end
 
-  return error_message.to_json
-end
+  def error_atom_helper(env : HTTP::Server::Context, status_code : Int32, exception : Exception)
+    if exception.is_a?(InfoException)
+      return error_atom_helper(env, status_code, exception.message || "")
+    end
 
-def error_json_helper(
-  env : HTTP::Server::Context,
-  status_code : Int32,
-  message : String,
-  additional_fields : Hash(String, Object) | Nil = nil,
-)
-  env.response.content_type = "application/json"
-  env.response.status_code = status_code
+    env.response.content_type = "application/atom+xml"
+    env.response.status_code = status_code
 
-  error_message = {"error" => message}
-
-  if additional_fields
-    error_message = error_message.merge(additional_fields)
+    return "<error>#{exception.inspect_with_backtrace}</error>"
   end
 
-  return error_message.to_json
-end
+  def error_atom_helper(env : HTTP::Server::Context, status_code : Int32, message : String)
+    env.response.content_type = "application/atom+xml"
+    env.response.status_code = status_code
 
-# -------------------
-#  Redirect
-# -------------------
+    return "<error>#{message}</error>"
+  end
 
-def error_redirect_helper(env : HTTP::Server::Context)
-  request_path = env.request.path
+  # -------------------
+  #  JSON
+  # -------------------
 
-  locale = env.get("preferences").as(Preferences).locale
+  macro error_json(*args)
+    Errors.error_json_helper(env, {{args.splat}})
+  end
 
-  if request_path.starts_with?("/search") || request_path.starts_with?("/watch") ||
-     request_path.starts_with?("/channel") || request_path.starts_with?("/playlist?list=PL")
-    next_steps_text = I18n.translate(locale, "next_steps_error_message")
-    refresh = I18n.translate(locale, "next_steps_error_message_refresh")
-    go_to_youtube = I18n.translate(locale, "next_steps_error_message_go_to_youtube")
-    switch_instance = I18n.translate(locale, "Switch Invidious Instance")
+  def error_json_helper(
+    env : HTTP::Server::Context,
+    status_code : Int32,
+    exception : Exception,
+    additional_fields : Hash(String, Object) | Nil = nil,
+  )
+    if exception.is_a?(InfoException)
+      return error_json_helper(env, status_code, exception.message || "", additional_fields)
+    end
 
-    return <<-END_HTML
+    env.response.content_type = "application/json"
+    env.response.status_code = status_code
+
+    error_message = {"error" => exception.message, "errorBacktrace" => exception.inspect_with_backtrace}
+
+    if additional_fields
+      error_message = error_message.merge(additional_fields)
+    end
+
+    return error_message.to_json
+  end
+
+  def error_json_helper(
+    env : HTTP::Server::Context,
+    status_code : Int32,
+    message : String,
+    additional_fields : Hash(String, Object) | Nil = nil,
+  )
+    env.response.content_type = "application/json"
+    env.response.status_code = status_code
+
+    error_message = {"error" => message}
+
+    if additional_fields
+      error_message = error_message.merge(additional_fields)
+    end
+
+    return error_message.to_json
+  end
+
+  # -------------------
+  #  Redirect
+  # -------------------
+
+  def error_redirect_helper(env : HTTP::Server::Context)
+    request_path = env.request.path
+
+    locale = env.get("preferences").as(Preferences).locale
+
+    if request_path.starts_with?("/search") || request_path.starts_with?("/watch") ||
+       request_path.starts_with?("/channel") || request_path.starts_with?("/playlist?list=PL")
+      next_steps_text = I18n.translate(locale, "next_steps_error_message")
+      refresh = I18n.translate(locale, "next_steps_error_message_refresh")
+      go_to_youtube = I18n.translate(locale, "next_steps_error_message_go_to_youtube")
+      switch_instance = I18n.translate(locale, "Switch Invidious Instance")
+
+      return <<-END_HTML
       <p style="margin-bottom: 4px;">#{next_steps_text}</p>
       <ul>
         <li>
@@ -205,7 +208,8 @@ def error_redirect_helper(env : HTTP::Server::Context)
         </li>
       </ul>
     END_HTML
-  else
-    return ""
+    else
+      return ""
+    end
   end
 end

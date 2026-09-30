@@ -44,6 +44,8 @@ require "./invidious/jsonify/**"
 require "./invidious/*"
 require "./invidious/comments/*"
 require "./invidious/channels/*"
+require "./invidious/playlists/*"
+require "./invidious/feeds/*"
 require "./invidious/user/*"
 require "./invidious/search/*"
 require "./invidious/routes/**"
@@ -230,7 +232,7 @@ error 404 do |env|
 end
 
 error 500 do |env, exception|
-  error_template(500, exception)
+  Errors.error_template(500, exception)
 end
 
 # Init Kemal

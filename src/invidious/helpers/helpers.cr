@@ -22,7 +22,7 @@ struct Annotation
   property annotations : String
 end
 
-module Helpers
+module Invidious::Helpers
   extend self
 
   private TEST_IDS = {"AgbeGFYluEA", "BaW_jenozKc", "a9LDPn-MO4I", "ddFvjfvPnqk", "iqKdEhx-dD4"}
@@ -62,7 +62,7 @@ module Helpers
   end
 
   def create_notification_stream(env, topics, connection_channel)
-    connection = Channel(PQ::Notification).new(8)
+    connection = ::Channel(PQ::Notification).new(8)
     connection_channel.send({true, connection})
 
     locale = env.get("preferences").as(Preferences).locale

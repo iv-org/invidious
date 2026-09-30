@@ -106,7 +106,7 @@
                 </div>
                 <details>
                     <summary class="pure-button pure-button-secondary"><%=I18n.translate(locale, "timeline_parse_error_show_technical_details")%></summary>
-                    <pre class="error-issue-template"><%=get_issue_template(env, item.parse_exception)[1]%></pre>
+                    <pre class="error-issue-template"><%=Errors.get_issue_template(env, item.parse_exception)[1]%></pre>
                 </details>
             </div>
         <% else %>
