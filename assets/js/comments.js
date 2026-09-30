@@ -3,6 +3,13 @@ var video_data = JSON.parse(document.getElementById('video_data').textContent);
 var spinnerHTML = '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>';
 var spinnerHTMLwithHR = spinnerHTML + '<hr>';
 
+sort_by_div = document.getElementById('sort-type-div');
+sort_by_select = document.getElementById('sort_by');
+if (sort_by_div && sort_by_select){
+    sort_by_div.style.display = "block";
+    sort_by_select.addEventListener('change', get_youtube_comments);
+}
+
 String.prototype.supplant = function (o) {
     return this.replace(/{([^{}]*)}/g, function (a, b) {
         var r = o[b];
@@ -58,11 +65,19 @@ function get_youtube_comments() {
     var fallback = comments.innerHTML;
     comments.innerHTML = spinnerHTML;
 
+    var sort_by = document.getElementById('sort_by');
+    if(sort_by){
+        sort_by_value = sort_by.value;
+    }else{
+        sort_by_value = "top";
+    }
+
     var baseUrl = video_data.base_url || '/api/v1/comments/'+ video_data.id
     var url = baseUrl +
         '?format=html' +
         '&hl=' + video_data.preferences.locale +
-        '&thin_mode=' + video_data.preferences.thin_mode;
+        '&thin_mode=' + video_data.preferences.thin_mode +
+        '&sort_by=' + sort_by_value;
 
     if (video_data.ucid) {
         url += '&ucid=' + video_data.ucid
