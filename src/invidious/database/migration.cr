@@ -4,9 +4,14 @@ abstract class Invidious::Database::Migration
   end
 
   @@version : Int64?
+  @@required : Bool = false
 
   def self.version(version : Int32 | Int64)
     @@version = version.to_i64
+  end
+
+  def self.required(required : Bool)
+    @@required = required
   end
 
   getter? completed = false
@@ -30,6 +35,10 @@ abstract class Invidious::Database::Migration
 
   def version : Int64
     @@version.not_nil!
+  end
+
+  def required? : Bool
+    @@required
   end
 
   private def track(conn : DB::Connection)
