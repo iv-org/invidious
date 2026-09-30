@@ -1,60 +1,46 @@
 module Invidious::Routes::Companion
-  # GET /companion
-  def self.get_companion(env)
-    url = env.request.path
-    if env.request.query
-      url += "?#{env.request.query}"
-    end
+  extend self
 
-    begin
-      COMPANION_POOL.client do |wrapper|
-        wrapper.client.get(url, env.request.headers) do |resp|
-          return self.proxy_companion(env, resp)
-        end
-      end
-    rescue ex
-    end
+  # GET /companion
+  def get_companion(env)
+    url = make_url(env)
+    proxy_companion(env, "GET", url)
   end
 
   # POST /companion
-  def self.post_companion(env)
+  def post_companion(env)
+    url = make_url(env)
+    proxy_companion(env, "POST", url)
+  end
+
+  # OPTIONS /companion
+  def options_companion(env)
+    url = make_url(env)
+    proxy_companion(env, "OPTIONS", url)
+  end
+
+  private def make_url(env)
     url = env.request.path
     if env.request.query
       url += "?#{env.request.query}"
     end
+    url
+  end
 
+  private def proxy_companion(env, method, url)
     begin
       COMPANION_POOL.client do |wrapper|
-        wrapper.client.post(url, env.request.headers, env.request.body) do |resp|
-          return self.proxy_companion(env, resp)
+        wrapper.client.exec(method, url, env.request.headers, (env.request.body if method == "POST")) do |resp|
+          env.response.status_code = resp.status_code
+          resp.headers.each do |key, value|
+            env.response.headers[key] = value
+          end
+          env.response.headers["Via"] = "1.1 Invidious"
+          return IO.copy resp.body_io, env.response
         end
       end
     rescue ex
+      return error_json(502, "Couldn't proxy request to Invidious Companion.")
     end
-  end
-
-  def self.options_companion(env)
-    url = env.request.path
-    if env.request.query
-      url += "?#{env.request.query}"
-    end
-
-    begin
-      COMPANION_POOL.client do |wrapper|
-        wrapper.client.options(url, env.request.headers) do |resp|
-          return self.proxy_companion(env, resp)
-        end
-      end
-    rescue ex
-    end
-  end
-
-  private def self.proxy_companion(env, response)
-    env.response.status_code = response.status_code
-    response.headers.each do |key, value|
-      env.response.headers[key] = value
-    end
-
-    return IO.copy response.body_io, env.response
   end
 end
