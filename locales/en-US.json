@@ -512,5 +512,10 @@
     "timeline_parse_error_placeholder_heading": "Unable to parse item",
     "timeline_parse_error_placeholder_message": "Invidious encountered an error while trying to parse this item. For more information see below:",
     "timeline_parse_error_show_technical_details": "Show technical details",
-    "dmca_content": "This video cannot be downloaded on this instance due to a DMCA/copyright infringement letter sent to the instance administrator."
+    "dmca_content": "This video cannot be downloaded on this instance due to a DMCA/copyright infringement letter sent to the instance administrator.",
+    "Hi! Looks like you have JavaScript turned off. Click the \"Fetch comments\" button below to view comments, keep in mind they may take a bit longer to load.": "Hi! Looks like you have JavaScript turned off. Click the \"Fetch comments\" button below to view comments, keep in mind they may take a bit longer to load.",
+	 "comments_sort_label": "Sort comments by: ",
+    "comments_sort_top": "Top",
+    "comments_sort_new": "New",
+    "comments_sort_submitbtn": "Fetch comments"
 }

@@ -33,6 +33,11 @@ module Invidious::Routes::Watch
     nojs ||= "0"
     nojs = nojs == "1"
 
+    if nojs
+      sort_by = env.params.query["sort_by"]?
+      sort_by ||= "top"
+    end
+
     user = env.get?("user").try &.as(User)
     if user
       subscriptions = user.subscriptions
@@ -81,7 +86,7 @@ module Invidious::Routes::Watch
 
         if source == "youtube"
           begin
-            comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
+            comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region, sort_by: sort_by))["contentHtml"]
           rescue ex
             if preferences.comments[1] == "reddit"
               comments, reddit_thread = Comments.fetch_reddit(id)
@@ -100,12 +105,12 @@ module Invidious::Routes::Watch
             comment_html = Comments.replace_links(comment_html)
           rescue ex
             if preferences.comments[1] == "youtube"
-              comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
+              comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region, sort_by: sort_by))["contentHtml"]
             end
           end
         end
       else
-        comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
+        comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region, sort_by: sort_by))["contentHtml"]
       end
 
       comment_html ||= ""

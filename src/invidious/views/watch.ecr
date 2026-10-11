@@ -304,6 +304,13 @@ we're going to need to do it here in order to allow for translations.
             <hr>
 
             <% end %>
+            <div class="pure-form pure-form-aligned" id="sort-type-div" style="display: none">
+                <label for="sort_by"><%= I18n.translate(locale, "comments_sort_label") %></label>
+                <select name="sort_by" id="sort_by">
+                     <option value="top"><%= I18n.translate(locale, "comments_sort_top") %></option>
+                     <option value="new"><%= I18n.translate(locale, "comments_sort_new") %></option>
+                </select>
+            </div>
             <div id="comments" class="comments">
                 <% if (params.comments <=> ["", ""]) == 0 %>
                     <div id="comments-disabled-message" class="h-box v-box">
@@ -312,12 +319,40 @@ we're going to need to do it here in order to allow for translations.
                 <% else %>
                     <% if video.comments? %>
                         <% if nojs %>
-                            <%= comment_html %>
+                            <noscript>
+                                <form class="pure-form pure-form-aligned" action="/watch" method="get">
+                                    <% env.params.query.each do |key, value| %>
+                                        <% if key != "sort_by" && key != "nojs" %>
+                                            <input type="hidden" name="<%= HTML.escape(key) %>" value="<%= HTML.escape(value) %>">
+                                        <% end %>
+                                    <% end %>
+                                    <input type="hidden" name="nojs" value="1">
+                                    <label for="sort_by"><%= I18n.translate(locale, "comments_sort_label") %></label>
+                                    <select name="sort_by" id="sort_by_nojs">
+                                        <option value="top" <% if sort_by == "top" %> selected <% end %> ><%= I18n.translate(locale, "comments_sort_top") %></option>
+                                        <option value="new" <% if sort_by == "new" %> selected <% end %> ><%= I18n.translate(locale, "comments_sort_new") %></option>
+                                    </select>
+                                    <button type="submit"><%= I18n.translate(locale, "comments_sort_submitbtn") %></button>
+                                </form>
+                                <%= comment_html %>
+                            </noscript>
                         <% else %>
                             <noscript>
-                                <a href="/watch?<%= env.params.query %>&nojs=1">
-                                    <%= I18n.translate(locale, "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.") %>
-                                </a>
+                                <p><%= I18n.translate(locale, "Hi! Looks like you have JavaScript turned off. Click the \"Fetch comments\" button below to view comments, keep in mind they may take a bit longer to load.") %></p>
+                                <form class="pure-form pure-form-aligned" action="/watch" method="get">
+                                    <% env.params.query.each do |key, value| %>
+                                        <% if key != "sort_by" && key != "nojs" %>
+                                            <input type="hidden" name="<%= HTML.escape(key) %>" value="<%= HTML.escape(value) %>">
+                                        <% end %>
+                                    <% end %>
+                                    <input type="hidden" name="nojs" value="1">
+                                    <label for="sort_by"><%= I18n.translate(locale, "comments_sort_label") %></label>
+                                    <select name="sort_by" id="sort_by_noscript">
+                                        <option value="top"><%= I18n.translate(locale, "comments_sort_top") %></option>
+                                        <option value="new"><%= I18n.translate(locale, "comments_sort_new") %></option>
+                                    </select>
+                                    <button type="submit"><%= I18n.translate(locale, "comments_sort_submitbtn") %></button>
+                                </form>
                             </noscript>
                         <% end %>
                     <% else %>
