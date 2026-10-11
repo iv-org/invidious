@@ -182,14 +182,7 @@ module Invidious::Routes::Embed
 
     captions = video.captions
 
-    preferred_captions = captions.select { |caption|
-      params.preferred_captions.includes?(caption.name) ||
-        params.preferred_captions.includes?(caption.language_code.split("-")[0])
-    }
-    preferred_captions.sort_by! { |caption|
-      (params.preferred_captions.index(caption.name) ||
-        params.preferred_captions.index(caption.language_code.split("-")[0])).not_nil!
-    }
+    preferred_captions = Invidious::Videos::Captions.matching(captions, params.preferred_captions)
     captions = captions - preferred_captions
 
     aspect_ratio = nil
