@@ -1,5 +1,6 @@
 enum VideoType
   Video
+  Short
   Livestream
   Scheduled
 end
