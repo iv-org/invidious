@@ -11,7 +11,7 @@ module Invidious::Routes::Login
     return env.redirect referer if user
 
     if !CONFIG.login_enabled
-      return error_template(400, "Login has been disabled by administrator.")
+      return Errors.error_template(400, "Login has been disabled by administrator.")
     end
 
     email = nil
@@ -31,7 +31,7 @@ module Invidious::Routes::Login
     referer = get_referer(env, "/feed/subscriptions")
 
     if !CONFIG.login_enabled
-      return error_template(403, "Login has been disabled by administrator.")
+      return Errors.error_template(403, "Login has been disabled by administrator.")
     end
 
     # https://stackoverflow.com/a/574698
@@ -44,11 +44,11 @@ module Invidious::Routes::Login
     case account_type
     when "invidious"
       if email.nil? || email.empty?
-        return error_template(401, "User ID is a required field")
+        return Errors.error_template(401, "User ID is a required field")
       end
 
       if password.nil? || password.empty?
-        return error_template(401, "Password is a required field")
+        return Errors.error_template(401, "Password is a required field")
       end
 
       user = Invidious::Database::Users.select(email: email)
@@ -64,7 +64,7 @@ module Invidious::Routes::Login
             env.response.cookies["SID"] = Invidious::User::Cookies.sid(CONFIG.domain, sid)
           end
         else
-          return error_template(401, "Wrong username or password")
+          return Errors.error_template(401, "Wrong username or password")
         end
 
         # Since this user has already registered, we don't want to overwrite their preferences
@@ -75,16 +75,16 @@ module Invidious::Routes::Login
         end
       else
         if !CONFIG.registration_enabled
-          return error_template(400, "Registration has been disabled by administrator.")
+          return Errors.error_template(400, "Registration has been disabled by administrator.")
         end
 
         if password.empty?
-          return error_template(401, "Password cannot be empty")
+          return Errors.error_template(401, "Password cannot be empty")
         end
 
         # See https://security.stackexchange.com/a/39851
         if password.bytesize > 55
-          return error_template(400, "Password cannot be longer than 55 characters")
+          return Errors.error_template(400, "Password cannot be longer than 55 characters")
         end
 
         password = password.byte_slice(0, 55)
@@ -102,11 +102,11 @@ module Invidious::Routes::Login
             answer = OpenSSL::HMAC.hexdigest(:sha256, HMAC_KEY, answer)
 
             begin
-              validate_request(tokens[0], answer, env.request, HMAC_KEY, locale)
+              Invidious::Helpers::Tokens.validate_request(tokens[0], answer, env.request, HMAC_KEY, locale)
             rescue ex : InfoException
-              return error_template(400, InfoException.new("Erroneous CAPTCHA"))
+              return Errors.error_template(400, InfoException.new("Erroneous CAPTCHA"))
             rescue ex
-              return error_template(400, ex)
+              return Errors.error_template(400, ex)
             end
           else
             return templated "user/login"
@@ -114,7 +114,7 @@ module Invidious::Routes::Login
         end
 
         sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
-        user, sid = create_user(sid, email, password)
+        user, sid = Invidious::User::Users.create_user(sid, email, password)
 
         if language_header = env.request.headers["Accept-Language"]?
           if language = ANG.language_negotiator.best(language_header, I18n::LOCALES.keys)
@@ -126,7 +126,7 @@ module Invidious::Routes::Login
         Invidious::Database::SessionIDs.insert(sid, email)
 
         view_name = "subscriptions_#{sha256(user.email)}"
-        PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(user.email)}")
+        PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{Invidious::User::Users::MATERIALIZED_VIEW_SQL.call(user.email)}")
 
         if alt = CONFIG.alternative_domains.index(host)
           env.response.cookies["SID"] = Invidious::User::Cookies.sid(CONFIG.alternative_domains[alt], sid)
@@ -166,9 +166,9 @@ module Invidious::Routes::Login
     token = env.params.body["csrf_token"]?
 
     begin
-      validate_request(token, sid, env.request, HMAC_KEY, locale)
+      Invidious::Helpers::Tokens.validate_request(token, sid, env.request, HMAC_KEY, locale)
     rescue ex
-      return error_template(400, ex)
+      return Errors.error_template(400, ex)
     end
 
     Invidious::Database::SessionIDs.delete(sid: sid)

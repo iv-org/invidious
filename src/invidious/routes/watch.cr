@@ -15,11 +15,11 @@ module Invidious::Routes::Watch
       id = env.params.query["v"]
 
       if env.params.query["v"].empty?
-        return error_template(400, "Invalid parameters.")
+        return Errors.error_template(400, "Invalid parameters.")
       end
 
       unless validate_video_id(id)
-        return error_template(400, InvalidVideoID.new(id))
+        return Errors.error_template(400, InvalidVideoID.new(id))
       end
     else
       return env.redirect "/"
@@ -48,10 +48,10 @@ module Invidious::Routes::Watch
       video = get_video(id, region: params.region)
     rescue ex : NotFoundException
       LOGGER.error("get_video not found: #{id} : #{ex.message}")
-      return error_template(404, ex)
+      return Errors.error_template(404, ex)
     rescue ex
       LOGGER.error("get_video: #{id} : #{ex.message}")
-      return error_template(500, ex)
+      return Errors.error_template(500, ex)
     end
 
     if preferences.annotations_subscribed &&
@@ -220,7 +220,7 @@ module Invidious::Routes::Watch
       if redirect
         return env.redirect referer
       else
-        return error_json(403, "No such user")
+        return Errors.error_json(403, "No such user")
       end
     end
 
@@ -235,12 +235,12 @@ module Invidious::Routes::Watch
     end
 
     begin
-      validate_request(token, sid, env.request, HMAC_KEY, locale)
+      Invidious::Helpers::Tokens.validate_request(token, sid, env.request, HMAC_KEY, locale)
     rescue ex
       if redirect
-        return error_template(400, ex)
+        return Errors.error_template(400, ex)
       else
-        return error_json(400, ex)
+        return Errors.error_json(400, ex)
       end
     end
 
@@ -250,7 +250,7 @@ module Invidious::Routes::Watch
     when "mark_unwatched"
       Invidious::Database::Users.mark_unwatched(user, id)
     else
-      return error_json(400, "Unsupported action #{action}")
+      return Errors.error_json(400, "Unsupported action #{action}")
     end
 
     if redirect
@@ -264,10 +264,10 @@ module Invidious::Routes::Watch
   def self.clip(env)
     clip_id = env.params.url["clip"]?
 
-    return error_template(400, "A clip ID is required") if !clip_id
+    return Errors.error_template(400, "A clip ID is required") if !clip_id
 
     response = YoutubeAPI.resolve_url("https://www.youtube.com/clip/#{clip_id}")
-    return error_template(400, "Invalid clip ID") if response["error"]?
+    return Errors.error_template(400, "Invalid clip ID") if response["error"]?
 
     if video_id = response.dig?("endpoint", "watchEndpoint", "videoId")
       if params = response.dig?("endpoint", "watchEndpoint", "params").try &.as_s
@@ -278,16 +278,16 @@ module Invidious::Routes::Watch
 
       return env.redirect "/watch?v=#{video_id}&#{env.params.query}"
     else
-      return error_template(404, "The requested clip doesn't exist")
+      return Errors.error_template(404, "The requested clip doesn't exist")
     end
   end
 
   def self.download(env)
     if CONFIG.disabled?("downloads")
-      return error_template(403, "Administrator has disabled this endpoint.")
+      return Errors.error_template(403, "Administrator has disabled this endpoint.")
     end
     if CONFIG.invidious_companion.present?
-      return error_template(403, "Downloads should be routed through Companion when present")
+      return Errors.error_template(403, "Downloads should be routed through Companion when present")
     end
 
     title = env.params.body["title"]? || ""
@@ -295,7 +295,7 @@ module Invidious::Routes::Watch
     selection = env.params.body["download_widget"]?
 
     if title.empty? || video_id.empty? || selection.nil?
-      return error_template(400, "Missing form data")
+      return Errors.error_template(400, "Missing form data")
     end
 
     download_widget = JSON.parse(selection)
@@ -326,7 +326,7 @@ module Invidious::Routes::Watch
 
       return Invidious::Routes::VideoPlayback.latest_version(env)
     else
-      return error_template(400, "Invalid label or itag")
+      return Errors.error_template(400, "Invalid label or itag")
     end
   end
 end

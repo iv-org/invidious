@@ -8,9 +8,9 @@ module Invidious::Routes::API::V1::Feeds
     trending_type = env.params.query["type"]?
 
     begin
-      trending, _ = fetch_trending(trending_type, region, locale)
+      trending, _ = Invidious::Feeds::Trending.fetch(trending_type, region, locale)
     rescue ex
-      return error_json(500, ex)
+      return Errors.error_json(500, ex)
     end
 
     videos = JSON.build do |json|

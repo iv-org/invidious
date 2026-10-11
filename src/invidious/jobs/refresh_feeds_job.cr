@@ -54,7 +54,7 @@ class Invidious::Jobs::RefreshFeedsJob < Invidious::Jobs::BaseJob
                   # While iterating through, we may have an email stored from a deleted account
                   if db.query_one?("SELECT true FROM users WHERE email = $1", email, as: Bool)
                     LOGGER.info("RefreshFeedsJob: CREATE #{view_name}")
-                    db.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(email)}")
+                    db.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{Invidious::User::Users::MATERIALIZED_VIEW_SQL.call(email)}")
                     db.exec("UPDATE users SET feed_needs_update = false WHERE email = $1", email)
                   end
                 rescue ex

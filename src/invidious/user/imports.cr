@@ -43,7 +43,7 @@ struct Invidious::User
       description = "This is the default description of an imported playlist. Feel Free to change it as you see fit."
       privacy = PlaylistPrivacy::Private
 
-      playlist = create_playlist(title, privacy, user)
+      playlist = Invidious::Playlists::Playlists.create_playlist(title, privacy, user)
       Invidious::Database::Playlists.update_description(playlist.id, description)
 
       # Add each video to the playlist from the body content
@@ -117,7 +117,7 @@ struct Invidious::User
           next if !description
           next if !privacy
 
-          playlist = create_playlist(title, privacy, user)
+          playlist = Invidious::Playlists::Playlists.create_playlist(title, privacy, user)
           Invidious::Database::Playlists.update_description(playlist.id, description)
 
           item["videos"]?.try &.as_a?.try &.each_with_index do |video_id, idx|
