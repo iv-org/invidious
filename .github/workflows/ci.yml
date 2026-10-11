@@ -65,7 +65,7 @@ jobs:
         shell: bash
 
       - name: Install Crystal
-        uses: crystal-lang/install-crystal@v1.9.2
+        uses: crystal-lang/install-crystal@v1.9.3
         with:
           crystal: ${{ matrix.crystal }}
 
@@ -137,7 +137,7 @@ jobs:
 
       - name: Install Crystal
         id: lint_step_install_crystal
-        uses: crystal-lang/install-crystal@v1.9.2
+        uses: crystal-lang/install-crystal@v1.9.3
         with:
           crystal: 1.20.3
 
