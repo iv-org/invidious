@@ -53,7 +53,7 @@ module Invidious::Routes::API::V1::Misc
       playlist = get_playlist(plid)
     rescue ex : InfoException
       return error_json(404, ex)
-    rescue ex
+    rescue
       return error_json(404, "Playlist does not exist.")
     end
 

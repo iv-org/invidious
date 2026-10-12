@@ -12,7 +12,7 @@ module Invidious::Database::Nonces
       INSERT INTO nonces
       VALUES ($1, $2)
       ON CONFLICT DO NOTHING
-    SQL
+      SQL
 
     PG_DB.exec(request, nonce, expire)
   end
@@ -21,7 +21,7 @@ module Invidious::Database::Nonces
     request = <<-SQL
       DELETE FROM nonces *
       WHERE expire < now()
-    SQL
+      SQL
 
     PG_DB.exec(request)
   end
@@ -35,7 +35,7 @@ module Invidious::Database::Nonces
       UPDATE nonces
       SET expire = $1
       WHERE nonce = $2
-    SQL
+      SQL
 
     PG_DB.exec(request, Time.utc(1990, 1, 1), nonce)
   end
@@ -48,7 +48,7 @@ module Invidious::Database::Nonces
     request = <<-SQL
       SELECT * FROM nonces
       WHERE nonce = $1
-    SQL
+      SQL
 
     return PG_DB.query_one?(request, nonce, as: {String, Time})
   end

@@ -10,7 +10,7 @@ module Invidious::Videos::Parser
   # TODO: "compactRadioRenderer" (Mix) and
   # TODO: Use a proper struct/class instead of a hacky JSON object
   def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
-    return nil if !related["videoId"]?
+    return if !related["videoId"]?
 
     # The compact renderer has video length in seconds, where the end
     # screen rendered has a full text version ("42:40")
@@ -60,7 +60,7 @@ module Invidious::Videos::Parser
     player_response = YoutubeAPI.player(video_id: video_id)
 
     if player_response.nil?
-      return nil
+      return
     end
 
     playability_status = player_response.dig?("playabilityStatus", "status").try &.as_s
@@ -150,7 +150,7 @@ module Invidious::Videos::Parser
     elsif playability_status == "OK"
       return response
     else
-      return nil
+      return
     end
   end
 

@@ -2,9 +2,9 @@ def fetch_trending(trending_type, region, locale)
   region ||= "US"
   region = region.upcase
 
+  # 2026-10-12: plid is only used in line 47
+  # so we can remove this later.
   plid = nil
-
-  browse_id = ""
 
   case trending_type.try &.downcase
   when "gaming"

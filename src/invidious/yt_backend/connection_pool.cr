@@ -20,7 +20,7 @@ struct YoutubeConnectionPool
 
     begin
       response = yield conn
-    rescue ex
+    rescue
       conn.close
       conn = make_client(url, force_resolve: true)
 
@@ -88,7 +88,7 @@ struct CompanionConnectionPool
 
     begin
       response = yield wrapper
-    rescue ex
+    rescue
       wrapper.close
 
       companion = CONFIG.invidious_companion.sample

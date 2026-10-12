@@ -103,7 +103,7 @@ module Invidious::Routes::Login
 
             begin
               validate_request(tokens[0], answer, env.request, HMAC_KEY, locale)
-            rescue ex : InfoException
+            rescue InfoException
               return error_template(400, InfoException.new("Erroneous CAPTCHA"))
             rescue ex
               return error_template(400, ex)

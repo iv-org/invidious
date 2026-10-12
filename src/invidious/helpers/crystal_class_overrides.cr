@@ -68,7 +68,7 @@ class HTTP::Server::Response
   class Output
     private def unbuffered_flush
       @io.flush
-    rescue ex : IO::Error
+    rescue IO::Error
       unbuffered_close
     end
   end

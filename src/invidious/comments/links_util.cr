@@ -15,7 +15,7 @@ module Invidious::Comments
 
       if url.host.nil? || url.host.not_nil!.ends_with?("youtube.com") || url.host.not_nil!.ends_with?("youtu.be")
         if url.host.try &.ends_with? "youtu.be"
-          url = "/watch?v=#{url.path.lstrip('/')}#{url.query_params}"
+          anchor["href"] = "/watch?v=#{url.path.lstrip('/')}#{url.query_params}"
         else
           if url.path == "/redirect"
             params = HTTP::Params.parse(url.query.not_nil!)
@@ -27,7 +27,7 @@ module Invidious::Comments
       elsif url.to_s == "#"
         begin
           length_seconds = decode_length_seconds(anchor.content)
-        rescue ex
+        rescue
           length_seconds = decode_time(anchor.content)
         end
 
