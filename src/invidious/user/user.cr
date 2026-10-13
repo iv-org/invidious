@@ -19,7 +19,7 @@ struct Invidious::User
     def self.from_rs(rs)
       begin
         Preferences.from_json(rs.read(String))
-      rescue ex
+      rescue
         Preferences.from_json("{}")
       end
     end

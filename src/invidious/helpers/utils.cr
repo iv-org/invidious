@@ -102,7 +102,7 @@ def decode_date(string : String)
   # Try to parse as format Jul 10, 2000
   begin
     return Time.parse(string, "%b %-d, %Y", Time::Location.local)
-  rescue ex
+  rescue
   end
 
   case string
@@ -110,7 +110,6 @@ def decode_date(string : String)
     return Time.utc
   when "yesterday"
     return Time.utc - 1.day
-  else nil # Continue
   end
 
   # String matches format "20 hours ago", "4 months ago", "20s ago", "15min ago"...
@@ -177,7 +176,7 @@ def short_text_to_number(short_text : String) : Int64
   end
 
   return number.to_i64
-rescue ex
+rescue
   return 0_i64
 end
 

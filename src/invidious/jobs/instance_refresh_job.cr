@@ -69,7 +69,7 @@ class Invidious::Jobs::InstanceListRefreshJob < Invidious::Jobs::BaseJob
 
       raw_instance_list = JSON.parse(instance_api_client.get("/instances.json").body).as_a
       instance_api_client.close
-    rescue ex : Socket::ConnectError | IO::TimeoutError | JSON::ParseException
+    rescue Socket::ConnectError | IO::TimeoutError | JSON::ParseException
       raw_instance_list = [] of JSON::Any
     end
 

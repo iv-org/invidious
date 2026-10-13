@@ -93,7 +93,7 @@ module Helpers
             sleep 1.minute
             Fiber.yield
           end
-        rescue ex
+        rescue
         end
       end
     end
@@ -149,7 +149,7 @@ module Helpers
 
           id += 1
         end
-      rescue ex
+      rescue
       ensure
         connection_channel.send({false, connection})
       end
@@ -163,7 +163,7 @@ module Helpers
         env.response.flush
         sleep (20 + rand(11)).seconds
       end
-    rescue ex
+    rescue
     ensure
       connection_channel.send({false, connection})
     end

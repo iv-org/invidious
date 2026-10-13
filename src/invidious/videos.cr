@@ -48,7 +48,7 @@ struct Video
     end
   end
 
-  def to_json(json : JSON::Builder | Nil = nil)
+  def to_json(json : JSON::Builder? = nil)
     to_json(nil, json)
   end
 
@@ -150,7 +150,7 @@ struct Video
 
   def dash_manifest_url : String?
     raw_dash_url = info.dig?("streamingData", "dashManifestUrl").try &.as_s
-    return nil if raw_dash_url.nil?
+    return if raw_dash_url.nil?
 
     # Use manifest v5 parameter to reduce file size
     # See https://github.com/iv-org/invidious/issues/4186
@@ -183,14 +183,14 @@ struct Video
   end
 
   def music : Array(VideoMusic)
-    info["music"].as_a.map { |music_json|
+    info["music"].as_a.map do |music_json|
       VideoMusic.new(
         music_json["song"].as_s,
         music_json["album"].as_s,
         music_json["artist"].as_s,
         music_json["license"].as_s
       )
-    }
+    end
   end
 
   # Returns true if comments are enabled on the video
@@ -201,37 +201,37 @@ struct Video
   # Macros defining getters/setters for various types of data
 
   private macro getset_string(name)
-    # Return {{name.stringify}} from `info`
-    def {{name.id.underscore}} : String
-      return info[{{name.stringify}}]?.try &.as_s || ""
+    # Return {{ name.stringify }} from `info`
+    def {{ name.id.underscore }} : String
+      return info[{{ name.stringify }}]?.try &.as_s || ""
     end
 
-    # Update {{name.stringify}} into `info`
-    def {{name.id.underscore}}=(value : String)
-      info[{{name.stringify}}] = JSON::Any.new(value)
+    # Update {{ name.stringify }} into `info`
+    def {{ name.id.underscore }}=(value : String)
+      info[{{ name.stringify }}] = JSON::Any.new(value)
     end
 
-    {% if flag?(:debug_macros) %} {{debug}} {% end %}
+    {% if flag?(:debug_macros) %} {{ debug }} {% end %}
   end
 
   private macro getset_string_array(name)
-    # Return {{name.stringify}} from `info`
-    def {{name.id.underscore}} : Array(String)
-      return info[{{name.stringify}}]?.try &.as_a.map &.as_s || [] of String
+    # Return {{ name.stringify }} from `info`
+    def {{ name.id.underscore }} : Array(String)
+      return info[{{ name.stringify }}]?.try &.as_a.map &.as_s || [] of String
     end
 
-    # Update {{name.stringify}} into `info`
-    def {{name.id.underscore}}=(value : Array(String))
-      info[{{name.stringify}}] = JSON::Any.new(value)
+    # Update {{ name.stringify }} into `info`
+    def {{ name.id.underscore }}=(value : Array(String))
+      info[{{ name.stringify }}] = JSON::Any.new(value)
     end
 
-    {% if flag?(:debug_macros) %} {{debug}} {% end %}
+    {% if flag?(:debug_macros) %} {{ debug }} {% end %}
   end
 
   {% for op, type in {i32: Int32, i64: Int64} %}
-    private macro getset_{{op}}(name)
-      def \{{name.id.underscore}} : {{type}}
-        return info[\{{name.stringify}}]?.try &.as_i64.to_{{op}} || 0_{{op}}
+    private macro getset_{{ op }}(name)
+      def \{{name.id.underscore}} : {{ type }}
+        return info[\{{name.stringify}}]?.try &.as_i64.to_{{ op }} || 0_{{ op }}
       end
 
       def \{{name.id.underscore}}=(value : Int)
@@ -243,32 +243,32 @@ struct Video
   {% end %}
 
   private macro getset_bool(name)
-    # Return {{name.stringify}} from `info`
-    def {{name.id.underscore}} : Bool
-      return info[{{name.stringify}}]?.try &.as_bool || false
+    # Return {{ name.stringify }} from `info`
+    def {{ name.id.underscore }} : Bool
+      return info[{{ name.stringify }}]?.try &.as_bool || false
     end
 
-    # Update {{name.stringify}} into `info`
-    def {{name.id.underscore}}=(value : Bool)
-      info[{{name.stringify}}] = JSON::Any.new(value)
+    # Update {{ name.stringify }} into `info`
+    def {{ name.id.underscore }}=(value : Bool)
+      info[{{ name.stringify }}] = JSON::Any.new(value)
     end
 
-    {% if flag?(:debug_macros) %} {{debug}} {% end %}
+    {% if flag?(:debug_macros) %} {{ debug }} {% end %}
   end
 
   # Macro to generate ? and = accessor methods for attributes in `info`
   private macro predicate_bool(method_name, name)
-    # Return {{name.stringify}} from `info`
-    def {{method_name.id.underscore}}? : Bool
-      return info[{{name.stringify}}]?.try &.as_bool || false
+    # Return {{ name.stringify }} from `info`
+    def {{ method_name.id.underscore }}? : Bool
+      return info[{{ name.stringify }}]?.try &.as_bool || false
     end
 
-    # Update {{name.stringify}} into `info`
-    def {{method_name.id.underscore}}=(value : Bool)
-      info[{{name.stringify}}] = JSON::Any.new(value)
+    # Update {{ name.stringify }} into `info`
+    def {{ method_name.id.underscore }}=(value : Bool)
+      info[{{ name.stringify }}] = JSON::Any.new(value)
     end
 
-    {% if flag?(:debug_macros) %} {{debug}} {% end %}
+    {% if flag?(:debug_macros) %} {{ debug }} {% end %}
   end
 
   # Method definitions, using the macros above

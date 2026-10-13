@@ -47,9 +47,9 @@ module Invidious::Routes::API::V1::Videos
 
     begin
       video = get_video(id, region: region)
-    rescue ex : NotFoundException
+    rescue NotFoundException
       haltf env, 404
-    rescue ex
+    rescue
       haltf env, 500
     end
 
@@ -187,9 +187,9 @@ module Invidious::Routes::API::V1::Videos
 
     begin
       video = get_video(id, region: region)
-    rescue ex : NotFoundException
+    rescue NotFoundException
       haltf env, 404
-    rescue ex
+    rescue
       haltf env, 500
     end
 
@@ -264,8 +264,6 @@ module Invidious::Routes::API::V1::Videos
     unless video_id && validate_video_id(video_id)
       haltf env, 400
     end
-
-    annotations = ""
 
     case source
     when "archive"
@@ -365,7 +363,7 @@ module Invidious::Routes::API::V1::Videos
 
       begin
         comments, reddit_thread = Comments.fetch_reddit(id, sort_by: sort_by)
-      rescue ex
+      rescue
         comments = nil
         reddit_thread = nil
       end

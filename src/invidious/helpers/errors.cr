@@ -3,7 +3,7 @@
 # -------------------
 
 macro error_template(*args)
-  error_template_helper(env, {{args.splat}})
+  error_template_helper(env, {{ args.splat }})
 end
 
 def github_details(summary : String, content : String)
@@ -22,12 +22,12 @@ def get_issue_template(env : HTTP::Server::Context, exception : Exception) : Tup
   issue_title = "#{exception.message} (#{exception.class})"
 
   issue_template = <<-TEXT
-  Title: `#{HTML.escape(issue_title)}`
-  Date: `#{Time::Format::ISO_8601_DATE_TIME.format(Time.utc)}`
-  Route: `#{HTML.escape(env.request.resource)}`
-  Version: `#{SOFTWARE["version"]} @ #{SOFTWARE["branch"]}`
+    Title: `#{HTML.escape(issue_title)}`
+    Date: `#{Time::Format::ISO_8601_DATE_TIME.format(Time.utc)}`
+    Route: `#{HTML.escape(env.request.resource)}`
+    Version: `#{SOFTWARE["version"]} @ #{SOFTWARE["branch"]}`
 
-  TEXT
+    TEXT
 
   issue_template += github_details("Backtrace", exception.inspect_with_backtrace)
 
@@ -80,7 +80,7 @@ def error_template_helper(env : HTTP::Server::Context, status_code : Int32, exce
       <!-- TODO: Add a "copy to clipboard" button -->
       <pre class="error-issue-template">#{issue_template}</pre>
     </div>
-  END_HTML
+    END_HTML
 
   # Don't show the usual "next steps" widget. The same options are
   # proposed above the error message, just worded differently.
@@ -106,7 +106,7 @@ end
 # -------------------
 
 macro error_atom(*args)
-  error_atom_helper(env, {{args.splat}})
+  error_atom_helper(env, {{ args.splat }})
 end
 
 def error_atom_helper(env : HTTP::Server::Context, status_code : Int32, exception : Exception)
@@ -132,14 +132,14 @@ end
 # -------------------
 
 macro error_json(*args)
-  error_json_helper(env, {{args.splat}})
+  error_json_helper(env, {{ args.splat }})
 end
 
 def error_json_helper(
   env : HTTP::Server::Context,
   status_code : Int32,
   exception : Exception,
-  additional_fields : Hash(String, Object) | Nil = nil,
+  additional_fields : Hash(String, Object)? = nil,
 )
   if exception.is_a?(InfoException)
     return error_json_helper(env, status_code, exception.message || "", additional_fields)
@@ -161,7 +161,7 @@ def error_json_helper(
   env : HTTP::Server::Context,
   status_code : Int32,
   message : String,
-  additional_fields : Hash(String, Object) | Nil = nil,
+  additional_fields : Hash(String, Object)? = nil,
 )
   env.response.content_type = "application/json"
   env.response.status_code = status_code
@@ -204,7 +204,7 @@ def error_redirect_helper(env : HTTP::Server::Context)
           <a rel="noreferrer noopener" href="https://www.youtube.com#{env.request.resource}">#{go_to_youtube}</a>
         </li>
       </ul>
-    END_HTML
+      END_HTML
   else
     return ""
   end

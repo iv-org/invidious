@@ -115,7 +115,7 @@ module Invidious::Routes::VideoPlayback
 
           IO.copy(resp.body_io, env.response)
         end
-      rescue ex
+      rescue
       end
     else
       if query_params["title"]? && CONFIG.disabled?("downloads") ||

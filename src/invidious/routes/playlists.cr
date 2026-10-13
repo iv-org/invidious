@@ -164,7 +164,7 @@ module Invidious::Routes::Playlists
 
     begin
       items = get_playlist_videos(playlist, offset: (page - 1) * 100)
-    rescue ex
+    rescue
       items = [] of PlaylistVideo
     end
 
@@ -255,7 +255,7 @@ module Invidious::Routes::Playlists
     begin
       query = Invidious::Search::Query.new(env.params.query, :playlist, region)
       items = query.process.select(SearchVideo).map(&.as(SearchVideo))
-    rescue ex
+    rescue
       items = [] of SearchVideo
     end
 

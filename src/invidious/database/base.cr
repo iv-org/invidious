@@ -45,7 +45,7 @@ module Invidious::Database
     # Create table if it doesn't exist
     begin
       PG_DB.exec("SELECT * FROM #{table_name} LIMIT 0")
-    rescue ex
+    rescue
       LOGGER.info("check_table: check_table: CREATE TABLE #{table_name}")
 
       PG_DB.using_connection do |conn|

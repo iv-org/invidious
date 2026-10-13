@@ -56,7 +56,7 @@ struct Invidious::User
 
           begin
             video = get_video(video_id)
-          rescue ex
+          rescue
             next
           end
 
@@ -130,7 +130,7 @@ struct Invidious::User
 
             begin
               video = get_video(video_id, false)
-            rescue ex
+            rescue
               next
             end
 

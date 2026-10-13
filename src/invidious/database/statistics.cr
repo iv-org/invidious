@@ -10,7 +10,7 @@ module Invidious::Database::Statistics
   def count_users_total : Int64
     request = <<-SQL
       SELECT count(*) FROM users
-    SQL
+      SQL
 
     PG_DB.query_one(request, as: Int64)
   end
@@ -19,7 +19,7 @@ module Invidious::Database::Statistics
     request = <<-SQL
       SELECT count(*) FROM users
       WHERE CURRENT_TIMESTAMP - updated < '6 months'
-    SQL
+      SQL
 
     PG_DB.query_one(request, as: Int64)
   end
@@ -28,7 +28,7 @@ module Invidious::Database::Statistics
     request = <<-SQL
       SELECT count(*) FROM users
       WHERE CURRENT_TIMESTAMP - updated < '1 month'
-    SQL
+      SQL
 
     PG_DB.query_one(request, as: Int64)
   end
@@ -42,7 +42,7 @@ module Invidious::Database::Statistics
       SELECT updated FROM channels
       ORDER BY updated DESC
       LIMIT 1
-    SQL
+      SQL
 
     PG_DB.query_one?(request, as: Time)
   end

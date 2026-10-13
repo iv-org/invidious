@@ -146,7 +146,6 @@ jobs:
         with:
           path: |
             ./lib
-            ./bin
           key: shards-${{ hashFiles('shard.lock') }}-${{ steps.lint_step_install_crystal.outputs.crystal }}
 
       - name: Install Shards
@@ -164,4 +163,4 @@ jobs:
           fi
 
       - name: Run Ameba linter
-        run: bin/ameba
+        uses: crystal-ameba/github-action@v1

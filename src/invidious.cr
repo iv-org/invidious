@@ -123,7 +123,7 @@ Kemal.config.extra_options do |parser|
   parser.on("-c THREADS", "--channel-threads=THREADS", "Number of threads for refreshing channels (default: #{CONFIG.channel_threads})") do |number|
     begin
       CONFIG.channel_threads = number.to_i
-    rescue ex
+    rescue
       puts "THREADS must be integer"
       exit
     end
@@ -131,7 +131,7 @@ Kemal.config.extra_options do |parser|
   parser.on("-f THREADS", "--feed-threads=THREADS", "Number of threads for refreshing feeds (default: #{CONFIG.feed_threads})") do |number|
     begin
       CONFIG.feed_threads = number.to_i
-    rescue ex
+    rescue
       puts "THREADS must be integer"
       exit
     end

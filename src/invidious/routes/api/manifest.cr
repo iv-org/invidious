@@ -19,9 +19,9 @@ module Invidious::Routes::API::Manifest
 
     begin
       video = get_video(id, region: region)
-    rescue ex : NotFoundException
+    rescue NotFoundException
       haltf env, status_code: 404
-    rescue ex
+    rescue
       haltf env, status_code: 403
     end
 

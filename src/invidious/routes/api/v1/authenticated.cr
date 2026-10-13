@@ -42,11 +42,11 @@ module Invidious::Routes::API::V1::Authenticated
     user = env.get("user").as(User)
 
     begin
-      if body = env.request.body
-        body = env.request.body.not_nil!.gets_to_end
-      else
-        body = "{}"
-      end
+      body = if raw_body = env.request.body
+               raw_body.gets_to_end
+             else
+               "{}"
+             end
       Invidious::User::Import.from_invidious(user, body)
     rescue
     end

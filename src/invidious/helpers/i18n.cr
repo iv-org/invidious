@@ -103,7 +103,7 @@ module I18n
     return locales
   end
 
-  def translate(locale : String?, key : String, text : String | Hash(String, String) | Nil = nil) : String
+  def translate(locale : String?, key : String, text : String? | Hash(String, String)? = nil) : String
     # Log a warning if "key" doesn't exist in en-US locale and return
     # that key as the text, so this is more or less transparent to the user.
     if !LOCALES["en-US"].has_key?(key)

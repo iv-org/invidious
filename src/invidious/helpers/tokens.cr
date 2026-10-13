@@ -116,7 +116,7 @@ def scope_includes_scope(scope, subset)
   subset_endpoint = subset_endpoint.downcase
 
   if methods.empty?
-    methods = %w(GET POST PUT HEAD DELETE PATCH OPTIONS)
+    methods = %w[GET POST PUT HEAD DELETE PATCH OPTIONS]
   end
 
   if methods & subset_methods != subset_methods
