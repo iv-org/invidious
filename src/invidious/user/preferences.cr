@@ -43,6 +43,7 @@ struct Preferences
   property quality : String = CONFIG.default_user_preferences.quality
   @[JSON::Field(converter: Preferences::ProcessString)]
   property quality_dash : String = CONFIG.default_user_preferences.quality_dash
+  property codec_dash : String = CONFIG.default_user_preferences.codec_dash
   property default_home : String? = CONFIG.default_user_preferences.default_home
   property feed_menu : Array(String) = CONFIG.default_user_preferences.feed_menu
   property related_videos : Bool = CONFIG.default_user_preferences.related_videos
