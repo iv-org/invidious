@@ -19,6 +19,11 @@ record AboutChannel,
   verified : Bool,
   is_age_gated : Bool
 
+private DELETED_CHANNEL_ERROR_MESSAGES = {
+  "This channel does not exist.",
+  "This account has been terminated for a violation of YouTube's Terms of Service.",
+}
+
 def get_about_info(ucid) : AboutChannel
   begin
     # Fetch channel information from channel home page
@@ -29,7 +34,7 @@ def get_about_info(ucid) : AboutChannel
 
   if initdata.dig?("alerts", 0, "alertRenderer", "type") == "ERROR"
     error_message = initdata["alerts"][0]["alertRenderer"]["text"]["simpleText"].as_s
-    if error_message == "This channel does not exist."
+    if DELETED_CHANNEL_ERROR_MESSAGES.includes?(error_message)
       raise NotFoundException.new(error_message)
     else
       raise InfoException.new(error_message)
