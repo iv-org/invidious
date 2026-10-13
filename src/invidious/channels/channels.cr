@@ -195,7 +195,22 @@ def fetch_channel(ucid, pull_all_videos : Bool)
   })
 
   LOGGER.trace("fetch_channel: #{ucid} : Downloading channel videos page")
-  videos, continuation = IV::Channel::Tabs.get_videos(channel)
+  
+  # Auto-generated ("- Topic") channels have no regular videos tab and InnerTube
+  # answers 500 for them. Letting that abort fetch_channel throws away the RSS
+  # feed fetched above, even though the tab result is only used to enrich RSS
+  # entries with length_seconds/live_now/premiere_timestamp, each of which
+  # already falls back to a default below. Degrade instead of failing, so a
+  # channel we can still read via RSS does not stall RefreshChannelsJob.
+  videos_tab_available = true
+  begin
+    videos, continuation = IV::Channel::Tabs.get_videos(channel)
+  rescue ex
+    LOGGER.debug("fetch_channel: #{ucid} : videos tab unavailable (#{ex.message}), continuing with RSS only")
+    videos = [] of SearchItem
+    continuation = nil
+    videos_tab_available = false
+  end
 
   LOGGER.trace("fetch_channel: #{ucid} : Extracting videos from channel RSS feed")
   rss.xpath_nodes("//default:feed/default:entry", namespaces).each do |entry|
@@ -255,7 +270,7 @@ def fetch_channel(ucid, pull_all_videos : Bool)
     end
   end
 
-  if pull_all_videos
+  if pull_all_videos && videos_tab_available
     loop do
       # Keep fetching videos using the continuation token retrieved earlier
       videos, continuation = IV::Channel::Tabs.get_videos(channel, continuation: continuation)
