@@ -525,5 +525,9 @@
     "timeline_parse_error_show_technical_details": "Mostra els detalls tècnics",
     "dmca_content": "Aquest vídeo no es pot baixar des d'aquesta instància a causa d'una carta d'infracció dels drets d'autor enviada a l'administrador de la instància.",
     "preferences_search_privacy_label": "Privadesa de la cerca: ",
-    "preferences_search_privacy_description": "Activar aquest paràmetre evitarà que les cerques es desin a l'historial del navegador."
+    "preferences_search_privacy_description": "Activar aquest paràmetre evitarà que les cerques es desin a l'historial del navegador.",
+    "comments_youtube_disabled_text": "Els comentaris de Youtube s'han desactivat en aquest vídeo",
+    "comments_youtube_disabled_try_reddit": "Voleu provar amb els comentaris de Reddit?",
+    "comments_invidious_disabled_text": "Els comentaris s'han amagat per la configuració de l'usuari",
+    "comments_youtube_disabled_try_reddit_no_js": "Ep! Sembla que teniu el JavaScript desactivat. Tot i que l'usuari que ha pujat el vídeo ha desactivat els comentaris al YouTube, encara podeu fer clic aquí per a mostrar els comentaris de Reddit. Teniu en compte que podrien trigar una estona a carregar-se."
 }
