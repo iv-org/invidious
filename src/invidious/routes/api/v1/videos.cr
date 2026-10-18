@@ -347,7 +347,7 @@ module Invidious::Routes::API::V1::Videos
     sort_by = env.params.query["sort_by"]?.try &.downcase
 
 
-    # 2026-10-18: Make a mechanism to remove unused
+    # 2026-10-18 TODO: Make a mechanism to remove unused
     # preferences from PREFS cookie of the clients
     # when some preferences are changed, like this one
     # which is a Reedit comments deprecation that appears

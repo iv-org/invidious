@@ -74,7 +74,7 @@ module Invidious::Routes::Watch
     if nojs
       if preferences
         source = preferences.comments[0]
-        # 2026-10-18: Make a mechanism to remove unused
+        # 2026-10-18 TODO: Make a mechanism to remove unused
         # preferences from PREFS cookie of the clients
         # when some preferences are changed, like this one
         # which is a Reedit comments deprecation that appears
