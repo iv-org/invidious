@@ -57,7 +57,6 @@
     "preferences_quality_dash_option_worst": "Halvim",
     "preferences_volume_label": "Video helivaljus: ",
     "youtube": "YouTube",
-    "reddit": "Reddit",
     "preferences_related_videos_label": "Näita sarnaseid videoid: ",
     "preferences_vr_mode_label": "Interaktiivne 360-kraadine video (vajalik WebGL): ",
     "preferences_dark_mode_label": "Kujundus: ",
@@ -110,7 +109,6 @@
     "Shared `x`": "Jagas `x`",
     "Premieres in `x`": "Esilinastub `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Tundub, et oled JavaScripti välja lülitanud. Vajuta siia, et kommentaare vaadata; nende laadimine võib võtta natukene rohkem aega.",
-    "View Reddit comments": "Vaata Redditi kommentaare",
     "Hide replies": "Peida vastused",
     "Show replies": "Näita vastuseid",
     "Incorrect password": "Vale salasõna",
@@ -273,7 +271,6 @@
     "preferences_player_style_label": "Meediaesitaja stiil: ",
     "subscriptions_unseen_notifs_count": "{{count}} lugemata teavitus",
     "subscriptions_unseen_notifs_count_plural": "{{count}} lugemata teavitust",
-    "View more comments on Reddit": "Vaata teisi kommentaare Redditis",
     "Only show latest unwatched video from channel: ": "Näita ainult viimast vaatamata videot: ",
     "tokens_count": "{{count}} tunnusluba",
     "tokens_count_plural": "{{count}} tunnusluba",
@@ -510,7 +507,5 @@
     "preferences_search_privacy_label": "Otsinguprivaatsus: ",
     "preferences_search_privacy_description": "Selle eelistuse sisselülitamisel sinu otsingupäringud ei salvestu veebibrauseri ajaloos.",
     "comments_youtube_disabled_text": "Youtube'i kommentaarid on selle video puhul lülitatud välja",
-    "comments_youtube_disabled_try_reddit": "Kas proovid redditi kommentaare?",
-    "comments_invidious_disabled_text": "Kasutaja eelistuste alusel on kommentaarid peidetud",
-    "comments_youtube_disabled_try_reddit_no_js": "Hei! Tundub, et sul on JavaScript lülitatud välja. Kuigi üleslaadija on YouTube’i kommentaarid keelanud, võid ikkagi siia klõpsata ja proovida Redditi kommentaare vaadata, aga arvesta, et nende laadimine võib veidi kauem aega võtta."
+    "comments_invidious_disabled_text": "Kasutaja eelistuste alusel on kommentaarid peidetud"
 }

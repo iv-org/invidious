@@ -60,7 +60,6 @@
     "preferences_volume_label": "播放器音量： ",
     "preferences_comments_label": "預設留言： ",
     "youtube": "YouTube",
-    "reddit": "Reddit",
     "preferences_captions_label": "預設字幕： ",
     "Fallback captions: ": "汰退字幕： ",
     "preferences_related_videos_label": "顯示相關的影片： ",
@@ -157,12 +156,10 @@
     "Premieres `x`": "首映於 `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "嗨！看來您將 JavaScript 關閉了。點擊這裡以檢視留言，請注意，它們可能需要比較長的時間載入。",
     "View YouTube comments": "檢視 YouTube 留言",
-    "View more comments on Reddit": "在 Reddit 上檢視更多留言",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "檢視 `x` 則留言",
         "": "檢視 `x` 則留言"
     },
-    "View Reddit comments": "檢視 Reddit 留言",
     "Hide replies": "隱藏回覆",
     "Show replies": "顯示回覆",
     "Incorrect password": "不正確的密碼",
@@ -493,7 +490,5 @@
     "preferences_search_privacy_label": "搜尋隱私： ",
     "preferences_search_privacy_description": "啟用此設定後，您的搜尋查詢將不會儲存於瀏覽器歷史紀錄中。",
     "comments_youtube_disabled_text": "此影片已停用 Youtube 留言",
-    "comments_youtube_disabled_try_reddit": "嘗試 reddit 留言？",
-    "comments_invidious_disabled_text": "留言已根據使用者偏好設定隱藏",
-    "comments_youtube_disabled_try_reddit_no_js": "您好！您似乎把 JavaScript 關閉了。雖然上傳者已停用 YouTube 留言，但您仍可點擊此處檢視 Reddit 留言，但要記住，這可能會需要比較久的時間載入。"
+    "comments_invidious_disabled_text": "留言已根據使用者偏好設定隱藏"
 }

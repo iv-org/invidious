@@ -55,7 +55,6 @@
     "preferences_volume_label": "Volumul videoclipurilor: ",
     "preferences_comments_label": "Sursa comentariilor: ",
     "youtube": "YouTube",
-    "reddit": "Reddit",
     "preferences_captions_label": "Subtitrări implicite: ",
     "Fallback captions: ": "Subtitrări alternative: ",
     "preferences_related_videos_label": "Afișați videoclipurile asemănătoare: ",
@@ -141,12 +140,10 @@
     "Premieres `x`": "Premiera pe `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Se pare că ați dezactivat JavaScript. Apăsați aici pentru a vizualiza comentariile. Țineți minte faptul că încărcarea lor ar putea să dureze puțin mai mult.",
     "View YouTube comments": "Vedeți comentariile de pe YouTube",
-    "View more comments on Reddit": "Vedeți mai multe comentarii pe Reddit",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Afișați `x` comentarii",
         "": "Afișați `x` comentarii"
     },
-    "View Reddit comments": "Afișați comentariile de pe Reddit",
     "Hide replies": "Ascundeți replicile",
     "Show replies": "Afișați replicile",
     "Incorrect password": "Parolă incorectă",

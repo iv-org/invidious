@@ -55,7 +55,6 @@
     "preferences_volume_label": "Grotuvo garsas: ",
     "preferences_comments_label": "Numatytieji komentarai: ",
     "youtube": "YouTube",
-    "reddit": "Reddit",
     "preferences_captions_label": "Numatytieji subtitrai: ",
     "Fallback captions: ": "Atsarginiai subtitrai: ",
     "preferences_related_videos_label": "Rodyti susijusius vaizdo įrašus: ",
@@ -150,12 +149,10 @@
     "Premieres `x`": "Premjera`x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Sveiki! Panašu, kad turite išjungę „JavaScript“. Spustelėkite čia norėdami peržiūrėti komentarus, atminkite, kad jų įkėlimas gali užtrukti šiek tiek ilgiau.",
     "View YouTube comments": "Žiūrėti YouTube komentarus",
-    "View more comments on Reddit": "Žiūrėti daugiau komentarų Reddit",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Žiūrėti `x` komentarus",
         "": "Žiūrėti `x` komentarus"
     },
-    "View Reddit comments": "Žiūrėti Reddit komentarus",
     "Hide replies": "Slėpti atsakymus",
     "Show replies": "Rodyti atsakymus",
     "Incorrect password": "Slaptažodis neteisingas",

@@ -55,7 +55,6 @@
     "preferences_volume_label": "Spilara hljóðstyrkur: ",
     "preferences_comments_label": "Sjálfgefin ummæli: ",
     "youtube": "YouTube",
-    "reddit": "Reddit",
     "preferences_captions_label": "Sjálfgefin texti: ",
     "Fallback captions: ": "Varatextar: ",
     "preferences_related_videos_label": "Sýna tengd myndskeið? ",
@@ -141,12 +140,10 @@
     "Premieres `x`": "Frumflutt `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Hæ! Lítur út eins og þú hafir slökkt á JavaScript. Smelltu hér til að skoða ummæli, hafðu í huga að þær geta tekið aðeins lengri tíma að hlaða.",
     "View YouTube comments": "Skoða YouTube ummæli",
-    "View more comments on Reddit": "Skoða fleiri ummæli á Reddit",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Skoða `x` ummæli",
         "": "Skoða `x` ummæli"
     },
-    "View Reddit comments": "Skoða Reddit ummæli",
     "Hide replies": "Fela svör",
     "Show replies": "Sýna svör",
     "Incorrect password": "Rangt lykilorð",

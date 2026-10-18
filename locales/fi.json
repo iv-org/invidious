@@ -55,7 +55,6 @@
     "preferences_volume_label": "Soittimen äänenvoimakkuus: ",
     "preferences_comments_label": "Oletuskommentit: ",
     "youtube": "YouTube",
-    "reddit": "Reddit",
     "preferences_captions_label": "Oletustekstitykset: ",
     "Fallback captions: ": "Toissijaiset tekstitykset: ",
     "preferences_related_videos_label": "Näytä aiheeseen liittyviä videoita: ",
@@ -149,12 +148,10 @@
     "Premieres `x`": "Ensiesitykseen `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Hei! Vaikuttaa siltä, että sinulla on JavaScript pois käytöstä. Klikkaa tästä nähdäksesi kommentit, huomioi että lataamisessa voi kestää melko kauan.",
     "View YouTube comments": "Näytä YouTube-kommentit",
-    "View more comments on Reddit": "Katso lisää kommentteja Redditissä",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Katso `x` kommentti",
         "": "Katso `x` kommenttia"
     },
-    "View Reddit comments": "Katso Reddit-kommentit",
     "Hide replies": "Piilota vastaukset",
     "Show replies": "Näytä vastaukset",
     "Incorrect password": "Väärä salasana",

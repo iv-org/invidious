@@ -42,7 +42,6 @@
     "preferences_volume_label": "Гучнасць прайгравальніка: ",
     "preferences_comments_label": "Прадвызначаныя каментарыі: ",
     "youtube": "YouTube",
-    "reddit": "Reddit",
     "invidious": "Invidious",
     "preferences_related_videos_label": "Паказваць падобныя відэа: ",
     "preferences_category_visual": "Візуальныя налады",
@@ -385,12 +384,10 @@
     "Show less": "Паказаць менш",
     "Watch on YouTube": "Паглядзець на YouTube",
     "search_message_no_results": "Нічога не знойдзена.",
-    "View more comments on Reddit": "Паглядзець больш каментарыяў на Reddit",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Праглядзець `x` каментарый",
         "": "Праглядзець `x` каментарыяў"
     },
-    "View Reddit comments": "Праглядзець каментарыі на Reddit",
     "Wrong username or password": "Няправільнае імя карыстальніка або пароль",
     "Password cannot be empty": "Пароль не можа быць пустым",
     "Password cannot be longer than 55 characters": "Пароль не можа быць даўжэйшым за 55 сімвалаў",

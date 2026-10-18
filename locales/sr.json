@@ -174,7 +174,6 @@
         "([^.,0-9]|^)1([^.,0-9]|$)": "Pogledaj `x` komentar",
         "": "Pogledaj`x` komentara"
     },
-    "View Reddit comments": "Pogledaj Reddit komentare",
     "CAPTCHA is a required field": "CAPTCHA je obavezno polje",
     "Croatian": "Hrvatski",
     "Estonian": "Estonski",
@@ -241,7 +240,6 @@
     "View privacy policy.": "Pogledaj politiku privatnosti.",
     "Change password": "Promeni lozinku",
     "Malayalam": "Malajalamski",
-    "View more comments on Reddit": "Pogledaj više komentara na Reddit-u",
     "Portuguese": "Portugalski",
     "View YouTube comments": "Pogledaj YouTube komentare",
     "published - reverse": "objavljeno - obrnuto",
@@ -353,7 +351,6 @@
     "Family friendly? ": "Pogodno za porodicu? ",
     "next_steps_error_message_refresh": "Osvežite",
     "youtube": "YouTube",
-    "reddit": "Reddit",
     "unsubscribe": "prekini praćenje",
     "Blacklisted regions: ": "Nedostupni regioni: ",
     "Polish": "Poljski",

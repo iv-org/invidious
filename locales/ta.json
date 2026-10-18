@@ -294,7 +294,6 @@
     "preferences_quality_dash_option_1440p": "1440 ப",
     "preferences_quality_dash_option_240p": "240 ப",
     "youtube": "YouTube",
-    "reddit": "ரெடிட்",
     "invidious": "வெகுவாக",
     "preferences_extend_desc_label": "வீடியோ விளக்கத்தை தானாக நீட்டிக்கவும்: ",
     "preferences_region_label": "உள்ளடக்க நாடு: ",
@@ -354,12 +353,10 @@
     "Premieres `x`": "பிரீமியர்ச் `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "ஆய்! நீங்கள் சாவாச்கிரிப்ட் முடக்கப்பட்டிருப்பது போல் தெரிகிறது. கருத்துகளைக் காண இங்கே சொடுக்கு செய்க, அவர்கள் ஏற்றுவதற்கு சிறிது நேரம் ஆகலாம் என்பதை நினைவில் கொள்ளுங்கள்.",
     "View YouTube comments": "YouTube கருத்துகளைக் காண்க",
-    "View more comments on Reddit": "ரெடிட் குறித்த கூடுதல் கருத்துகளைக் காண்க",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`X` கருத்தைக் காண்க",
         "": "`X` கருத்துகளைக் காண்க"
     },
-    "View Reddit comments": "ரெடிட் கருத்துகளைக் காண்க",
     "Hide replies": "பதில்களை மறைக்கவும்",
     "Wrong username or password": "தவறான பயனர்பெயர் அல்லது கடவுச்சொல்",
     "Password cannot be longer than 55 characters": "கடவுச்சொல் 55 எழுத்துகளை விட நீளமாக இருக்க முடியாது",

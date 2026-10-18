@@ -99,7 +99,6 @@
     "preferences_volume_label": "Widergabeluutstärchi: ",
     "preferences_comments_label": "Standardkommentär: ",
     "youtube": "YouTube",
-    "reddit": "Reddit",
     "invidious": "Invidious",
     "preferences_captions_label": "Standarduntertitel: ",
     "Fallback captions: ": "Ersatzuntertitel: ",
@@ -210,12 +209,10 @@
     "Premieres `x`": "Premiere `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Hallo! Anschinend hesch du JavaScript deaktiviert. Klick da, zum Kommentär aazzeige, beacht, dass es chli länger duure cha, zum sie z lade.",
     "View YouTube comments": "YouTube Kommentär aazeige",
-    "View more comments on Reddit": "Meh Kommentär uf Reddit aazeige",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Kommentar aazeige",
         "": "`x` Kommentär aazeige"
     },
-    "View Reddit comments": "Reddit-Kommentär aazeige",
     "Hide replies": "Antworte verstecke",
     "Show replies": "Antworte aazeige",
     "Incorrect password": "Falschs Passwort",

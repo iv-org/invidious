@@ -60,7 +60,6 @@
     "preferences_volume_label": "播放器音量: ",
     "preferences_comments_label": "默认评论源: ",
     "youtube": "YouTube",
-    "reddit": "Reddit",
     "preferences_captions_label": "默认字幕语言: ",
     "Fallback captions: ": "后备字幕语言: ",
     "preferences_related_videos_label": "是否显示相关视频: ",
@@ -157,12 +156,10 @@
     "Premieres `x`": "首映于 `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "你好！看起来你关闭了 JavaScript。点击这里阅读评论。注意它们加载的时间可能会稍长。",
     "View YouTube comments": "查看 YouTube 评论",
-    "View more comments on Reddit": "在 Reddit 查看更多评论",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "查看 `x` 条评论",
         "": "查看 `x` 条评论"
     },
-    "View Reddit comments": "查看 Reddit 评论",
     "Hide replies": "隐藏回复",
     "Show replies": "显示回复",
     "Incorrect password": "密码错误",
@@ -493,7 +490,5 @@
     "preferences_search_privacy_label": "搜索隐私： ",
     "preferences_search_privacy_description": "启用此首选项会阻止在浏览器历史记录中保存搜索条目。",
     "comments_youtube_disabled_text": "此视频禁用了 YouTube 评论",
-    "comments_youtube_disabled_try_reddit": "尝试 reddit 评论?",
-    "comments_invidious_disabled_text": "根据用户设置隐藏了评论",
-    "comments_youtube_disabled_try_reddit_no_js": "嘿！看起来你关闭了 JavaScript。虽然上传者禁用了 YouTube 评论，你仍可以单击此处尝试并查看 Reddit 评论，可能需要较长时间才能加载。"
+    "comments_invidious_disabled_text": "根据用户设置隐藏了评论"
 }

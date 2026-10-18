@@ -65,7 +65,6 @@
     "preferences_volume_label": "صدای پخش کننده: ",
     "preferences_comments_label": "نظرات پیشفرض: ",
     "youtube": "یوتیوب",
-    "reddit": "ردیت",
     "preferences_captions_label": "زیرنویس‌های پیشفرض: ",
     "Fallback captions: ": "عقب‌گرد زیرنویس‌ها: ",
     "preferences_related_videos_label": "نمایش ویدیوهای مرتبط: ",
@@ -164,12 +163,10 @@
     "Premieres `x`": "برای اولین بار `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "سلام! مثل اینکه تو جاوا اسکریپت رو خاموش کرده ای. اینجا کلیک کن تا نظرات را ببینی، این رو یادت باشه که ممکنه بارگذاری اونها کمی طول بکشه.",
     "View YouTube comments": "نمایش نظرات یوتیوب",
-    "View more comments on Reddit": "نمایش نظرات بیشتر در ردیت",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "نمایش `x` نظرات",
         "": "نمایش `x` نظرات"
     },
-    "View Reddit comments": "نمایش نظرات ردیت",
     "Hide replies": "مخفی کردن پاسخ ها",
     "Show replies": "نمایش پاسخ ها",
     "Incorrect password": "گذرواژه نا درست",

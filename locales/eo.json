@@ -55,7 +55,6 @@
     "preferences_volume_label": "Ludila sonforteco: ",
     "preferences_comments_label": "Defaŭltaj komentoj: ",
     "youtube": "JuTubo",
-    "reddit": "Reddit",
     "preferences_captions_label": "Defaŭltaj subtekstoj: ",
     "Fallback captions: ": "Retrodefaŭltaj subtekstoj: ",
     "preferences_related_videos_label": "Ĉu montri rilatajn filmetojn? ",
@@ -150,12 +149,10 @@
     "Premieres `x`": "Premieras `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Saluton! Ŝajnas, ke vi havas Ĝavoskripton malebligitan. Klaku ĉi tie por vidi komentojn, memoru, ke la ŝargado povus daŭri iom pli.",
     "View YouTube comments": "Vidi komentojn de JuTubo",
-    "View more comments on Reddit": "Vidi pli komentoj en Reddit",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Vidi `x` komenton",
         "": "Vidi `x` komentojn"
     },
-    "View Reddit comments": "Vidi komentojn de Reddit",
     "Hide replies": "Kaŝi respondojn",
     "Show replies": "Montri respondojn",
     "Incorrect password": "Malbona pasvorto",

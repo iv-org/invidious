@@ -55,7 +55,6 @@
     "preferences_volume_label": "Glasnoća playera: ",
     "preferences_comments_label": "Standardni komentari: ",
     "youtube": "YouTube",
-    "reddit": "Reddit",
     "preferences_captions_label": "Standardni titlovi: ",
     "Fallback captions: ": "Alternativni titlovi: ",
     "preferences_related_videos_label": "Prikaži povezana videa: ",
@@ -150,12 +149,10 @@
     "Premieres `x`": "Premijera `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Bok! Izgleda da je JavaScript isključen. Pritisni ovdje za prikaz komentara. Učitavanje će možda trajati malo duže.",
     "View YouTube comments": "Prikaži YouTube komentare",
-    "View more comments on Reddit": "Prikaži još komentara na Redditu",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Prikaži `x` komentara.([^.,0-9]|^)1([^.,0-9]|$)",
         "": "Prikaži `x` komentara"
     },
-    "View Reddit comments": "Prikaži Reddit komentare",
     "Hide replies": "Sakrij odgovore",
     "Show replies": "Prikaži odgovore",
     "Incorrect password": "Neispravna lozinka",

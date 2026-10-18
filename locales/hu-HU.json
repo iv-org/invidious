@@ -65,7 +65,6 @@
     "preferences_volume_label": "Hangerő: ",
     "preferences_comments_label": "Mindig innen legyenek betöltve a hozzászólások: ",
     "youtube": "YouTube",
-    "reddit": "Reddit",
     "preferences_captions_label": "Felirat nyelvének sorrendje: ",
     "Fallback captions: ": "Másodlagos feliratok: ",
     "preferences_related_videos_label": "Hasonló videók ajánlása: ",
@@ -159,12 +158,10 @@
     "Premieres `x`": "`x` lesz a premierje",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Helló! Úgy tűnik a JavaScript ki van kapcsolva a böngészőben. Ide kattintva lehet olvasni a hozzászólásokat, de a betöltésük így kicsit több időbe telik.",
     "View YouTube comments": "YouTube-on lévő hozzászólások olvasása",
-    "View more comments on Reddit": "A többi hozzászólás olvasása Redditen",
     "View `x` comments": {
         "": "`x` hozzászólás olvasása",
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` hozzászólás olvasása"
     },
-    "View Reddit comments": "Redditen lévő hozzászólások olvasása",
     "Hide replies": "Válaszok elrejtése",
     "Show replies": "Válaszok mutatása",
     "Incorrect password": "A jelszó nem megfelelő",

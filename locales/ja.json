@@ -60,7 +60,6 @@
     "preferences_volume_label": "プレイヤーの音量: ",
     "preferences_comments_label": "デフォルトのコメント: ",
     "youtube": "YouTube",
-    "reddit": "Reddit",
     "preferences_captions_label": "優先する字幕: ",
     "Fallback captions: ": "フォールバック時の字幕: ",
     "preferences_related_videos_label": "関連動画を表示: ",
@@ -157,12 +156,10 @@
     "Premieres `x`": "`x`にプレミア公開",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "やあ！君は JavaScript を無効にしているのかな？ここをクリックしてコメントを見れるけど、読み込みには少し時間がかかることがあるのを覚えておいてね。",
     "View YouTube comments": "YouTube のコメントを表示",
-    "View more comments on Reddit": "Reddit でコメントをもっと見る",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 件のコメントを表示",
         "": "`x` 件のコメントを表示"
     },
-    "View Reddit comments": "Reddit のコメントを表示",
     "Hide replies": "返信を非表示",
     "Show replies": "返信を表示",
     "Incorrect password": "パスワードが間違っています",

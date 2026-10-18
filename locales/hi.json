@@ -111,7 +111,6 @@
     "preferences_comments_label": "डिफ़ॉल्ट टिप्पणियाँ: ",
     "preferences_volume_label": "प्लेयर का वॉल्यूम: ",
     "youtube": "YouTube",
-    "reddit": "Reddit",
     "invidious": "Invidious",
     "preferences_captions_label": "डिफ़ॉल्ट कैप्शन: ",
     "Fallback captions: ": "वैकल्पिक कैप्शन: ",
@@ -210,12 +209,10 @@
     "Premieres `x`": "`x` को प्रीमिर होगा",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "नमस्कार! ऐसा लगता है कि आपका जावास्क्रिप्ट अक्षम है। टिप्पणियाँ देखने के लिए यहाँ क्लिक करें, लेकिन याद रखें कि इन्हें लोड होने में थोड़ा ज़्यादा समय लग सकता है।",
     "View YouTube comments": "YouTube टिप्पणियाँ देखें",
-    "View more comments on Reddit": "Reddit पर अधिक टिप्पणियाँ देखें",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` टिप्पणी देखें",
         "": "`x` टिप्पणियाँ देखें"
     },
-    "View Reddit comments": "Reddit पर टिप्पणियाँ",
     "Hide replies": "जवाब छिपाएँ",
     "Show replies": "जवाब दिखाएँ",
     "Incorrect password": "गलत पासवर्ड",

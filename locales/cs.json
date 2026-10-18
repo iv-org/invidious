@@ -55,7 +55,6 @@
     "preferences_volume_label": "Hlasitost přehrávače: ",
     "preferences_comments_label": "Předpřipravené komentáře: ",
     "youtube": "YouTube",
-    "reddit": "Reddit",
     "preferences_captions_label": "Výchozí titulky: ",
     "Fallback captions: ": "Záložní titulky: ",
     "preferences_related_videos_label": "Zobrazit podobná videa: ",
@@ -329,7 +328,6 @@
     "preferences_quality_option_medium": "Střední",
     "preferences_quality_dash_option_1440p": "1440p",
     "invidious": "Invidious",
-    "View more comments on Reddit": "Zobrazit více komentářů na Redditu",
     "generic_playlists_count_0": "{{count}} playlist",
     "generic_playlists_count_1": "{{count}} playlisty",
     "generic_playlists_count_2": "{{count}} playlistů",
@@ -412,7 +410,6 @@
     "preferences_save_player_pos_label": "Uložit pozici přehrávání: ",
     "Incorrect password": "Nesprávné heslo",
     "View as playlist": "Zobrazit jako playlist",
-    "View Reddit comments": "Zobrazit komentáře z Redditu",
     "No such user": "Uživatel nenalezen",
     "Playlist privacy": "Soukromí playlistu",
     "Wrong answer": "Špatná odpověď",
@@ -527,7 +524,5 @@
     "preferences_search_privacy_label": "Soukromé vyhledávání: ",
     "preferences_search_privacy_description": "Povolení tohoto nastavení zabrání uložení vašich vyhledávání v historii prohlížeče.",
     "comments_youtube_disabled_text": "YouTube komentáře jsou u tohoto videa zakázány",
-    "comments_youtube_disabled_try_reddit": "Zkusit Reddit komentáře?",
-    "comments_invidious_disabled_text": "Komentáře jsou skryty v souladu s nastavením uživatele",
-    "comments_youtube_disabled_try_reddit_no_js": "Dobrý den! Vypadá to, že máte vypnutý JavaScript. Ačkoli autor videa zakázal YouTube komentáře, můžete přesto kliknout sem pro vyzkoušení zobrazení komentářů na Redditu – jejich načtení může nicméně trvat trochu déle."
+    "comments_invidious_disabled_text": "Komentáře jsou skryty v souladu s nastavením uživatele"
 }

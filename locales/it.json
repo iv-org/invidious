@@ -64,7 +64,6 @@
     "preferences_volume_label": "Volume di riproduzione: ",
     "preferences_comments_label": "Origine dei commenti: ",
     "youtube": "YouTube",
-    "reddit": "Reddit",
     "preferences_captions_label": "Sottotitoli predefiniti: ",
     "Fallback captions: ": "Sottotitoli alternativi: ",
     "preferences_related_videos_label": "Mostra video correlati: ",
@@ -162,12 +161,10 @@
     "Premieres `x`": "In anteprima `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Ciao, Sembra che tu abbia disattivato JavaScript. Clicca qui per visualizzare i commenti, ma considera che il caricamento potrebbe richiedere più tempo.",
     "View YouTube comments": "Visualizza i commenti da YouTube",
-    "View more comments on Reddit": "Visualizza più commenti su Reddit",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Visualizza `x` commento",
         "": "Visualizza `x` commenti"
     },
-    "View Reddit comments": "Visualizza i commenti da Reddit",
     "Hide replies": "Nascondi le risposte",
     "Show replies": "Mostra le risposte",
     "Incorrect password": "Password sbagliata",
@@ -527,7 +524,5 @@
     "preferences_search_privacy_label": "Privacy di ricerca: ",
     "preferences_search_privacy_description": "Attivare questa preferenza eviterà che le tue ricerche vengano salvate nella cronologia del browser.",
     "comments_youtube_disabled_text": "I commenti di Youtube sono disattivati in questo video",
-    "comments_youtube_disabled_try_reddit": "Provare con i commenti di Reddit?",
-    "comments_invidious_disabled_text": "I commenti sono nascosti secondo le preferenze dell'utente",
-    "comments_youtube_disabled_try_reddit_no_js": "Ciao! Sembra che tu abbia disattivato JavaScript. Anche se l'autore ha disattivato i commenti di YouTube, puoi comunque cliccare qui per provare a vedere i commenti di Reddit, tenendo presente che possono richiedere un po' più tempo per caricare."
+    "comments_invidious_disabled_text": "I commenti sono nascosti secondo le preferenze dell'utente"
 }

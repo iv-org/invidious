@@ -194,7 +194,6 @@
     "View privacy policy.": "Mostra la política de privadesa.",
     "Public": "Públic",
     "View all playlists": "Mostra totes les llistes de reproducció",
-    "reddit": "Reddit",
     "Manage tokens": "Gestiona testimonis",
     "Not a playlist.": "No és una llista de reproducció.",
     "preferences_local_label": "Vídeos de Proxy: ",
@@ -216,12 +215,10 @@
     "Album: ": "Àlbum: ",
     "Shared `x`": "Compartit el dia `x`",
     "Premieres `x`": "S'estrena el dia `x`",
-    "View more comments on Reddit": "Mostra més comentaris de Reddit",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Mostra `x` comentari",
         "": "Mostra `x` comentaris"
     },
-    "View Reddit comments": "Mostra els comentaris de Reddit",
     "Incorrect password": "Contrasenya no correcta",
     "Erroneous CAPTCHA": "CAPTCHA erroni",
     "CAPTCHA is a required field": "El CAPTCHA és un camp obligatori",

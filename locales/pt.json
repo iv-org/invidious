@@ -138,12 +138,10 @@
     "Incorrect password": "Palavra-passe incorreta",
     "Show replies": "Mostrar respostas",
     "Hide replies": "Ocultar respostas",
-    "View Reddit comments": "Ver comentários do Reddit",
     "View `x` comments": {
         "": "Ver `x` comentários",
         "([^.,0-9]|^)1([^.,0-9]|$)": "Ver `x` comentário"
     },
-    "View more comments on Reddit": "Ver mais comentários no Reddit",
     "View YouTube comments": "Ver comentários do YouTube",
     "Premieres `x`": "Estreia `x`",
     "Premieres in `x`": "Estreia a `x`",
@@ -221,7 +219,6 @@
     "preferences_related_videos_label": "Mostrar vídeos relacionados: ",
     "Fallback captions: ": "Legendas alternativas: ",
     "preferences_captions_label": "Legendas padrão: ",
-    "reddit": "Reddit",
     "youtube": "YouTube",
     "preferences_comments_label": "Comentários padrão: ",
     "preferences_volume_label": "Volume de reprodução: ",

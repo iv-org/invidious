@@ -56,7 +56,6 @@
     "preferences_volume_label": "Громкость видео: ",
     "preferences_comments_label": "Источник комментариев: ",
     "youtube": "YouTube",
-    "reddit": "Reddit",
     "preferences_captions_label": "Основной язык субтитров: ",
     "Fallback captions: ": "Дополнительный язык субтитров: ",
     "preferences_related_videos_label": "Показывать похожие видео? ",
@@ -151,12 +150,10 @@
     "Premieres `x`": "Премьера `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Похоже, у вас отключён JavaScript. Нажмите сюда, чтобы увидеть комментарии. Но учтите: они могут загружаться немного медленнее.",
     "View YouTube comments": "Показать комментарии с YouTube",
-    "View more comments on Reddit": "Посмотреть больше комментариев на Reddit",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Показано `x` комментариев",
         "": "Показано `x` комментариев"
     },
-    "View Reddit comments": "Смотреть комментарии с Reddit",
     "Hide replies": "Скрыть ответы",
     "Show replies": "Показать ответы",
     "Incorrect password": "Неправильный пароль",
@@ -526,8 +523,6 @@
     "dmca_content": "Это видео не может быть загружено на данный экземпляр из-за DMCA/письма о нарушении авторских прав, отправленного администратору экземпляра.",
     "preferences_search_privacy_description": "Включение этой настройки предотвратит сохранение ваших поисковых запросов в истории вашего браузера.",
     "preferences_search_privacy_label": "Конфиденциальность поиска: ",
-    "comments_youtube_disabled_try_reddit_no_js": "Привет! Похоже, у вас отключен JavaScript. Хотя загрузчик отключил комментарии c YouTube, вы все равно можете нажать здесь, чтобы попытаться просмотреть комментарии c Reddit, но имейте в виду, что их загрузка может занять немного больше времени.",
     "comments_youtube_disabled_text": "Комментарии c Youtube отключены для этого видео",
-    "comments_youtube_disabled_try_reddit": "Попробуйте комментарии с reddit?",
     "comments_invidious_disabled_text": "Комментарии скрыты в соответствии с пользовательскими настройками"
 }

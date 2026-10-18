@@ -55,7 +55,6 @@
     "preferences_volume_label": "Oynatıcı Ses Seviyesi: ",
     "preferences_comments_label": "Öntanımlı Yorumlar: ",
     "youtube": "YouTube",
-    "reddit": "Reddit",
     "preferences_captions_label": "Öntanımlı Altyazılar: ",
     "Fallback captions: ": "Yedek Altyazılar: ",
     "preferences_related_videos_label": "İlgili Videoları Göster: ",
@@ -150,12 +149,10 @@
     "Premieres `x`": "`x` İlk Gösterim",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Merhaba! JavaScript'i kapatmış gibi görünüyorsun. Yorumları görüntülemek için buraya tıkla, yüklenmelerinin biraz uzun sürebileceğini unutma.",
     "View YouTube comments": "YouTube Yorumlarını Görüntüle",
-    "View more comments on Reddit": "Reddit'te Daha Fazla Yorum Görüntüle",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Yorumu Görüntüle",
         "": "`x` Yorumu Görüntüle"
     },
-    "View Reddit comments": "Reddit Yorumlarını Görüntüle",
     "Hide replies": "Cevapları Gizle",
     "Show replies": "Cevapları Göster",
     "Incorrect password": "Yanlış Parola",
@@ -510,7 +507,5 @@
     "preferences_search_privacy_label": "Arama gizliliği: ",
     "preferences_search_privacy_description": "Bu ayarı etkinleştirdiğinizde, arama sorgularınız tarayıcı geçmişinize kaydedilmez.",
     "comments_youtube_disabled_text": "Bu videoda YouTube yorumları devre dışı bırakıldı",
-    "comments_youtube_disabled_try_reddit": "Reddit yorumları denensin mi?",
-    "comments_invidious_disabled_text": "Kullanıcı tercihlerine göre yorumlar gizlendi",
-    "comments_youtube_disabled_try_reddit_no_js": "Merhaba! Görünüşe göre JavaScript kapalı. Yükleyici, YouTube yorumlarını devre dışı bırakmış olsa da, yine de buraya tıklayarak Reddit yorumlarını görüntülemeyi deneyebilirsiniz; ancak bunların yüklenmesinin biraz daha uzun sürebileceğini unutmayın."
+    "comments_invidious_disabled_text": "Kullanıcı tercihlerine göre yorumlar gizlendi"
 }
