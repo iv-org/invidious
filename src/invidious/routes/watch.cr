@@ -73,24 +73,12 @@ module Invidious::Routes::Watch
 
     if nojs
       if preferences
-        # Disables youtube comments
         source = preferences.comments[0]
 
         if source.empty?
           source = preferences.comments[1]
+          comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
         end
-
-        if source == "youtube"
-          begin
-            comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
-          rescue
-            if preferences.comments[1] == "youtube"
-              comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
-            end
-          end
-        end
-      else
-        comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
       end
 
       comment_html ||= ""
