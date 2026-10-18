@@ -346,6 +346,18 @@ module Invidious::Routes::API::V1::Videos
     continuation = env.params.query["continuation"]?
     sort_by = env.params.query["sort_by"]?.try &.downcase
 
+
+    # 2026-10-18: Make a mechanism to remove unused
+    # preferences from PREFS cookie of the clients
+    # when some preferences are changed, like this one
+    # which is a Reedit comments deprecation that appears
+    # on preferences.
+    #
+    # Fallback for API users that still use Reddit as a source
+    if source == "reddit"
+      return error_json(410, RedditIsDeprecated.new)
+    end
+
     if source == "youtube"
       sort_by ||= "top"
 
