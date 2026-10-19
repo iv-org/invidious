@@ -44,6 +44,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 import urllib.error
 import urllib.request
 
@@ -52,6 +53,10 @@ DEFAULT_MODEL = "deepseek/deepseek-v4-flash-0731"
 REPO_URL = "https://github.com/iv-org/invidious"
 CHANGELOG_FILE = "CHANGELOG.md"
 SHARD_FILE = "shard.yml"
+LLM_ATTEMPTS = 3
+# Per-attempt wall-clock limit. The socket timeout alone is not enough, as
+# OpenRouter keeps idle connections alive by trickling whitespace.
+LLM_DEADLINE = 600
 
 
 def die(msg):
@@ -212,29 +217,57 @@ def call_llm(base_url, api_key, model, prompt):
         ],
         "temperature": 0.3,
     }
-    req = urllib.request.Request(
-        url, data=json.dumps(payload).encode("utf-8"),
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-            # OpenRouter-specific attribution headers; ignored by other APIs.
-            "HTTP-Referer": REPO_URL,
-            "X-Title": "Invidious release changelog",
-        }, method="POST")
-    try:
-        with urllib.request.urlopen(req, timeout=180) as resp:
-            body = json.loads(resp.read().decode("utf-8"))
-    except urllib.error.HTTPError as exc:
-        die(f"LLM API HTTP {exc.code}: {exc.read().decode('utf-8', 'replace')}")
-    except urllib.error.URLError as exc:
-        die(f"LLM API request failed: {exc}")
-    try:
-        content = body["choices"][0]["message"]["content"].strip()
-    except (KeyError, IndexError):
-        die(f"unexpected LLM API response: {json.dumps(body)[:1000]}")
-    if not content:
-        die("LLM API returned empty content")
-    return content
+    data = json.dumps(payload).encode("utf-8")
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+        # OpenRouter-specific attribution headers; ignored by other APIs.
+        "HTTP-Referer": REPO_URL,
+        "X-Title": "Invidious release changelog",
+    }
+    error = None
+    for attempt in range(1, LLM_ATTEMPTS + 1):
+        if error:
+            print(f"LLM attempt {attempt - 1}/{LLM_ATTEMPTS} failed: {error}; "
+                  "retrying...", file=sys.stderr)
+            time.sleep(10 * (attempt - 1))
+        req = urllib.request.Request(url, data=data, headers=headers,
+                                     method="POST")
+        try:
+            deadline = time.monotonic() + LLM_DEADLINE
+            raw = b""
+            with urllib.request.urlopen(req, timeout=180) as resp:
+                while chunk := resp.read1(8192):
+                    raw += chunk
+                    if time.monotonic() > deadline:
+                        raise TimeoutError(f"no answer after {LLM_DEADLINE}s")
+            body = json.loads(raw.decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            error = f"HTTP {exc.code}: {exc.read().decode('utf-8', 'replace')}"
+            # Client errors (bad key, unknown model...) won't fix themselves.
+            if exc.code < 500 and exc.code != 429:
+                break
+            continue
+        except (urllib.error.URLError, TimeoutError) as exc:
+            error = f"request failed: {exc}"
+            continue
+        except json.JSONDecodeError as exc:
+            error = f"invalid JSON response: {exc}"
+            continue
+        try:
+            choice = body["choices"][0]
+        except (KeyError, IndexError, TypeError):
+            error = f"unexpected response: {json.dumps(body)[:1000]}"
+            continue
+        # Providers may return a choice with null content (upstream error,
+        # all tokens spent on reasoning...); report why instead of crashing.
+        content = ((choice.get("message") or {}).get("content") or "").strip()
+        if content:
+            return content
+        error = ("empty content (finish_reason="
+                 f"{choice.get('finish_reason')!r}, "
+                 f"error={json.dumps(choice.get('error') or body.get('error'))})")
+    die(f"LLM API failed after {attempt} attempt(s): {error}")
 
 
 def generate_prose(prs, version, base_url, api_key, model):
