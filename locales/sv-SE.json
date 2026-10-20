@@ -508,5 +508,9 @@
     "timeline_parse_error_placeholder_message": "Invidious stötte på ett fel när det här objektet skulle analyseras. För mer information, se nedan:",
     "dmca_content": "Den här videon kan inte laddas ner på den här instansen på grund av ett DMCA/upphovsrättsintrångsbrev som skickats till instansadministratören.",
     "preferences_search_privacy_label": "Söksekretess: ",
-    "preferences_search_privacy_description": "Om du aktiverar den här inställningen sparas inte dina sökfrågor i din webbhistorik."
+    "preferences_search_privacy_description": "Om du aktiverar den här inställningen sparas inte dina sökfrågor i din webbhistorik.",
+    "comments_youtube_disabled_text": "Youtube kommentarer är inaktiverade för den här videon",
+    "comments_youtube_disabled_try_reddit": "Prova reddit kommentarer?",
+    "comments_invidious_disabled_text": "Kommentarer är dolda enligt användarinställningar",
+    "comments_youtube_disabled_try_reddit_no_js": "Hej! Det verkar som att du har inaktiverat JavaScript. Även om uppladdaren har inaktiverat YouTube-kommentarer kan du fortfarande klicka här för att försöka visa Reddit-kommentarer. Tänk på att de kan ta lite längre tid att ladda."
 }
