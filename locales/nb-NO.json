@@ -506,5 +506,11 @@
     "timeline_parse_error_placeholder_message": "Invidious traff på en feil under parsingen av dette elementet. For mer informasjon, se under:",
     "timeline_parse_error_show_technical_details": "Vis tekniske detaljer",
     "Livestreams": "Direktesendinger",
-    "dmca_content": "Denne siden kan ikke lastes ned fra denne instansen på grunn av et DMCA/brev om opphavsrettsbrudd sendt til instansadministratoren."
+    "dmca_content": "Denne siden kan ikke lastes ned fra denne instansen på grunn av et DMCA/brev om opphavsrettsbrudd sendt til instansadministratoren.",
+    "preferences_search_privacy_label": "Privat søk: ",
+    "preferences_search_privacy_description": "Å skru på denne innstillingen vil hindre søkene dine i å lagres i nettleserhistorikken din.",
+    "comments_youtube_disabled_text": "Youtube-kommentarer er skrudd av på denne videoen",
+    "comments_youtube_disabled_try_reddit": "Prøv reddit-kommentarer?",
+    "comments_invidious_disabled_text": "Kommentarene er gjemt på grunn av innstillingene dine",
+    "comments_youtube_disabled_try_reddit_no_js": "Hei! Det er ut som du har skrudd av JavaScript. Selv om den som har lastet opp videoen har skrudd av YouTube-kommentarer kan du fortsatt klikke her for å prøve å se Reddit-kommentarer, men de kan ta litt lenger tid å laste inn."
 }
