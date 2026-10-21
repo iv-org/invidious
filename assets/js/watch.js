@@ -11,14 +11,6 @@ function toggle_parent(target) {
     }
 }
 
-function swap_comments(event) {
-    var source = event.target.getAttribute('data-comments');
-
-    if (source === 'youtube') {
-        get_youtube_comments();
-    }
-}
-
 var continue_button = document.getElementById('continue');
 if (continue_button) {
     continue_button.onclick = continue_autoplay;
