@@ -5,6 +5,85 @@
 
 
 
+
+## v2.20261022.0
+
+### Wrap-up
+
+This release focuses on cleaning up HTTP behaviour, updating the toolchain, and tightening project policies. Image responses no longer include a fake `Content-Length` header on error statuses, and requests to `ytimg.com` now send a proper `User-Agent`. Video IDs are also validated against a regular expression, so malformed IDs are rejected earlier.
+
+For instance owners and developers, the project now builds with Crystal 1.22.0 and prints a clear message when an unsupported version is detected. OCI images have been updated to OpenSSL 3.6.5, and Nix packaging was refreshed with multiple nixpkgs bumps. The codebase was adapted to Ameba 1.7.0, and several CI dependencies were updated.
+
+Finally, the project adopted and refined a policy banning the use of AI to write to or address another human.
+
+### New features & important changes
+
+#### For Users
+- Video IDs are now sanity-checked with a regex, rejecting malformed IDs earlier (#6037)
+- Updated translations from Hosted Weblate (#5919)
+
+#### For instance owners
+- Building from source now requires Crystal 1.22.0; an explicit compile-time error is shown for unsupported versions (#6083, #5909)
+- OCI images now use OpenSSL 3.6.5 (#6080)
+- Nix packaging was updated to newer nixpkgs snapshots (#5907, #5939, #5968, #5997, #6006, #6028, #6064, #6078)
+
+#### For developers
+- Updated to Ameba 1.7.0 and adapted the codebase; spectator was also bumped (#6082, #6047)
+- Lint/UselessAssign now covers `/api` routes (#5900)
+- Removed an unused `locale` argument from `#get_about_info` (#5902)
+- Updated headers sent to innertube in JSON requests (#6040)
+- CI no longer builds OpenSSL tests and apps (#5897)
+- Various CI dependency updates (#6077, #5996, #5938, #5937)
+- Added a maintainer as assignee for Dependabot PRs (#5972)
+- Use full URL for the mocks git submodule (#6066)
+- Added and refined the policy banning AI use for writing or addressing another human (#5904, #5930)
+
+### Bugs fixed
+#### For Users
+- Removed fake `Content-Length` header for non-2xx image responses (#6062)
+- Added a `User-Agent` header for `ytimg.com` requests (#6038)
+
+#### For developers
+- Fixed the stale bot incorrectly claiming it would close PRs in 30 days (#6044)
+
+### Full list of pull requests merged since the last release (newest first)
+
+* fix: remove fake `Content-Length` header for non-2xx image responses (https://github.com/iv-org/invidious/pull/6062, by @alejo7797)
+* chore: update to Crystal 1.22.0 (https://github.com/iv-org/invidious/pull/6083, by @Fijxu)
+* chore: update to ameba 1.7.0 and adapt most of the code to it (https://github.com/iv-org/invidious/pull/6082, by @Fijxu)
+* chore: update OpenSSL to 3.6.5 in OCI (https://github.com/iv-org/invidious/pull/6080, by @Fijxu)
+* chore(deps): update ameba to 1.6.4 and spectator to 1.12.4 (https://github.com/iv-org/invidious/pull/6047, by @Fijxu)
+* chore(deps): bump nixpkgs from `6774f7b` to `151fa4e` in /nix (https://github.com/iv-org/invidious/pull/6078, by @dependabot[bot])
+* chore(deps): bump crystal-lang/install-crystal from 1.9.2 to 1.9.3 (https://github.com/iv-org/invidious/pull/6077, by @dependabot[bot])
+* chore(deps): bump nixpkgs from `dc5d91f` to `6774f7b` in /nix (https://github.com/iv-org/invidious/pull/6064, by @dependabot[bot])
+* chore: Use full URL for mocks git submodule (https://github.com/iv-org/invidious/pull/6066, by @Fijxu)
+* fix: Also add User-Agent for ytimg.com requests (https://github.com/iv-org/invidious/pull/6038, by @Fijxu)
+* chore(deps): bump nixpkgs from `34ab990` to `dc5d91f` in /nix (https://github.com/iv-org/invidious/pull/6028, by @dependabot[bot])
+* chore(ameba): Do not exclude /api routes from Lint/UselessAssign (https://github.com/iv-org/invidious/pull/5900, by @Fijxu)
+* feat: show message for unsupported Crystal versions at compile time (https://github.com/iv-org/invidious/pull/5909, by @Fijxu)
+* chore: Update headers sent to innertube in JSON requests (https://github.com/iv-org/invidious/pull/6040, by @Fijxu)
+* feat: sanity check video IDs with regex (https://github.com/iv-org/invidious/pull/6037, by @Fijxu)
+* Fix stale bot incorrectly claiming it will close PRs in 30 days (https://github.com/iv-org/invidious/pull/6044, by @[bot])
+* chore(deps): bump nixpkgs from `56c02bc` to `34ab990` in /nix (https://github.com/iv-org/invidious/pull/6006, by @dependabot[bot])
+* chore(deps): bump actions/checkout from 6 to 7 (https://github.com/iv-org/invidious/pull/5996, by @dependabot[bot])
+* chore(deps): bump nixpkgs from `ffb3c9b` to `56c02bc` in /nix (https://github.com/iv-org/invidious/pull/5997, by @dependabot[bot])
+* chore(deps): bump nixpkgs from `0e251e2` to `ec2d622` in /nix (https://github.com/iv-org/invidious/pull/5968, by @dependabot[bot])
+* chore(deps): bump actions/checkout from 6 to 7 (https://github.com/iv-org/invidious/pull/5782, by @dependabot[bot])
+* chore: Add myself to assignees for Dependabot PRs (https://github.com/iv-org/invidious/pull/5972, by @Fijxu)
+* chore: removed unused `locale` argument in `#get_about_info` function (https://github.com/iv-org/invidious/pull/5902, by @Fijxu)
+* chore(deps): bump nixpkgs from `b7c2ada` to `2fcb964` in /nix (https://github.com/iv-org/invidious/pull/5939, by @dependabot[bot])
+* chore(deps): bump int128/docker-manifest-create-action from 2.25.0 to 2.26.0 (https://github.com/iv-org/invidious/pull/5938, by @dependabot[bot])
+* chore(deps): bump 84codes/crystal from 1.20.3-alpine to 1.21.0-alpine in /docker (https://github.com/iv-org/invidious/pull/5937, by @dependabot[bot])
+* Ban the use of AI to write to and/or address another Human (https://github.com/iv-org/invidious/pull/5930, by @TheFrenchGhosty)
+* Translations update from Hosted Weblate (https://github.com/iv-org/invidious/pull/5919, by @weblate)
+* Translations update from Hosted Weblate (https://github.com/iv-org/invidious/pull/5892, by @weblate)
+* chore(deps): bump nixpkgs from `148bab9` to `6438090` in /nix (https://github.com/iv-org/invidious/pull/5907, by @dependabot[bot])
+* Various enhancements and addition to the AI policy (https://github.com/iv-org/invidious/pull/5904, by @TheFrenchGhosty)
+* CI: Do not build OpenSSL tests and apps (https://github.com/iv-org/invidious/pull/5897, by @Fijxu)
+* Release v2.20260804.1 (https://github.com/iv-org/invidious/pull/5896, by @github-actions[bot])
+* fix: pass `-no-pie` link flag argument to include debug information again for OCI (https://github.com/iv-org/invidious/pull/5895, by @Fijxu)
+* Release v2.20260804.0 (https://github.com/iv-org/invidious/pull/5893, by @github-actions[bot])
+
 ## v2.20260804.1
 
 ### Wrap-up
