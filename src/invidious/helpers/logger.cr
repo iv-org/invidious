@@ -14,7 +14,9 @@ end
 class Invidious::LogHandler < Kemal::BaseLogHandler
   def initialize(@io : IO = STDOUT, @level = LogLevel::Debug, use_color : Bool = true)
     Colorize.enabled = use_color
-    Colorize.on_tty_only!
+    {% if compare_versions(Crystal::VERSION, "1.17.0") <= 0 %}
+      Colorize.on_tty_only!
+    {% end %}
   end
 
   def call(context : HTTP::Server::Context)
