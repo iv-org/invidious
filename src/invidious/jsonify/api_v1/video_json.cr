@@ -150,6 +150,26 @@ module Invidious::JSONify::APIv1
               json.field "audioSampleRate", fmt["audioSampleRate"].as_s.to_i if fmt.has_key?("audioSampleRate")
               json.field "audioChannels", fmt["audioChannels"] if fmt.has_key?("audioChannels")
 
+              # Multi-language audio. Only present when a video carries more than
+              # one audio track. The same data already drives the DASH manifest
+              # (see `Invidious::Routes::API::Manifest`), but was never exposed on
+              # the API, leaving clients to scrape `xtags` out of the stream URL.
+if audio_track = fmt["audioTrack"]?.try &.as_h?
+  json.field "audioTrack" do
+    json.object do
+      if id = audio_track["id"]?
+        json.field "id", id
+      end
+      if display_name = audio_track["displayName"]?
+        json.field "displayName", display_name
+      end
+      if audio_is_default = audio_track["audioIsDefault"]?
+        json.field "audioIsDefault", audio_is_default
+      end
+    end
+  end
+end
+
               # Extra misc stuff
               json.field "colorInfo", fmt["colorInfo"] if fmt.has_key?("colorInfo")
               json.field "captionTrack", fmt["captionTrack"] if fmt.has_key?("captionTrack")
