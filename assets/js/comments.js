@@ -73,13 +73,7 @@ function get_youtube_comments() {
             comments.innerHTML = `
             <div id="comments-turned-off-on-video-message" class="h-box v-box">
                 <p><b>${video_data.comments_youtube_disabled_text}</b></p>
-
-                <p><b><button href="javascript:void(0)" data-comments="reddit" id="try-reddit-comments-link" class="simulated_a">
-                    ${video_data.comments_youtube_disabled_try_reddit}
-                </button></b></p>
             </div>`;
-
-            document.getElementById("try-reddit-comments-link").onclick = swap_comments;
         } else {
             comments.innerHTML = fallback; 
         }
@@ -97,21 +91,11 @@ function get_youtube_comments() {
                     <a href="javascript:void(0)">[ − ]</a> \
                     {commentsText}  \
                 </h3> \
-                <b> \
-                '
-                if (video_data.support_reddit) {
-                    commentInnerHtml += ' <a href="javascript:void(0)" data-comments="reddit"> \
-                        {redditComments} \
-                    </a> \
-                    '
-                }
-                commentInnerHtml += ' </b> \
             </div> \
             <div>{contentHtml}</div> \
             <hr>'
             commentInnerHtml = commentInnerHtml.supplant({
                 contentHtml: response.contentHtml,
-                redditComments: video_data.reddit_comments_text,
                 commentsText: video_data.comments_text.supplant({
                     // toLocaleString correctly splits number with local thousands separator. e.g.:
                     // '1,234,567.89' for user with English locale
@@ -122,9 +106,6 @@ function get_youtube_comments() {
             });
             comments.innerHTML = commentInnerHtml;
             comments.children[0].children[0].children[0].onclick = toggle_comments;
-            if (video_data.support_reddit) {
-                comments.children[0].children[1].children[0].onclick = swap_comments;
-            }
         },
         onNon200: onNon200, // declared above
         onError: function (xhr) {

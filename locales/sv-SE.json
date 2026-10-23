@@ -55,7 +55,6 @@
     "preferences_volume_label": "Volym: ",
     "preferences_comments_label": "Förvalda kommentarer: ",
     "youtube": "YouTube",
-    "reddit": "Reddit",
     "preferences_captions_label": "Förvalda undertexter: ",
     "Fallback captions: ": "Ersättningsundertexter: ",
     "preferences_related_videos_label": "Visa relaterade videor? ",
@@ -148,12 +147,10 @@
     "Premieres `x`": "Premiär av `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Hej. Det ser ut som att du har JavaScript avstängt. Klicka här för att visa kommentarer, ha i åtanke att nedladdning tar längre tid.",
     "View YouTube comments": "Visa YouTube-kommentarer",
-    "View more comments on Reddit": "Visa flera kommentarer på Reddit",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Visa `x` kommentar",
         "": "Visa `x` kommentarer"
     },
-    "View Reddit comments": "Visa Reddit-kommentarer",
     "Hide replies": "Dölj svar",
     "Show replies": "Visa svar",
     "Incorrect password": "Fel lösenord",

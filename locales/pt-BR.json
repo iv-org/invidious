@@ -55,7 +55,6 @@
     "preferences_volume_label": "Volume de reprodução: ",
     "preferences_comments_label": "Comentários padrão: ",
     "youtube": "YouTube",
-    "reddit": "Reddit",
     "preferences_captions_label": "Legendas padrão: ",
     "Fallback captions: ": "Legendas alternativas: ",
     "preferences_related_videos_label": "Mostrar vídeos relacionados: ",
@@ -153,12 +152,10 @@
     "Premieres `x`": "Estreia `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Olá! Parece que você está com o JavaScript desativado. Clique aqui para ver os comentários, mas lembre-se de que eles podem demorar um pouco mais para carregar.",
     "View YouTube comments": "Ver comentários no YouTube",
-    "View more comments on Reddit": "Ver mais comentários no Reddit",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Ver `x` comentário",
         "": "Ver `x` comentários"
     },
-    "View Reddit comments": "Ver comentários no Reddit",
     "Hide replies": "Ocultar respostas",
     "Show replies": "Mostrar respostas",
     "Incorrect password": "Senha incorreta",
@@ -527,7 +524,5 @@
     "preferences_search_privacy_label": "Privacidade de pesquisa: ",
     "preferences_search_privacy_description": "Ativar esta preferência prevenirá que suas pesquisas sejam salvas no histórico do navegador.",
     "comments_youtube_disabled_text": "Os comentários do YouTube estão desativados neste vídeo",
-    "comments_youtube_disabled_try_reddit": "Tentar comentários do Reddit?",
-    "comments_invidious_disabled_text": "Os comentários estão escondidos conforme as preferências do usuário",
-    "comments_youtube_disabled_try_reddit_no_js": "Oi! Parece que você está com o JavaScript desativado. Embora a pessoa que enviou o vídeo tenha desativado os comentários do YouTube, você ainda pode clicar aqui para tentar ver os comentários do Reddit. Note que eles podem demorar um pouco mais para carregar."
+    "comments_invidious_disabled_text": "Os comentários estão escondidos conforme as preferências do usuário"
 }

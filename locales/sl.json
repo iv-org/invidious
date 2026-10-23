@@ -46,7 +46,6 @@
     "preferences_quality_dash_option_360p": "360p",
     "preferences_quality_dash_option_240p": "240p",
     "preferences_volume_label": "Glasnost predvajalnika: ",
-    "reddit": "Reddit",
     "preferences_player_style_label": "Slog predvajalnika: ",
     "dark": "temna",
     "light": "svetla",
@@ -110,7 +109,6 @@
     "Shared `x`": "V skupni rabi od: `x`",
     "Premieres `x`": "Premiere `x`",
     "View YouTube comments": "Oglej si YouTube komentarje",
-    "View more comments on Reddit": "Prikaži več komentarjev na Reddit",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Poglej `x` komentar",
         "": "Poglej `x` komentarjev"
@@ -337,7 +335,6 @@
     "Please log in": "Prosim, prijavi se",
     "Playlist does not exist.": "Seznam predvajanja ne obstaja.",
     "Incorrect password": "Napačno geslo",
-    "View Reddit comments": "Oglej si komentarje na Redditu",
     "This channel does not exist.": "Ta kanal ne obstaja.",
     "Hide replies": "Skrij odgovore",
     "Invidious Private Feed for `x`": "Invidious zasebni vir za `x`",
@@ -544,7 +541,5 @@
     "preferences_search_privacy_label": "Zasebnost iskanja: ",
     "preferences_search_privacy_description": "Če to nastavitev omogočiš, se tvoja iskalna poizvedovanja ne bodo shranjevala v zgodovini brskalnika.",
     "comments_youtube_disabled_text": "Komentarji na YouTubu so pri tem videoposnetku onemogočeni",
-    "comments_youtube_disabled_try_reddit": "Morda bi poskusil/a s komentarji na Redditu?",
-    "comments_invidious_disabled_text": "Komentarji so skriti v skladu z nastavitvami uporabnika",
-    "comments_youtube_disabled_try_reddit_no_js": "Zdravo! Videti je, da imaš izklopljen JavaScript. Čeprav je avtor videoposnetka onemogočil komentarje na YouTubu, lahko še vedno klikneš tukaj in si poskusiš ogledati komentarje na Redditu; upoštevaj, da se lahko nalaganje nekoliko podaljša."
+    "comments_invidious_disabled_text": "Komentarji so skriti v skladu z nastavitvami uporabnika"
 }

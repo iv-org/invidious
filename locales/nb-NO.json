@@ -55,7 +55,6 @@
     "preferences_volume_label": "Avspillerlydstyrke: ",
     "preferences_comments_label": "Forvalgte kommentarer: ",
     "youtube": "YouTube",
-    "reddit": "Reddit",
     "preferences_captions_label": "Forvalgte undertitler: ",
     "Fallback captions: ": "Tilbakefallsundertitler: ",
     "preferences_related_videos_label": "Vis relaterte videoer? ",
@@ -150,12 +149,10 @@
     "Premieres `x`": "Première `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Hei. Det ser ut til at du har JavaScript avslått. Klikk her for å vise kommentarer, ha i minnet at innlasting tar lengre tid.",
     "View YouTube comments": "Vis YouTube-kommentarer",
-    "View more comments on Reddit": "Vis flere kommenterer på Reddit",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Vis `x` kommentar",
         "": "Vis `x` kommentarer"
     },
-    "View Reddit comments": "Vis Reddit-kommentarer",
     "Hide replies": "Skjul svar",
     "Show replies": "Vis svar",
     "Incorrect password": "Feil passord",

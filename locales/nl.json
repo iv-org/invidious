@@ -55,7 +55,6 @@
     "preferences_volume_label": "Spelervolume: ",
     "preferences_comments_label": "Reacties tonen van: ",
     "youtube": "YouTube",
-    "reddit": "Reddit",
     "preferences_captions_label": "Standaard ondertiteling: ",
     "Fallback captions: ": "Alternatieve ondertiteling: ",
     "preferences_related_videos_label": "Gerelateerde video's tonen: ",
@@ -145,12 +144,10 @@
     "Premieres `x`": "Verschijnt op `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Hoi! Het lijkt erop dat je JavaScript hebt uitgeschakeld. Klik hier om de reacties te bekijken. Let op: het laden duurt wat langer.",
     "View YouTube comments": "YouTube-reacties tonen",
-    "View more comments on Reddit": "Meer reacties bekijken op Reddit",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` reacties tonen",
         "": "`x` reacties tonen"
     },
-    "View Reddit comments": "Reddit-reacties tonen",
     "Hide replies": "Antwoorden verbergen",
     "Show replies": "Antwoorden tonen",
     "Incorrect password": "Wachtwoord is onjuist",

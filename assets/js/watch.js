@@ -11,16 +11,6 @@ function toggle_parent(target) {
     }
 }
 
-function swap_comments(event) {
-    var source = event.target.getAttribute('data-comments');
-
-    if (source === 'youtube') {
-        get_youtube_comments();
-    } else if (source === 'reddit') {
-        get_reddit_comments();
-    }
-}
-
 var continue_button = document.getElementById('continue');
 if (continue_button) {
     continue_button.onclick = continue_autoplay;
@@ -111,55 +101,6 @@ function get_playlist(plid) {
     });
 }
 
-function get_reddit_comments() {
-    var comments = document.getElementById('comments');
-
-    var fallback = comments.innerHTML;
-    comments.innerHTML = spinnerHTML;
-
-    var url = '/api/v1/comments/' + video_data.id +
-        '?source=reddit&format=html' +
-        '&hl=' + video_data.preferences.locale;
-
-    var onNon200 = function (xhr) { comments.innerHTML = fallback; };
-    if (video_data.params.comments[1] === 'youtube')
-        onNon200 = function (xhr) {};
-
-    helpers.xhr('GET', url, {retries: 5, entity_name: ''}, {
-        on200: function (response) {
-            comments.innerHTML = ' \
-            <div> \
-                <h3> \
-                    <a href="javascript:void(0)">[ − ]</a> \
-                    {title} \
-                </h3> \
-                <p> \
-                    <b> \
-                        <a href="javascript:void(0)" data-comments="youtube"> \
-                            {youtubeCommentsText} \
-                        </a> \
-                    </b> \
-                </p> \
-                <b> \
-                    <a rel="noopener noreferrer" target="_blank" href="https://reddit.com{permalink}">{redditPermalinkText}</a> \
-                </b> \
-            </div> \
-            <div>{contentHtml}</div> \
-            <hr>'.supplant({
-                title: response.title,
-                youtubeCommentsText: video_data.youtube_comments_text,
-                redditPermalinkText: video_data.reddit_permalink_text,
-                permalink: response.permalink,
-                contentHtml: response.contentHtml
-            });
-
-            comments.children[0].children[0].children[0].onclick = toggle_comments;
-            comments.children[0].children[1].children[0].onclick = swap_comments;
-        },
-        onNon200: onNon200, // declared above
-    });
-}
-
 if (video_data.play_next) {
     player.on('ended', function () {
         var url = new URL('https://example.com/watch?v=' + video_data.next_video);
@@ -188,13 +129,7 @@ addEventListener('load', function (e) {
 
     if (video_data.params.comments[0] === 'youtube') {
         get_youtube_comments();
-    } else if (video_data.params.comments[0] === 'reddit') {
-        get_reddit_comments();
     } else if (video_data.params.comments[1] === 'youtube') {
         get_youtube_comments();
-    } else if (video_data.params.comments[1] === 'reddit') {
-        get_reddit_comments();
     }
 });
-
-document.getElementById("try-reddit-comments-link").onclick = swap_comments;

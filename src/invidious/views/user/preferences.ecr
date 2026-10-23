@@ -83,7 +83,7 @@
                 <label for="comments[0]"><%= I18n.translate(locale, "preferences_comments_label") %></label>
                 <% preferences.comments.each_with_index do |comments, index| %>
                     <select name="comments[<%= index %>]" id="comments[<%= index %>]">
-                        <% {"", "youtube", "reddit"}.each do |option| %>
+                        <% {"", "youtube"}.each do |option| %>
                             <option value="<%= option %>" <% if preferences.comments[index] == option %> selected <% end %>><%= I18n.translate(locale, option.blank? ? "none" : option) %></option>
                         <% end %>
                     </select>

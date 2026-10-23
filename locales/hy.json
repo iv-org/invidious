@@ -101,7 +101,6 @@
     "preferences_volume_label": "Բարձրությունը ",
     "preferences_comments_label": "Լռելյայն քոմենթներ ",
     "youtube": "YouTube",
-    "reddit": "Reddit",
     "invidious": "Invidious",
     "preferences_captions_label": "Լռելյայն ենթագրեր ",
     "Fallback captions: ": "Պահեստային ենթագրեր՝ ",
@@ -234,12 +233,10 @@
     "Premieres `x`": "Պրեմիերաներ՝ `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Բարեվվվ, կարծես թե Ձեր JavaScript-ը անջատված է։ Սեղմեք այստեղ՝ քոմենթների համար, սա կարող է մի փոքր երկար բեռնվել։",
     "View YouTube comments": "Տեսնել Յութուբի քոմենթները",
-    "View more comments on Reddit": "Տեսնել ավել քոմենթներ՝ Reddit-ում",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Տեսնել `x` քոմենթը",
         "": "Տեսնել `x` քոմենթը"
     },
-    "View Reddit comments": "Տեսնել Reddit-ի քոմենթները",
     "Hide replies": "Թաքցնել պատասխանները",
     "Show replies": "Ցուցադրել պատասխանները",
     "Incorrect password": "Սխալ գաղտնաբառ",
@@ -510,7 +507,5 @@
     "dmca_content": "Այս տեսանյութը հնարավոր չէ ներբեռնել այս դեպքում՝ DMCA/հեղինակային իրավունքի խախտման մասին նամակի ուղարկման պատճառով, որը ուղարկվել է դեպքի ադմինին։",
     "preferences_thin_mode_label": "Thin (բարակ) ռեժիմ ",
     "comments_youtube_disabled_text": "YouTube-ի քոմենթները անջատված են այս վիդեոյի վրա",
-    "comments_youtube_disabled_try_reddit": "Փորձե՞լ ռեդիթի քոմենթները",
-    "comments_invidious_disabled_text": "Քոմենթները թաքցվում են՝ ըստ օգտատիրոջ նախընտրությունների",
-    "comments_youtube_disabled_try_reddit_no_js": "Բարեվվվվ։ Թվում է, թե դուք անջատել եք JavaScript-ը։ Չնայած վերբեռնողն անջատել է YouTube-ի քոմենթները, դուք դեռ կարող եք սեղմել այստեղ՝ Reddit-ի քոմենթները դիտելու համար, հաշվի առեք, որ դրանց բեռնումը կարող է մի փոքր ավելի երկար տևել։"
+    "comments_invidious_disabled_text": "Քոմենթները թաքցվում են՝ ըստ օգտատիրոջ նախընտրությունների"
 }

@@ -346,6 +346,17 @@ module Invidious::Routes::API::V1::Videos
     continuation = env.params.query["continuation"]?
     sort_by = env.params.query["sort_by"]?.try &.downcase
 
+    # 2026-10-18 TODO: Make a mechanism to remove unused
+    # preferences from PREFS cookie of the clients
+    # when some preferences are changed, like this one
+    # which is a Reedit comments deprecation that appears
+    # on preferences.
+    #
+    # Fallback for API users that still use Reddit as a source
+    if source == "reddit"
+      return error_json(410, RedditIsDeprecated.new)
+    end
+
     if source == "youtube"
       sort_by ||= "top"
 
@@ -358,37 +369,6 @@ module Invidious::Routes::API::V1::Videos
       end
 
       return comments
-    elsif source == "reddit"
-      sort_by ||= "confidence"
-
-      begin
-        comments, reddit_thread = Comments.fetch_reddit(id, sort_by: sort_by)
-      rescue
-        comments = nil
-        reddit_thread = nil
-      end
-
-      if !reddit_thread || !comments
-        return error_json(404, "No reddit threads found")
-      end
-
-      if format == "json"
-        reddit_thread = JSON.parse(reddit_thread.to_json).as_h
-        reddit_thread["comments"] = JSON.parse(comments.to_json)
-
-        return reddit_thread.to_json
-      else
-        content_html = Frontend::Comments.template_reddit(comments, locale)
-        content_html = Comments.fill_links(content_html, "https", "www.reddit.com")
-        content_html = Comments.replace_links(content_html)
-        response = {
-          "title"       => reddit_thread.title,
-          "permalink"   => reddit_thread.permalink,
-          "contentHtml" => content_html,
-        }
-
-        return response.to_json
-      end
     end
   end
 

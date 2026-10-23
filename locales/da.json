@@ -55,7 +55,6 @@
     "preferences_volume_label": "Lydstyrke: ",
     "preferences_comments_label": "Standard kommentarer: ",
     "youtube": "YouTube",
-    "reddit": "Reddit",
     "preferences_captions_label": "Standard undertekster: ",
     "Fallback captions: ": "Alternative undertekster: ",
     "preferences_related_videos_label": "Vis relaterede videoer: ",
@@ -145,12 +144,10 @@
     "Premieres `x`": "Har premiere om `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Hej! Det ser ud til at du har JavaScript slået fra. Klik her for at se kommentarer, vær opmærksom på at de kan tage længere om at indlæse.",
     "View YouTube comments": "Vis YouTube kommentarer",
-    "View more comments on Reddit": "Se flere kommentarer på Reddit",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Vis `x` kommentarer.([^.,0-9]|^)1([^.,0-9]|$)",
         "": "Vis `x` kommentarer"
     },
-    "View Reddit comments": "Vis Reddit kommentarer",
     "Hide replies": "Skjul svar",
     "Show replies": "Vis svar",
     "Incorrect password": "Forkert adgangskode",

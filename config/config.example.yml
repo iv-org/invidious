@@ -800,7 +800,7 @@ default_user_preferences:
   ## Type of comments to display below video.
   ##
   ## Accepted values: a two-entries array.
-  ## Each entry can be one of: "youtube", "reddit", ""
+  ## Each entry can be one of: "youtube", ""
   ##
   ## Default: ["youtube", ""]
   ##

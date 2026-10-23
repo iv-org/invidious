@@ -57,7 +57,6 @@
     "preferences_volume_label": "Wiedergabelautstärke: ",
     "preferences_comments_label": "Standardkommentare: ",
     "youtube": "YouTube",
-    "reddit": "Reddit",
     "preferences_captions_label": "Standarduntertitel: ",
     "Fallback captions: ": "Ersatzuntertitel: ",
     "preferences_related_videos_label": "Ähnliche Videos anzeigen: ",
@@ -152,12 +151,10 @@
     "Premieres `x`": "Premiere `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Hallo! Anscheinend hast du JavaScript deaktiviert. Klicke hier, um Kommentare anzuzeigen, beachte, dass es etwas länger dauern kann, um sie zu laden.",
     "View YouTube comments": "YouTube Kommentare anzeigen",
-    "View more comments on Reddit": "Mehr Kommentare auf Reddit anzeigen",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Kommentar anzeigen",
         "": "`x` Kommentare anzeigen"
     },
-    "View Reddit comments": "Reddit Kommentare anzeigen",
     "Hide replies": "Antworten verstecken",
     "Show replies": "Antworten anzeigen",
     "Incorrect password": "Falsches Passwort",
