@@ -17,7 +17,7 @@
 with pkgs;
 [
   # Invidious dependencies
-  crystal_1_19
+  crystal_1_21
   sqlite
   shards
   crystalline # LSP, is not that good, but still useful.
