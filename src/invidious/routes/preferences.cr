@@ -66,6 +66,9 @@ module Invidious::Routes::PreferencesRoute
     quality_dash = env.params.body["quality_dash"]?.try &.as(String)
     quality_dash ||= CONFIG.default_user_preferences.quality_dash
 
+    codec_dash = env.params.body["codec_dash"]?.try &.as(String)
+    codec_dash ||= CONFIG.default_user_preferences.codec_dash
+
     volume = env.params.body["volume"]?.try &.as(String).to_i?
     volume ||= CONFIG.default_user_preferences.volume
 
@@ -170,6 +173,7 @@ module Invidious::Routes::PreferencesRoute
       player_style:                player_style,
       quality:                     quality,
       quality_dash:                quality_dash,
+      codec_dash:                  codec_dash,
       default_home:                default_home,
       feed_menu:                   feed_menu,
       automatic_instance_redirect: automatic_instance_redirect,
