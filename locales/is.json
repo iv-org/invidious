@@ -451,7 +451,6 @@
     "crash_page_search_issue": "leitað að <a href=\"`x`\">fyrirliggjandi villum á GitHub</a>",
     "none": "ekkert",
     "adminprefs_modified_source_code_url_label": "Slóð á gagnasafn með breyttum grunnkóða",
-    "preferences_quality_option_hd720": "HD720",
     "preferences_quality_option_small": "Lítið",
     "preferences_category_misc": "Ýmsar kjörstillingar",
     "preferences_automatic_instance_redirect_label": "Sjálfvirk endurbeining tilvika (farið til vara á redirect.invidious.io): ",
