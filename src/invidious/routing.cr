@@ -40,6 +40,8 @@ module Invidious::Routing
       if CONFIG.enable_user_notifications
         get "/modify_notifications", Routes::Notifications, :modify
       end
+
+      get "/:user/:tab", Routes::Channels, :potential_brand_redirect
     {% end %}
 
     self.register_image_routes
