@@ -45,11 +45,22 @@
                             "&check=#{invidious_companion_check_id}" if (invidious_companion)
             %>
                 <source src="<%= src_url %>" type='application/dash+xml' label="dash">
+                <% if (hlsvp = video.hls_manifest_url) %>
+                <source src="<%= URI.parse(hlsvp).request_target %><% if params.local %>?local=true<% end %>" type="application/x-mpegURL" label="hls">
+                <% end %>
             <% end %>
 
             <%
             fmt_stream.reject! { |f| f["itag"] == 17 }
-            fmt_stream.sort_by! {|f| params.quality == f["quality"] ? 0 : 1 }
+            if params.quality == "dash"
+                target_height = params.quality_dash.in?({"worst", "144p", "240p", "360p"}) ? 360 : 720
+                fmt_stream.sort_by! do |f|
+                    h = f["height"]?.try(&.as_i) || (f["quality"]?.try(&.as_s) == "hd720" ? 720 : 360)
+                    (h - target_height).abs
+                end
+            else
+                fmt_stream.sort_by! {|f| params.quality == f["quality"] ? 0 : 1 }
+            end
             fmt_stream.each_with_index do |fmt, i|
                 src_url  = "/latest_version?id=#{video.id}&itag=#{fmt["itag"]}"
                 src_url += "&local=true" if params.local
@@ -59,7 +70,7 @@
                 quality = fmt["quality"]
                 mimetype = HTML.escape(fmt["mimeType"].as_s)
 
-                selected = params.quality ? (params.quality == quality) : (i == 0)
+                selected = (params.quality && params.quality != "dash") ? (params.quality == quality) : (i == 0)
             %>
                 <source src="<%= src_url %>" type="<%= mimetype %>" label="<%= quality %>" selected="<%= selected %>">
                 <% if !params.local && !CONFIG.disabled?("local") %>

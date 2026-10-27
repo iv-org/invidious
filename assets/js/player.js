@@ -3,6 +3,18 @@ var player_data = JSON.parse(document.getElementById('player_data').textContent)
 var video_data = JSON.parse(document.getElementById('video_data').textContent);
 const CONFIG = JSON.parse(document.getElementById('config').textContent);
 
+// Support iOS 17.1+ Safari ManagedMediaSource for MSE/DASH playback
+if (typeof window.MediaSource === 'undefined' && typeof window.ManagedMediaSource !== 'undefined') {
+    window.MediaSource = window.ManagedMediaSource;
+    var videoEl = document.getElementById('player');
+    if (videoEl) {
+        videoEl.disableRemotePlayback = true;
+        videoEl.setAttribute('disableremoteplayback', '');
+    }
+}
+var isDashMseSupported = typeof window.MediaSource !== 'undefined' && typeof window.MediaSource.isTypeSupported === 'function';
+var useDashMode = video_data.params.quality === 'dash' && isDashMseSupported;
+
 var options = {
     liveui: true,
     playbackRates: [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0],
@@ -66,7 +78,7 @@ if (CONFIG.videojs.max_goal_buffer_length) {
 var player = videojs('player', options);
 
 player.on('error', function () {
-    if (video_data.params.quality === 'dash') return;
+    if (useDashMode) return;
 
     var localNotDisabled = (
         !player.currentSrc().includes('local=true') && !video_data.local_disabled
@@ -102,7 +114,7 @@ player.on('error', function () {
     }
 });
 
-if (video_data.params.quality === 'dash') {
+if (useDashMode) {
     player.reloadSourceOnError({
         errorInterval: 10
     });
@@ -224,8 +236,8 @@ if (isMobile()) {
 
     var buttons = ['playToggle', 'volumePanel', 'captionsButton'];
 
-    if (!video_data.params.listen && video_data.params.quality === 'dash') buttons.push('audioTrackButton');
-    if (video_data.params.listen || video_data.params.quality !== 'dash') buttons.push('qualitySelector');
+    if (!video_data.params.listen && useDashMode) buttons.push('audioTrackButton');
+    if (video_data.params.listen || !useDashMode) buttons.push('qualitySelector');
 
     // Create new control bar object for operation buttons
     const ControlBar = videojs.getComponent('controlBar');
@@ -252,7 +264,7 @@ if (isMobile()) {
         var share_element = document.getElementsByClassName('vjs-share-control')[0];
         operations_bar_element.append(share_element);
 
-        if (!video_data.params.listen && video_data.params.quality === 'dash') {
+        if (!video_data.params.listen && useDashMode) {
             var http_source_selector = document.getElementsByClassName('vjs-http-source-selector vjs-menu-button')[0];
             operations_bar_element.append(http_source_selector);
         }
@@ -417,7 +429,7 @@ if (video_data.params.autoplay) {
     });
 }
 
-if (!video_data.params.listen && video_data.params.quality === 'dash') {
+if (!video_data.params.listen && useDashMode) {
     player.httpSourceSelector();
 
     if (video_data.params.quality_dash !== 'auto') {
