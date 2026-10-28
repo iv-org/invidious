@@ -47,7 +47,6 @@ module Invidious::User::Users
         notifications.sort_by!(&.author)
       when "channel name - reverse"
         notifications.sort_by!(&.author).reverse!
-      else nil # Ignore
       end
     else
       if user.preferences.latest_only
@@ -96,7 +95,6 @@ module Invidious::User::Users
         videos.sort_by!(&.author)
       when "channel name - reverse"
         videos.sort_by!(&.author).reverse!
-      else nil # Ignore
       end
 
       notifications = Invidious::Database::Users.select_notifications(user)

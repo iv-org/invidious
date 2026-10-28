@@ -6,7 +6,7 @@ module Errors
   extend self
 
   macro error_template(*args)
-    Errors.error_template_helper(env, {{args.splat}})
+    Errors.error_template_helper(env, {{ args.splat }})
   end
 
   def github_details(summary : String, content : String)
@@ -29,7 +29,7 @@ module Errors
       Date: `#{Time::Format::ISO_8601_DATE_TIME.format(Time.utc)}`
       Route: `#{HTML.escape(env.request.resource)}`
       Version: `#{SOFTWARE["version"]} @ #{SOFTWARE["branch"]}`
-    TEXT
+      TEXT
 
     issue_template += github_details("Backtrace", exception.inspect_with_backtrace)
 
@@ -64,25 +64,25 @@ module Errors
     url_new_issue += URI.encode_www_form("[Bug] " + issue_title)
 
     error_message = <<-END_HTML
-    <div class="error_message">
-      <h2>#{I18n.translate(locale, "crash_page_you_found_a_bug")}</h2>
-      <br/><br/>
+      <div class="error_message">
+        <h2>#{I18n.translate(locale, "crash_page_you_found_a_bug")}</h2>
+        <br/><br/>
 
-      <p><b>#{I18n.translate(locale, "crash_page_before_reporting")}</b></p>
-      <ul>
-        <li>#{I18n.translate(locale, "crash_page_refresh", env.request.resource)}</li>
-        <li>#{I18n.translate(locale, "crash_page_switch_instance", url_switch)}</li>
-        <li>#{I18n.translate(locale, "crash_page_read_the_faq", url_faq)}</li>
-        <li>#{I18n.translate(locale, "crash_page_search_issue", url_search_issues)}</li>
-      </ul>
+        <p><b>#{I18n.translate(locale, "crash_page_before_reporting")}</b></p>
+        <ul>
+          <li>#{I18n.translate(locale, "crash_page_refresh", env.request.resource)}</li>
+          <li>#{I18n.translate(locale, "crash_page_switch_instance", url_switch)}</li>
+          <li>#{I18n.translate(locale, "crash_page_read_the_faq", url_faq)}</li>
+          <li>#{I18n.translate(locale, "crash_page_search_issue", url_search_issues)}</li>
+        </ul>
 
-      <br/>
-      <p>#{I18n.translate(locale, "crash_page_report_issue", url_new_issue)}</p>
+        <br/>
+        <p>#{I18n.translate(locale, "crash_page_report_issue", url_new_issue)}</p>
 
-      <!-- TODO: Add a "copy to clipboard" button -->
-      <pre class="error-issue-template">#{issue_template}</pre>
-    </div>
-    END_HTML
+        <!-- TODO: Add a "copy to clipboard" button -->
+        <pre class="error-issue-template">#{issue_template}</pre>
+      </div>
+      END_HTML
 
     # Don't show the usual "next steps" widget. The same options are
     # proposed above the error message, just worded differently.
@@ -108,7 +108,7 @@ module Errors
   # -------------------
 
   macro error_atom(*args)
-    Errors.error_atom_helper(env, {{args.splat}})
+    Errors.error_atom_helper(env, {{ args.splat }})
   end
 
   def error_atom_helper(env : HTTP::Server::Context, status_code : Int32, exception : Exception)
@@ -134,14 +134,14 @@ module Errors
   # -------------------
 
   macro error_json(*args)
-    Errors.error_json_helper(env, {{args.splat}})
+    Errors.error_json_helper(env, {{ args.splat }})
   end
 
   def error_json_helper(
     env : HTTP::Server::Context,
     status_code : Int32,
     exception : Exception,
-    additional_fields : Hash(String, Object) | Nil = nil,
+    additional_fields : Hash(String, Object)? = nil,
   )
     if exception.is_a?(InfoException)
       return error_json_helper(env, status_code, exception.message || "", additional_fields)
@@ -163,7 +163,7 @@ module Errors
     env : HTTP::Server::Context,
     status_code : Int32,
     message : String,
-    additional_fields : Hash(String, Object) | Nil = nil,
+    additional_fields : Hash(String, Object)? = nil,
   )
     env.response.content_type = "application/json"
     env.response.status_code = status_code
@@ -194,19 +194,19 @@ module Errors
       switch_instance = I18n.translate(locale, "Switch Invidious Instance")
 
       return <<-END_HTML
-      <p style="margin-bottom: 4px;">#{next_steps_text}</p>
-      <ul>
-        <li>
-          <a href="#{env.request.resource}">#{refresh}</a>
-        </li>
-        <li>
-          <a href="/redirect?referer=#{env.get("current_page")}">#{switch_instance}</a>
-        </li>
-        <li>
-          <a rel="noreferrer noopener" href="https://www.youtube.com#{env.request.resource}">#{go_to_youtube}</a>
-        </li>
-      </ul>
-    END_HTML
+        <p style="margin-bottom: 4px;">#{next_steps_text}</p>
+        <ul>
+          <li>
+            <a href="#{env.request.resource}">#{refresh}</a>
+          </li>
+          <li>
+            <a href="/redirect?referer=#{env.get("current_page")}">#{switch_instance}</a>
+          </li>
+          <li>
+            <a rel="noreferrer noopener" href="https://www.youtube.com#{env.request.resource}">#{go_to_youtube}</a>
+          </li>
+        </ul>
+        END_HTML
     else
       return ""
     end

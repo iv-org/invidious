@@ -7,8 +7,6 @@ module Invidious::Feeds::Trending
 
     plid = nil
 
-    browse_id = ""
-
     case trending_type.try &.downcase
     when "gaming"
       browse_id = "UCOpNcN46UbXVtpKMrmU4Abg"

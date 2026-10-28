@@ -503,10 +503,10 @@ module Invidious::Playlists::Playlists
 
         # Find the metadataParts with commandRuns inside, which contains author
         # information.
-        metadata_parts = metadata_rows.try &.find { |row|
+        metadata_parts = metadata_rows.try &.find do |row|
           parts = row["metadataParts"]?.try &.as_a
           parts && parts.any? { |item2| item2.dig?("text", "commandRuns").try &.as_a }
-        }.try &.["metadataParts"].as_a
+        end.try &.["metadataParts"].as_a
 
         if author_info = metadata_parts.try &.find(&.dig?("text", "commandRuns"))
              .try &.["text"]
@@ -546,37 +546,37 @@ module Invidious::Playlists::Playlists
 
   def template_playlist(playlist, listen)
     html = <<-END_HTML
-  <h3>
-    <a href="/playlist?list=#{playlist["playlistId"]}">
-      #{playlist["title"]}
-    </a>
-  </h3>
-  <div class="pure-menu pure-menu-scrollable playlist-restricted">
-    <ol class="pure-menu-list">
-  END_HTML
+      <h3>
+        <a href="/playlist?list=#{playlist["playlistId"]}">
+          #{playlist["title"]}
+        </a>
+      </h3>
+      <div class="pure-menu pure-menu-scrollable playlist-restricted">
+        <ol class="pure-menu-list">
+      END_HTML
 
     playlist["videos"].as_a.each do |video|
       html += <<-END_HTML
-      <li class="pure-menu-item" id="#{video["videoId"]}">
-        <a href="/watch?v=#{video["videoId"]}&list=#{playlist["playlistId"]}&index=#{video["index"]}#{listen ? "&listen=1" : ""}">
-          <div class="thumbnail">
-              <img loading="lazy" class="thumbnail" src="/vi/#{video["videoId"]}/mqdefault.jpg" alt="" />
-              <p class="length">#{recode_length_seconds(video["lengthSeconds"].as_i)}</p>
-          </div>
-          <p style="width:100%">#{video["title"]}</p>
-          <p>
-            <b style="width:100%">#{video["author"]}</b>
-          </p>
-        </a>
-      </li>
-    END_HTML
+        <li class="pure-menu-item" id="#{video["videoId"]}">
+          <a href="/watch?v=#{video["videoId"]}&list=#{playlist["playlistId"]}&index=#{video["index"]}#{listen ? "&listen=1" : ""}">
+            <div class="thumbnail">
+                <img loading="lazy" class="thumbnail" src="/vi/#{video["videoId"]}/mqdefault.jpg" alt="" />
+                <p class="length">#{recode_length_seconds(video["lengthSeconds"].as_i)}</p>
+            </div>
+            <p style="width:100%">#{video["title"]}</p>
+            <p>
+              <b style="width:100%">#{video["author"]}</b>
+            </p>
+          </a>
+        </li>
+        END_HTML
     end
 
     html += <<-END_HTML
-    </ol>
-  </div>
-  <hr>
-  END_HTML
+        </ol>
+      </div>
+      <hr>
+      END_HTML
 
     html
   end

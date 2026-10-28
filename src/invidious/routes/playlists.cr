@@ -164,7 +164,7 @@ module Invidious::Routes::Playlists
 
     begin
       items = Invidious::Playlists::Playlists.get_playlist_videos(playlist, offset: (page - 1) * 100)
-    rescue ex
+    rescue
       items = [] of PlaylistVideo
     end
 
