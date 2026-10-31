@@ -26,8 +26,6 @@
     "Import NewPipe subscriptions (.json)": "Flytja inn NewPipe áskriftir (.json)",
     "Import NewPipe data (.zip)": "Flytja inn NewPipe gögn (.zip)",
     "Export": "Flytja út",
-    "Export subscriptions as OPML": "Flytja út áskriftir sem OPML",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "Flytja út áskriftir sem OPML (fyrir NewPipe & FreeTube)",
     "Export data as JSON": "Flytja út Invidious-gögn sem JSON",
     "Delete account?": "Eyða reikningi?",
     "History": "Ferill",
