@@ -26,8 +26,6 @@
     "Import NewPipe subscriptions (.json)": "Importați abonamentele de pe NewPipe (.json)",
     "Import NewPipe data (.zip)": "Importați datele de pe NewPipe (.zip)",
     "Export": "Exportați",
-    "Export subscriptions as OPML": "Exportați abonamentele în format OPML",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "Exportați abonamentele în format OPML (pentru NewPipe și FreeTube)",
     "Export data as JSON": "Exportați datele Invidious în format JSON",
     "Delete account?": "Sunteți siguri că doriți să vă ștergeți contul?",
     "History": "Istoric",
