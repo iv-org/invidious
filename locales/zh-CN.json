@@ -31,8 +31,6 @@
     "Import NewPipe subscriptions (.json)": "导入 NewPipe 订阅 (.json)",
     "Import NewPipe data (.zip)": "导入 NewPipe 数据 (.zip)",
     "Export": "导出",
-    "Export subscriptions as OPML": "导出订阅到 OPML 格式",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "导出订阅到 OPML 格式（用于 NewPipe 及 FreeTube）",
     "Export data as JSON": "导出 Invidious 数据为 JSON 格式",
     "Delete account?": "删除账户？",
     "History": "历史",
