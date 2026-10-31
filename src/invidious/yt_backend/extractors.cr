@@ -378,7 +378,7 @@ private module Parsers
     end
 
     def self.parser_name
-      return {{@type.name}}
+      return {{ @type.name }}
     end
   end
 

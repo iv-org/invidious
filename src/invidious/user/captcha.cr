@@ -55,7 +55,7 @@ struct Invidious::User
 
       return {
         question: image,
-        tokens:   {generate_response(answer, {":login"}, key, use_nonce: true)},
+        tokens:   {Invidious::Helpers::Tokens.generate_response(answer, {":login"}, key, use_nonce: true)},
       }
     end
   end
