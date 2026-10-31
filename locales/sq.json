@@ -54,7 +54,6 @@
     "preferences_speed_label": "Shpejtësi parazgjedhje: ",
     "preferences_quality_label": "Cilësi e parapëlqyer për videot: ",
     "preferences_quality_option_dash": "DASH (cilësi që përshtatet)",
-    "preferences_quality_option_hd720": "HD720",
     "preferences_quality_option_medium": "Mesatare",
     "preferences_quality_option_small": "E ulët",
     "preferences_quality_dash_label": "Cilësi DASH e parapëlqyer për videot: ",
@@ -73,7 +72,6 @@
     "preferences_volume_label": "Volum lojtësi: ",
     "preferences_comments_label": "Komente parazgjedhje: ",
     "youtube": "YouTube",
-    "reddit": "Reddit",
     "invidious": "Invidious",
     "preferences_captions_label": "Titra parazgjedhje: ",
     "preferences_extend_desc_label": "Zgjero automatikisht përshkrimin e videos: ",
@@ -341,12 +339,10 @@
     "preferences_category_visual": "Parapëlqime pamore",
     "preferences_region_label": "Vend lënde: ",
     "View YouTube comments": "Shihni komente Youtube",
-    "View more comments on Reddit": "Shihni më tepër komente në Reddit",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Shihni `x` koment",
         "": "Shihni `x` komente"
     },
-    "View Reddit comments": "Shihni komente Reddit",
     "Hide replies": "Fshihi përgjigjet",
     "Show replies": "Shfaq përgjigje",
     "Incorrect password": "Fjalëkalim i pasaktë",

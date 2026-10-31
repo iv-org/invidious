@@ -53,7 +53,6 @@
     "preferences_volume_label": "עצמת השמע של הנגן: ",
     "preferences_comments_label": "תגובות ברירת מחדל ",
     "youtube": "יוטיוב",
-    "reddit": "reddit",
     "preferences_captions_label": "כתוביות ברירת מחדל ",
     "Fallback captions: ": "כתוביות גיבוי ",
     "preferences_related_videos_label": "הצגת סרטונים קשורים: ",
@@ -118,12 +117,10 @@
     "Wilson score: ": "ציון וילסון: ",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "שלום! נראה ש־JavaScript כבוי. יש ללחוץ כאן להצגת התגובות, נא לקחת בחשבון שהטעינה תיקח קצת יותר זמן.",
     "View YouTube comments": "הצגת התגובות מ־YouTube",
-    "View more comments on Reddit": "להצגת תגובות נוספות ב־Reddit",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "הצגת `x` תגובות.([^.,0-9]|^)1([^.,0-9]|$)",
         "": "הצגת `x` תגובות"
     },
-    "View Reddit comments": "להצגת התגובות ב־Reddit",
     "Hide replies": "הסתרת תגובות",
     "Show replies": "הצגת תגובות",
     "Incorrect password": "סיסמה שגויה",

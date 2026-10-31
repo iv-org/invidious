@@ -55,7 +55,6 @@
     "preferences_volume_label": "صوت المشغل: ",
     "preferences_comments_label": "التعليقات الافتراضية: ",
     "youtube": "يوتيوب",
-    "reddit": "ريديت",
     "preferences_captions_label": "التسميات التوضيحية الإفتراضية: ",
     "Fallback captions: ": "التسميات التوضيحية الاحتياطيَّة: ",
     "preferences_related_videos_label": "اعرض الفيديوهات ذات الصلة: ",
@@ -150,12 +149,10 @@
     "Premieres `x`": "يعرض `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "أهلًا! يبدو أن جافاسكريبت معطلٌ لديك. اضغط هنا لعرض التعليقات، وَضَع في اعتبارك أنها ستأخذ وقتًا أطول للتحميل.",
     "View YouTube comments": "عرض تعليقات اليوتيوب",
-    "View more comments on Reddit": "عرض المزيد من التعليقات على\\من موقع ريديت",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "عرض `x` تعليق",
         "": "عرض `x` تعليقات"
     },
-    "View Reddit comments": "عرض تعليقات ريديت",
     "Hide replies": "إخفاء الردود",
     "Show replies": "عرض الردود",
     "Incorrect password": "كلمة السر غير صحيحة",
@@ -359,7 +356,6 @@
     "preferences_region_label": "بلد المحتوى: ",
     "preferences_quality_dash_label": "جودة فيديو DASH المفضلة: ",
     "preferences_quality_option_dash": "DASH (الجودة التلقائية)",
-    "preferences_quality_option_hd720": "HD720",
     "preferences_quality_option_medium": "متوسطة",
     "preferences_quality_option_small": "صغيرة",
     "preferences_quality_dash_option_auto": "تلقائي",

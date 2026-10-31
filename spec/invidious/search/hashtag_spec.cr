@@ -1,4 +1,4 @@
-require "../parsers_helper.cr"
+require "../../parsers_helper.cr"
 
 Spectator.describe Invidious::Hashtag do
   it "parses richItemRenderer containers (test 1)" do

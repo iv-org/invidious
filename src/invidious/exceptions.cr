@@ -50,3 +50,9 @@ class InvalidVideoID < InfoException
     return "Invalid video ID '#{id}'"
   end
 end
+
+class RedditIsDeprecated < InfoException
+  def message
+    return "Reddit comments have been removed from Invidious."
+  end
+end

@@ -60,7 +60,6 @@
     "preferences_volume_label": "Volume pemutar: ",
     "preferences_comments_label": "Komentar bawaan: ",
     "youtube": "YouTube",
-    "reddit": "Reddit",
     "preferences_captions_label": "Keterangan bawaan: ",
     "Fallback captions: ": "Keterangan pengganti: ",
     "preferences_related_videos_label": "Tampilkan video terkait: ",
@@ -157,12 +156,10 @@
     "Premieres `x`": "Tayang `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Hai! Sepertinya Anda menonaktifkan JavaScript. Klik di sini untuk melihat komentar, perlu diingat bahwa komentarnya mungkin membutuhkan waktu sedikit lebih lama untuk dimuat.",
     "View YouTube comments": "Lihat komentar YouTube",
-    "View more comments on Reddit": "Lihat lebih banyak komentar di Reddit",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Lihat`x` komentar",
         "": "Lihat`x` komentar"
     },
-    "View Reddit comments": "Lihat komentar Reddit",
     "Hide replies": "Sembunyikan balasan",
     "Show replies": "Tampilkan balasan",
     "Incorrect password": "Kata sandi salah",
@@ -397,7 +394,6 @@
     "videoinfo_started_streaming_x_ago": "Mulai siaran `x` yang lalu",
     "user_created_playlists": "`x` daftar putar yang dibuat",
     "preferences_quality_option_dash": "DASH (kualitas adaptif)",
-    "preferences_quality_option_hd720": "HD720",
     "preferences_quality_dash_option_1440p": "1440p",
     "preferences_quality_dash_option_auto": "Otomatis",
     "preferences_quality_dash_option_480p": "480p",

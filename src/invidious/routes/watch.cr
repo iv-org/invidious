@@ -15,11 +15,11 @@ module Invidious::Routes::Watch
       id = env.params.query["v"]
 
       if env.params.query["v"].empty?
-        return error_template(400, "Invalid parameters.")
+        return Errors.error_template(400, "Invalid parameters.")
       end
 
       unless validate_video_id(id)
-        return error_template(400, InvalidVideoID.new(id))
+        return Errors.error_template(400, InvalidVideoID.new(id))
       end
     else
       return env.redirect "/"
@@ -48,10 +48,10 @@ module Invidious::Routes::Watch
       video = get_video(id, region: params.region)
     rescue ex : NotFoundException
       LOGGER.error("get_video not found: #{id} : #{ex.message}")
-      return error_template(404, ex)
+      return Errors.error_template(404, ex)
     rescue ex
       LOGGER.error("get_video: #{id} : #{ex.message}")
-      return error_template(500, ex)
+      return Errors.error_template(500, ex)
     end
 
     if preferences.annotations_subscribed &&
@@ -73,36 +73,22 @@ module Invidious::Routes::Watch
 
     if nojs
       if preferences
-        source = video.comments? ? preferences.comments[0] : "reddit"
+        source = preferences.comments[0]
+        # 2026-10-18 TODO: Make a mechanism to remove unused
+        # preferences from PREFS cookie of the clients
+        # when some preferences are changed, like this one
+        # which is a Reedit comments deprecation that appears
+        # on preferences.
+        #
+        # Fallback for people that have reddit in their prefs
+        source = preferences.comments[1] if source == "reddit"
 
         if source.empty?
           source = preferences.comments[1]
         end
 
         if source == "youtube"
-          begin
-            comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
-          rescue
-            if preferences.comments[1] == "reddit"
-              comments, reddit_thread = Comments.fetch_reddit(id)
-              comment_html = Frontend::Comments.template_reddit(comments, locale)
-
-              comment_html = Comments.fill_links(comment_html, "https", "www.reddit.com")
-              comment_html = Comments.replace_links(comment_html)
-            end
-          end
-        elsif source == "reddit"
-          begin
-            comments, reddit_thread = Comments.fetch_reddit(id)
-            comment_html = Frontend::Comments.template_reddit(comments, locale)
-
-            comment_html = Comments.fill_links(comment_html, "https", "www.reddit.com")
-            comment_html = Comments.replace_links(comment_html)
-          rescue
-            if preferences.comments[1] == "youtube"
-              comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
-            end
-          end
+          comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
         end
       else
         comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
@@ -220,7 +206,7 @@ module Invidious::Routes::Watch
       if redirect
         return env.redirect referer
       else
-        return error_json(403, "No such user")
+        return Errors.error_json(403, "No such user")
       end
     end
 
@@ -235,12 +221,12 @@ module Invidious::Routes::Watch
     end
 
     begin
-      validate_request(token, sid, env.request, HMAC_KEY, locale)
+      Invidious::Helpers::Tokens.validate_request(token, sid, env.request, HMAC_KEY, locale)
     rescue ex
       if redirect
-        return error_template(400, ex)
+        return Errors.error_template(400, ex)
       else
-        return error_json(400, ex)
+        return Errors.error_json(400, ex)
       end
     end
 
@@ -250,7 +236,7 @@ module Invidious::Routes::Watch
     when "mark_unwatched"
       Invidious::Database::Users.mark_unwatched(user, id)
     else
-      return error_json(400, "Unsupported action #{action}")
+      return Errors.error_json(400, "Unsupported action #{action}")
     end
 
     if redirect
@@ -264,10 +250,10 @@ module Invidious::Routes::Watch
   def self.clip(env)
     clip_id = env.params.url["clip"]?
 
-    return error_template(400, "A clip ID is required") if !clip_id
+    return Errors.error_template(400, "A clip ID is required") if !clip_id
 
     response = YoutubeAPI.resolve_url("https://www.youtube.com/clip/#{clip_id}")
-    return error_template(400, "Invalid clip ID") if response["error"]?
+    return Errors.error_template(400, "Invalid clip ID") if response["error"]?
 
     if video_id = response.dig?("endpoint", "watchEndpoint", "videoId")
       if params = response.dig?("endpoint", "watchEndpoint", "params").try &.as_s
@@ -278,16 +264,16 @@ module Invidious::Routes::Watch
 
       return env.redirect "/watch?v=#{video_id}&#{env.params.query}"
     else
-      return error_template(404, "The requested clip doesn't exist")
+      return Errors.error_template(404, "The requested clip doesn't exist")
     end
   end
 
   def self.download(env)
     if CONFIG.disabled?("downloads")
-      return error_template(403, "Administrator has disabled this endpoint.")
+      return Errors.error_template(403, "Administrator has disabled this endpoint.")
     end
     if CONFIG.invidious_companion.present?
-      return error_template(403, "Downloads should be routed through Companion when present")
+      return Errors.error_template(403, "Downloads should be routed through Companion when present")
     end
 
     title = env.params.body["title"]? || ""
@@ -295,7 +281,7 @@ module Invidious::Routes::Watch
     selection = env.params.body["download_widget"]?
 
     if title.empty? || video_id.empty? || selection.nil?
-      return error_template(400, "Missing form data")
+      return Errors.error_template(400, "Missing form data")
     end
 
     download_widget = JSON.parse(selection)
@@ -326,7 +312,7 @@ module Invidious::Routes::Watch
 
       return Invidious::Routes::VideoPlayback.latest_version(env)
     else
-      return error_template(400, "Invalid label or itag")
+      return Errors.error_template(400, "Invalid label or itag")
     end
   end
 end

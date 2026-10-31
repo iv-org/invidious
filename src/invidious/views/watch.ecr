@@ -43,11 +43,6 @@ we're going to need to do it here in order to allow for translations.
 }
 </style>
 
-<%
-    # Disable the try reddit link if javascript is disabled
-%>
-<noscript><style> #try-reddit-comments-link { display: none } </style></noscript>
-
 <% end %>
 
 <script id="video_data" type="application/json">
@@ -60,10 +55,6 @@ we're going to need to do it here in order to allow for translations.
     "play_next" => !video.related_videos.empty? && !plid && params.continue,
     "next_video" => video.related_videos.select { |rv| rv["id"]? }[0]?.try &.["id"],
     "youtube_comments_text" => HTML.escape(I18n.translate(locale, "View YouTube comments")),
-    "comments_youtube_disabled_text" => HTML.escape(I18n.translate(locale, "comments_youtube_disabled_text")),
-    "comments_youtube_disabled_try_reddit" => HTML.escape(I18n.translate(locale, "comments_youtube_disabled_try_reddit")),
-    "reddit_comments_text" => HTML.escape(I18n.translate(locale, "View Reddit comments")),
-    "reddit_permalink_text" => HTML.escape(I18n.translate(locale, "View more comments on Reddit")),
     "comments_text" => HTML.escape(I18n.translate(locale, "View `x` comments", "{commentCount}")),
     "hide_replies_text" => HTML.escape(I18n.translate(locale, "Hide replies")),
     "show_replies_text" => HTML.escape(I18n.translate(locale, "Show replies")),
@@ -74,7 +65,6 @@ we're going to need to do it here in order to allow for translations.
     "comments_enabled" => video.comments?,
     "projection_type" => video.projection_type,
     "local_disabled" => CONFIG.disabled?("local"),
-    "support_reddit" => true,
     "live_now" => video.live_now
 }.to_pretty_json
 %>
@@ -324,21 +314,8 @@ we're going to need to do it here in order to allow for translations.
                         <% if !nojs %>
                             <div id="comments-turned-off-on-video-message" class="h-box v-box">
                                 <p><b><%= HTML.escape(I18n.translate(locale, "comments_youtube_disabled_text")) %></b></p>
-                                <p><b><button data-comments="reddit" id="try-reddit-comments-link" class="simulated_a">
-                                    <%= HTML.escape(I18n.translate(locale, "comments_youtube_disabled_try_reddit")) %>
-                                </button></b></p>
                             </div>
                         <% end %>
-
-                        <noscript>
-                            <% if nojs %>
-                                <%= comment_html %>
-                            <% else %>
-                                <a href="/watch?<%= env.params.query %>&nojs=1">
-                                    <%= HTML.escape(I18n.translate(locale, "comments_youtube_disabled_try_reddit_no_js")) %>
-                                </a>
-                            <% end %>
-                        </noscript>
                     <% end %>
                 <% end %>
             </div>

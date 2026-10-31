@@ -80,7 +80,6 @@
     "preferences_speed_label": "Velocidade por defecto: ",
     "preferences_quality_label": "Calidade de vídeo preferida: ",
     "preferences_quality_option_dash": "DASH (calidade adaptativa)",
-    "preferences_quality_option_hd720": "HD720",
     "preferences_quality_option_medium": "Normal",
     "preferences_quality_option_small": "Baixa",
     "preferences_quality_dash_label": "Calidade de video DASH preferida: ",
@@ -99,7 +98,6 @@
     "preferences_volume_label": "Volume do reprodutor: ",
     "preferences_comments_label": "Comentarios por defecto: ",
     "youtube": "YouTube",
-    "reddit": "Reddit",
     "invidious": "Invidious",
     "preferences_captions_label": "Subtítulos por defecto: ",
     "Fallback captions: ": "Subtítulos alternativos: ",
@@ -212,12 +210,10 @@
     "Premieres `x`": "Estreas `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Ola! Parece que tes JavaScript desactivado. Fai clic aquí para ollar os comentarios, ten en conta que poden tardar un pouco máis en cargar.",
     "View YouTube comments": "ollar os comentarios de Youtube",
-    "View more comments on Reddit": "Ollar máis comentarios en Reddit",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Ollar `x` comentario",
         "": "Ollar `x` comentarios"
     },
-    "View Reddit comments": "Ollar os comentarios de Reddit",
     "Hide replies": "Ocultar as respostas",
     "Show replies": "Amosar as respostas",
     "Incorrect password": "Contrasinal incorrecto",

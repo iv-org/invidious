@@ -55,7 +55,6 @@
     "preferences_volume_label": "Гучність відео: ",
     "preferences_comments_label": "Джерело коментарів: ",
     "youtube": "YouTube",
-    "reddit": "Reddit",
     "preferences_captions_label": "Основна мова субтитрів: ",
     "Fallback captions: ": "Запасна мова субтитрів: ",
     "preferences_related_videos_label": "Показувати схожі відео: ",
@@ -141,12 +140,10 @@
     "Premieres `x`": "Прем’єра `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Схоже, у вас відключений JavaScript. Щоб побачити коментарі, натисніть сюда, але майте на увазі, що вони можуть завантажуватися трохи довше.",
     "View YouTube comments": "Переглянути коментарі з YouTube",
-    "View more comments on Reddit": "Переглянути більше коментарів на Reddit",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Переглянути `x` коментар / коментарів / коментаря",
         "": "Переглянути `x` коментар / коментарів / коментаря"
     },
-    "View Reddit comments": "Переглянути коментарі з Reddit",
     "Hide replies": "Сховати відповіді",
     "Show replies": "Показати відповіді",
     "Incorrect password": "Неправильний пароль",
@@ -410,7 +407,6 @@
     "preferences_quality_dash_option_360p": "360p",
     "preferences_region_label": "Ваша країна: ",
     "preferences_quality_option_dash": "DASH (змінна якість)",
-    "preferences_quality_option_hd720": "HD720",
     "preferences_quality_dash_option_2160p": "2160p",
     "preferences_automatic_instance_redirect_label": "Автоматична зміна сервера (redirect.invidious.io як резерв): ",
     "Switch Invidious Instance": "Інший сервер Invidious",
