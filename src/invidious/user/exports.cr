@@ -38,34 +38,43 @@ struct Invidious::User
       NewPipe.new(subscriptions).to_json
     end
 
-    def to_invidious(user : User)
-      playlists = Invidious::Database::Playlists.select_like_iv(user.email)
+    struct Invidious
+      include JSON::Serializable
 
-      return JSON.build do |json|
-        json.object do
-          json.field "subscriptions", user.subscriptions
-          json.field "watch_history", user.watched
-          json.field "preferences", user.preferences
-          json.field "playlists" do
-            json.array do
-              playlists.each do |playlist|
-                json.object do
-                  json.field "title", playlist.title
-                  json.field "description", Invidious::Helpers.html_to_content(playlist.description_html)
-                  json.field "privacy", playlist.privacy.to_s
-                  json.field "videos" do
-                    json.array do
-                      Invidious::Database::PlaylistVideos.select_ids(playlist.id, playlist.index, limit: CONFIG.playlist_length_limit).each do |video_id|
-                        json.string video_id
-                      end
-                    end
-                  end
-                end
-              end
-            end
-          end
+      getter subscriptions : Array(String)
+      getter watch_history : Array(String)
+      getter preferences : Preferences
+      getter playlists : Array(Playlist)
+
+      struct Playlist
+        include JSON::Serializable
+
+        getter title : String
+        getter description : String
+        getter privacy : String
+        getter videos : Array(String)
+
+        def initialize(playlist : InvidiousPlaylist)
+          @title = playlist.title
+          @description = ::Invidious::Helpers.html_to_content(playlist.description_html)
+          @privacy = playlist.privacy.to_s
+          @videos = ::Invidious::Database::PlaylistVideos.select_ids(
+            playlist.id, playlist.index, limit: CONFIG.playlist_length_limit
+          )
         end
       end
+
+      def initialize(user : User)
+        @subscriptions = user.subscriptions
+        @watch_history = user.watched
+        @preferences = user.preferences
+        @playlists = ::Invidious::Database::Playlists.select_like_iv(user.email)
+          .map { |playlist| Playlist.new(playlist) }
+      end
+    end
+
+    def to_invidious(user : User)
+      Invidious.new(user).to_json
     end
   end # module
 end
