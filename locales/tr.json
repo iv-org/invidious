@@ -26,8 +26,6 @@
     "Import NewPipe subscriptions (.json)": "NewPipe Aboneliklerini İçe Aktar (.json)",
     "Import NewPipe data (.zip)": "NewPipe Verilerini İçe Aktar (.zip)",
     "Export": "Dışa Aktar",
-    "Export subscriptions as OPML": "Abonelikleri OPML Olarak Dışa Aktar",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "Abonelikleri OPML Olarak Dışa Aktar (NewPipe ve FreeTube İçin)",
     "Export data as JSON": "İnvidious Verilerini JSON Olarak Dışa Aktar",
     "Delete account?": "Hesap silinsin mi?",
     "History": "Geçmiş",

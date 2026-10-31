@@ -26,8 +26,6 @@
     "Import NewPipe subscriptions (.json)": "নতুন পাইপ সাবস্ক্রিপশন আনুন (.json)",
     "Import NewPipe data (.zip)": "নিউপাইপ তথ্য আনুন (.zip)",
     "Export": "তথ্য বের করুন",
-    "Export subscriptions as OPML": "সাবস্ক্রিপশন OPML হিসাবে আনুন",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "OPML-এ সাবস্ক্রিপশন বের করুন(নিউ পাইপ এবং ফ্রিউটিউব এর জন্য)",
     "Export data as JSON": "JSON হিসাবে তথ্য বের করুন",
     "Delete account?": "অ্যাকাউন্ট মুছে ফেলবেন?",
     "History": "ইতিহাস",

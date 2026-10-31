@@ -51,8 +51,6 @@
     "Import NewPipe subscriptions (.json)": "Ներմուծել NewPipe բաժանորդագրություններ(.json)",
     "Import NewPipe data (.zip)": "Ներմուծել NewPipe տվյալ(.zip)",
     "Export": "Արտահանել",
-    "Export subscriptions as OPML": "Արտահանել բաժանորդագրությունները ինչպես OPML",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "Արտահանել բաժանորդագրությունները ինչպես OPML ( NewPipe և FreeTube-ի համար)",
     "Export data as JSON": "Արտահանել Invidious-ի տվյալները JSON-ով",
     "Delete account?": "Ջնջե՞լ օգտահաշիվը։",
     "History": "Պատմություն",

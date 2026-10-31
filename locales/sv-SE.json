@@ -26,8 +26,6 @@
     "Import NewPipe subscriptions (.json)": "Importera NewPipe-prenumerationer (.json)",
     "Import NewPipe data (.zip)": "Importera NewPipe-data (.zip)",
     "Export": "Exportera",
-    "Export subscriptions as OPML": "Exportera prenumerationer som OPML",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "Exportera prenumerationer som OPML (för NewPipe och FreeTube)",
     "Export data as JSON": "Exportera Invidious data som JSON",
     "Delete account?": "Radera konto?",
     "History": "Historik",
@@ -506,7 +504,5 @@
     "preferences_search_privacy_label": "Söksekretess: ",
     "preferences_search_privacy_description": "Om du aktiverar den här inställningen sparas inte dina sökfrågor i din webbhistorik.",
     "comments_youtube_disabled_text": "Youtube kommentarer är inaktiverade för den här videon",
-    "comments_youtube_disabled_try_reddit": "Prova reddit kommentarer?",
-    "comments_invidious_disabled_text": "Kommentarer är dolda enligt användarinställningar",
-    "comments_youtube_disabled_try_reddit_no_js": "Hej! Det verkar som att du har inaktiverat JavaScript. Även om uppladdaren har inaktiverat YouTube-kommentarer kan du fortfarande klicka här för att försöka visa Reddit-kommentarer. Tänk på att de kan ta lite längre tid att ladda."
+    "comments_invidious_disabled_text": "Kommentarer är dolda enligt användarinställningar"
 }
