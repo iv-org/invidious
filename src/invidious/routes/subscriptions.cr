@@ -81,7 +81,12 @@ module Invidious::Routes::Subscriptions
 
     if action_takeout
       env.response.content_type = "application/json"
-      env.response.headers["content-disposition"] = "attachment"
+
+      # Exports the NewPipe with the same naming format NewPipe
+      # uses for their exports
+      # Exmaple: `newpipe_subscriptions_202610312013`
+      export_time = Time.local.to_s("%Y%m%d%H%M")
+      env.response.headers["Content-Disposition"] = "attachment; filename=\"newpipe_subscriptions_#{export_time}\""
 
       if format == "json"
         return Invidious::User::Export.to_invidious(user)
