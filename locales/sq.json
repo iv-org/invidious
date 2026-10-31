@@ -328,8 +328,6 @@
     "Import NewPipe subscriptions (.json)": "Importoni pajtime NewPipe (.json)",
     "Import NewPipe data (.zip)": "Importoni të dhëna NewPipe (.zip)",
     "Export": "Eksporto",
-    "Export subscriptions as OPML": "Eksportoni pajtime si OPML",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "Eksportoji pajtimet si OPML (për NewPipe & FreeTube)",
     "Delete account?": "Të fshihet llogaria?",
     "History": "Historik",
     "An alternative front-end to YouTube": "Një front-end alternativ për YouTube-in",
