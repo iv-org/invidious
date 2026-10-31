@@ -82,18 +82,21 @@ module Invidious::Routes::Subscriptions
     if action_takeout
       env.response.content_type = "application/json"
 
-      # Exports the NewPipe with the same naming format NewPipe
-      # uses for their exports
-      # Exmaple: `newpipe_subscriptions_202610312013`
       export_time = Time.local.to_s("%Y%m%d%H%M")
-      env.response.headers["Content-Disposition"] = "attachment; filename=\"newpipe_subscriptions_#{export_time}\""
 
       if format == "json"
+        env.response.headers["Content-Disposition"] = "attachment; filename=\"invidious_subscriptions_#{export_time}\""
         return Invidious::User::Export.to_invidious(user)
       elsif format == "newpipe_json"
+        # Exports the NewPipe with the same naming format NewPipe
+        # uses for their exports
+        # Exmaple: `newpipe_subscriptions_202610312013`
+        env.response.headers["Content-Disposition"] = "attachment; filename=\"newpipe_subscriptions_#{export_time}\""
         return Invidious::User::Export.to_newpipe(subscriptions)
       else
         env.response.content_type = "application/xml"
+        env.response.headers["Content-Disposition"] = "attachment; filename=\"invidious_subscriptions_#{export_time}.opml\""
+
         export = XML.build do |xml|
           xml.element("opml", version: "1.1") do
             xml.element("body") do
