@@ -26,8 +26,6 @@
     "Import NewPipe subscriptions (.json)": "ייבוא מינויים מ־NewPipe‏ (.json)",
     "Import NewPipe data (.zip)": "ייבוא נתוני NewPipe‏ (.zip)",
     "Export": "ייצוא",
-    "Export subscriptions as OPML": "ייצוא המינויים בתור OPML",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "ייצוא המינויים בתור OPML (עבור NewPipe ו־FreeTube)",
     "Export data as JSON": "ייצוא הנתונים בתור קובץ JSON",
     "Delete account?": "למחוק את החשבון?",
     "History": "היסטוריה",
