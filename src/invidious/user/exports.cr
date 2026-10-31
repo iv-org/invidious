@@ -85,7 +85,7 @@ struct Invidious::User
 
             xml.element("outline", text: title, title: title) do
               subscriptions.each do |channel|
-                xml_url = "#{HOST_URL}/feed/channel/#{channel.id}"
+                xml_url = "https://www.youtube.com/feeds/videos.xml?channel_id=#{channel.id}"
 
                 xml.element("outline", text: channel.author, title: channel.author,
                   "type": "rss", xmlUrl: xml_url)
