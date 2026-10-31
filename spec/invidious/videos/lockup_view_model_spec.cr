@@ -83,7 +83,7 @@ Spectator.describe "LockupViewModelParser" do
     expect(video.ucid).to eq("UCHnyfMqiRRG1u-2MsSQLbXA")
     expect(video.views).to eq(8_800_000_i64)
     expect(video.length_seconds).to eq(213)
-    expect(video.published).to be <= (Time.local - 4.months)
+    expect(video.published).to be_close(Time.utc - 5.months, 1.minute)
   end
 
   it "parses regular video with single metadataRow" do
@@ -157,6 +157,6 @@ Spectator.describe "LockupViewModelParser" do
     expect(video.title).to eq("Single Author Title")
     expect(video.views).to eq(1_200_000_i64)
     expect(video.length_seconds).to eq(600)
-    expect(video.published).to be <= (Time.local - 1.days)
+    expect(video.published).to be_close(Time.utc - 2.days, 1.minute)
   end
 end
