@@ -26,8 +26,6 @@
     "Import NewPipe subscriptions (.json)": "استيراد اشتراكات نيو بايب (.json)",
     "Import NewPipe data (.zip)": "استيراد بيانات نيو بايب (.zip)",
     "Export": "تصدير",
-    "Export subscriptions as OPML": "تصدير الاشتراكات كـOPML",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "تصدير الاشتراكات كـOPML (لِنيو بايب و فريتيوب)",
     "Export data as JSON": "تصدير بيانات Invidious كـ JSON",
     "Delete account?": "حذف الحساب؟",
     "History": "السِّجل",
