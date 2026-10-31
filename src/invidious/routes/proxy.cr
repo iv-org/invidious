@@ -46,7 +46,7 @@ module Invidious::Routes::Proxy
     /(^|\.)gstatic\.com$/,
   ]
 
-  def self.is_host_allowed?(host : String) : Bool
+  def self.host_allowed?(host : String) : Bool
     ALLOWED_HOST_PATTERNS.any? { |pattern| host.matches?(pattern) }
   end
 
@@ -79,7 +79,7 @@ module Invidious::Routes::Proxy
     end
 
     # Security check: only allow proxying to known YouTube/Google domains
-    if !is_host_allowed?(target_host)
+    if !host_allowed?(target_host)
       env.response.status_code = 403
       return "Proxying to this host is not allowed."
     end
@@ -225,6 +225,7 @@ module Invidious::Routes::Proxy
           begin
             IO.copy(response.body_io, env.response.output)
             env.response.output.flush
+            # ameba:disable Lint/UnusedRescueVariable
           rescue ex : IO::Error
             # Client disconnected mid-stream (seek / quality change / abort).
             # This is expected, just stop copying.
