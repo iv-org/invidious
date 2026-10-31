@@ -91,7 +91,7 @@ we're going to need to do it here in order to allow for translations.
         <% if video.subreason %>
         <p><%= video.subreason %></p>
         <% end %>
-        <%= error_redirect_helper(env) %>
+        <%= Errors.error_redirect_helper(env) %>
     <% end %>
     <h1>
         <%= title %>
