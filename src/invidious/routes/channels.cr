@@ -359,6 +359,18 @@ module Invidious::Routes::Channels
     "posts",
   }
 
+  def self.potential_brand_redirect(env)
+    # Check for known tab in url before trying to brand_redirect (avoids unneeded request to YouTube)
+
+    selected_tab = env.params.url["tab"]?.try &.downcase
+
+    if KNOWN_TABS.includes? selected_tab
+      brand_redirect(env)
+    else
+      Invidious::Routes::Misc.home(env)
+    end
+  end
+
   # Redirects brand url channels to a normal /channel/:ucid route
   def self.brand_redirect(env)
     locale = env.get("preferences").as(Preferences).locale
@@ -381,7 +393,7 @@ module Invidious::Routes::Channels
       return Errors.error_template(404, I18n.translate(locale, "This channel does not exist."))
     end
 
-    selected_tab = env.params.url["tab"]?
+    selected_tab = env.params.url["tab"]?.try &.downcase
 
     if KNOWN_TABS.includes? selected_tab
       url = "/channel/#{ucid}/#{selected_tab}"
