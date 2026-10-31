@@ -2,28 +2,40 @@ struct Invidious::User
   module Export
     extend self
 
-    NEWPIPE_APP_VERSION     = "0.29.0"
-    NEWPIPE_APP_VERSION_INT = 1014
-    NEWPIPE_YT_SERVICE_ID   = 0
+    struct NewPipe
+      include JSON::Serializable
 
-    def to_newpipe(subscriptions : Array(InvidiousChannel))
-      return JSON.build do |json|
-        json.object do
-          json.field "subscriptions" do
-            json.array do
-              subscriptions.each do |channel|
-                json.object do
-                  json.field "service_id", NEWPIPE_YT_SERVICE_ID
-                  json.field "url", "https://www.youtube.com/channel/" + channel.id
-                  json.field "name", channel.author
-                end
-              end
-            end
-          end
-          json.field "app_version", NEWPIPE_APP_VERSION
-          json.field "app_version_int", NEWPIPE_APP_VERSION_INT
+      # Hardcoded NewPipe values that are needed
+      # so NewPipe can import the JSON.
+      private APP_VERSION     = "0.29.0"
+      private APP_VERSION_INT = 1014
+      private YT_SERVICE_ID   =    0
+
+      getter subscriptions : Array(Subscription)
+
+      struct Subscription
+        include JSON::Serializable
+
+        getter service_id : Int32 = YT_SERVICE_ID
+        getter url : String
+        getter name : String
+
+        def initialize(channel : InvidiousChannel)
+          @url = "https://www.youtube.com/channel/" + channel.id
+          @name = channel.author
         end
       end
+
+      getter app_version : String = APP_VERSION
+      getter app_version_int : Int32 = APP_VERSION_INT
+
+      def initialize(channels : Array(InvidiousChannel))
+        @subscriptions = channels.map { |channel| Subscription.new(channel) }
+      end
+    end
+
+    def to_newpipe(subscriptions : Array(InvidiousChannel))
+      NewPipe.new(subscriptions).to_json
     end
 
     def to_invidious(user : User)
