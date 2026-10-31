@@ -468,7 +468,7 @@ module YoutubeAPI
     else
       # Without Invidious Companion the player endpoint is unavailable.
       # Returning nil lets the caller fall back to the /next endpoint.
-      return nil
+      return
     end
   end
 
