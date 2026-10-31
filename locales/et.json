@@ -31,8 +31,6 @@
     "Import FreeTube subscriptions (.db)": "Impordi tellimused FreeTube'ist (.db)",
     "Import NewPipe data (.zip)": "Impordi NewPipe'i andmed (.zip)",
     "Export": "Ekspordi",
-    "Export subscriptions as OPML": "Ekspordi tellimused OPML-ina",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "Ekspordi tellimused OPML-ina (NewPipe'i ja FreeTube'i jaoks)",
     "Delete account?": "Kustuta kasutaja?",
     "History": "Ajalugu",
     "JavaScript license information": "JavaScripti litsentsi info",
