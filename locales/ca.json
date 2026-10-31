@@ -187,7 +187,6 @@
     "Watch history": "Historial de reproduccions",
     "Authorize token?": "Voleu autoritzar el testimoni?",
     "Source available here.": "Codi font disponible aquí.",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "Exporta subscripcions com a OPML (per a NewPipe i FreeTube)",
     "Log in": "Inicia la sessió",
     "search_filters_sort_option_date": "Data de càrrega",
     "Unlisted": "No llistat",
@@ -416,7 +415,6 @@
     "preferences_quality_dash_label": "Qualitat de vídeo DASH preferida: ",
     "Hindi": "Hindi",
     "An alternative front-end to YouTube": "Una interfície alternativa a YouTube",
-    "Export subscriptions as OPML": "Exporta subscripcions com a OPML",
     "Watch on YouTube": "Mostra a YouTube",
     "Lao": "Laosià",
     "search_message_change_filters_or_query": "Proveu d'ampliar la vostra consulta de cerca i/o canviar els filtres.",
@@ -523,7 +521,5 @@
     "preferences_search_privacy_label": "Privadesa de la cerca: ",
     "preferences_search_privacy_description": "Activar aquest paràmetre evitarà que les cerques es desin a l'historial del navegador.",
     "comments_youtube_disabled_text": "Els comentaris de Youtube s'han desactivat en aquest vídeo",
-    "comments_youtube_disabled_try_reddit": "Voleu provar amb els comentaris de Reddit?",
-    "comments_invidious_disabled_text": "Els comentaris s'han amagat per la configuració de l'usuari",
-    "comments_youtube_disabled_try_reddit_no_js": "Ep! Sembla que teniu el JavaScript desactivat. Tot i que l'usuari que ha pujat el vídeo ha desactivat els comentaris al YouTube, encara podeu fer clic aquí per a mostrar els comentaris de Reddit. Teniu en compte que podrien trigar una estona a carregar-se."
+    "comments_invidious_disabled_text": "Els comentaris s'han amagat per la configuració de l'usuari"
 }
