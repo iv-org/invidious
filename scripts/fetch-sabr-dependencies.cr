@@ -10,19 +10,19 @@ require "colorize"
 SABR_DEPENDENCIES = {
   "shaka-player" => {
     "version" => "5.1.10",
-    "files" => [
+    "files"   => [
       {"url" => "https://cdn.jsdelivr.net/npm/shaka-player@5.1.10/dist/shaka-player.ui.js", "dest" => "shaka-player.ui.js"},
       {"url" => "https://cdn.jsdelivr.net/npm/shaka-player@5.1.10/dist/controls.css", "dest" => "controls.css"},
-    ]
+    ],
   },
   # googlevideo + bgutils-js are bundled locally from npm via scripts/bundle-sabr-libs.js
   # (no esm.sh fetch). youtubei.js is also bundled locally from npm, but we keep a
   # pre-built jsDelivr copy as the esbuild entry for reproducibility.
   "youtubei.js" => {
     "version" => "17.0.1",
-    "files" => [
+    "files"   => [
       {"url" => "https://cdn.jsdelivr.net/npm/youtubei.js@17.0.1/bundle/browser.js", "dest" => "youtubei.bundle.min.js"},
-    ]
+    ],
   },
 }
 
