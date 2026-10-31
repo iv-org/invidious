@@ -76,5 +76,26 @@ struct Invidious::User
     def to_invidious(user : User)
       Invidious.new(user).to_json
     end
+
+    def to_freetube_opml(subscriptions : Array(InvidiousChannel))
+      export = XML.build do |xml|
+        xml.element("opml", version: "1.1") do
+          xml.element("body") do
+            title = "Invidious Subscriptions"
+
+            xml.element("outline", text: title, title: title) do
+              subscriptions.each do |channel|
+                xml_url = "#{HOST_URL}/feed/channel/#{channel.id}"
+
+                xml.element("outline", text: channel.author, title: channel.author,
+                  "type": "rss", xmlUrl: xml_url)
+              end
+            end
+          end
+        end
+      end
+
+      export.gsub(%(<?xml version="1.0"?>\n), "")
+    end
   end # module
 end

@@ -96,25 +96,7 @@ module Invidious::Routes::Subscriptions
       else
         env.response.content_type = "application/xml"
         env.response.headers["Content-Disposition"] = "attachment; filename=\"invidious_subscriptions_#{export_time}.opml\""
-
-        export = XML.build do |xml|
-          xml.element("opml", version: "1.1") do
-            xml.element("body") do
-              title = "Invidious Subscriptions"
-
-              xml.element("outline", text: title, title: title) do
-                subscriptions.each do |channel|
-                  xml_url = "#{HOST_URL}/feed/channel/#{channel.id}"
-
-                  xml.element("outline", text: channel.author, title: channel.author,
-                    "type": "rss", xmlUrl: xml_url)
-                end
-              end
-            end
-          end
-        end
-
-        return export.gsub(%(<?xml version="1.0"?>\n), "")
+        return Invidious::User::Export.to_freetube_opml(subscriptions)
       end
     end
 
