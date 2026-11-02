@@ -671,6 +671,11 @@ body.dark-theme {
   color: #f0f0f0;
 }
 
+.dark-theme .length-watch-page {
+  background-color: rgba(255, 255, 255, 0.12);
+  color: #f0f0f0;
+}
+
 .dark-theme .pure-form legend {
   color: #f0f0f0;
 }
@@ -728,6 +733,11 @@ body.dark-theme {
 
   body.no-theme {
     background-color: rgba(35, 35, 35, 1);
+    color: #f0f0f0;
+  }
+
+  .no-theme .length-watch-page {
+    background-color: rgba(255, 255, 255, 0.12);
     color: #f0f0f0;
   }
 
@@ -926,4 +936,19 @@ h1, h2, h3, h4, h5, p,
 
 #comments-turned-off-on-video-message > p, #comments-disabled-message > p {
   text-align: center;
+}
+
+.length-watch-page{
+  position: relative;
+  background-color: rgba(35, 35, 35, 0.75);
+  color: #fff;
+  border-radius: 3px;
+  padding: 4px 10px;
+  font-size: 20px;
+  right: 0.25em;
+  bottom: 0.25em;
+  margin-left: 10px;
+  margin-right: 10px;
+  -webkit-user-select: none;
+  user-select: none;
 }
