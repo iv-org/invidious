@@ -297,6 +297,7 @@ struct Video
   getset_bool authorVerified
   getset_bool isFamilyFriendly
   getset_bool isListed
+  getset_bool aiMade
   predicate_bool upcoming, isUpcoming
 end
 
