@@ -84,6 +84,9 @@ we're going to need to do it here in order to allow for translations.
 <div class="h-box">
     <h1>
         <%= title %>
+        <span class="length-watch-page">
+            <%= video_length_abbreviated(video.length_seconds.seconds) %>
+        </span>
         <% if params.listen %>
             <a title="<%=I18n.translate(locale, "Video mode")%>" id="link-iv-listen" data-base-url="/watch?<%= env.params.query %>&listen=0" href="/watch?<%= env.params.query %>&listen=0">
                 <i class="icon ion-ios-videocam"></i>
@@ -93,9 +96,6 @@ we're going to need to do it here in order to allow for translations.
                 <i class="icon ion-md-headset"></i>
             </a>
         <% end %>
-        <span class="length-watch-page">
-            <%= video_length_abbreviated(video.length_seconds.seconds) %>
-        </span>
     </h1>
 
     <% if !video.is_listed %>
