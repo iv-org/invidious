@@ -59,7 +59,7 @@ format:
 	crystal tool format
 
 test:
-	crystal spec
+	crystal spec -v
 
 verify:
 	crystal build src/invidious.cr -Dskip_videojs_download \
