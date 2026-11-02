@@ -1,5 +1,6 @@
 PUBSUB_URL = URI.parse("https://pubsubhubbub.appspot.com")
 
+# 2026-11-01: Add support for locales!
 def video_length_abbreviated(length)
   if length.days > 0
     length_abbreviated = "#{length.days} d #{length.hours} hr #{length.minutes} min"
