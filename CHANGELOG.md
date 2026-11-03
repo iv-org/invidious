@@ -6,6 +6,79 @@
 
 
 
+
+## v2.20261103.0
+
+### Wrap-up
+
+This release brings several user-facing improvements: custom channel handle URLs with tab paths, a minute badge on the watch page, automatic video start when clicking timestamps, support for the shows tab on channels, and a new subscription export for NewPipe. It also fixes parsing of published dates and view counts for collab videos and corrects the OPML export for FreeTube. On the breaking side, the hd720 quality option has been removed and Reddit integration has been completely dropped.
+
+For instance owners, Invidious now checks domain configuration before starting, allows adding custom text at the bottom of pages, and improves companion proxying. The toolchain has been updated to Crystal 1.22.2, and Nix packaging has been refreshed with multiple nixpkgs bumps.
+
+Developers will find improved spec handling with a `-v` flag, removal of unused functions, better module encapsulation, and fixes for deprecation warnings across Crystal versions. CI dependencies were also updated.
+
+### New features & important changes
+
+#### For Users
+- Support for custom channel handle URLs with tab paths, e.g. `{INSTANCE}/markrober/streams` (#5811)
+- Added a minute badge next to the video title on the watch page (#6112)
+- Clicking a timestamp now automatically starts the video and scrolls to it (#6111)
+- Added support for the shows tab on channels (#6033)
+- New subscription export in JSON format for NewPipe (#5826)
+- Removed the hd720 quality option (#6098)
+- Removed all Reddit integration (#6087)
+
+#### For instance owners
+- Invidious now checks domain configuration before starting (#5352)
+- Added ability to display custom text at the bottom of pages, e.g. for contacting a maintainer (#3826)
+- Improved companion proxying (#5809)
+- Updated to Crystal 1.22.2 (#6106, #6099)
+- Nix packaging bumps: nixpkgs and flake-utils updates (#6102, #6086, #6097)
+
+#### For developers
+- Specs now support a `-v` flag for verbose output (#6115)
+- Removed unused functions `.ci_lower_bound()` and `.elapsed_text()` (#6110)
+- Moved FreeTube OPML export to the Export module (#6107)
+- Encapsulated more functions into modules and improved spec files (#6046)
+- Fixed deprecation warnings across Crystal versions (#6100)
+- Updated CI dependency `crystal-lang/install-crystal` (#6096)
+
+### Bugs fixed
+#### For Users
+- Fixed parsing of published date and view count for collab videos (#5812)
+- Fixed OPML export for FreeTube (#6109)
+
+#### For developers
+- Fixed deprecation warnings that appeared across different Crystal versions (#6100)
+
+### Full list of pull requests merged since the last release (newest first)
+
+* fix(parser): parse published date and view count for collab videos (https://github.com/iv-org/invidious/pull/5812, by @radmorecameron)
+* feat: Adds support for custom channel handle urls with tab paths (ex: `{INSTANCE}/markrober/streams`) (https://github.com/iv-org/invidious/pull/5811, by @radmorecameron)
+* chore: improve invidious companion proxying (https://github.com/iv-org/invidious/pull/5809, by @Fijxu)
+* check domain configuration before starting Invidious (https://github.com/iv-org/invidious/pull/5352, by @Fijxu)
+* chore: use `-v` cmdline argument for verbose output of the specs (https://github.com/iv-org/invidious/pull/6115, by @Fijxu)
+* feat: add minute badge to the watch page, right next to the title of the video (https://github.com/iv-org/invidious/pull/6112, by @Fijxu)
+* Add custom text at the bottom - contact a maintainer (https://github.com/iv-org/invidious/pull/3826, by @auralglow)
+* feat: automatically start video and scroll to it if clicking timestam… (https://github.com/iv-org/invidious/pull/6111, by @Fijxu)
+* chore: remove unused functions .ci_lower_bound() and .elapsed_text() (https://github.com/iv-org/invidious/pull/6110, by @Fijxu)
+* fix: fix the OPML export for FreeTube (https://github.com/iv-org/invidious/pull/6109, by @Fijxu)
+* chore: move FreeTube OPML export to Export module (https://github.com/iv-org/invidious/pull/6107, by @Fijxu)
+* Translations update from Hosted Weblate (https://github.com/iv-org/invidious/pull/5949, by @weblate)
+* chore: update to Crystal 1.22.2 (https://github.com/iv-org/invidious/pull/6106, by @Fijxu)
+* Add subscription JSON export for NewPipe (https://github.com/iv-org/invidious/pull/5826, by @unrealtournament)
+* chore: Encapsulate more functions into their own modules and improve spec files (https://github.com/iv-org/invidious/pull/6046, by @Fijxu)
+* chore(deps): bump nixpkgs from `02c087f` to `3ec6363` in /nix (https://github.com/iv-org/invidious/pull/6102, by @dependabot[bot])
+* chore(deps): bump flake-utils from `11707dc` to `b7a79d3` in /nix (https://github.com/iv-org/invidious/pull/6086, by @dependabot[bot])
+* chore: remove hd720 quality (https://github.com/iv-org/invidious/pull/6098, by @Fijxu)
+* feat(channel): add support for shows tab (https://github.com/iv-org/invidious/pull/6033, by @radmorecameron)
+* fix: fix warnings from deprecations across Crystal versions (https://github.com/iv-org/invidious/pull/6100, by @Fijxu)
+* chore: Completely remove Reddit from Invidious (https://github.com/iv-org/invidious/pull/6087, by @Fijxu)
+* chore: update to Crystal 1.22.1 (https://github.com/iv-org/invidious/pull/6099, by @Fijxu)
+* chore(deps): bump nixpkgs from `151fa4e` to `02c087f` in /nix (https://github.com/iv-org/invidious/pull/6097, by @dependabot[bot])
+* chore(deps): bump crystal-lang/install-crystal from 1.9.3 to 1.9.4 (https://github.com/iv-org/invidious/pull/6096, by @dependabot[bot])
+* Release v2.20261022.0 (https://github.com/iv-org/invidious/pull/6093, by @github-actions[bot])
+
 ## v2.20261022.0
 
 ### Wrap-up
