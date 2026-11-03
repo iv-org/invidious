@@ -349,7 +349,7 @@ class Config
     if (domain = config.domain)
       if parsed_domain = begin
            URI.parse(domain)
-         rescue ex
+         rescue
            puts "Config (Hint): Failed to parse domain. Please check it's value!"
            exit(1)
          end
