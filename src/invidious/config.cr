@@ -345,7 +345,12 @@ class Config
 
     # Check if the domain configuration is valid
     if (domain = config.domain)
-      if parsed_domain = URI.parse(domain)
+      if parsed_domain = begin
+           URI.parse(domain)
+         rescue ex
+           puts "Config (Hint): Failed to parse domain. Please check it's value!"
+           exit(1)
+         end
         if port = parsed_domain.path.to_i?
           puts "Config (Hint): Remove the port from your domain: ':#{port}'"
           exit(1)
