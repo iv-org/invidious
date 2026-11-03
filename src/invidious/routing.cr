@@ -146,6 +146,9 @@ module Invidious::Routing
     get "/user/:user", Routes::Channels, :brand_redirect
     get "/user/:user/:tab", Routes::Channels, :brand_redirect
 
+    # /linuxtechtips/streams
+    get "/:user/:tab", Routes::Channels, :potential_brand_redirect
+
     # /@LinusTechTips (Handle)
     get "/@:user", Routes::Channels, :brand_redirect
     get "/@:user/:tab", Routes::Channels, :brand_redirect
