@@ -40,7 +40,7 @@ module Invidious::Routes::Companion
         end
       end
     rescue ex
-      return error_json(502, "Couldn't proxy request to Invidious Companion.")
+      return Errors.error_json(502, "Couldn't proxy request to Invidious Companion.")
     end
   end
 end
