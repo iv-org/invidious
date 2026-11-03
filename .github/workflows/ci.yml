@@ -85,7 +85,7 @@ jobs:
           fi
 
       - name: Run tests
-        run: crystal spec
+        run: crystal spec -v
 
       - name: Build
         run: crystal build --warnings all --error-on-warnings --stats --time --progress --error-trace src/invidious.cr
