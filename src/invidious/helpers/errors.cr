@@ -194,20 +194,25 @@ module Errors
       go_to_youtube_embed = I18n.translate(locale, "videoinfo_youTube_embed_link")
       switch_instance = I18n.translate(locale, "Switch Invidious Instance")
 
-      if video_id.presence
-        if params.present?
-          new_params = URI::Params.new
-          list = params["list"]?.presence
-          index = params["index"]?.presence
-          if list && index
-            new_params.add("list", list)
-            new_params.add("index", index)
-            embed_link = HTML.escape("https://youtube.com/embed/#{video_id}?#{new_params}")
+      if is_watch
+        params = URI.parse(env.request.resource).query_params
+        video_id = params.fetch("v", nil)
+
+        if video_id.presence
+          if params.present?
+            new_params = URI::Params.new
+            list = params["list"]?.presence
+            index = params["index"]?.presence
+            if list && index
+              new_params.add("list", list)
+              new_params.add("index", index)
+              embed_link = HTML.escape("https://youtube.com/embed/#{video_id}?#{new_params}")
+            else
+              embed_link = HTML.escape("https://youtube.com/embed/#{video_id}")
+            end
           end
-        else
-          embed_link = HTML.escape("https://youtube.com/embed/#{video_id}")
+          embed_html_element = "(<a rel=\"noopener\" referrerpolicy=\"origin-when-cross-origin\" href=\"#{embed_link}\">#{go_to_youtube_embed}</a>)"
         end
-        embed_html_element = "(<a rel=\"noopener\" referrerpolicy=\"origin-when-cross-origin\" href=\"#{embed_link}\">#{go_to_youtube_embed}</a>)"
       end
 
       return <<-END_HTML
