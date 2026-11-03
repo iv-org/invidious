@@ -345,6 +345,30 @@ class Config
       end
     end
 
+    # Check if the domain configuration is valid
+    if (domain = config.domain)
+      if parsed_domain = begin
+           URI.parse(domain)
+         rescue ex
+           puts "Config (Hint): Failed to parse domain. Please check it's value!"
+           exit(1)
+         end
+        if port = parsed_domain.path.to_i?
+          puts "Config (Hint): Remove the port from your domain: ':#{port}'"
+          exit(1)
+        end
+        if (path_items = parsed_domain.path.split("/")).size > 1
+          path = path_items[1..].join("/")
+          puts "Config (Hint): Remove the path from your domain: '/#{path}'"
+          exit(1)
+        end
+        if scheme = parsed_domain.scheme.presence
+          puts "Config (Hint): Remove the scheme from your domain: '#{scheme}://'"
+          exit(1)
+        end
+      end
+    end
+
     return config
   end
 end
