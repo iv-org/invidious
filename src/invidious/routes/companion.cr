@@ -35,7 +35,6 @@ module Invidious::Routes::Companion
           resp.headers.each do |key, value|
             env.response.headers[key] = value
           end
-          env.response.headers["Via"] = "1.1 Invidious"
           return IO.copy resp.body_io, env.response
         end
       end
