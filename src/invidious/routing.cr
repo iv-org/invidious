@@ -40,8 +40,6 @@ module Invidious::Routing
       if CONFIG.enable_user_notifications
         get "/modify_notifications", Routes::Notifications, :modify
       end
-
-      get "/:user/:tab", Routes::Channels, :potential_brand_redirect
     {% end %}
 
     self.register_image_routes
@@ -147,6 +145,9 @@ module Invidious::Routing
     # /user/linustechtips (Not always the same as /c/)
     get "/user/:user", Routes::Channels, :brand_redirect
     get "/user/:user/:tab", Routes::Channels, :brand_redirect
+
+    # /linuxtechtips/streams
+    get "/:user/:tab", Routes::Channels, :potential_brand_redirect
 
     # /@LinusTechTips (Handle)
     get "/@:user", Routes::Channels, :brand_redirect
