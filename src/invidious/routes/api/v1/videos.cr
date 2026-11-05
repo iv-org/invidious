@@ -105,12 +105,21 @@ module Invidious::Routes::API::V1::Videos
       webvtt = transcript.to_vtt
     else
       # Timedtext API handling
-      url = URI.parse("#{caption.base_url}&tlang=#{tlang}").request_target
+      url = URI.parse(caption.base_url).request_target
+
+      # Youtube turns down anything that asks for a translation, and an empty
+      # tlang still counts as asking: it answers with its block page instead
+      # of the subtitle, whatever the rest of the request says. So it only
+      # goes on when a translation was actually asked for.
+      url += "&tlang=#{tlang}" if tlang && !tlang.empty?
 
       # Auto-generated captions often have cues that aren't aligned properly with the video,
       # as well as some other markup that makes it cumbersome, so we try to fix that here
       if caption.name.includes? "auto-generated"
-        caption_xml = YT_POOL.client &.get(url).body
+        # The parser below reads timedtext format 3. Left to itself youtube
+        # now answers in the older <transcript> dialect, which comes out as a
+        # WebVTT file with no cues in it.
+        caption_xml = YT_POOL.client &.get("#{url}&fmt=srv3").body
 
         settings_field = {
           "Kind"     => "captions",
