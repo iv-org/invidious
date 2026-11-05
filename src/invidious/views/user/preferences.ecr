@@ -73,6 +73,17 @@
                 </div>
             <% end %>
 
+            <% if !CONFIG.disabled?("dash") %>
+                <div class="pure-control-group">
+                    <label for="codec_dash"><%= I18n.translate(locale, "preferences_codec_dash_label") %></label>
+                    <select name="codec_dash" id="codec_dash">
+                        <% {"av1", "h264"}.each do |option| %>
+                            <option value="<%= option %>" <% if preferences.codec_dash == option %> selected <% end %>><%= I18n.translate(locale, "preferences_codec_dash_option_" + option) %></option>
+                        <% end %>
+                    </select>
+                </div>
+            <% end %>
+
             <div class="pure-control-group">
                 <label for="volume"><%= I18n.translate(locale, "preferences_volume_label") %></label>
                 <input name="volume" id="volume" data-onrange="update_volume_value" type="range" min="0" max="100" step="5" value="<%= preferences.volume %>">
