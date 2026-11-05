@@ -228,7 +228,16 @@ class Config
     env_config_yaml = "INVIDIOUS_CONFIG"
 
     config_file = ENV.has_key?(env_config_file) ? ENV.fetch(env_config_file) : "config/config.yml"
-    config_yaml = ENV.has_key?(env_config_yaml) ? ENV.fetch(env_config_yaml) : File.read(config_file)
+    config_yaml = if ENV.has_key?(env_config_yaml)
+                    ENV.fetch(env_config_yaml)
+                  else
+                    begin
+                      File.read(config_file)
+                    rescue ex
+                      puts "Config: Failed to load configuration file: #{ex.message}"
+                      exit(1)
+                    end
+                  end
 
     config = Config.from_yaml(config_yaml)
 
