@@ -202,6 +202,11 @@ we're going to need to do it here in order to allow for translations.
             <p id="views"><i class="icon ion-ios-eye"></i> <%= number_with_separator(video.views) %></p>
             <p id="likes"><i class="icon ion-ios-thumbs-up"></i> <%= number_with_separator(video.likes) %></p>
             <p id="dislikes" style="display: none; visibility: hidden;"></p>
+            <% if video.ai_made %>
+                <p id="ai_made"><%= I18n.translate(locale, "video_details_ai_made") %>
+                    <%= I18n.translate_bool(locale, video.ai_made) %>
+                </p>
+            <% end %>
             <p id="genre"><%= I18n.translate(locale, "Genre: ") %>
                 <% if !video.genre_url %>
                     <%= video.genre %>
