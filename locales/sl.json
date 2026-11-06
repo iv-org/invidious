@@ -17,8 +17,6 @@
     "Import FreeTube subscriptions (.db)": "Uvozi FreeTube (.db) naročnine",
     "Import NewPipe data (.zip)": "Uvozi NewPipe (.zip) podatke",
     "Export": "Izvozi",
-    "Export subscriptions as OPML": "Izvozi naročnine kot OPML",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "Izvozi naročnine kot OPML (za NewPipe in FreeTube)",
     "Log in": "Prijava",
     "Log in/register": "Prijava/registracija",
     "User ID": "ID uporabnika",
