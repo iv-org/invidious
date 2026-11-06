@@ -51,8 +51,6 @@
     "Import NewPipe subscriptions (.json)": "NewPipe obunalarini import qilish (.db)",
     "Import NewPipe data (.zip)": "NewPipe maʼlumot (.zip) faylini import qilish",
     "Export": "Eksport qilish",
-    "Export subscriptions as OPML": "Obunalarni OPML tarzida eksport qilish",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "Obunalarni OPML tarzida eksport qilish (NewPipe va FreeTube uchun)",
     "Export data as JSON": "Invidious ma’lumotlarini JSON formatida eksport qilish",
     "Delete account?": "Akkount oʻchirilsinmi?",
     "History": "Koʻruv tarixi",
