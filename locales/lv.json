@@ -117,8 +117,6 @@
     "Import FreeTube subscriptions (.db)": "Ievietot FreeTube abonementus (.db)",
     "Import NewPipe subscriptions (.json)": "Ievietot NewPipe abonementus (.json)",
     "Import NewPipe data (.zip)": "Ievietot NewPipe datus (.zip)",
-    "Export subscriptions as OPML": "Izgūt abonementus OPML formātā",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "Izgūt abonementus OPML formātā (der NewPipe un FreeTube lietotnēm)",
     "preferences_max_results_label": "Video skaits plūsmā: ",
     "channel name": "kanāla nosaukuma",
     "channel name - reverse": "kanāla nosaukuma apgrieztā secībā",

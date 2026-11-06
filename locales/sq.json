@@ -328,8 +328,6 @@
     "Import NewPipe subscriptions (.json)": "Importoni pajtime NewPipe (.json)",
     "Import NewPipe data (.zip)": "Importoni të dhëna NewPipe (.zip)",
     "Export": "Eksporto",
-    "Export subscriptions as OPML": "Eksportoni pajtime si OPML",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "Eksportoji pajtimet si OPML (për NewPipe & FreeTube)",
     "Delete account?": "Të fshihet llogaria?",
     "History": "Historik",
     "An alternative front-end to YouTube": "Një front-end alternativ për YouTube-in",
@@ -501,5 +499,11 @@
     "Livestreams": "Transmetime të drejtpërdrejta",
     "preferences_search_privacy_label": "Privatësi kërkimesh: ",
     "preferences_search_privacy_description": "Aktivizimi i këtij parapëlqimi do të pengojë ruajtjen e termave tuaj të kërkimeve në historikun e shfletuesit tuaj.",
-    "dmca_content": "Kjo video s’mund të shkarkohet në këtë instancë, për shkak të një letre rreth cenimi DMCA/të drejtash kopjimi dërguar përgjegjësit të instancës."
+    "dmca_content": "Kjo video s’mund të shkarkohet në këtë instancë, për shkak të një letre rreth cenimi DMCA/të drejtash kopjimi dërguar përgjegjësit të instancës.",
+    "Export subscriptions as OPML (for FreeTube)": "Eksportoni pajtime si OPML (për FreeTube)",
+    "Export subscriptions as JSON (for NewPipe)": "Eksportoni pajtime si JSON (për NewPipe)",
+    "comments_youtube_disabled_text": "Komentet Youtube janë të çaktivizuara në këtë video",
+    "comments_invidious_disabled_text": "Komentet janë të fshehura, sipas parapëlqimeve të përdoruesit",
+    "channel_tab_shows_label": "Shfaqje",
+    "video_details_ai_made": "Video e Krijuar me IA?:"
 }

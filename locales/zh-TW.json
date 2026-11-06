@@ -31,8 +31,6 @@
     "Import NewPipe subscriptions (.json)": "匯入 NewPipe 訂閱 (.json)",
     "Import NewPipe data (.zip)": "匯入 NewPipe 資料 (.zip)",
     "Export": "匯出",
-    "Export subscriptions as OPML": "將訂閱匯出為 OPML",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "將訂閱匯出為 OPML（供 NewPipe 與 FreeTube 使用）",
     "Export data as JSON": "將 Invidious 資料匯出為 JSON",
     "Delete account?": "刪除帳號？",
     "History": "歷史",
@@ -489,5 +487,8 @@
     "preferences_search_privacy_label": "搜尋隱私： ",
     "preferences_search_privacy_description": "啟用此設定後，您的搜尋查詢將不會儲存於瀏覽器歷史紀錄中。",
     "comments_youtube_disabled_text": "此影片已停用 Youtube 留言",
-    "comments_invidious_disabled_text": "留言已根據使用者偏好設定隱藏"
+    "comments_invidious_disabled_text": "留言已根據使用者偏好設定隱藏",
+    "Export subscriptions as OPML (for FreeTube)": "將訂閱匯出為 OPML（適用於 FreeTube）",
+    "Export subscriptions as JSON (for NewPipe)": "將訂閱匯出為 JSON（適用於 NewPipe）",
+    "channel_tab_shows_label": "顯示"
 }

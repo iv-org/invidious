@@ -31,8 +31,6 @@
     "Import NewPipe subscriptions (.json)": "NewPipe 登録チャンネルをインポート (.json)",
     "Import NewPipe data (.zip)": "NewPipe データをインポート (.zip)",
     "Export": "エクスポート",
-    "Export subscriptions as OPML": "登録チャンネルを OPML でエクスポート",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "登録チャンネルを OPML でエクスポート (NewPipe & FreeTube 用)",
     "Export data as JSON": "Invidious のデータを JSON でエクスポート",
     "Delete account?": "アカウントを削除しますか？",
     "History": "履歴",
@@ -489,7 +487,5 @@
     "preferences_search_privacy_label": "検索のプライバシー: ",
     "preferences_search_privacy_description": "この設定を有効にすると、検索クエリーがブラウザーの履歴に保存されなくなります。",
     "comments_youtube_disabled_text": "この動画では YouTube のコメントが無効になっています",
-    "comments_youtube_disabled_try_reddit": "Reddit のコメントを表示しますか？",
-    "comments_invidious_disabled_text": "コメントはユーザーの設定によって非表示になっています",
-    "comments_youtube_disabled_try_reddit_no_js": "JavaScript が無効になっているようです。アップローダーは YouTube のコメントを無効にしていますが、ここをクリックして Reddit のコメントを表示することはできます。ただし、読み込みに少し時間がかかる場合がありますのでご了承ください。"
+    "comments_invidious_disabled_text": "コメントはユーザーの設定によって非表示になっています"
 }

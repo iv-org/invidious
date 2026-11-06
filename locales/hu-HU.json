@@ -36,8 +36,6 @@
     "Import NewPipe subscriptions (.json)": "NewPipe-feliratkozások importálása (.json)",
     "Import NewPipe data (.zip)": "NewPipe adatainak importálása (.zip)",
     "Export": "Exportálás",
-    "Export subscriptions as OPML": "Feliratkozások exportálása OPML-ként",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "Feliratkozások exportálása OPML-ként (NewPipe-hoz és FreeTube-hoz)",
     "Export data as JSON": "Az Invidious JSON-adatainak exportálása",
     "Delete account?": "Törlésre kerüljön a fiók?",
     "History": "Megnézett videók naplója",
