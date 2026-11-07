@@ -11,11 +11,15 @@
 ## Note: The 'db' setting allows the use of UNIX
 ## sockets. To do so, set 'host' to ""
 ## E.g:
+##    driver: postgresql
 ##    password: kemal
 ##    host: ""
 ##    port: 5432
 ##
+## 'driver' can be either 'postgresql' or 'sqlite'
+##
 db:
+  driver: postgresql
   user: kemal
   password: kemal
   host: localhost
@@ -33,7 +37,7 @@ db:
 ## and append the 'host' parameter. E.g:
 ##   postgres://kemal:kemal@/invidious?host=/var/run/postgresql
 ##
-## Accepted values: a postgres:// URI
+## Accepted values: a postgres:// URI or a sqlite:// URI
 ## Default: postgres://kemal:kemal@localhost:5432/invidious
 ##
 #database_url: postgres://kemal:kemal@localhost:5432/invidious

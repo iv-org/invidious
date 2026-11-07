@@ -13,7 +13,7 @@ class Invidious::Jobs::RefreshChannelsJob < Invidious::Jobs::BaseJob
 
     loop do
       LOGGER.debug("RefreshChannelsJob: Refreshing all channels")
-      PG_DB.query("SELECT id FROM channels ORDER BY updated") do |rs|
+      DATABASE.query("SELECT id FROM channels ORDER BY updated") do |rs|
         rs.each do
           id = rs.read(String)
 
