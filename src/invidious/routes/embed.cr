@@ -146,7 +146,7 @@ module Invidious::Routes::Embed
     end
 
     # if watched && !watched.includes? id
-    #   PG_DB.exec("UPDATE users SET watched = array_append(watched, $1) WHERE email = $2", id, user.as(User).email)
+    #   DATABASE.exec("UPDATE users SET watched = array_append(watched, $1) WHERE email = $2", id, user.as(User).email)
     # end
 
     if CONFIG.enable_user_notifications && notifications && notifications.includes? id

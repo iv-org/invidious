@@ -83,11 +83,11 @@ alias IV = Invidious
 CONFIG   = Config.load
 HMAC_KEY = CONFIG.hmac_key
 
-PG_DB = begin
-  DB.open CONFIG.database_url
+DATABASE = begin
+  Invidious::Database::Connection.connect
 rescue ex
-  puts "Failed to connect to PostgreSQL database: #{ex.cause.try &.message}"
-  puts "Check your 'config.yml' database settings or PostgreSQL settings."
+  puts "Failed to connect to the database, exiting."
+  puts ex.message
   exit(1)
 end
 HOST_URL           = make_host_url(Kemal.config)
@@ -152,7 +152,7 @@ Kemal.config.extra_options do |parser|
     exit
   end
   parser.on("--migrate", "Run any migrations (beta, use at your own risk!!") do
-    Invidious::Database::Migrator.new(PG_DB).migrate
+    Invidious::Database::Migrator.new(DATABASE).migrate
     exit
   end
 end
@@ -186,23 +186,23 @@ Invidious::Database.check_integrity(CONFIG)
 # Start jobs
 
 if CONFIG.channel_threads > 0
-  Invidious::Jobs.register Invidious::Jobs::RefreshChannelsJob.new(PG_DB)
+  Invidious::Jobs.register Invidious::Jobs::RefreshChannelsJob.new(DATABASE)
 end
 
 if CONFIG.feed_threads > 0
-  Invidious::Jobs.register Invidious::Jobs::RefreshFeedsJob.new(PG_DB)
+  Invidious::Jobs.register Invidious::Jobs::RefreshFeedsJob.new(DATABASE)
 end
 
 if CONFIG.statistics_enabled
-  Invidious::Jobs.register Invidious::Jobs::StatisticsRefreshJob.new(PG_DB, SOFTWARE)
+  Invidious::Jobs.register Invidious::Jobs::StatisticsRefreshJob.new(DATABASE, SOFTWARE)
 end
 
 if (CONFIG.use_pubsub_feeds.is_a?(Bool) && CONFIG.use_pubsub_feeds.as(Bool)) || (CONFIG.use_pubsub_feeds.is_a?(Int32) && CONFIG.use_pubsub_feeds.as(Int32) > 0)
-  Invidious::Jobs.register Invidious::Jobs::SubscribeToFeedsJob.new(PG_DB, HMAC_KEY)
+  Invidious::Jobs.register Invidious::Jobs::SubscribeToFeedsJob.new(DATABASE, HMAC_KEY)
 end
 
 if CONFIG.popular_enabled
-  Invidious::Jobs.register Invidious::Jobs::PullPopularVideosJob.new(PG_DB)
+  Invidious::Jobs.register Invidious::Jobs::PullPopularVideosJob.new(DATABASE)
 end
 
 NOTIFICATION_CHANNEL = ::Channel(VideoNotification).new(32)

@@ -1,6 +1,12 @@
 struct DBConfig
   include YAML::Serializable
 
+  enum Driver
+    Postgres
+    Sqlite
+  end
+
+  property type : Driver = Driver::Postgres
   property user : String
   property password : String
   property host : String
@@ -313,14 +319,22 @@ class Config
     # Build database_url from db.* if it's not set directly
     if config.database_url.to_s.empty?
       if db = config.db
-        config.database_url = URI.new(
-          scheme: "postgres",
-          user: db.user,
-          password: db.password,
-          host: db.host,
-          port: db.port,
-          path: db.dbname,
-        )
+        if db.type == DBConfig::Driver::Sqlite
+          config.database_url = URI.new(
+            scheme: "sqlite3",
+            host: ".",
+            path: db.dbname,
+          )
+        else
+          config.database_url = URI.new(
+            scheme: "postgres",
+            user: db.user,
+            password: db.password,
+            host: db.host,
+            port: db.port,
+            path: db.dbname,
+          )
+        end
       else
         puts "Config: Either database_url or db.* is required"
         exit(1)

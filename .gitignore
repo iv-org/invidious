@@ -8,6 +8,12 @@
 /sentry
 /config/config.yml
 
+# Runtime data (databases, caches, uploads).
+# Track the directory layout only, never its contents.
+/data/**
+!/data/**/
+!/data/**/.gitkeep
+
 # direnv directory used for the Nix Flake.
 .direnv
 
