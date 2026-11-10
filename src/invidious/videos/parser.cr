@@ -19,14 +19,73 @@ module Invidious::Videos::Parser
       decode_length_seconds(box.as_s).to_s
     end
 
-    # Both have "short", so the "long" option shouldn't be required
-    channel_info = (related["shortBylineText"]? || related["longBylineText"]?)
-      .try &.dig?("runs", 0)
+    # Both have "short", so the "long" option shouldn't be required.
+    byline_runs = (related["shortBylineText"]? || related["longBylineText"]?)
+      .try &.dig?("runs").try &.as_a?
+    channel_info = byline_runs.try &.first?
 
     author = channel_info.try &.dig?("text")
     author_verified = has_verified_badge?(related["ownerBadges"]?).to_s
 
     ucid = channel_info.try { |ci| HelperExtractors.get_browse_id(ci) }
+
+    # Some bylines have the channel link on a later run.
+    if byline_runs && ucid.to_s.empty?
+      byline_runs.each do |run|
+        if browse_id = HelperExtractors.get_browse_id(run)
+          unless browse_id.empty?
+            ucid = browse_id
+            break
+          end
+        end
+      end
+    end
+
+    # Collaboration bylines instead open a dialog listing the channels.
+    # Store the list as a JSON *string*: Video#related_videos expects
+    # every value of each related video to be a String.
+    collaborators = [] of Hash(String, String)
+    dialog_items = channel_info.try &.dig?(
+      "navigationEndpoint", "showDialogCommand", "panelLoadingStrategy",
+      "inlineContent", "dialogViewModel", "customContent", "listViewModel",
+      "listItems"
+    ).try &.as_a?
+
+    if dialog_items
+      dialog_items.each do |item|
+        name = item.dig?("listItemViewModel", "title", "content").try &.as_s?
+        id = item.dig?(
+          "listItemViewModel", "rendererContext", "commandContext", "onTap",
+          "innertubeCommand", "browseEndpoint", "browseId"
+        ).try &.as_s?
+
+        next unless name && id
+        next unless id.starts_with?("UC")
+        next if collaborators.any? { |creator| creator["ucid"] == id }
+
+        verified = false
+        badge_runs = item.dig?("listItemViewModel", "title", "attachmentRuns").try &.as_a?
+        if badge_runs
+          verified = badge_runs.any? do |badge|
+            badge.dig?(
+              "element", "type", "imageType", "image", "sources", 0,
+              "clientResource", "imageName"
+            ).try &.as_s? == "CHECK_CIRCLE_FILLED"
+          end
+        end
+
+        collaborators << {
+          "username"        => name,
+          "ucid"            => id,
+          "author_verified" => verified.to_s,
+        }
+      end
+    end
+
+    # Keep legacy scalar fields populated for existing API consumers.
+    if ucid.to_s.empty? && !collaborators.empty?
+      ucid = collaborators.first["ucid"]
+    end
 
     short_view_count = related.try do |r|
       HelperExtractors.get_short_view_count(r).to_s
@@ -43,7 +102,7 @@ module Invidious::Videos::Parser
 
     # TODO: when refactoring video types, make a struct for related videos
     # or reuse an existing type, if that fits.
-    return {
+    video = {
       "id"               => related["videoId"],
       "title"            => related["title"]["simpleText"],
       "author"           => author || JSON::Any.new(""),
@@ -53,6 +112,12 @@ module Invidious::Videos::Parser
       "author_verified"  => JSON::Any.new(author_verified),
       "published"        => JSON::Any.new(published || ""),
     }
+
+    if collaborators.size > 1
+      video["author_list"] = JSON::Any.new(collaborators.to_json)
+    end
+
+    return video
   end
 
   def extract_video_info(video_id : String)
