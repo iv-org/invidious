@@ -162,28 +162,68 @@ Spectator.describe "parse_related_video collaboration links" do
     related = JSON.parse(<<-JSON)
       {
         "videoId": "duplicate-collaboration",
-        "title": {"simpleText": "Duplicated"},
-        "shortBylineText": {"runs": [{
-          "text": "Alice and Alice",
-          "navigationEndpoint": {"showDialogCommand": {"panelLoadingStrategy": {
-            "inlineContent": {"dialogViewModel": {"customContent": {
-              "listViewModel": {"listItems": [
-                {"listItemViewModel": {
-                  "title": {"content": "Alice"},
-                  "rendererContext": {"commandContext": {"onTap": {
-                    "innertubeCommand": {"browseEndpoint": {"browseId": "UC-alice"}}
-                  }}}
-                }},
-                {"listItemViewModel": {
-                  "title": {"content": "Alice Again"},
-                  "rendererContext": {"commandContext": {"onTap": {
-                    "innertubeCommand": {"browseEndpoint": {"browseId": "UC-alice"}}
-                  }}}
-                }}
-              ]}
-            }}}}
-          }}}
-        }]}
+        "title": {
+          "simpleText": "Duplicated"
+        },
+        "shortBylineText": {
+          "runs": [
+            {
+              "text": "Alice and Alice",
+              "navigationEndpoint": {
+                "showDialogCommand": {
+                  "panelLoadingStrategy": {
+                    "inlineContent": {
+                      "dialogViewModel": {
+                        "customContent": {
+                          "listViewModel": {
+                            "listItems": [
+                              {
+                                "listItemViewModel": {
+                                  "title": {
+                                    "content": "Alice"
+                                  },
+                                  "rendererContext": {
+                                    "commandContext": {
+                                      "onTap": {
+                                        "innertubeCommand": {
+                                          "browseEndpoint": {
+                                            "browseId": "UC-alice"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "listItemViewModel": {
+                                  "title": {
+                                    "content": "Alice Again"
+                                  },
+                                  "rendererContext": {
+                                    "commandContext": {
+                                      "onTap": {
+                                        "innertubeCommand": {
+                                          "browseEndpoint": {
+                                            "browseId": "UC-alice"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
       }
       JSON
 
