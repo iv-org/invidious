@@ -715,6 +715,13 @@ private module Parsers
         # Contains the views of the video and the published time of the video.
         if (metadata_rows = metadata.dig("metadata", "contentMetadataViewModel", "metadataRows").try &.as_a)
           metadata_rows.each do |row|
+            # To filter members only videos, they do not have metadataParts available.
+            # This videos are not hidden from the channel videos list.
+            badges = row.dig?("badges").try &.as_a
+            if badges.try &.any? { |item| item.dig?("badgeViewModel", "badgeStyle").try &.as_s == "BADGE_MEMBERS_ONLY" }
+              next
+            end
+
             metadata_parts = row.dig("metadataParts").try &.as_a
 
             if view_count_text.nil?
