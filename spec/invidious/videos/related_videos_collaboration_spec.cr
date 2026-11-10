@@ -40,6 +40,41 @@ Spectator.describe "parse_related_video collaboration links" do
     expect(result.has_key?("author_list")).to be_false
   end
 
+  it "finds a collaboration dialog on a later byline run" do
+    related = JSON.parse(<<-JSON)
+      {
+        "videoId": "later-dialog-video",
+        "title": {"simpleText": "Collaborators"},
+        "shortBylineText": {"runs": [
+          {"text": "Alice and Bob"},
+          {"text": "More creators", "navigationEndpoint": {
+            "showDialogCommand": {"panelLoadingStrategy": {
+              "inlineContent": {"dialogViewModel": {
+                "customContent": {"listViewModel": {"listItems": [
+                  {"listItemViewModel": {"title": {"content": "Alice"},
+                    "rendererContext": {"commandContext": {"onTap": {
+                      "innertubeCommand": {"browseEndpoint": {"browseId": "UC-alice"}}
+                    }}}}},
+                  {"listItemViewModel": {"title": {"content": "Bob"},
+                    "rendererContext": {"commandContext": {"onTap": {
+                      "innertubeCommand": {"browseEndpoint": {"browseId": "UC-bob"}}
+                    }}}}}
+                ]}}
+              }}
+            }}
+          }}
+        ]}
+      }
+      JSON
+
+    result = Invidious::Videos::Parser.parse_related_video(related).not_nil!
+    expect(result["ucid"].as_s).to eq("UC-alice")
+    authors = JSON.parse(result["author_list"].as_s).as_a
+    expect(authors.size).to eq(2)
+    expect(authors[0]["username"].as_s).to eq("Alice")
+    expect(authors[1]["username"].as_s).to eq("Bob")
+  end
+
   it "preserves the combined label and links both collaborators" do
     related = JSON.parse(<<-JSON)
       {
