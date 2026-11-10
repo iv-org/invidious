@@ -249,6 +249,21 @@ module Invidious::JSONify::APIv1
                 json.field "authorUrl", "/channel/#{rv["ucid"]?}"
                 json.field "authorId", rv["ucid"]?
                 json.field "authorVerified", rv["author_verified"] == "true"
+
+                if author_list_json = rv["author_list"]?
+                  json.field "authorList" do
+                    json.array do
+                      JSON.parse(author_list_json).as_a.each do |creator|
+                        json.object do
+                          json.field "username", creator["username"].as_s
+                          json.field "authorId", creator["ucid"].as_s
+                          json.field "authorUrl", "/channel/#{creator["ucid"].as_s}"
+                          json.field "authorVerified", creator["author_verified"].as_s == "true"
+                        end
+                      end
+                    end
+                  end
+                end
                 if rv["author_thumbnail"]?
                   json.field "authorThumbnails" do
                     json.array do
