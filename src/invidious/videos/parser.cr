@@ -45,11 +45,22 @@ module Invidious::Videos::Parser
     # Store the list as a JSON *string*: Video#related_videos expects
     # every value of each related video to be a String.
     collaborators = [] of Hash(String, String)
-    dialog_items = channel_info.try &.dig?(
-      "navigationEndpoint", "showDialogCommand", "panelLoadingStrategy",
-      "inlineContent", "dialogViewModel", "customContent", "listViewModel",
-      "listItems"
-    ).try &.as_a?
+    # The collaboration dialog can be attached to any byline run.
+    dialog_items = nil.as(Array(JSON::Any)?)
+    if byline_runs
+      byline_runs.each do |run|
+        items = run.dig?(
+          "navigationEndpoint", "showDialogCommand", "panelLoadingStrategy",
+          "inlineContent", "dialogViewModel", "customContent", "listViewModel",
+          "listItems"
+        ).try &.as_a?
+
+        if items
+          dialog_items = items
+          break
+        end
+      end
+    end
 
     if dialog_items
       dialog_items.each do |item|
