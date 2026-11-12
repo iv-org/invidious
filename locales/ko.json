@@ -46,8 +46,6 @@
     "History": "시청 기록",
     "Delete account?": "계정을 삭제 하시겠습니까?",
     "Export data as JSON": "인비디어스 데이터 내보내기 (.json)",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "OPML로 구독 내보내기 (뉴파이프 및 프리튜브)",
-    "Export subscriptions as OPML": "OPML로 구독 내보내기",
     "Export": "내보내기",
     "Import NewPipe data (.zip)": "뉴파이프 데이터 가져오기 (.zip)",
     "Import NewPipe subscriptions (.json)": "뉴파이프 구독 가져오기 (.json)",
