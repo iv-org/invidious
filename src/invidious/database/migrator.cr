@@ -53,13 +53,13 @@ class Invidious::Database::Migrator
 
   private def migrations_table_exists? : Bool
     sql = <<-SQL
-      SELECT 1 
-      FROM information_schema.tables 
-      WHERE table_schema = 'public' 
+      SELECT true
+      FROM information_schema.tables
+      WHERE table_schema = 'public'
         AND table_type = 'BASE TABLE'
         AND table_name = '#{TABLE_NAME}';
     SQL
-    result = @db.query_one?(sql, as: Int64)
+    result = @db.query_one?(sql, as: Bool)
     !result.nil?
   end
 
