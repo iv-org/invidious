@@ -17,8 +17,6 @@
     "Import FreeTube subscriptions (.db)": "Uvozi FreeTube (.db) naročnine",
     "Import NewPipe data (.zip)": "Uvozi NewPipe (.zip) podatke",
     "Export": "Izvozi",
-    "Export subscriptions as OPML": "Izvozi naročnine kot OPML",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "Izvozi naročnine kot OPML (za NewPipe in FreeTube)",
     "Log in": "Prijava",
     "Log in/register": "Prijava/registracija",
     "User ID": "ID uporabnika",
@@ -540,5 +538,9 @@
     "preferences_search_privacy_label": "Zasebnost iskanja: ",
     "preferences_search_privacy_description": "Če to nastavitev omogočiš, se tvoja iskalna poizvedovanja ne bodo shranjevala v zgodovini brskalnika.",
     "comments_youtube_disabled_text": "Komentarji na YouTubu so pri tem videoposnetku onemogočeni",
-    "comments_invidious_disabled_text": "Komentarji so skriti v skladu z nastavitvami uporabnika"
+    "comments_invidious_disabled_text": "Komentarji so skriti v skladu z nastavitvami uporabnika",
+    "Export subscriptions as OPML (for FreeTube)": "Izvozi naročnine kot OPML (za FreeTube)",
+    "Export subscriptions as JSON (for NewPipe)": "Izvozi naročnine kot JSON (za NewPipe)",
+    "channel_tab_shows_label": "Predstave",
+    "video_details_ai_made": "Video, ki ga je ustvarila umetna inteligenca?:"
 }
