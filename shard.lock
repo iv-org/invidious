@@ -6,7 +6,7 @@ shards:
 
   athena-negotiation:
     git: https://github.com/athena-framework/negotiation.git
-    version: 0.1.1
+    version: 0.2.0
 
   backtracer:
     git: https://github.com/sija/backtracer.cr.git
