@@ -223,6 +223,7 @@ module Invidious::Routing
 
   def register_image_routes
     get "/ggpht/:id", Routes::Images, :ggpht
+    get "/ggpht/ytc/:id", Routes::Images, :ggpht
     options "/sb/:authority/:id/:storyboard/:index", Routes::Images, :options_storyboard
     get "/sb/:authority/:id/:storyboard/:index", Routes::Images, :get_storyboard
     get "/s_p/:id/:name", Routes::Images, :s_p_image
