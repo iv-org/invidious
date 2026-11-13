@@ -32,7 +32,7 @@ dependencies:
     version: ~> 0.2.0
   http_proxy:
     github: mamantoha/http_proxy
-    version: ~> 0.10.3
+    version: ~> 0.17.0
 
 development_dependencies:
   spectator:
