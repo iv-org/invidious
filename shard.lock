@@ -22,7 +22,7 @@ shards:
 
   http_proxy:
     git: https://github.com/mamantoha/http_proxy.git
-    version: 0.10.3
+    version: 0.17.0
 
   kemal:
     git: https://github.com/kemalcr/kemal.git
