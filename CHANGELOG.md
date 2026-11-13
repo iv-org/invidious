@@ -7,6 +7,48 @@
 
 
 
+
+## v2.20261113.0
+
+### Wrap-up
+
+This release adds an AI-made indicator for videos that carry the AI badge and continues support for custom channel handle URLs with tab paths. It also fixes parsing of premiere timestamps on channel videos, corrects the ggpht route, and resolves parsing of published dates and view counts for collab videos.
+
+For instance owners, Invidious now displays a friendly message when the config.yml file is missing. Dependency updates include http_proxy 0.17.0 and athena-negotiation 0.2.0, and CI bumps crystal-lang/install-crystal to 1.9.5.
+
+### New features & important changes
+
+#### For Users
+- Added an AI-made indicator for videos that carry the AI badge (#6113)
+- Support for custom channel handle URLs with tab paths, e.g. `{INSTANCE}/markrober/streams` (#5811)
+
+#### For instance owners
+- Display a friendly message when the config.yml file is missing (#6121)
+- Updated http_proxy to 0.17.0 (#6142)
+- Updated athena-negotiation to 0.2.0 (#6141)
+
+#### For developers
+- Bumped crystal-lang/install-crystal from 1.9.4 to 1.9.5 (#6129)
+
+### Bugs fixed
+#### For Users
+- Fixed parsing of premiere_timestamp on channel videos (#6140)
+- Fixed the ggpht route (#6143)
+- Fixed parsing of published date and view count for collab videos (#5812)
+
+### Full list of pull requests merged since the last release (newest first)
+
+* fix: fix ggpht route after commit 3df8616 (https://github.com/iv-org/invidious/pull/6143, by @Fijxu)
+* chore(deps): update http_proxy to 0.17.0 (https://github.com/iv-org/invidious/pull/6142, by @Fijxu)
+* chore(deps): update athena-negotiation to 0.2.0 (https://github.com/iv-org/invidious/pull/6141, by @Fijxu)
+* fix: correctly parse premiere_timestamp on channel videos (https://github.com/iv-org/invidious/pull/6140, by @Fijxu)
+* chore(deps): bump crystal-lang/install-crystal from 1.9.4 to 1.9.5 (https://github.com/iv-org/invidious/pull/6129, by @dependabot[bot])
+* feat: add AI made indicator for videos that have the AI badge (https://github.com/iv-org/invidious/pull/6113, by @Fijxu)
+* chore: Display a nice message when the config.yml file is missing (https://github.com/iv-org/invidious/pull/6121, by @Fijxu)
+* Release v2.20261103.0 (https://github.com/iv-org/invidious/pull/6118, by @github-actions[bot])
+* fix(parser): parse published date and view count for collab videos (https://github.com/iv-org/invidious/pull/5812, by @radmorecameron)
+* feat: Adds support for custom channel handle urls with tab paths (ex: `{INSTANCE}/markrober/streams`) (https://github.com/iv-org/invidious/pull/5811, by @radmorecameron)
+
 ## v2.20261103.0
 
 ### Wrap-up
