@@ -712,6 +712,7 @@ private module Parsers
         title = metadata.dig("title", "content").as_s
         published = nil
         view_count_text = nil
+        premiere_timestamp = nil
         # Contains the views of the video and the published time of the video.
         if (metadata_rows = metadata.dig("metadata", "contentMetadataViewModel", "metadataRows").try &.as_a)
           metadata_rows.each do |row|
@@ -732,8 +733,12 @@ private module Parsers
               published = metadata_parts.try &.find { |item| item["icon"]?.nil? && item.dig?("text", "content").try &.as_s.includes?("ago") }
                 .try { |item| decode_date(item.dig("text", "content").as_s) }
             end
+            if premiere_timestamp.nil?
+              premiere_timestamp = metadata_parts.try &.find { |item| item["icon"]?.nil? && item.dig?("text", "content").try &.as_s.includes?("Premieres") }
+                .try { |item| decode_date(item.dig("text", "content").as_s) }
+            end
 
-            break if !view_count_text.nil? && !published.nil?
+            break if !view_count_text.nil? && !published.nil? && !premiere_timestamp.nil?
           end
         end
 
@@ -752,7 +757,7 @@ private module Parsers
           views:              view_count,
           description_html:   "",
           length_seconds:     length_seconds || 0,
-          premiere_timestamp: Time.unix(0),
+          premiere_timestamp: premiere_timestamp,
           author_verified:    false,
           author_thumbnail:   nil,
           badges:             VideoBadges::None,
