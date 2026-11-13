@@ -94,6 +94,20 @@ def decode_date(string : String)
     return Time.utc(string.to_i, 1, 1)
   end
 
+  # Try to parse "Premieres 6/29/27, 9:00 PM"
+  # For some reason, the Innertube response contains a '\u202F'
+  # character in the separation between the time and the period
+  # so the raw string returned by Innertube is something like this:
+  # "Premieres 6/29/27, 9:00\u202FPM". Instead of using a space character
+  # it uses the '\u202F' character.
+  #
+  # Raw: "Premieres 6/29/27, 9:00 PM"
+  begin
+    string2 = string.lchop("Premieres ").gsub('\u202F', " ")
+    return Time.parse(string2, "%m/%d/%y, %l:%M %p", Time::Location.local)
+  rescue
+  end
+
   # Try to parse as format Jul 10, 2000
   begin
     return Time.parse(string, "%b %-d, %Y", Time::Location.local)
