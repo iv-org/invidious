@@ -23,8 +23,6 @@
     "Import NewPipe subscriptions (.json)": "Importovať odbery NewPipe (.json)",
     "Import NewPipe data (.zip)": "Importovať údaje NewPipe (.zip)",
     "Export": "Export",
-    "Export subscriptions as OPML": "Exportovať odbery ako OPML",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "Exportovať odbery ako OPML (pre NewPipe a FreeTube)",
     "Export data as JSON": "Exportovať údaje Invidious ako JSON",
     "Delete account?": "Zrušiť účet?",
     "History": "História",

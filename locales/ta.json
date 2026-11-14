@@ -33,8 +33,6 @@
     "Import YouTube subscriptions": "YouTube காபிம அல்லது OPML சந்தாக்களை இறக்குமதி செய்க",
     "Import FreeTube subscriptions (.db)": "ஃப்ரீட்யூப் சந்தாக்களை இறக்குமதி செய்க (.db)",
     "Import NewPipe data (.zip)": "நியூபைப் தரவை இறக்குமதி செய்க (.zip)",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "OPML ஆக சந்தாக்களை ஏற்றுமதி செய்யுங்கள் (நியூபைப் & ஃப்ரீட்யூப்பிற்கு)",
-    "Export subscriptions as OPML": "OPML ஆக சந்தாக்களை ஏற்றுமதி செய்யுங்கள்",
     "Export data as JSON": "சாதொபொகு ஆக வன்கவர்வு தரவை ஏற்றுமதி செய்யுங்கள்",
     "Delete account?": "கணக்கை நீக்கவா?",
     "History": "வரலாறு",

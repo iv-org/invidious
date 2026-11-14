@@ -31,8 +31,6 @@
     "Import FreeTube subscriptions (.db)": "Impordi tellimused FreeTube'ist (.db)",
     "Import NewPipe data (.zip)": "Impordi NewPipe'i andmed (.zip)",
     "Export": "Ekspordi",
-    "Export subscriptions as OPML": "Ekspordi tellimused OPML-ina",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "Ekspordi tellimused OPML-ina (NewPipe'i ja FreeTube'i jaoks)",
     "Delete account?": "Kustuta kasutaja?",
     "History": "Ajalugu",
     "JavaScript license information": "JavaScripti litsentsi info",
@@ -506,5 +504,9 @@
     "preferences_search_privacy_label": "Otsinguprivaatsus: ",
     "preferences_search_privacy_description": "Selle eelistuse sisselülitamisel sinu otsingupäringud ei salvestu veebibrauseri ajaloos.",
     "comments_youtube_disabled_text": "Youtube'i kommentaarid on selle video puhul lülitatud välja",
-    "comments_invidious_disabled_text": "Kasutaja eelistuste alusel on kommentaarid peidetud"
+    "comments_invidious_disabled_text": "Kasutaja eelistuste alusel on kommentaarid peidetud",
+    "Export subscriptions as OPML (for FreeTube)": "Ekspordi tellimused OPML-failina (FreeTube'i jaoks)",
+    "Export subscriptions as JSON (for NewPipe)": "Ekspordi tellimused JSON-failina (NewPipe'i jaoks)",
+    "channel_tab_shows_label": "Sarjad",
+    "video_details_ai_made": "Kas video on tehtud tehisaruga?:"
 }

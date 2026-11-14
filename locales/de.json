@@ -27,8 +27,6 @@
     "Import NewPipe subscriptions (.json)": "NewPipe Abonnements importieren (.json)",
     "Import NewPipe data (.zip)": "NewPipe Daten importieren (.zip)",
     "Export": "Exportieren",
-    "Export subscriptions as OPML": "Abonnements als OPML exportieren",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "Abonnements als OPML exportieren (für NewPipe & FreeTube)",
     "Export data as JSON": "Invidious-Daten als JSON exportieren",
     "Delete account?": "Konto löschen?",
     "History": "Verlauf",
@@ -506,7 +504,5 @@
     "preferences_search_privacy_label": "Datenschutz bei der Suche: ",
     "preferences_search_privacy_description": "Wenn Sie diese Einstellung aktivieren, werden Ihre Suchanfragen nicht im Browserverlauf gespeichert.",
     "comments_youtube_disabled_text": "YouTube Kommentare sind bei diesem Video deaktiviert",
-    "comments_youtube_disabled_try_reddit": "Reddit Kommentare versuchen?",
-    "comments_invidious_disabled_text": "Kommentare sind gemäss den Benutzereinstellungen ausgeblendet",
-    "comments_youtube_disabled_try_reddit_no_js": "Hallo! Es sieht so aus, als hättest du JavaScript deaktiviert. Obwohl der Uploader YouTube-Kommentare deaktiviert hat, kannst du trotzdem hier klicken, um zu versuchen, die Reddit-Kommentare anzuzeigen. Beachte jedoch, dass das Laden etwas länger dauern kann."
+    "comments_invidious_disabled_text": "Kommentare sind gemäss den Benutzereinstellungen ausgeblendet"
 }

@@ -28,8 +28,6 @@
     "Import NewPipe subscriptions (.json)": "Nhập các kênh đã đăng ký từ NewPipe (.json)",
     "Import NewPipe data (.zip)": "Nhập dữ liệu từ NewPipe (.zip)",
     "Export": "Xuất",
-    "Export subscriptions as OPML": "Xuất các kênh đã đăng ký dưới dạng OPML",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "Xuất các kênh đã đăng ký dưới dạng OPML (cho NewPipe & FreeTube)",
     "Export data as JSON": "Xuất dữ liệu Invidious dưới dạng JSON",
     "Delete account?": "Xóa tài khoản?",
     "History": "Lịch sử",
