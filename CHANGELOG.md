@@ -8,6 +8,23 @@
 
 
 
+
+## v2.20261114.0
+
+### Wrap-up
+
+This release updates the project to Crystal 1.22.3, ensuring compatibility with the latest language features and improvements. No user-facing changes are included; this is a maintenance release for developers and instance owners.
+
+### New features & important changes
+
+#### For Developers
+- Updated to Crystal 1.22.3 (#6148)
+
+### Full list of pull requests merged since the last release (newest first)
+
+* chore: Update to Crystal 1.22.3 (https://github.com/iv-org/invidious/pull/6148, by @Fijxu)
+* Release v2.20261113.0 (https://github.com/iv-org/invidious/pull/6146, by @github-actions[bot])
+
 ## v2.20261113.0
 
 ### Wrap-up
