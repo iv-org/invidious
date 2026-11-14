@@ -54,11 +54,11 @@ module Invidious::User::Users
           # Show latest video from a channel that a user hasn't watched
           # "unseen_only" isn't really correct here, more accurate would be "unwatched_only"
 
-          videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} WHERE NOT id = ANY ($1::text[]) ORDER BY ucid, published DESC", user.watched, as: ChannelVideo)
+          videos = DATABASE.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} WHERE NOT id = ANY ($1::text[]) ORDER BY ucid, published DESC", user.watched, as: ChannelVideo)
         else
           # Show latest video from each channel
 
-          videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} ORDER BY ucid, published DESC", as: ChannelVideo)
+          videos = DATABASE.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} ORDER BY ucid, published DESC", as: ChannelVideo)
         end
 
         videos.sort_by!(&.published).reverse!
@@ -66,11 +66,11 @@ module Invidious::User::Users
         if user.preferences.unseen_only
           # Only show unwatched
 
-          videos = PG_DB.query_all("SELECT * FROM #{view_name} WHERE NOT id = ANY ($1::text[]) ORDER BY published DESC LIMIT $2 OFFSET $3", user.watched, limit, offset, as: ChannelVideo)
+          videos = DATABASE.query_all("SELECT * FROM #{view_name} WHERE NOT id = ANY ($1::text[]) ORDER BY published DESC LIMIT $2 OFFSET $3", user.watched, limit, offset, as: ChannelVideo)
         else
           # Sort subscriptions as normal
 
-          videos = PG_DB.query_all("SELECT * FROM #{view_name} ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
+          videos = DATABASE.query_all("SELECT * FROM #{view_name} ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
         end
       end
 

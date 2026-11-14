@@ -38,7 +38,7 @@ module Invidious::Search::Processors
   def subscriptions(query : Query, user : Invidious::User) : Array(ChannelVideo)
     view_name = "subscriptions_#{sha256(user.email)}"
 
-    return PG_DB.query_all(<<-SQL,
+    return DATABASE.query_all(<<-SQL,
       SELECT id,title,published,updated,ucid,author,length_seconds
       FROM (
         SELECT *,
