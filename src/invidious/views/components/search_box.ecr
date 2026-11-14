@@ -7,12 +7,14 @@
 <% else %>
 <form class="pure-form" action="/search" method="get">
 <% end %>
-	<fieldset>
+	<fieldset id="search-container">
 		<input type="search" id="searchbox" autocorrect="off"
+    aria-autocomplete="list" aria-controls="suggestions"
 		autocapitalize="none" spellcheck="false" <% if autofocus %>autofocus<% end %>
 		name="q" placeholder="<%= I18n.translate(locale, "search") %>"
 		title="<%= I18n.translate(locale, "search") %>"
 		value="<%= env.get?("search").try {|x| HTML.escape(x.as(String)) } %>">
+    <ul id="suggestions"></ul>
 	</fieldset>
 	<button type="submit" id="searchbutton" aria-label="<%= I18n.translate(locale, "search") %>">
 		<i class="icon ion-ios-search"></i>
