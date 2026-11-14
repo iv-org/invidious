@@ -186,12 +186,34 @@ module Errors
 
     locale = env.get("preferences").as(Preferences).locale
 
-    if request_path.starts_with?("/search") || request_path.starts_with?("/watch") ||
+    if request_path.starts_with?("/search") || (is_watch = request_path.starts_with?("/watch")) ||
        request_path.starts_with?("/channel") || request_path.starts_with?("/playlist?list=PL")
       next_steps_text = I18n.translate(locale, "next_steps_error_message")
       refresh = I18n.translate(locale, "next_steps_error_message_refresh")
       go_to_youtube = I18n.translate(locale, "next_steps_error_message_go_to_youtube")
+      go_to_youtube_embed = I18n.translate(locale, "videoinfo_youTube_embed_link")
       switch_instance = I18n.translate(locale, "Switch Invidious Instance")
+
+      if is_watch
+        params = URI.parse(env.request.resource).query_params
+        video_id = params.fetch("v", nil)
+
+        if video_id.presence
+          if params.present?
+            new_params = URI::Params.new
+            list = params["list"]?.presence
+            index = params["index"]?.presence
+            if list && index
+              new_params.add("list", list)
+              new_params.add("index", index)
+              embed_link = HTML.escape("https://youtube.com/embed/#{video_id}?#{new_params}")
+            else
+              embed_link = HTML.escape("https://youtube.com/embed/#{video_id}")
+            end
+          end
+          embed_html_element = "(<a rel=\"noopener\" referrerpolicy=\"origin-when-cross-origin\" href=\"#{embed_link}\">#{go_to_youtube_embed}</a>)"
+        end
+      end
 
       return <<-END_HTML
         <p style="margin-bottom: 4px;">#{next_steps_text}</p>
@@ -203,10 +225,11 @@ module Errors
             <a href="/redirect?referer=#{env.get("current_page")}">#{switch_instance}</a>
           </li>
           <li>
-            <a rel="noreferrer noopener" href="https://www.youtube.com#{env.request.resource}">#{go_to_youtube}</a>
+            <a rel="noreferrer noopener" href="https://youtube.com#{env.request.resource}">#{go_to_youtube}</a>
+            #{embed_html_element}
           </li>
         </ul>
-        END_HTML
+      END_HTML
     else
       return ""
     end
