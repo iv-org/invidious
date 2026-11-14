@@ -23,10 +23,41 @@ module Invidious::Videos::Parser
     channel_info = (related["shortBylineText"]? || related["longBylineText"]?)
       .try &.dig?("runs", 0)
 
-    author = channel_info.try &.dig?("text")
-    author_verified = has_verified_badge?(related["ownerBadges"]?).to_s
+    if collab_text = channel_info.try &.dig?("navigationEndpoint", "showDialogCommand", "panelLoadingStrategy", "inlineContent", "dialogViewModel", "header", "dialogHeaderViewModel", "headline", "content")
+      if collab_text == "Collaborators"
+        collab = true
+      else
+        collab = false
+      end
+    else
+      collab = false
+    end
 
-    ucid = channel_info.try { |ci| HelperExtractors.get_browse_id(ci) }
+    if collab == false
+      author = channel_info.try &.dig?("text")
+      author_verified = has_verified_badge?(related["ownerBadges"]?).to_s
+
+      ucid = channel_info.try { |ci| HelperExtractors.get_browse_id(ci) }
+    else
+      raw_author_list = channel_info.try &.dig?("navigationEndpoint", "showDialogCommand", "panelLoadingStrategy", "inlineContent", "dialogViewModel", "customContent", "listViewModel", "listItems").try(&.as_a?)
+      author_list = Array(JSON::Any).new
+      if raw_author_list
+        raw_author_list.each do |raw_author|
+          username = raw_author.dig?("listItemViewModel", "title", "content").try(&.as_s?)
+          collab_ucid = raw_author.dig?("listItemViewModel", "rendererContext", "commandContext", "onTap", "innertubeCommand", "browseEndpoint", "browseId").try(&.as_s?)
+          attachment_runs = raw_author.dig?("listItemViewModel", "title", "attachmentRuns").try(&.as_a?)
+          collab_author_verified = false
+          if attachment_runs
+            collab_author_verified = attachment_runs.any? do |run|
+              run.dig?("element", "type", "imageType", "image", "sources", 0, "clientResource", "imageName").try(&.as_s?) == "CHECK_CIRCLE_FILLED"
+            end
+          end
+          if username && collab_ucid && collab_author_verified != nil
+            author_list << JSON::Any.new({"username" => JSON::Any.new(username), "ucid" => JSON::Any.new(collab_ucid), "author_verified" => JSON::Any.new(collab_author_verified.to_s)})
+          end
+        end
+      end
+    end
 
     short_view_count = related.try do |r|
       HelperExtractors.get_short_view_count(r).to_s
@@ -48,9 +79,10 @@ module Invidious::Videos::Parser
       "title"            => related["title"]["simpleText"],
       "author"           => author || JSON::Any.new(""),
       "ucid"             => JSON::Any.new(ucid || ""),
+      "author_list"      => JSON::Any.new(author_list.to_json || "[]"),
       "length_seconds"   => JSON::Any.new(length || "0"),
       "short_view_count" => JSON::Any.new(short_view_count || "0"),
-      "author_verified"  => JSON::Any.new(author_verified),
+      "author_verified"  => JSON::Any.new(author_verified || ""),
       "published"        => JSON::Any.new(published || ""),
     }
   end
