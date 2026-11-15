@@ -48,6 +48,8 @@ module Invidious::User::Users
       when "channel name - reverse"
         notifications.sort_by!(&.author).reverse!
       end
+
+      notifications = notifications[offset, limit]? || [] of ChannelVideo
     else
       if user.preferences.latest_only
         if user.preferences.unseen_only
@@ -85,6 +87,10 @@ module Invidious::User::Users
         videos.sort_by!(&.author)
       when "channel name - reverse"
         videos.sort_by!(&.author).reverse!
+      end
+
+      if user.preferences.latest_only
+        videos = videos[offset, limit]? || [] of ChannelVideo
       end
 
       notifications = Invidious::Database::Users.select_notifications(user)

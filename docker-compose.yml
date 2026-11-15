@@ -30,16 +30,38 @@ services:
           host: invidious-db
           port: 5432
         check_tables: true
+        invidious_companion:
+          - private_url: "http://companion:8282/companion"
+        invidious_companion_key: "CYb142KT5bsVuuk1"
         # external_port:
         # domain:
         # https_only: false
         # statistics_enabled: false
-        hmac_key: "CHANGE_ME!!"
+        hmac_key: "micue"
     healthcheck:
       test: wget -nv --tries=1 --spider http://127.0.0.1:3000/api/v1/stats || exit 1
       interval: 30s
       timeout: 5s
       retries: 2
+
+  companion:
+    image: quay.io/invidious/invidious-companion:latest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8282:8282"
+    environment:
+      - SERVER_SECRET_KEY=CYb142KT5bsVuuk1
+    logging:
+      options:
+        max-size: "1G"
+        max-file: "4"
+    cap_drop:
+      - ALL
+    read_only: true
+    volumes:
+      - companioncache:/var/tmp/youtubei.js:rw
+    security_opt:
+      - no-new-privileges:true
 
   invidious-db:
     image: docker.io/library/postgres:14
@@ -57,3 +79,4 @@ services:
 
 volumes:
   postgresdata:
+  companioncache:
