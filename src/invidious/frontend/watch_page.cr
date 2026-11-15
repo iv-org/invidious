@@ -114,4 +114,59 @@ module Invidious::Frontend::WatchPage
       str << "</form>\n"
     end
   end
+
+  def template_related_videos(related, locale, thin_mode, listen)
+    String.build do |html|
+      related.each do |rv|
+        id = rv["id"]? || rv[:id]?
+        next if !id
+
+        author = rv["author"]? || rv[:author]? || ""
+        ucid = rv["ucid"]? || rv[:ucid]? || ""
+        author_verified = (rv["author_verified"]? || rv[:author_verified]?).to_s == "true"
+        title = rv["title"]? || rv[:title]? || ""
+        length_seconds = (rv["length_seconds"]? || rv[:length_seconds]?).try &.to_s.to_i?
+        short_view_count = (rv["short_view_count"]? || rv[:short_view_count]?).try &.to_s || "0"
+
+        html << %(<div class="pure-u-1">)
+        html << %(<div class="thumbnail">)
+        if !thin_mode
+          html << %(<a tabindex="-1" href="/watch?v=) << id << %(&listen=) << (listen ? "true" : "false") << %(">)
+          html << %(<img loading="lazy" class="thumbnail" src="/vi/) << id << %(/mqdefault.jpg" alt="" />)
+          html << %(</a>)
+        else
+          html << %(<div class="thumbnail-placeholder"></div>)
+        end
+        if length_seconds && length_seconds != 0
+          html << %(<div class="bottom-right-overlay"><p class="length">) << recode_length_seconds(length_seconds) << %(</p></div>)
+        end
+        html << %(</div>)
+
+        html << %(<div class="video-card-row"><a href="/watch?v=) << id << %(&listen=) << (listen ? "true" : "false") << %("><p dir="auto">) << HTML.escape(title.to_s) << %(</p></a></div>)
+
+        html << %(<h5 class="pure-g">)
+        html << %(<div class="pure-u-14-24">)
+        if !ucid.to_s.empty?
+          html << %(<b style="width:100%"><a href="/channel/) << ucid << %(">) << HTML.escape(author.to_s)
+          if author_verified
+            html << %(&nbsp;<i class="icon ion ion-md-checkmark-circle"></i>)
+          end
+          html << %(</a></b>)
+        else
+          html << %(<b style="width:100%">) << HTML.escape(author.to_s)
+          if author_verified
+            html << %(&nbsp;<i class="icon ion ion-md-checkmark-circle"></i>)
+          end
+          html << %(</b>)
+        end
+        html << %(</div>)
+        html << %(<div class="pure-u-10-24" style="text-align:right">)
+        views = short_text_to_number(short_view_count)
+        html << %(<b class="width:100%">) << I18n.translate_count(locale, "generic_views_count", views, I18n::NumberFormatting::Short) << %(</b>)
+        html << %(</div>)
+        html << %(</h5>)
+        html << %(</div>)
+      end
+    end
+  end
 end

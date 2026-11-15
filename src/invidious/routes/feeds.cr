@@ -93,6 +93,20 @@ module Invidious::Routes::Feeds
 
     videos, notifications = Invidious::User::Users.get_subscription_feed(user, max_results, page)
 
+    if env.params.query["format"]? == "html"
+      env.response.content_type = "application/json"
+      content_html = render "src/invidious/views/feeds/subscription_items.ecr"
+      has_more = videos.size == max_results
+
+      return JSON.build do |json|
+        json.object do
+          json.field "contentHtml", content_html
+          json.field "hasMore", has_more
+          json.field "page", page
+        end
+      end
+    end
+
     if CONFIG.enable_user_notifications
       # "updated" here is used for delivering new notifications, so if
       # we know a user has looked at their feed e.g. in the past 10 minutes,

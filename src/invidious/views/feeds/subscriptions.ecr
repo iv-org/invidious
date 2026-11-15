@@ -57,18 +57,18 @@
 <script src="/js/watched_widget.js"></script>
 
 
-<div class="pure-g">
+<div class="pure-g" id="subscription-items">
 <% videos.each do |item| %>
     <%= rendered "components/item" %>
 <% end %>
 </div>
 
-<script src="/js/watched_indicator.js"></script>
+<div id="subscriptions-loading" hidden>...</div>
+<div id="subscriptions-error" class="h-box" hidden></div>
+<div id="subscriptions-sentinel"
+     data-page="<%= page %>"
+     data-max-results="<%= max_results %>"
+     data-has-more="<%= (videos.size + notifications.size) == max_results %>"></div>
 
-<%=
-  IV::Frontend::Pagination.nav_numeric(locale,
-    base_url: base_url,
-    current_page: page,
-    show_next: ((videos.size + notifications.size) == max_results)
-  )
-%>
+<script src="/js/watched_indicator.js"></script>
+<script src="/js/subscriptions_scroll_loading.js"></script>

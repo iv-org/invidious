@@ -419,6 +419,47 @@ module Invidious::Routes::API::V1::Videos
   #
   # Use the `lang` and `autogen` query parameter to select which transcript to fetch
   # Request without any URL parameters to see all the available transcripts.
+  def self.related_videos(env)
+    locale = env.get("preferences").as(Preferences).locale
+
+    env.response.content_type = "application/json"
+
+    continuation = env.params.query["continuation"]?
+    format = env.params.query["format"]?
+
+    if !continuation
+      return Errors.error_json(400, "Missing continuation parameter")
+    end
+
+    begin
+      related, next_continuation = Invidious::Videos::Parser.parse_related_videos_continuation(continuation)
+    rescue ex
+      return Errors.error_json(500, ex)
+    end
+
+    if format == "html"
+      preferences = env.get("preferences").as(Preferences)
+      thin_mode = preferences.thin_mode
+      listen = env.params.query["listen"]? == "true"
+
+      content_html = Frontend::WatchPage.template_related_videos(related, locale, thin_mode, listen)
+
+      return JSON.build do |json|
+        json.object do
+          json.field "contentHtml", content_html
+          json.field "continuation", next_continuation if next_continuation
+        end
+      end
+    end
+
+    JSON.build do |json|
+      json.object do
+        json.field "relatedVideos", related
+        json.field "continuation", next_continuation if next_continuation
+      end
+    end
+  end
+
   def self.transcripts(env)
     env.response.content_type = "application/json"
 
