@@ -26,8 +26,6 @@
     "Import NewPipe subscriptions (.json)": "Importi abonojn de NewPipe (.json)",
     "Import NewPipe data (.zip)": "Importi datumojn de NewPipe (.zip)",
     "Export": "Eksporti",
-    "Export subscriptions as OPML": "Eksporti abonojn kiel OPML",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "Eksporti abonojn kiel OPML (por NewPipe kaj FreeTube)",
     "Export data as JSON": "Eksporti Invidious-datumojn kiel JSON",
     "Delete account?": "Ĉu forigi konton?",
     "History": "Historio",
