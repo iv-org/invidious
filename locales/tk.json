@@ -51,8 +51,6 @@
     "Import NewPipe subscriptions (.json)": "NewPipe-den (.json) abunalary import et",
     "Import NewPipe data (.zip)": "NewPipe-den maglumatlary import et (zip)",
     "Export": "Eksport",
-    "Export subscriptions as OPML": "Abunalary OPML formatynda eksport et",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "Abunalary OPML formatynda eksport et (NewPipe we FreeTube üçin)",
     "Export data as JSON": "Invidious maglumatlaryny JSON formatynda eksport et",
     "Delete account?": "Hasap pozulsynmy?"
 }
