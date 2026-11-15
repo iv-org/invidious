@@ -27,8 +27,6 @@
     "Import NewPipe subscriptions (.json)": "Импортировать подписки из NewPipe (.json)",
     "Import NewPipe data (.zip)": "Импортировать данные из NewPipe (.zip)",
     "Export": "Экспорт",
-    "Export subscriptions as OPML": "Экспортировать подписки в формате OPML",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "Экспортировать подписки в формате OPML (для NewPipe и FreeTube)",
     "Export data as JSON": "Экспортировать данные Invidious в формате JSON",
     "Delete account?": "Удалить учётную запись?",
     "History": "История",
@@ -523,5 +521,9 @@
     "preferences_search_privacy_description": "Включение этой настройки предотвратит сохранение ваших поисковых запросов в истории вашего браузера.",
     "preferences_search_privacy_label": "Конфиденциальность поиска: ",
     "comments_youtube_disabled_text": "Комментарии c Youtube отключены для этого видео",
-    "comments_invidious_disabled_text": "Комментарии скрыты в соответствии с пользовательскими настройками"
+    "comments_invidious_disabled_text": "Комментарии скрыты в соответствии с пользовательскими настройками",
+    "Export subscriptions as OPML (for FreeTube)": "Экспортировать подписки в OPML (для FreeTube)",
+    "Export subscriptions as JSON (for NewPipe)": "Экспортировать подписки в JSON (для NewPipe)",
+    "channel_tab_shows_label": "Шоу",
+    "video_details_ai_made": "Видео создано ИИ?:"
 }

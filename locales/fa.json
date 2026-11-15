@@ -36,8 +36,6 @@
     "Import NewPipe subscriptions (.json)": "درون‌برد اشتراک‌های نیوپایپ (.json)",
     "Import NewPipe data (.zip)": "درون‌برد داده نیوپایپ (.zip)",
     "Export": "برون‌برد",
-    "Export subscriptions as OPML": "برون‌برد اشتراک‌ها در قالب OPML",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "برون‌برد اشتراک‌ها در قالب OPML (برای نیوپایپ و فری‌تیوب)",
     "Export data as JSON": "برون‌برد دادهٔ اینویدیوس به‌عنوان JSON",
     "Delete account?": "حذف حساب کاربری؟",
     "History": "تاریخچه",

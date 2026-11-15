@@ -26,8 +26,6 @@
     "Import NewPipe subscriptions (.json)": "Importuj subskrypcje NewPipe (.json)",
     "Import NewPipe data (.zip)": "Importuj dane NewPipe (.zip)",
     "Export": "Eksport",
-    "Export subscriptions as OPML": "Eksportuj subskrypcje jako OPML",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "Eksportuj subskrypcje jako OPML (dla NewPipe i FreeTube)",
     "Export data as JSON": "Eksportuj dane Invidious jako JSON",
     "Delete account?": "Usunąć konto?",
     "History": "Historia",
@@ -523,5 +521,9 @@
     "preferences_search_privacy_label": "Prywatność wyszukiwania: ",
     "preferences_search_privacy_description": "Włączenie tej opcji spowoduje, że zapytania wyszukiwania nie będą zapisywane w historii przeglądarki.",
     "comments_youtube_disabled_text": "Komentarze na YouTube są wyłączone w tym filmie",
-    "comments_invidious_disabled_text": "Komentarze są ukrywane zgodnie z preferencjami użytkownika"
+    "comments_invidious_disabled_text": "Komentarze są ukrywane zgodnie z preferencjami użytkownika",
+    "Export subscriptions as JSON (for NewPipe)": "Eksportuj subskrypcje do formatu JSON (dla NewPipe)",
+    "Export subscriptions as OPML (for FreeTube)": "Eksportuj subskrypcje do formatu OPML (dla FreeTube)",
+    "channel_tab_shows_label": "Seriale",
+    "video_details_ai_made": "Wideo wygenerowane przez AI?:"
 }
