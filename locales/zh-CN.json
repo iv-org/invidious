@@ -31,8 +31,6 @@
     "Import NewPipe subscriptions (.json)": "导入 NewPipe 订阅 (.json)",
     "Import NewPipe data (.zip)": "导入 NewPipe 数据 (.zip)",
     "Export": "导出",
-    "Export subscriptions as OPML": "导出订阅到 OPML 格式",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "导出订阅到 OPML 格式（用于 NewPipe 及 FreeTube）",
     "Export data as JSON": "导出 Invidious 数据为 JSON 格式",
     "Delete account?": "删除账户？",
     "History": "历史",
@@ -489,5 +487,9 @@
     "preferences_search_privacy_label": "搜索隐私： ",
     "preferences_search_privacy_description": "启用此首选项会阻止在浏览器历史记录中保存搜索条目。",
     "comments_youtube_disabled_text": "此视频禁用了 YouTube 评论",
-    "comments_invidious_disabled_text": "根据用户设置隐藏了评论"
+    "comments_invidious_disabled_text": "根据用户设置隐藏了评论",
+    "Export subscriptions as OPML (for FreeTube)": "将订阅导出为 OPML（用于 FreeTube）",
+    "Export subscriptions as JSON (for NewPipe)": "将订阅导出为 JSON （用于 NewPipe）",
+    "channel_tab_shows_label": "综艺",
+    "video_details_ai_made": "AI 生成的视频？："
 }
