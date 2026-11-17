@@ -1,6 +1,24 @@
 module Invidious::Frontend::Comments
   extend self
 
+  # Matches either an HTML tag (group 1, left untouched) or a mention such as
+  # "@name" or "+name" (group 2). A mention must start a word, so e-mail
+  # addresses and "a+b" are skipped, and the name must start with a letter,
+  # so "+1" is skipped.
+  MENTION_REGEX = /(<(?:[^>"']|"[^"]*"|'[^']*')*>)|((?<![\p{L}\p{N}_@+.\-])[@+]\p{L}[\p{L}\p{N}_\-]*(?:\.[\p{L}\p{N}_\-]+)*)/
+
+  # Wraps mentions in the (already HTML-encoded) comment HTML in a span.
+  # Only text between tags is changed, so existing links and attributes stay intact.
+  def highlight_mentions(content_html : String) : String
+    content_html.gsub(MENTION_REGEX) do |md|
+      if md[1]?
+        md[0]
+      else
+        %(<span class="comment-mention">#{md[2]}</span>)
+      end
+    end
+  end
+
   def template_youtube(comments, locale, thin_mode, is_replies = false)
     String.build do |html|
       root = comments["comments"].as_a
@@ -80,7 +98,7 @@ module Invidious::Frontend::Comments
                   <a class="#{child["authorIsChannelOwner"] == true ? "channel-owner" : ""}" href="#{child["authorUrl"]}">#{author_name}</a>
                 </b>
                 #{sponsor_icon}
-                <p style="white-space:pre-wrap">#{child["contentHtml"]}</p>
+                <p style="white-space:pre-wrap">#{highlight_mentions(child["contentHtml"].to_s)}</p>
           END_HTML
 
         if child["attachment"]?

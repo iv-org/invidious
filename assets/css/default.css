@@ -952,3 +952,14 @@ h1, h2, h3, h4, h5, p,
   -webkit-user-select: none;
   user-select: none;
 }
+
+/* Highlight @name and +name mentions in comments */
+.comment-mention {
+  font-weight: bold;
+  color: rgb(0, 182, 240);
+}
+
+.light-theme .comment-mention,
+.no-theme .comment-mention {
+  color: #075A9E;
+}
