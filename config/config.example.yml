@@ -753,6 +753,16 @@ default_user_preferences:
   #thin_mode: false
 
   ##
+  ## Enable/Disable hiding comments by default on the watch page.
+  ## When enabled, the comments section starts collapsed and can be
+  ## expanded with the [ + ] toggle.
+  ##
+  ## Accepted values: true, false
+  ## Default: false
+  ##
+  #hide_comments: false
+
+  ##
   ## List of feeds available on the home page.
   ##
   ## Note: "Subscriptions" and "Playlists" are only visible

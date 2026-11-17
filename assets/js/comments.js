@@ -22,6 +22,15 @@ function toggle_comments(event) {
     }
 }
 
+// Collapse the top-level comments section with the same markup and [ + ] / [ - ]
+// toggle used by toggle_comments(), when the user prefers hidden comments.
+function collapse_comments() {
+    var comments = document.getElementById('comments');
+    var toggle = comments.children[0].children[0].children[0];
+    toggle.textContent = '[ + ]';
+    comments.children[1].style.display = 'none';
+}
+
 function hide_youtube_replies(event) {
     var target = event.target;
 
@@ -106,6 +115,7 @@ function get_youtube_comments() {
             });
             comments.innerHTML = commentInnerHtml;
             comments.children[0].children[0].children[0].onclick = toggle_comments;
+            if (video_data.preferences && video_data.preferences.hide_comments) collapse_comments();
         },
         onNon200: onNon200, // declared above
         onError: function (xhr) {

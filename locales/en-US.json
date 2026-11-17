@@ -113,6 +113,7 @@
     "dark": "dark",
     "light": "light",
     "preferences_thin_mode_label": "Thin mode: ",
+    "preferences_hide_comments_label": "Hide comments by default: ",
     "preferences_category_misc": "Miscellaneous preferences",
     "preferences_automatic_instance_redirect_label": "Automatic instance redirection (fallback to redirect.invidious.io): ",
     "preferences_category_subscription": "Subscription preferences",

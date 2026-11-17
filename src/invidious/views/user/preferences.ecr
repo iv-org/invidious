@@ -182,6 +182,11 @@
                 <input name="thin_mode" id="thin_mode" type="checkbox" <% if preferences.thin_mode %>checked<% end %>>
             </div>
 
+            <div class="pure-control-group">
+                <label for="hide_comments"><%= I18n.translate(locale, "preferences_hide_comments_label") %></label>
+                <input name="hide_comments" id="hide_comments" type="checkbox" <% if preferences.hide_comments %>checked<% end %>>
+            </div>
+
             <% if env.get?("user") %>
                 <% feed_options = {"", "Popular", "Trending", "Subscriptions", "Playlists"} %>
             <% else %>
