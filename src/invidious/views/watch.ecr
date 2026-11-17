@@ -52,8 +52,8 @@ we're going to need to do it here in order to allow for translations.
     "index" => continuation,
     "plid" => plid,
     "length_seconds" => video.length_seconds.to_f,
-    "play_next" => !video.related_videos.empty? && !plid && params.continue,
-    "next_video" => video.related_videos.select { |rv| rv["id"]? }[0]?.try &.["id"],
+    "play_next" => !related_videos.empty? && !plid && params.continue,
+    "next_video" => related_videos.select { |rv| rv["id"]? }[0]?.try &.["id"],
     "youtube_comments_text" => HTML.escape(I18n.translate(locale, "View YouTube comments")),
     "comments_text" => HTML.escape(I18n.translate(locale, "View `x` comments", "{commentCount}")),
     "hide_replies_text" => HTML.escape(I18n.translate(locale, "Hide replies")),
@@ -340,7 +340,7 @@ we're going to need to do it here in order to allow for translations.
 
             <% if params.related_videos %>
                 <div class="h-box">
-                    <% if !video.related_videos.empty? %>
+                    <% if !related_videos.empty? %>
                         <div <% if plid %>style="display:none"<% end %>>
                             <div class="pure-control-group">
                                 <label for="continue"><%= I18n.translate(locale, "preferences_continue_label") %></label>
@@ -350,7 +350,7 @@ we're going to need to do it here in order to allow for translations.
                         </div>
                     <% end %>
 
-                    <% video.related_videos.each do |rv| %>
+                    <% related_videos.each do |rv| %>
                         <% if rv["id"]? %>
                             <div class="pure-u-1">
 

@@ -58,6 +58,7 @@ struct Preferences
   property save_player_pos : Bool = CONFIG.default_user_preferences.save_player_pos
   property default_playlist : String? = nil
   property search_privacy : Bool = CONFIG.default_user_preferences.search_privacy
+  property blocked_channels : Array(String) = [] of String
 
   module BoolToString
     def self.to_json(value : String, json : JSON::Builder)

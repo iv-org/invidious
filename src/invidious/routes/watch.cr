@@ -54,6 +54,10 @@ module Invidious::Routes::Watch
       return Errors.error_template(500, ex)
     end
 
+    # Related videos from blocked channels are removed from the sidebar and autoplay
+    blocked_channels = preferences.blocked_channels
+    related_videos = video.related_videos.reject { |rv| blocked_channels.includes?(rv.fetch("ucid", "")) }
+
     if preferences.annotations_subscribed &&
        subscriptions.includes?(video.ucid) &&
        (env.params.query["iv_load_policy"]? || "1") == "1"

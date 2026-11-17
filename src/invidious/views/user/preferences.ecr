@@ -107,6 +107,11 @@
             </div>
 
             <div class="pure-control-group">
+                <label for="blocked_channels"><%= I18n.translate(locale, "preferences_blocked_channels_label") %></label>
+                <textarea name="blocked_channels" id="blocked_channels" rows="3" placeholder="UC..."><%= preferences.blocked_channels.join("\n") %></textarea>
+            </div>
+
+            <div class="pure-control-group">
                 <label for="annotations"><%= I18n.translate(locale, "preferences_annotations_label") %></label>
                 <input name="annotations" id="annotations" type="checkbox" <% if preferences.annotations %>checked<% end %>>
             </div>

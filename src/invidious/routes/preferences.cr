@@ -99,6 +99,13 @@ module Invidious::Routes::PreferencesRoute
     related_videos ||= "off"
     related_videos = related_videos == "on"
 
+    # One channel ID per line or separated by commas; invalid entries are dropped.
+    blocked_channels = (env.params.body["blocked_channels"]?.try &.as(String) || "")
+      .split(/[\s,]+/)
+      .reject(&.empty?)
+      .select(&.matches?(/\AUC[A-Za-z0-9_-]{22}\z/))
+      .uniq
+
     default_home = env.params.body["default_home"]?.try &.as(String) || CONFIG.default_user_preferences.default_home
 
     feed_menu = [] of String
@@ -175,6 +182,7 @@ module Invidious::Routes::PreferencesRoute
       automatic_instance_redirect: automatic_instance_redirect,
       region:                      region,
       related_videos:              related_videos,
+      blocked_channels:            blocked_channels,
       sort:                        sort,
       speed:                       speed,
       thin_mode:                   thin_mode,

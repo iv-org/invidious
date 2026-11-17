@@ -76,6 +76,12 @@ module Invidious::Routes::Search
         return Errors.error_template(500, ex)
       end
 
+      # Drop videos from blocked channels (regular search only)
+      blocked_channels = preferences.blocked_channels
+      if query.type.regular? && !blocked_channels.empty? && items.is_a?(Array(SearchItem))
+        items = items.reject { |item| item.is_a?(SearchVideo) && blocked_channels.includes?(item.ucid) }
+      end
+
       redirect_url = Invidious::Frontend::Misc.redirect_url(env)
 
       # Pagination
