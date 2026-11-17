@@ -83,7 +83,7 @@ struct Video
   # Actual start time of a currently running livestream
   def live_start_time : Time?
     if self.live_now
-      return info["liveStartTime"]?.try { |t| Time.parse_rfc3339(t.as_s) }
+      return info["liveStartTime"]?.try(&.as_s?).try { |t| Time.parse_rfc3339(t) }
     end
   end
 
