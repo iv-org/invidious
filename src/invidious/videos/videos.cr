@@ -15,7 +15,7 @@ struct Video
   # NOTE: don't forget to bump this number if any change is made to
   # the `params` structure in videos/parser.cr!!!
   #
-  SCHEMA_VERSION = 4
+  SCHEMA_VERSION = 5
 
   property id : String
 
@@ -78,6 +78,13 @@ struct Video
 
   def post_live_dvr
     return info["isPostLiveDvr"].as_bool
+  end
+
+  # Actual start time of a currently running livestream
+  def live_start_time : Time?
+    if self.live_now
+      return info["liveStartTime"]?.try { |t| Time.parse_rfc3339(t.as_s) }
+    end
   end
 
   def premiere_timestamp : Time?

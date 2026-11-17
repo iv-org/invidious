@@ -473,6 +473,7 @@
     "adminprefs_modified_source_code_url_label": "URL to modified source code repository",
     "none": "none",
     "videoinfo_started_streaming_x_ago": "Started streaming `x` ago",
+    "videoinfo_watching_now": "watching now",
     "videoinfo_watch_on_youTube": "Watch on YouTube",
     "videoinfo_youTube_embed_link": "Embed",
     "videoinfo_invidious_embed_link": "Embed Link",

@@ -114,9 +114,9 @@ we're going to need to do it here in order to allow for translations.
         <h3>
             <%= video.premiere_timestamp.try { |t| I18n.translate(locale, "Premieres in `x`", recode_date((t - Time.utc).ago, locale)) } %>
         </h3>
-    <% elsif video.live_now %>
+    <% elsif video.live_now && video.live_start_time %>
         <h3>
-            <%= video.premiere_timestamp.try { |t| I18n.translate(locale, "videoinfo_started_streaming_x_ago", recode_date((Time.utc - t).ago, locale)) } %>
+            <%= video.live_start_time.try { |t| I18n.translate(locale, "videoinfo_started_streaming_x_ago", recode_date((Time.utc - t).ago, locale)) } %>
         </h3>
     <% end %>
 </div>
@@ -199,7 +199,7 @@ we're going to need to do it here in order to allow for translations.
 
             <%= Invidious::Frontend::WatchPage.download_widget(locale, video, video_assets) %>
 
-            <p id="views"><i class="icon ion-ios-eye"></i> <%= number_with_separator(video.views) %></p>
+            <p id="views"><i class="icon ion-ios-eye"></i> <%= number_with_separator(video.views) %><% if video.live_now %> <%= I18n.translate(locale, "videoinfo_watching_now") %><% end %></p>
             <p id="likes"><i class="icon ion-ios-thumbs-up"></i> <%= number_with_separator(video.likes) %></p>
             <p id="dislikes" style="display: none; visibility: hidden;"></p>
             <% if video.ai_made %>

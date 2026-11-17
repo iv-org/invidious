@@ -218,6 +218,13 @@ module Invidious::Videos::Parser
       .try &.as_bool
     live_now ||= video_details.dig?("isLive").try &.as_bool || false
 
+    # Actual start of an ongoing livestream (not the scheduled premiere time)
+    live_start_time = nil
+    if live_now
+      live_start_time = microformat.dig?("liveBroadcastDetails", "startTimestamp")
+        .try { |t| Time.parse_rfc3339(t.as_s) }
+    end
+
     post_live_dvr = video_details.dig?("isPostLiveDvr")
       .try &.as_bool || false
 
@@ -440,6 +447,7 @@ module Invidious::Videos::Parser
       "commentsEnabled"  => JSON::Any.new(comments_enabled),
       "keywords"         => JSON::Any.new(keywords.map { |v| JSON::Any.new(v) }),
       "isPostLiveDvr"    => JSON::Any.new(post_live_dvr),
+      "liveStartTime"    => JSON::Any.new(live_start_time.try &.to_rfc3339),
       # Related videos
       "relatedVideos" => JSON::Any.new(related),
       # Description
