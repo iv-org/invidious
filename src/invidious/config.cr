@@ -45,6 +45,7 @@ struct ConfigPreferences
   property sort : String = "published"
   property speed : Float32 = 1.0_f32
   property thin_mode : Bool = false
+  property auto_load_comments : Bool = false
   property unseen_only : Bool = false
   property video_loop : Bool = false
   property extend_desc : Bool = false

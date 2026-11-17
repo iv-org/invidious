@@ -125,6 +125,10 @@ module Invidious::Routes::PreferencesRoute
     thin_mode ||= "off"
     thin_mode = thin_mode == "on"
 
+    auto_load_comments = env.params.body["auto_load_comments"]?.try &.as(String)
+    auto_load_comments ||= "off"
+    auto_load_comments = auto_load_comments == "on"
+
     max_results = env.params.body["max_results"]?.try &.as(String).to_i?
     max_results ||= CONFIG.default_user_preferences.max_results
 
@@ -178,6 +182,7 @@ module Invidious::Routes::PreferencesRoute
       sort:                        sort,
       speed:                       speed,
       thin_mode:                   thin_mode,
+      auto_load_comments:          auto_load_comments,
       unseen_only:                 unseen_only,
       video_loop:                  video_loop,
       volume:                      volume,

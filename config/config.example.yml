@@ -752,6 +752,13 @@ default_user_preferences:
   ##
   #thin_mode: false
 
+  ## Automatically click "Load more" for top-level comments when the end of the
+  ## comment section is scrolled into view.
+  ## Accepted values: true, false
+  ## Default: false
+  ##
+  #auto_load_comments: false
+
   ##
   ## List of feeds available on the home page.
   ##

@@ -182,6 +182,11 @@
                 <input name="thin_mode" id="thin_mode" type="checkbox" <% if preferences.thin_mode %>checked<% end %>>
             </div>
 
+            <div class="pure-control-group">
+                <label for="auto_load_comments"><%= I18n.translate(locale, "preferences_auto_load_comments_label") %></label>
+                <input name="auto_load_comments" id="auto_load_comments" type="checkbox" <% if preferences.auto_load_comments %>checked<% end %>>
+            </div>
+
             <% if env.get?("user") %>
                 <% feed_options = {"", "Popular", "Trending", "Subscriptions", "Playlists"} %>
             <% else %>

@@ -51,6 +51,7 @@ struct Preferences
   property sort : String = CONFIG.default_user_preferences.sort
   property speed : Float32 = CONFIG.default_user_preferences.speed
   property thin_mode : Bool = CONFIG.default_user_preferences.thin_mode
+  property auto_load_comments : Bool = CONFIG.default_user_preferences.auto_load_comments
   property unseen_only : Bool = CONFIG.default_user_preferences.unseen_only
   property video_loop : Bool = CONFIG.default_user_preferences.video_loop
   property extend_desc : Bool = CONFIG.default_user_preferences.extend_desc

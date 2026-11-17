@@ -52,6 +52,41 @@ function show_youtube_replies(event) {
     target.setAttribute('data-sub-text', sub_text);
 }
 
+var auto_load_comments_ready = false;
+
+// When the user preference is enabled, click the top-level "Load more" link
+// as soon as it scrolls into view (plus a margin), so further comments load
+// without a manual click. Replies' "Load more" links are left alone.
+function setup_auto_load_comments() {
+    if (auto_load_comments_ready) return;
+    if (!video_data.preferences || !video_data.preferences.auto_load_comments) return;
+    if (!('IntersectionObserver' in window) || !('MutationObserver' in window)) return;
+
+    var container = document.getElementById('comments');
+    if (!container) return;
+    auto_load_comments_ready = true;
+
+    var selector = 'a[data-load-more]:not([data-load-replies])';
+
+    var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            if (!entry.isIntersecting) return;
+            observer.unobserve(entry.target);
+            entry.target.click();
+        });
+    }, { rootMargin: '0px 0px 300px 0px' });
+
+    var observe_links = function () {
+        container.querySelectorAll(selector).forEach(function (link) {
+            observer.observe(link);
+        });
+    };
+
+    // The "Load more" link is replaced after every load, so re-scan on DOM changes.
+    new MutationObserver(observe_links).observe(container, { childList: true, subtree: true });
+    observe_links();
+}
+
 function get_youtube_comments() {
     var comments = document.getElementById('comments');
 
@@ -106,6 +141,7 @@ function get_youtube_comments() {
             });
             comments.innerHTML = commentInnerHtml;
             comments.children[0].children[0].children[0].onclick = toggle_comments;
+            setup_auto_load_comments();
         },
         onNon200: onNon200, // declared above
         onError: function (xhr) {
