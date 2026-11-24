@@ -14,8 +14,19 @@
 
 var SABRPlayer = (function () {
   var VOLUME_KEY = 'youtube_player_volume';
-  var PLAYBACK_POSITION_KEY = 'youtube_playback_positions';
+  // Same key and format as the classic player (assets/js/player.js), so both players
+  // share the saved positions. Only used when the "save player position" preference is on.
+  var PLAYBACK_POSITION_KEY = 'save_player_pos';
+  var LEGACY_PLAYBACK_POSITION_KEY = 'youtube_playback_positions';
+  var MAX_SAVED_POSITIONS = 500;
   var SAVE_POSITION_INTERVAL_MS = 5000;
+
+  // Video codec preference (quality_sabr) -> shaka codec prefixes.
+  var CODEC_PREFERENCES = {
+    vp9: ['vp09', 'vp9'],
+    av1: ['av01'],
+    h264: ['avc1']
+  };
 
   var DEFAULT_ABR_CONFIG = {
     enabled: true,
@@ -49,6 +60,12 @@ var SABRPlayer = (function () {
   var videoElement = null;
   var shakaContainer = null;
   var currentVideoId = '';
+  // Video whose media is actually loaded in the element (null while a load is pending),
+  // and its duration: playback positions are only ever saved against it.
+  var loadedVideoId = null;
+  var loadedDuration = 0;
+  var savePositionsEnabled = false;
+  var loadGeneration = 0;        // bumped by every loadVideo()/dispose(), to drop stale async work
   var isLive = false;
   var innertube = null;
   var clientConfig = null;
@@ -81,6 +98,46 @@ var SABRPlayer = (function () {
   // FreeTube's behaviour — while still bounding a truly blocked/throttled video.
   var MAX_RELOADS = 10;
 
+  // User-facing strings. The page passes translated ones (setMessages); these are fallbacks.
+  var messages = {
+    loadFailed: 'Failed to load video with SABR player.',
+    unavailable: 'This video is currently unavailable via SABR.',
+    throttled: 'YouTube is throttling this request.',
+    tryDash: 'Try DASH player instead',
+    backoff: 'Throttled by YouTube, retrying in {seconds} s…'
+  };
+  function setMessages(newMessages) {
+    Object.keys(newMessages || {}).forEach(function (key) {
+      if (newMessages[key]) messages[key] = newMessages[key];
+    });
+  }
+
+  // The current page with only the quality switched to the classic DASH player.
+  function dashFallbackUrl() {
+    var url = new URL(window.location.href);
+    url.searchParams.set('quality', 'dash');
+    return url.pathname + url.search + url.hash;
+  }
+
+  // Error overlay: one paragraph per line (plain text), then a link to the DASH player.
+  function createErrorDisplay(lines) {
+    var errorDiv = document.createElement('div');
+    errorDiv.className = 'sabr-error-display';
+    lines.forEach(function (line) {
+      if (!line) return;
+      var p = document.createElement('p');
+      p.textContent = line;
+      errorDiv.appendChild(p);
+    });
+    var linkP = document.createElement('p');
+    var link = document.createElement('a');
+    link.href = dashFallbackUrl();
+    link.textContent = messages.tryDash;
+    linkP.appendChild(link);
+    errorDiv.appendChild(linkP);
+    return errorDiv;
+  }
+
   function getSavedVolume() {
     try {
       var v = localStorage.getItem(VOLUME_KEY);
@@ -93,20 +150,39 @@ var SABRPlayer = (function () {
   function getPlaybackPositions() {
     try {
       var p = localStorage.getItem(PLAYBACK_POSITION_KEY);
-      return p ? JSON.parse(p) : {};
+      var positions = p ? JSON.parse(decodeURIComponent(p)) : {};
+      return positions && typeof positions === 'object' ? positions : {};
     } catch (e) { return {}; }
   }
-  function savePlaybackPosition(videoId, time) {
-    if (!videoId || time < 1) return;
+  function clearPlaybackPositions() {
+    try {
+      localStorage.removeItem(PLAYBACK_POSITION_KEY);
+      localStorage.removeItem(LEGACY_PLAYBACK_POSITION_KEY);
+    } catch (e) {}
+  }
+  // Save the current position of the loaded video (no-op when the preference is off
+  // or no load has completed). Like the classic player, the last 15 s aren't saved.
+  function saveCurrentPosition() {
+    if (!savePositionsEnabled || !loadedVideoId || !videoElement || isLive) return;
+    var time = Math.floor(videoElement.currentTime);
+    if (!isFinite(time) || time < 1) return;
+    if (loadedDuration > 0 && time > loadedDuration - 15) return;
     try {
       var positions = getPlaybackPositions();
-      positions[videoId] = time;
-      localStorage.setItem(PLAYBACK_POSITION_KEY, JSON.stringify(positions));
+      // Re-insert so the key order is least -> most recently saved, then keep the newest.
+      delete positions[loadedVideoId];
+      positions[loadedVideoId] = time;
+      var ids = Object.keys(positions);
+      for (var i = 0; i < ids.length - MAX_SAVED_POSITIONS; i++) delete positions[ids[i]];
+      localStorage.setItem(PLAYBACK_POSITION_KEY, encodeURIComponent(JSON.stringify(positions)));
     } catch (e) {}
   }
   function getPlaybackPosition(videoId) {
-    var positions = getPlaybackPositions();
-    return positions[videoId] || 0;
+    var time = Number(getPlaybackPositions()[videoId]);
+    return isFinite(time) && time > 0 ? time : 0;
+  }
+  function stopPositionSaving() {
+    if (savePositionInterval) { clearInterval(savePositionInterval); savePositionInterval = null; }
   }
 
   function base64ToU8(base64) {
@@ -142,24 +218,18 @@ var SABRPlayer = (function () {
         generate_session_locally: false
       });
 
-      // Warm up BotGuard in the background so the WebPO token is ready by the time
-      // the player response arrives (only the WEB client needs one).
+      // The WEB client (Onesie path) needs BotGuard and the redirector URL; warm both
+      // up so they're ready by the time the player response arrives. The default
+      // VISIONOS path uses neither, so it doesn't wait for them.
       if (playerClient() === 'WEB') {
         BotguardService.init().catch(function (e) { console.warn('[SABRPlayer]', 'BotGuard init failed', e); });
-      }
-
-      // Preload the redirector URL.
-      try {
-        var redirectorResponse = await SABRHelpers.fetchWithProxy(
-          'https://redirector.googlevideo.com/initplayback?source=youtube&itag=0&pvi=0&pai=0&owc=yes&cmo:sensitive_content=yes&alr=yes&id=' + Math.round(Math.random() * 1e5),
-          { method: 'GET' }
-        );
-        var redirectorResponseUrl = await redirectorResponse.text();
-        if (redirectorResponseUrl.indexOf('https://') === 0) {
-          localStorage.setItem(SABRHelpers.REDIRECTOR_STORAGE_KEY, redirectorResponseUrl);
+        if (typeof window.fetchSabrRedirectorUrl === 'function') {
+          try {
+            await window.fetchSabrRedirectorUrl();
+          } catch (e) {
+            console.warn('[SABRPlayer]', 'Failed to preload redirector URL', e);
+          }
         }
-      } catch (e) {
-        console.warn('[SABRPlayer]', 'Failed to preload redirector URL', e);
       }
 
       return innertube;
@@ -260,7 +330,8 @@ var SABRPlayer = (function () {
     shakaContainer.style.height = '100%';
 
     videoElement = document.createElement('video');
-    videoElement.autoplay = true;
+    // Playback is started explicitly after load, and only when autoplay is on.
+    videoElement.autoplay = false;
     videoElement.style.width = '100%';
     videoElement.style.height = '100%';
     videoElement.style.backgroundColor = '#000';
@@ -302,9 +373,7 @@ var SABRPlayer = (function () {
     });
     videoElement.addEventListener('waiting', function () { showSpinner(); });
     videoElement.addEventListener('canplay', function () { hideSpinner(); });
-    videoElement.addEventListener('pause', function () {
-      if (currentVideoId) savePlaybackPosition(currentVideoId, videoElement.currentTime);
-    });
+    videoElement.addEventListener('pause', saveCurrentPosition);
 
     // Page-level keyboard shortcuts (installed once per SABRPlayer instance).
     if (!keydownInstalled) {
@@ -318,20 +387,41 @@ var SABRPlayer = (function () {
       var err = event.detail;
       console.error('[SABRPlayer]', 'Shaka error', err && err.code, err);
       if (!err || err.severity !== shaka.util.Error.Severity.CRITICAL) return;
-      if (!isLive || !liveManifest || liveRecoveries >= MAX_LIVE_RECOVERIES) return;
-      liveRecoveries++;
-      console.warn('[SABRPlayer]', 'Reloading live stream after a critical error (attempt ' + liveRecoveries + '/' + MAX_LIVE_RECOVERIES + ')');
-      player.load(liveManifest.uri, undefined, liveManifest.mimeType).catch(function (e) {
-        console.error('[SABRPlayer]', 'Live stream reload failed', e);
-      });
+      recoverLive(loadGeneration);
     });
 
     if (shaka.ui && shaka.ui.Overlay) {
       ui = new shaka.ui.Overlay(player, shakaContainer, videoElement);
-      ui.configure({ overflowMenuButtons: overflowMenuButtons(false) });
+      ui.configure({
+        overflowMenuButtons: overflowMenuButtons(false),
+        // Playback shortcuts are owned by handleKeydown (page-wide). Shaka's own would
+        // also fire while a control is focused and toggle e.g. mute twice. Shaka still
+        // handles its menu/focus navigation (Tab, Escape).
+        enableKeyboardPlaybackControls: false
+      });
     }
 
     return player;
+  }
+
+  // Reload the live manifest after a critical error (or a failed recovery load), up to
+  // MAX_LIVE_RECOVERIES times. `generation` ties the attempt to the load it recovers:
+  // it stops once another video load or dispose() replaced it.
+  function recoverLive(generation) {
+    if (generation !== loadGeneration || !player) return;
+    if (!isLive || !liveManifest || liveRecoveries >= MAX_LIVE_RECOVERIES) return;
+    liveRecoveries++;
+    console.warn('[SABRPlayer]', 'Reloading live stream after a critical error (attempt ' + liveRecoveries + '/' + MAX_LIVE_RECOVERIES + ')');
+    // Resume playback after the reload unless the user had paused.
+    var resume = !!videoElement && (!videoElement.paused || !!(currentLoadOptions && currentLoadOptions.autoplay));
+    player.load(liveManifest.uri, undefined, liveManifest.mimeType).then(function () {
+      if (resume && generation === loadGeneration && videoElement) videoElement.play().catch(function () {});
+    }, function (e) {
+      // LOAD_INTERRUPTED: another load (or unload) replaced this one; nothing to retry.
+      if (e && e.code === shaka.util.Error.Code.LOAD_INTERRUPTED) return;
+      console.error('[SABRPlayer]', 'Live stream reload failed', e);
+      recoverLive(generation);
+    });
   }
 
   // --- Live HLS master playlist patching (port of FreeTube's patchLiveHlsMainManifest, #9996) ---
@@ -360,7 +450,8 @@ var SABRPlayer = (function () {
   }
 
   function patchLiveHlsMainManifest(data, audioFormats) {
-    var lines = new TextDecoder().decode(data).trim().split('\n');
+    // HLS allows CRLF line endings; drop the CR so attributes appended below stay on the tag line.
+    var lines = new TextDecoder().decode(data).trim().split(/\r?\n/);
     var linesToInsert = [];
     var firstStreamIndex = -1;
 
@@ -426,9 +517,7 @@ var SABRPlayer = (function () {
         var url = new URL(uri);
       } catch (e) { return; }
 
-      var isGoogleVideo = url.hostname.endsWith('.googlevideo.com') || url.hostname.indexOf('googlevideo') !== -1;
-      var isYouTube = url.hostname.endsWith('.youtube.com');
-      if (!isGoogleVideo && !isYouTube) return;
+      if (!SABRHelpers.isGoogleVideoURL(url)) return;
 
       // Reuse the shared proxy helper so __host/__headers are set consistently.
       var proxied = SABRHelpers.proxyUrl(url, request.headers || {});
@@ -636,6 +725,8 @@ var SABRPlayer = (function () {
     var t = e.target;
     var tag = (t && t.tagName) || '';
     if (/^(INPUT|TEXTAREA|SELECT)$/.test(tag) || (t && t.isContentEditable)) return;
+    // Let a focused button (e.g. a Shaka control or menu item) handle its own activation.
+    if (tag === 'BUTTON' && (e.key === ' ' || e.key === 'Enter')) return;
     var dur = isFinite(videoElement.duration) ? videoElement.duration : Infinity;
     var handled = true;
     switch (e.key) {
@@ -692,7 +783,7 @@ var SABRPlayer = (function () {
         shakaContainer.appendChild(toast);
       }
       if (toast) {
-        toast.textContent = 'SABR throttled by YouTube, retrying in ' + (ms / 1000).toFixed(1) + 's…';
+        toast.textContent = messages.backoff.replace('{seconds}', (ms / 1000).toFixed(1));
         clearTimeout(toast._t);
         toast._t = setTimeout(function () { if (toast.parentNode) toast.parentNode.removeChild(toast); }, Math.max(ms + 500, 2000));
       }
@@ -702,12 +793,7 @@ var SABRPlayer = (function () {
       if (reloadCount >= MAX_RELOADS) {
         console.error('[SABRPlayer] SABR reload limit reached; giving up on video', currentVideoId);
         if (shakaContainer) {
-          var errDiv = document.createElement('div');
-          errDiv.className = 'sabr-error-display';
-          errDiv.innerHTML = '<p>This video is currently unavailable via SABR.</p>' +
-            '<p>YouTube is throttling this request.</p>' +
-            '<p><a href="?quality=dash">Try DASH player instead</a></p>';
-          shakaContainer.appendChild(errDiv);
+          shakaContainer.appendChild(createErrorDisplay([messages.unavailable, messages.throttled]));
         }
         return;
       }
@@ -725,15 +811,74 @@ var SABRPlayer = (function () {
       try { BotguardService.dispose(); } catch (e) {}
       var reloadOptions = Object.assign({}, currentLoadOptions || {});
       if (resumeAt !== undefined && resumeAt > 1) reloadOptions.startTime = resumeAt;
-      // Don't force playback if the user had paused: a server-requested reload should
-      // resume at the same position AND keep the paused state (not "play again").
+      // A server-requested reload resumes at the same position, in the same play/pause
+      // state, loop and speed (the user may have changed them since the page loaded).
       reloadOptions.startPaused = wasPaused;
-      if (currentVideoId && loadFn) loadFn(currentVideoId, shakaContainer, reloadOptions);
+      reloadOptions.autoplay = !wasPaused;
+      if (videoElement) {
+        reloadOptions.loop = videoElement.loop;
+        reloadOptions.speed = videoElement.playbackRate;
+      }
+      if (currentVideoId && loadFn) {
+        loadFn(currentVideoId, shakaContainer, reloadOptions).catch(function (e) {
+          console.error('[SABRPlayer]', 'SABR reload failed', e);
+          if (shakaContainer) shakaContainer.appendChild(createErrorDisplay([messages.loadFailed, e && e.message]));
+        });
+      }
     });
   }
 
+  // streamerContext.clientInfo for the SABR requests, built from the innertube session
+  // context (WEB), like FreeTube's local.js and googlevideo's sabr-shaka-example, which
+  // also send WEB info with a VISIONOS player response. Do NOT switch this to the
+  // VISIONOS client info: tested with ws46W52Xo4A, the server then answers the very
+  // first SABR requests with RELOAD_PLAYER_RESPONSE on every reload and playback
+  // never starts, while WEB info plays past 60 s and seeks fine.
+  function buildClientInfo() {
+    var ctxClient = innertube.session && innertube.session.context && innertube.session.context.client;
+    var clientName = ctxClient ? ctxClient.clientName : 'WEB';
+    return {
+      clientName: parseInt(Constants.CLIENT_NAME_IDS[clientName], 10) || 1,
+      clientVersion: ctxClient ? ctxClient.clientVersion : Constants.CLIENTS.WEB.VERSION,
+      osName: ctxClient ? ctxClient.osName : undefined,
+      osVersion: ctxClient ? ctxClient.osVersion : undefined
+    };
+  }
+
+  // Apply the page's playback settings (speed, loop) to the media element.
+  function applyPlaybackSettings(options) {
+    var speed = Number(options.speed);
+    // Shaka drives the media element's rate (0 while buffering), so go through it.
+    if (isFinite(speed) && speed > 0 && speed !== player.getPlaybackRate()) {
+      player.trickPlay(speed);
+    }
+    videoElement.loop = !!options.loop;
+  }
+
+  /**
+   * Load a video.
+   * @param {string} videoId
+   * @param {HTMLElement} containerElement
+   * @param {Object} [options]
+   * @param {boolean} [options.autoplay] - start playback once loaded
+   * @param {boolean} [options.loop]
+   * @param {boolean} [options.listen] - audio only
+   * @param {number} [options.speed] - playback rate
+   * @param {number} [options.startTime] - explicit start position (seconds)
+   * @param {boolean} [options.savePlayerPos] - save/restore the playback position
+   * @param {string} [options.codecPreference] - 'vp9' | 'av1' | 'h264'
+   */
   async function loadVideo(videoId, containerElement, options) {
     options = options || {};
+    var generation = ++loadGeneration;
+    // Positions are only saved against media that finished loading: record the
+    // current one, then stop saving until this load completes.
+    saveCurrentPosition();
+    stopPositionSaving();
+    loadedVideoId = null;
+    savePositionsEnabled = options.savePlayerPos === true;
+    if (!savePositionsEnabled) clearPlaybackPositions();
+
     if (videoId !== currentVideoId) { reloadCount = 0; liveRecoveries = 0; }
     currentVideoId = videoId;
     currentLoadOptions = options;
@@ -754,13 +899,14 @@ var SABRPlayer = (function () {
         shakaPromise = Promise.resolve();
       }
 
-      // Network init chain: Innertube → Onesie config → PoToken.
+      // Network init chain: Innertube -> (WEB only) Onesie config -> PoToken.
       var netPromise = (async function () {
         if (!innertube) {
           innertube = await initInnertube();
           if (!innertube) throw new Error('Failed to initialize Innertube');
         }
-        if (!clientConfig) {
+        // The Onesie client config is only used by the WEB/Onesie path.
+        if (playerClient() === 'WEB' && !clientConfig) {
           await fetchOnesieConfig();
         }
         // Mint a content-bound PoToken before getInfo so streaming_data includes
@@ -775,10 +921,10 @@ var SABRPlayer = (function () {
         requestFiltersInstalled = true;
       }
 
-      // Fetch the player response through Onesie (WEB client) so the SABR
-      // streaming URL isn't bound to the proxy's egress IP. Falls back to a
-      // plain getInfo() if the onesie path is unavailable. Media still flows
-      // over SABR (sabr_scheme_plugin.js) either way.
+      // Default: plain /player request with the VISIONOS client. Debug path
+      // (window.SABR_PLAYER_CLIENT = 'WEB'): fetch it through Onesie so the SABR
+      // streaming URL isn't bound to the proxy's egress IP, falling back to getInfo().
+      // Media flows over SABR (sabr_scheme_plugin.js) either way.
       var videoInfo;
       var cpn = SABRHelpers.generateRandomString(16);
       if (playerClient() !== 'WEB') {
@@ -817,21 +963,17 @@ var SABRPlayer = (function () {
         var reason = (videoInfo && videoInfo.playability_status && videoInfo.playability_status.reason) || 'Unknown error';
         throw new Error('Video unavailable: ' + reason);
       }
-      // Live and post-live DVR streams use YouTube's HLS/DASH manifest instead of SABR (like FreeTube).
-      isLive = !!(videoInfo.basic_info && (videoInfo.basic_info.is_live || videoInfo.basic_info.is_post_live_dvr));
+      var basicInfo = videoInfo.basic_info || {};
+      // Live and post-live DVR streams use YouTube's HLS/DASH manifest instead of SABR
+      // (like FreeTube). Only an active broadcast starts at the live edge; a post-live
+      // DVR replay keeps the requested start position.
+      isLive = !!(basicInfo.is_live || basicInfo.is_post_live_dvr);
+      var startAtLiveEdge = !!basicInfo.is_live;
 
       var streamingData = videoInfo.streaming_data;
       if (!streamingData) throw new Error('No streaming data available');
 
-      // Derive clientInfo from the innertube session (matches FreeTube's local.js).
-      var ctxClient = innertube.session && innertube.session.context && innertube.session.context.client;
-      var clientName = ctxClient ? ctxClient.clientName : 'ANDROID';
-      var clientInfo = {
-        clientName: (typeof Constants !== 'undefined' && Constants.CLIENT_NAME_IDS && Constants.CLIENT_NAME_IDS[clientName]) || 3,
-        clientVersion: ctxClient ? ctxClient.clientVersion : (Constants.CLIENTS && Constants.CLIENTS.ANDROID ? Constants.CLIENTS.ANDROID.VERSION : '19.09.37'),
-        osName: ctxClient ? ctxClient.osName : 'Android',
-        osVersion: ctxClient ? ctxClient.osVersion : '14'
-      };
+      var clientInfo = buildClientInfo();
 
       var manifestUri;
       var manifestMimeType;
@@ -891,24 +1033,36 @@ var SABRPlayer = (function () {
         loadedListenerInstalled = true;
       }
 
-      // Default to the ORIGINAL audio language (e.g. English), not a dubbed track.
-      // Without a preferredAudioLanguage, shaka picks the first variant (often a dub);
-      // it doesn't honor our `primary`/original flag on its own. Derive the original
-      // language from the adaptive format flagged is_original and set it as preferred.
+      // Default to the ORIGINAL audio track: its language (not a dub) and the 'main'
+      // role (not the DRC "Stable Volume" or voice boost variants). Without this, shaka
+      // picks the first variant or the highest bitrate one; it doesn't honor our
+      // `primary`/original flag on its own. Each preference falls back to the next.
       if (!isLive && streamingData.adaptive_formats) {
-        var originalAudioLang = null;
+        var originalAudioLang = '';
         for (var afi = 0; afi < streamingData.adaptive_formats.length; afi++) {
           var af = streamingData.adaptive_formats[afi];
           if (af.is_original && af.language) { originalAudioLang = af.language; break; }
         }
-        if (originalAudioLang) {
-          try { player.configure('preferredAudioLanguage', originalAudioLang); } catch (e) {}
-        }
+        var audioPreference = function (role) {
+          return { language: originalAudioLang, role: role, label: '', channelCount: 0, codec: '' };
+        };
+        try { player.configure('preferredAudio', [audioPreference('main'), audioPreference('')]); } catch (e) {}
       }
 
+      // Preferred video codec (quality_sabr preference). Shaka keeps a single codec
+      // family; it falls back to another one when the preferred codec isn't available
+      // or can't be decoded.
+      var preferredCodecs = CODEC_PREFERENCES[options.codecPreference] || [];
+      player.configure('preferredVideo', preferredCodecs.map(function (codec) {
+        return { label: '', role: '', language: '', codec: codec, hdrLevel: '', layout: '' };
+      }));
+
+      var duration = Number(basicInfo.duration) || 0;
       var startTime = options.startTime;
-      if (startTime === undefined && options.savePlayerPos !== false) {
-        startTime = getPlaybackPosition(videoId);
+      if (startTime === undefined && savePositionsEnabled) {
+        var savedTime = getPlaybackPosition(videoId);
+        // Like the classic player: a video watched (nearly) to the end starts over.
+        startTime = (duration > 0 && savedTime >= duration - 20) ? 0 : savedTime;
       }
 
       liveManifest = isLive ? { uri: manifestUri, mimeType: manifestMimeType } : null;
@@ -916,25 +1070,39 @@ var SABRPlayer = (function () {
       var mimeType = isLive
         ? manifestMimeType
         : (manifestUri.indexOf('data:' + window.MANIFEST_TYPE_SABR) === 0 ? window.MANIFEST_TYPE_SABR : undefined);
-      await player.load(manifestUri, isLive ? undefined : startTime, mimeType);
+      await player.load(manifestUri, startAtLiveEdge ? undefined : startTime, mimeType);
 
-      // Don't auto-play on a reload that happened while the user had the video paused
-      // (options.startPaused set by the SABR reload handler).
-      if (!options.startPaused) {
+      if (generation !== loadGeneration) {
+        // Another loadVideo() or dispose() took over while this one was loading.
+        return { player: player, videoElement: videoElement, videoInfo: videoInfo };
+      }
+
+      applyPlaybackSettings(options);
+      loadedVideoId = videoId;
+      loadedDuration = isLive ? 0 : duration;
+
+      // Autoplay only when asked to; a server-requested reload that happened while the
+      // user had the video paused stays paused (options.startPaused).
+      if (options.autoplay && !options.startPaused) {
         videoElement.play().catch(function (err) {
           if (err.name === 'NotAllowedError') console.warn('[SABRPlayer]', 'Autoplay was prevented by the browser');
         });
       }
 
-      if (savePositionInterval) clearInterval(savePositionInterval);
-      savePositionInterval = setInterval(function () {
-        if (videoElement && currentVideoId && !videoElement.paused) {
-          savePlaybackPosition(currentVideoId, videoElement.currentTime);
-        }
-      }, SAVE_POSITION_INTERVAL_MS);
+      if (savePositionsEnabled && !isLive) {
+        savePositionInterval = setInterval(function () {
+          if (videoElement && !videoElement.paused) saveCurrentPosition();
+        }, SAVE_POSITION_INTERVAL_MS);
+      }
 
       return { player: player, videoElement: videoElement, videoInfo: videoInfo };
     } catch (error) {
+      if (generation !== loadGeneration) {
+        // Superseded (e.g. a server-requested reload interrupted this load): the
+        // newer load owns the player now, so this one is not a failure.
+        console.info('[SABRPlayer]', 'Load superseded by a newer one');
+        return { player: player, videoElement: videoElement, videoInfo: null, superseded: true };
+      }
       console.error('[SABRPlayer]', 'Error loading video:', error);
       hideSpinner();
       throw error;
@@ -942,13 +1110,22 @@ var SABRPlayer = (function () {
   }
 
   async function dispose() {
-    if (savePositionInterval) { clearInterval(savePositionInterval); savePositionInterval = null; }
+    loadGeneration++;
+    saveCurrentPosition();
+    stopPositionSaving();
+    loadedVideoId = null;
     if (keydownInstalled) { document.removeEventListener('keydown', handleKeydown); keydownInstalled = false; }
-    if (videoElement && currentVideoId) savePlaybackPosition(currentVideoId, videoElement.currentTime);
 
     if (sabrStream) { try { sabrStream.cleanup(); } catch (e) {} sabrStream = null; }
-    if (player) { await player.destroy(); player = null; }
-    if (ui) { ui.destroy(); ui = null; }
+    // The UI overlay owns the player: destroy it first (it destroys the player too),
+    // and only destroy the player directly when there is no overlay.
+    if (ui) {
+      await ui.destroy();
+      ui = null;
+    } else if (player) {
+      await player.destroy();
+    }
+    player = null;
     if (shakaContainer && shakaContainer.parentNode) shakaContainer.parentNode.removeChild(shakaContainer);
 
     videoElement = null;
@@ -965,6 +1142,8 @@ var SABRPlayer = (function () {
     dispose: dispose,
     getPlayer: getPlayerInstance,
     getVideoElement: getVideoElement,
+    setMessages: setMessages,
+    createErrorDisplay: createErrorDisplay,
     initInnertube: initInnertube,
     fetchOnesieConfig: fetchOnesieConfig
   };

@@ -244,10 +244,6 @@
     .shaka-play-button-container .shaka-play-button {
         padding: 1em !important;
     }
-    
-    .shaka-controls-button-panel button {
-        padding: 8px;
-    }
 }
 
 /* Hide unnecessary Shaka elements */
