@@ -4,6 +4,9 @@
 // Invidious is browser-sandboxed, so outbound fetches are routed through
 // SABRHelpers.fetchWithProxy (the Crystal /proxy route) instead of hitting
 // googlevideo directly.
+// SABR_REDIRECT parts are followed (FreeTube #9689): the redirect URL replaces
+// the stream's SABR URL for all subsequent requests. Redirect retries within one
+// segment request are capped (MAX_REDIRECTS_PER_REQUEST).
 // Exports window.setupSabrScheme.
 
 'use strict';
@@ -13,10 +16,13 @@
   function shaka() { return window.shaka; }
   function gv() { return window.googlevideo; }
 
+  // A segment request that is only ever answered with SABR_REDIRECT parts reloads
+  // the player instead of looping forever.
+  var MAX_REDIRECTS_PER_REQUEST = 5;
+
   function deepCopy(obj) {
     return JSON.parse(JSON.stringify(obj));
   }
-
 
   function formatIdFromString(str) {
     var parts = str.split('-');
@@ -61,17 +67,22 @@
     var bufferedInfo = player.getBufferedInfo();
     if (bufferedInfo.audio.length === 0 && bufferedInfo.video.length === 0) return;
 
+    // The manifest can lag behind the player's tracks (e.g. during a reload), and
+    // audio-only variants have no video stream: send no buffered ranges then.
+    if (!manifest || !manifest.variants) return;
     var activeManifestVariant;
     if (audioFormatsActive) {
       activeManifestVariant = manifest.variants.find(function (variant) {
-        return variant.audio.originalId === activeVariant.originalAudioId;
+        return !!variant.audio && variant.audio.originalId === activeVariant.originalAudioId;
       });
     } else {
       activeManifestVariant = manifest.variants.find(function (variant) {
-        return variant.audio.originalId === activeVariant.originalAudioId &&
+        return !!variant.audio && !!variant.video &&
+          variant.audio.originalId === activeVariant.originalAudioId &&
           variant.video.originalId === activeVariant.originalVideoId;
       });
     }
+    if (!activeManifestVariant || !activeManifestVariant.audio.segmentIndex) return;
 
     var audioFormatId = formatIdFromString(activeVariant.originalAudioId);
     var audioSegmentIndex = activeManifestVariant.audio.segmentIndex;
@@ -97,7 +108,8 @@
           videoFormatId = formatIdFromString(activeVariant.originalVideoId);
         }
         if (!videoSegmentIndex) {
-          videoSegmentIndex = activeManifestVariant.video.segmentIndex;
+          videoSegmentIndex = activeManifestVariant.video && activeManifestVariant.video.segmentIndex;
+          if (!videoSegmentIndex) break;
         }
         bufferedRanges.push(createBufferedRange(videoFormatId, buffered, videoSegmentIndex));
       }
@@ -118,7 +130,55 @@
   function createRecoverableNetworkError(code) {
     var ShakaError = shaka().util.Error;
     var args = Array.prototype.slice.call(arguments, 1);
-    return new ShakaError(ShakaError.Severity.RECOVERABLE, ShakaError.Category.NETWORK, code, args);
+    // shaka collects the trailing constructor arguments into error.data, so pass them positionally.
+    return new ShakaError(ShakaError.Severity.RECOVERABLE, ShakaError.Category.NETWORK, code, ...args);
+  }
+
+  // Ask the player to reload (escape hatch for retry loops), aborting this request chain.
+  function requestPlayerReload(currentState) {
+    currentState.sabrStreamState.playerReloadRequested = true;
+    if (!currentState.abortController.signal.aborted) {
+      currentState.abortController.abort();
+      currentState.eventEmitter.emit('reload');
+    }
+  }
+
+  // Wait for ms, rejecting as soon as the signal aborts (or immediately if it already has).
+  function abortableDelay(ms, signal) {
+    return new Promise(function (resolve, reject) {
+      if (signal.aborted) {
+        reject(new Error('aborted'));
+        return;
+      }
+      var timer = setTimeout(function () {
+        signal.removeEventListener('abort', onAbort);
+        resolve();
+      }, ms);
+      function onAbort() {
+        clearTimeout(timer);
+        reject(new Error('aborted'));
+      }
+      signal.addEventListener('abort', onAbort, { once: true });
+    });
+  }
+
+  // Settle with the promise, or reject as soon as the signal aborts.
+  function abortable(promise, signal) {
+    if (signal.aborted) return Promise.reject(new Error('aborted'));
+    return new Promise(function (resolve, reject) {
+      function onAbort() { reject(new Error('aborted')); }
+      signal.addEventListener('abort', onAbort, { once: true });
+      promise.then(resolve, reject).finally(function () {
+        signal.removeEventListener('abort', onAbort);
+      });
+    });
+  }
+
+  // The error for a request chain whose abort signal fired before it could complete.
+  function abortedRequestError(operationInputs, currentState) {
+    var ShakaError = shaka().util.Error;
+    var code = currentState.abortStatus.timedOut ? ShakaError.Code.TIMEOUT : ShakaError.Code.OPERATION_ABORTED;
+    return createRecoverableNetworkError(code, operationInputs.uri, operationInputs.requestType);
   }
 
   function prepareSabrContexts(sabrStreamState) {
@@ -197,31 +257,11 @@
     var shouldRetry = false;
     var shouldRetryDueToNextRequestPolicy = false;
     var invalidPoToken = false;
+    var redirected = false;
     var error;
 
     if (currentState.sabrStreamState.playerReloadRequested) {
       throw createRecoverableNetworkError(ShakaError.Code.OPERATION_ABORTED, operationInputs.uri, operationInputs.requestType);
-    }
-
-    // --- TEMP SEEK DIAGNOSTICS (toggle: window.SABR_DEBUG = true) ---
-    var _dbg = (typeof window !== 'undefined' && window.SABR_DEBUG);
-    var _dbgHeaders = [];
-    var _dbgPartTypes = {};
-    if (_dbg) {
-      try {
-        console.log('[SABR_DBG] REQ', JSON.stringify({
-          uri: operationInputs.uri,
-          isInit: operationInputs.isInit,
-          sq: operationInputs.sequenceNumber,
-          playerTimeMs: currentState.abrRequest.clientAbrState.playerTimeMs,
-          bufRanges: (currentState.abrRequest.bufferedRanges || []).length,
-          rn: currentState.sabrStreamState.requestNumber,
-          ctxStored: currentState.sabrStreamState.sabrContexts.size,
-          ctxActive: Array.from(currentState.sabrStreamState.activeSabrContextTypes),
-          ctxSent: (currentState.abrRequest.streamerContext.sabrContexts || []).length,
-          sabrHost: (new URL(currentState.sabrStreamState.sabrUrl)).host
-        }));
-      } catch (e) {}
     }
 
     try {
@@ -229,13 +269,13 @@
       if ((currentState.sabrStreamState.nextRequestPolicy?.backoffTimeMs || 0) > 0) {
         var currentBackoffTimeMs = currentState.sabrStreamState.nextRequestPolicy.backoffTimeMs;
         currentState.eventEmitter.emit('backoff-requested', { backoffMs: currentBackoffTimeMs });
-        await new Promise(function (resolve, reject) {
-          setTimeout(resolve, currentBackoffTimeMs);
-          currentState.abortController.signal.addEventListener('abort', reject);
-        });
+        await abortableDelay(currentBackoffTimeMs, currentState.abortController.signal);
         currentState.timeoutController?.resetTimeoutOnce();
 
-        currentState.cumulativeBackOffTimeMs += currentState.sabrStreamState.nextRequestPolicy.backoffTimeMs;
+        // Account for the delay this request actually waited (another request may
+        // have replaced the shared policy meanwhile), and budget the same again for
+        // the next wait.
+        currentState.cumulativeBackOffTimeMs += currentBackoffTimeMs;
         currentState.cumulativeBackOffRequested += 1;
         var timeoutMs = operationInputs.request.retryParameters.timeout;
         if (currentState.cumulativeBackOffRequested >= 3 || (timeoutMs > 0 && timeoutMs <= (currentState.cumulativeBackOffTimeMs + currentBackoffTimeMs))) {
@@ -243,11 +283,8 @@
         }
       }
       if (shouldReloadDueToBackoffLoop || currentState.cumulativeRetryDueToNextRequestPolicy >= 100) {
-        currentState.sabrStreamState.playerReloadRequested = true;
-        if (!currentState.abortController.signal.aborted) {
-          currentState.abortController.abort();
-          currentState.eventEmitter.emit('reload');
-        }
+        requestPlayerReload(currentState);
+        throw createRecoverableNetworkError(ShakaError.Code.OPERATION_ABORTED, operationInputs.uri, operationInputs.requestType);
       }
 
       var fmtId = formatIdFromString(operationInputs.formatIdString);
@@ -258,7 +295,6 @@
 
       var umpReader = new UmpReader({
         onPart: function (partType, data) {
-          if (_dbg) { _dbgPartTypes[partType] = (_dbgPartTypes[partType] || 0) + 1; }
           switch (partType) {
             case UMPPartId.STREAM_PROTECTION_STATUS: {
               var streamProtectionStatus = decodePart(data, StreamProtectionStatus);
@@ -282,6 +318,7 @@
               if (!sabrRedirect || !sabrRedirect.url) break;
               // Follow the redirect for all subsequent requests (FreeTube #9689).
               currentState.sabrStreamState.sabrUrl = sabrRedirect.url;
+              redirected = true;
               shouldRetry = true;
               break;
             }
@@ -289,11 +326,6 @@
               if (mediaHeaderId === undefined) {
                 var mediaHeader = decodePart(data, MediaHeader);
                 if (!mediaHeader) break;
-                if (_dbg) {
-                  try {
-                    _dbgHeaders.push({ itag: mediaHeader.formatId.itag, seq: mediaHeader.segmentNum, isInitSeg: !!mediaHeader.isInitializationSegment, start: mediaHeader.startMs, want: operationInputs.sequenceNumber });
-                  } catch (e) {}
-                }
                 if (
                   mediaHeader.formatId.itag === itag &&
                   mediaHeader.formatId.lastModified === lastModified &&
@@ -340,7 +372,6 @@
             }
             case UMPPartId.SABR_CONTEXT_UPDATE: {
               var sabrContextUpdate = decodePart(data, SabrContextUpdate);
-              if (_dbg) { try { console.log('[SABR_DBG] CTX_UPDATE', JSON.stringify({ decoded: !!sabrContextUpdate, type: sabrContextUpdate ? sabrContextUpdate.type : null, valueLen: sabrContextUpdate && sabrContextUpdate.value ? sabrContextUpdate.value.length : 0, sendByDefault: sabrContextUpdate ? sabrContextUpdate.sendByDefault : null, writePolicy: sabrContextUpdate ? sabrContextUpdate.writePolicy : null })); } catch (e) {} }
               if (!sabrContextUpdate) break;
               if (sabrContextUpdate.type !== undefined && sabrContextUpdate.value?.length) {
                 if (
@@ -403,16 +434,20 @@
 
       operationInputs.headersReceived({});
 
-      var reader = response.body.getReader();
-      var readObj = await reader.read();
+      // A non-OK status (or a bodiless response) is reported as BAD_HTTP_STATUS below.
+      if (response.ok && response.body) {
+        var reader = response.body.getReader();
+        var readObj = await reader.read();
 
-      while (!readObj.done && !currentState.abortStatus.finished) {
-        await umpReader.feed(readObj.value);
-        if (!currentState.abortStatus.finished) {
-          readObj = await reader.read();
+        while (!readObj.done && !currentState.abortStatus.finished) {
+          await umpReader.feed(readObj.value);
+          if (!currentState.abortStatus.finished) {
+            readObj = await reader.read();
+          }
         }
       }
     } catch (err) {
+      if (err instanceof ShakaError) throw err;
       if (currentState.abortStatus.cancelled) {
         throw createRecoverableNetworkError(ShakaError.Code.OPERATION_ABORTED, operationInputs.uri, operationInputs.requestType);
       } else if (currentState.abortStatus.timedOut) {
@@ -428,28 +463,6 @@
       throw createRecoverableNetworkError(ShakaError.Code.TIMEOUT, operationInputs.uri, operationInputs.requestType);
     }
 
-
-    if (_dbg) {
-      try {
-        console.log('[SABR_DBG] RESP', JSON.stringify({
-          sq: operationInputs.sequenceNumber,
-          isInit: operationInputs.isInit,
-          mediaBytes: responseDataChunks.reduce(function (n, c) { return n + (c.length || c.byteLength || 0); }, 0),
-          segmentComplete: segmentComplete,
-          shouldRetry: shouldRetry,
-          retryNextPolicy: shouldRetryDueToNextRequestPolicy,
-          invalidPoToken: invalidPoToken,
-          backoffMs: currentState.sabrStreamState.nextRequestPolicy ? currentState.sabrStreamState.nextRequestPolicy.backoffTimeMs : undefined,
-          reload: currentState.sabrStreamState.playerReloadRequested,
-          error: error,
-          httpStatus: response ? response.status : undefined,
-          headersSeen: _dbgHeaders,
-          partTypes: _dbgPartTypes,
-          CTX_UPDATE_ID: UMPPartId.SABR_CONTEXT_UPDATE,
-          CTX_SENDING_ID: UMPPartId.SABR_CONTEXT_SENDING_POLICY
-        }));
-      } catch (e) {}
-    }
 
     if (responseDataChunks.length > 0 && segmentComplete) {
       var concatenateChunks = utils.concatenateChunks;
@@ -485,13 +498,30 @@
           );
         }
         var freshPoToken = null;
-        try {
-          freshPoToken = currentState.mintPoToken ? await currentState.mintPoToken() : null;
-        } catch (e) {
-          console.warn('[SabrScheme] PO token re-mint failed', e);
+        if (currentState.mintPoToken) {
+          try {
+            // The segment timeout/cancellation aborts this wait as well.
+            freshPoToken = await abortable(currentState.mintPoToken(), currentState.abortController.signal);
+          } catch (e) {
+            if (currentState.abortController.signal.aborted) throw abortedRequestError(operationInputs, currentState);
+            console.warn('[SabrScheme] PO token re-mint failed', e);
+          }
         }
+        if (currentState.abortController.signal.aborted) throw abortedRequestError(operationInputs, currentState);
         if (freshPoToken) {
-          currentState.abrRequest.streamerContext.poToken = utils.base64ToU8(freshPoToken);
+          var freshPoTokenBytes = utils.base64ToU8(freshPoToken);
+          currentState.abrRequest.streamerContext.poToken = freshPoTokenBytes;
+          // Later segment requests of this stream start with the replacement token.
+          currentState.sabrStreamState.poToken = freshPoTokenBytes;
+        }
+      }
+
+      if (redirected) {
+        currentState.redirectRetries += 1;
+        if (currentState.redirectRetries > MAX_REDIRECTS_PER_REQUEST) {
+          console.warn('[SabrScheme] Too many SABR redirects, reloading the player');
+          requestPlayerReload(currentState);
+          throw createRecoverableNetworkError(ShakaError.Code.OPERATION_ABORTED, operationInputs.uri, operationInputs.requestType);
         }
       }
 
@@ -570,12 +600,13 @@
     var eventEmitter = new EventEmitterLike();
     var initDataCache = new Map();
 
-    var poToken = base64ToU8(sabrData.poToken);
     var videoPlaybackUstreamerConfig = base64ToU8(sabrData.ustreamerConfig);
     var clientInfo = deepCopy(sabrData.clientInfo);
 
     var sabrStreamState = {
       sabrUrl: sabrData.url,
+      // Current PO token of this stream (replaced when the server asks to re-attest).
+      poToken: base64ToU8(sabrData.poToken),
       activeSabrContextTypes: new Set(),
       sabrContexts: new Map(),
       nextRequestPolicy: undefined,
@@ -610,26 +641,40 @@
       var audioFormatId;
       var videoFormatId;
 
+      // The companion format of the other media type comes from the active variant
+      // when there is one. Before that (e.g. the init request, which can run before
+      // shaka publishes any track) use the published tracks or, failing that, the
+      // companion format the manifest parser put in the URL.
+      var urlVideoFormatId = url.searchParams.get('videoFormatId');
+      var urlAudioFormatId = url.searchParams.get('audioFormatId');
+
       if (streamIsAudio) {
         audioFormatId = formatIdFromString(formatIdString);
-        if (isAudioOnly) {
-          videoFormatId = formatIdFromString(url.searchParams.get('videoFormatId'));
-        } else {
-          videoFormatId = formatIdFromString((activeVariant || variantTracks[0]).originalVideoId);
-        }
+        var companionVideoTrack = isAudioOnly ? null : (activeVariant || variantTracks[0]);
+        var videoIdString = companionVideoTrack && companionVideoTrack.originalVideoId
+          ? companionVideoTrack.originalVideoId
+          : urlVideoFormatId;
+        if (videoIdString) videoFormatId = formatIdFromString(videoIdString);
       } else if (streamIsVideo) {
         videoFormatId = formatIdFromString(formatIdString);
-        if (activeVariant) {
-          audioFormatId = formatIdFromString(activeVariant.originalAudioId);
+        var audioIdString = urlAudioFormatId;
+        if (activeVariant && activeVariant.originalAudioId) {
+          audioIdString = activeVariant.originalAudioId;
         } else {
           var candidates = variantTracks.filter(function (track) {
-            return track.audioRoles.indexOf('main') !== -1;
+            return track.originalAudioId && track.audioRoles.indexOf('main') !== -1;
           });
-          var probableAudioFormat = candidates.reduce(function (previous, current) {
-            return current.audioBandwidth >= previous.audioBandwidth ? current : previous;
-          }, candidates[0]);
-          audioFormatId = formatIdFromString(probableAudioFormat.originalAudioId);
+          if (candidates.length === 0) {
+            candidates = variantTracks.filter(function (track) { return !!track.originalAudioId; });
+          }
+          if (candidates.length > 0) {
+            var probableAudioFormat = candidates.reduce(function (previous, current) {
+              return current.audioBandwidth >= previous.audioBandwidth ? current : previous;
+            });
+            audioIdString = probableAudioFormat.originalAudioId;
+          }
         }
+        if (audioIdString) audioFormatId = formatIdFromString(audioIdString);
       }
 
       var bufferedRanges = [];
@@ -663,13 +708,13 @@
           clientViewportHeight: getHeight(),
           clientViewportIsFlexible: false
         },
-        selectedAudioFormatIds: [audioFormatId],
-        selectedVideoFormatIds: [videoFormatId],
+        selectedAudioFormatIds: audioFormatId ? [audioFormatId] : [],
+        selectedVideoFormatIds: videoFormatId ? [videoFormatId] : [],
         selectedCaptionFormatIds: [],
-        initializationFormatIds: isInit ? [] : [audioFormatId, videoFormatId],
+        initializationFormatIds: isInit ? [] : [audioFormatId, videoFormatId].filter(Boolean),
         bufferedRanges: bufferedRanges,
         streamerContext: {
-          poToken: poToken,
+          poToken: sabrStreamState.poToken,
           clientInfo: clientInfo,
           sabrContexts: prepared.sabrContexts,
           unsentSabrContexts: prepared.unsentSabrContexts,
@@ -734,6 +779,7 @@
         eventEmitter: eventEmitter,
         mintPoToken: mintPoToken,
         attestationRetries: 0,
+        redirectRetries: 0,
         cumulativeBackOffTimeMs: 0,
         cumulativeBackOffRequested: 0,
         cumulativeRetryDueToNextRequestPolicy: 0

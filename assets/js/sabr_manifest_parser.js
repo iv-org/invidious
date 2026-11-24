@@ -16,6 +16,29 @@
     return format.itag + '-' + (format.lastModified ?? '0') + '-' + (format.xtags ?? '');
   }
 
+  function getCodecs(format) {
+    var match = format.mimeType ? format.mimeType.match(CODECS_REGEX) : null;
+    return match ? match[1] : null;
+  }
+
+  // Rank of a codec string in VIDEO_CODEC_PRIORITIES; unknown codecs sort last.
+  function videoCodecRank(codecs) {
+    var rank = VIDEO_CODEC_PRIORITIES.findIndex(function (codec) { return codecs.indexOf(codec) === 0; });
+    return rank === -1 ? VIDEO_CODEC_PRIORITIES.length : rank;
+  }
+
+  // Prefer the original language, then non-DRC audio, then the highest bitrate.
+  function isBetterAudioCompanion(a, b) {
+    if (!!a.isOriginal !== !!b.isOriginal) return !!a.isOriginal;
+    if (!!a.isDrc !== !!b.isDrc) return !a.isDrc;
+    return a.bitrate > b.bitrate;
+  }
+
+  // Workaround: https://github.com/LuanRT/googlevideo/issues/42
+  function isRejectedAudioFormat(format) {
+    return format.xtags === 'CgcKAnZiEgEx';
+  }
+
   function createVodMediaSegmentIndex(url, response, format, stream, duration) {
     var mediaQuality = {
       contentType: stream.type,
@@ -33,9 +56,12 @@
       pixelAspectRatio: stream.pixelAspectRatio ?? null
     };
 
-    var buffer = ArrayBuffer.isView(response.data) ? response.data.buffer : response.data;
-    var initData = buffer.slice(format.initRange.start, format.initRange.end + 1);
-    var indexData = buffer.slice(format.indexRange.start, format.indexRange.end + 1);
+    // Slice through a view so a response that is a subarray (non-zero byteOffset) still works.
+    var bytes = ArrayBuffer.isView(response.data)
+      ? new Uint8Array(response.data.buffer, response.data.byteOffset, response.data.byteLength)
+      : new Uint8Array(response.data);
+    var initData = bytes.slice(format.initRange.start, format.initRange.end + 1).buffer;
+    var indexData = bytes.slice(format.indexRange.start, format.indexRange.end + 1).buffer;
 
     var initUrls = [url + '&init'];
     var initSegmentReference = new shaka.media.InitSegmentReference(
@@ -66,10 +92,14 @@
     return new shaka.media.SegmentIndex(references);
   }
 
-  async function createMediaSegmentIndex(format, stream, presentationTimeline, networkingEngine, fakeVideoFormatId) {
+  // companionFormatId: the format of the other media type to put in the SABR request
+  // (a video format for an audio stream, an audio format for a video stream). The init
+  // request can run before shaka publishes any variant track, so the scheme plugin
+  // cannot always derive it from the player.
+  async function createMediaSegmentIndex(format, stream, presentationTimeline, networkingEngine, companionFormatId) {
     var url = 'sabr:' + stream.type + '?formatId=' + encodeURIComponent(stream.originalId);
-    if (fakeVideoFormatId) {
-      url += '&videoFormatId=' + encodeURIComponent(fakeVideoFormatId);
+    if (companionFormatId) {
+      url += (stream.type === 'audio' ? '&videoFormatId=' : '&audioFormatId=') + encodeURIComponent(companionFormatId);
     }
     if (format.isDrc) {
       url += '&drc';
@@ -109,7 +139,7 @@
     return createVodMediaSegmentIndex(url, response, format, stream, presentationTimeline.getDuration());
   }
 
-  function createAudioStream(format, id, hasDrcAudio, hasVoiceBoostAudio, presentationTimeline, networkingEngine, fakeVideoFormatId) {
+  function createAudioStream(format, id, hasDrcAudio, hasVoiceBoostAudio, presentationTimeline, networkingEngine, companionVideoFormatId) {
     var roles = [];
 
     if (format.isDrc) {
@@ -152,7 +182,7 @@
       id: id,
       originalId: buildFormatId(format),
       mimeType: format.mimeType.split(';', 1)[0],
-      codecs: format.mimeType.match(CODECS_REGEX)[1],
+      codecs: getCodecs(format),
       fullMimeTypes: new Set([format.mimeType]),
       bandwidth: format.bitrate,
       audioSamplingRate: format.audioSampleRate ?? null,
@@ -166,7 +196,7 @@
       segmentIndex: null,
       createSegmentIndex: async function () {
         if (stream.segmentIndex) return;
-        stream.segmentIndex = await createMediaSegmentIndex(format, stream, presentationTimeline, networkingEngine, fakeVideoFormatId);
+        stream.segmentIndex = await createMediaSegmentIndex(format, stream, presentationTimeline, networkingEngine, companionVideoFormatId);
       },
       closeSegmentIndex: function () {
         if (stream.segmentIndex) {
@@ -191,7 +221,7 @@
     return stream;
   }
 
-  function createVideoStream(format, id, presentationTimeline, networkingEngine) {
+  function createVideoStream(format, id, presentationTimeline, networkingEngine, companionAudioFormatId) {
     var colorGamut = format.colorPrimaries === 'BT2020' ? 'rec2020' : 'srgb';
     var hdr = 'SDR';
     if (format.colorTransferCharacteristics === 'SMPTEST2084') {
@@ -205,7 +235,7 @@
       id: id,
       originalId: buildFormatId(format),
       mimeType: format.mimeType.split(';', 1)[0],
-      codecs: format.mimeType.match(CODECS_REGEX)[1],
+      codecs: getCodecs(format),
       fullMimeTypes: new Set([format.mimeType]),
       bandwidth: format.bitrate,
       width: format.width,
@@ -217,7 +247,7 @@
       segmentIndex: null,
       createSegmentIndex: async function () {
         if (stream.segmentIndex) return;
-        stream.segmentIndex = await createMediaSegmentIndex(format, stream, presentationTimeline, networkingEngine);
+        stream.segmentIndex = await createMediaSegmentIndex(format, stream, presentationTimeline, networkingEngine, companionAudioFormatId);
       },
       closeSegmentIndex: function () {
         if (stream.segmentIndex) {
@@ -252,8 +282,9 @@
   function createTextStreams(captions, presentationTimeline, currentId) {
     var result = [];
     for (var i = 0; i < captions.length; i++) {
-      var caption = captions[i];
-      var stream = {
+      // Block-scoped: the segment index closures below must see this iteration's values.
+      let caption = captions[i];
+      let stream = {
         type: 'text',
         id: currentId++,
         originalId: caption.id,
@@ -306,10 +337,11 @@
   function createImageStreams(storyboards, presentationTimeline, currentId) {
     var result = [];
     for (var i = 0; i < storyboards.length; i++) {
-      var storyboard = storyboards[i];
-      var tilesLayout = storyboard.columns + 'x' + storyboard.rows;
+      // Block-scoped: the segment index closures below must see this iteration's values.
+      let storyboard = storyboards[i];
+      let tilesLayout = storyboard.columns + 'x' + storyboard.rows;
 
-      var stream = {
+      let stream = {
         type: 'image',
         id: currentId++,
         mimeType: storyboard.mimeType,
@@ -467,46 +499,48 @@
       if (manifestData.formats[i].isVoiceBoost) hasVoiceBoostAudio = true;
     }
 
-    var fakeVideoFormatId;
-    if (this._config.disableVideo) {
-      var worstVideoFormat = null;
-      for (var i2 = 0; i2 < manifestData.formats.length; i2++) {
-        var currentFormat = manifestData.formats[i2];
-        if (currentFormat.width === undefined) continue;
-        if (worstVideoFormat === null) {
-          worstVideoFormat = currentFormat;
-        } else if (currentFormat.bitrate < worstVideoFormat.bitrate) {
-          worstVideoFormat = currentFormat;
+    // Formats without a codecs parameter can't be played (or described to shaka).
+    var formats = manifestData.formats.filter(function (format) { return getCodecs(format) !== null; });
+
+    // Companion formats sent with each stream's SABR requests until shaka has an
+    // active variant (see createMediaSegmentIndex). For audio-only playback the
+    // video companion is the lowest bitrate video format, as nothing of it is played.
+    var companionVideoFormat = null;
+    var companionAudioFormat = null;
+    for (var i2 = 0; i2 < formats.length; i2++) {
+      var currentFormat = formats[i2];
+      if (currentFormat.mimeType.indexOf('audio/') === 0) {
+        if (isRejectedAudioFormat(currentFormat)) continue;
+        if (companionAudioFormat === null || isBetterAudioCompanion(currentFormat, companionAudioFormat)) {
+          companionAudioFormat = currentFormat;
+        }
+      } else if (currentFormat.width !== undefined) {
+        if (companionVideoFormat === null) {
+          companionVideoFormat = currentFormat;
+        } else if (this._config.disableVideo) {
+          if (currentFormat.bitrate < companionVideoFormat.bitrate) companionVideoFormat = currentFormat;
+        } else if (videoCodecRank(getCodecs(currentFormat)) < videoCodecRank(getCodecs(companionVideoFormat))) {
+          companionVideoFormat = currentFormat;
         }
       }
-      fakeVideoFormatId = worstVideoFormat ? buildFormatId(worstVideoFormat) : undefined;
     }
+    var companionVideoFormatId = companionVideoFormat ? buildFormatId(companionVideoFormat) : undefined;
+    var companionAudioFormatId = companionAudioFormat ? buildFormatId(companionAudioFormat) : undefined;
 
-    for (var i3 = 0; i3 < manifestData.formats.length; i3++) {
-      var format = manifestData.formats[i3];
+    for (var i3 = 0; i3 < formats.length; i3++) {
+      var format = formats[i3];
       if (format.mimeType.indexOf('audio/') === 0) {
-        if (format.xtags === 'CgcKAnZiEgEx') {
-          // Workaround: https://github.com/LuanRT/googlevideo/issues/42
-          continue;
-        }
-        // TEST: skip DRC ("Stable Volume") audio. Our player was defaulting to the
-        // DRC track (drcEnabled:true in the SABR request); FreeTube uses normal audio
-        // (drcEnabled:false). Testing whether DRC selection is why the server returns
-        // 0 media on seeks.
-        if (format.isDrc) {
-          continue;
-        }
-        audioStreams.push(createAudioStream(format, currentId++, hasDrcAudio, hasVoiceBoostAudio, presentationTimeline, networkingEngine, fakeVideoFormatId));
+        if (isRejectedAudioFormat(format)) continue;
+        audioStreams.push(createAudioStream(format, currentId++, hasDrcAudio, hasVoiceBoostAudio, presentationTimeline, networkingEngine, companionVideoFormatId));
       } else if (!this._config.disableVideo) {
-        videoStreams.push(createVideoStream(format, currentId++, presentationTimeline, networkingEngine));
+        videoStreams.push(createVideoStream(format, currentId++, presentationTimeline, networkingEngine, companionAudioFormatId));
       }
     }
 
     audioStreams.sort(function (a, b) { return b.bandwidth - a.bandwidth; });
     if (!this._config.disableVideo) {
       videoStreams.sort(function (a, b) {
-        return VIDEO_CODEC_PRIORITIES.findIndex(function (codec) { return a.codecs.indexOf(codec) === 0; }) -
-          VIDEO_CODEC_PRIORITIES.findIndex(function (codec) { return b.codecs.indexOf(codec) === 0; });
+        return videoCodecRank(a.codecs) - videoCodecRank(b.codecs);
       });
     }
 
