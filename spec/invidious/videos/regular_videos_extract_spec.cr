@@ -165,7 +165,10 @@ Spectator.describe "parse_video_info" do
   end
 
   it "parses a video without videoDetails (fallback to /next data)" do
-    _player = load_mock("video/no-videodetails.player")
+    # Build the input from an existing fixture, without videoDetails, as the
+    # player response is when only the /next endpoint data is available.
+    _player = load_mock("video/regular_no-description.player")
+    _player.delete("videoDetails")
     _next = load_mock("video/regular_no-description.next")
 
     raw_data = _player.merge!(_next)
@@ -192,10 +195,10 @@ Spectator.describe "parse_video_info" do
     expect(info["author"].as_s).to eq("ChrisReaVideos")
     expect(info["ucid"].as_s).to eq("UC_5q6nWPbD30-y6oiWF_oNA")
 
-    # Family friendly defaults to true when missing
+    # Family friendly still comes from the microformat
     expect(info["isFamilyFriendly"].as_bool).to be_true
 
-    # isListed defaults to true when no badges
+    # isListed is inferred from the (absent) "Unlisted" badge
     expect(info["isListed"].as_bool).to be_true
 
     # Description
@@ -203,6 +206,31 @@ Spectator.describe "parse_video_info" do
 
     # Related videos still work from /next
     expect(info["relatedVideos"].as_a.size).to eq(20)
+  end
+
+  it "doesn't assume a video is family friendly without the microformat" do
+    _player = load_mock("video/regular_no-description.player")
+    _player.delete("videoDetails")
+    _player.delete("microformat")
+    _next = load_mock("video/regular_no-description.next")
+
+    raw_data = _player.merge!(_next)
+    info = Invidious::Videos::Parser.parse_video_info("iuevw6218F0", raw_data)
+
+    expect(info["title"].as_s).to eq("Chris Rea - Auberge")
+    expect(info["isFamilyFriendly"].as_bool).to be_false
+  end
+end
+
+Spectator.describe "has_unlisted_badge?" do
+  it "returns false for malformed badges" do
+    expect(has_unlisted_badge?(JSON::Any.new("not an array"))).to be_false
+    expect(has_unlisted_badge?(nil)).to be_false
+  end
+
+  it "detects the unlisted badge" do
+    badges = JSON.parse(%([{"metadataBadgeRenderer": {"icon": {"iconType": "PRIVACY_UNLISTED"}}}]))
+    expect(has_unlisted_badge?(badges)).to be_true
   end
 end
 
@@ -219,5 +247,24 @@ Spectator.describe "Video error accessors" do
 
     expect(video.reason).to eq("Video unavailable")
     expect(video.subreason).to be_nil
+  end
+
+  it "renders the minimal error record without raising" do
+    # Same shape as the record built by `Parser.error_video_info`
+    info = {
+      "version"   => JSON::Any.new(Video::SCHEMA_VERSION.to_i64),
+      "reason"    => JSON::Any.new("Sign in to confirm your age"),
+      "subreason" => JSON::Any.new("This video may be inappropriate for some users."),
+    } of String => JSON::Any
+
+    video = Video.new({id: "dQw4w9WgXcQ", info: info, updated: Time.utc})
+
+    expect(video.comments?).to be_false
+    expect(video.genre_url).to be_nil
+    expect(video.music).to be_empty
+    expect(video.post_live_dvr).to be_false
+    expect(video.error_only?).to be_true
+    expect(video.unplayable_reason).to eq("Sign in to confirm your age")
+    expect(video.no_backend_streams?).to be_false
   end
 end

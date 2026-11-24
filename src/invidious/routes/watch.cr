@@ -65,7 +65,10 @@ module Invidious::Routes::Watch
       Invidious::Database::Users.mark_watched(user.as(User), id)
     end
 
-    if CONFIG.enable_user_notifications && notifications && notifications.includes? id
+    # Keep the notification when the video can't be played (the error record is
+    # rendered, but the user hasn't actually watched the video).
+    if CONFIG.enable_user_notifications && notifications && notifications.includes?(id) &&
+       video.unplayable_reason.nil?
       Invidious::Database::Users.remove_notification(user.as(User), id)
       env.get("user").as(User).notifications.delete(id)
       notifications.delete(id)
@@ -110,6 +113,15 @@ module Invidious::Routes::Watch
     video_streams = video.video_streams
     audio_streams = video.audio_streams
 
+    # Without any stream from the backend (e.g. no Invidious companion), only
+    # the SABR player can play the video, as it fetches the streams itself.
+    # Raw requests need a backend stream, they are handled below.
+    if video.no_backend_streams? && params.quality != "sabr" && !params.raw && !CONFIG.disabled?("dash")
+      env.params.query.delete_all("quality")
+      env.params.query["quality"] = "sabr"
+      return env.redirect "/watch?#{env.params.query}"
+    end
+
     # Videos that are a premiere do not have audio streams.
     if video.premiere_timestamp.nil? && video.reason.nil?
       # Older videos may not have audio sources available.
@@ -145,7 +157,13 @@ module Invidious::Routes::Watch
 
     thumbnail = "/vi/#{video.id}/maxres.jpg"
 
-    if params.raw && video.reason.nil?
+    if params.raw
+      if reason = video.reason
+        return Errors.error_template(500, InfoException.new(video.subreason || reason))
+      elsif (params.listen ? audio_streams : fmt_stream).empty?
+        return Errors.error_template(404, InfoException.new("No stream is available for this video on this instance."))
+      end
+
       if params.listen
         url = audio_streams[0]["url"].as_s
 

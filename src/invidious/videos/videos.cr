@@ -77,7 +77,7 @@ struct Video
   end
 
   def post_live_dvr
-    return info["isPostLiveDvr"].as_bool
+    return info["isPostLiveDvr"]?.try(&.as_bool?) || false
   end
 
   def premiere_timestamp : Time?
@@ -167,7 +167,7 @@ struct Video
   end
 
   def genre_url : String?
-    info["genreUcid"].try &.as_s? ? "/channel/#{info["genreUcid"]}" : nil
+    info["genreUcid"]?.try &.as_s?.try { |ucid| "/channel/#{ucid}" }
   end
 
   def vr? : Bool?
@@ -188,8 +188,28 @@ struct Video
     info["subreason"]?.try &.as_s?
   end
 
+  # True for the minimal record built when YouTube refuses to play the video
+  # and no metadata could be extracted (only version, reason and subreason).
+  def error_only? : Bool
+    !self.reason.nil? && !info.has_key?("title")
+  end
+
+  # The reason why the video can't be played, or `nil` if it is playable or an
+  # upcoming premiere/livestream (whose metadata and countdown are displayed).
+  def unplayable_reason : String?
+    reason = self.reason
+    return if reason.nil? || reason.starts_with?("Premieres") || !self.premiere_timestamp.nil?
+    return reason
+  end
+
+  # True when the backend has no stream at all for a playable, non-live video
+  # (e.g. without Invidious companion): only the SABR player can play it.
+  def no_backend_streams? : Bool
+    self.reason.nil? && !self.live_now && self.fmt_stream.empty? && self.adaptive_fmts.empty?
+  end
+
   def music : Array(VideoMusic)
-    info["music"].as_a.map do |music_json|
+    (info["music"]?.try &.as_a? || [] of JSON::Any).map do |music_json|
       VideoMusic.new(
         music_json["song"].as_s,
         music_json["album"].as_s,
@@ -201,7 +221,7 @@ struct Video
 
   # Returns true if comments are enabled on the video
   def comments?
-    return info["commentsEnabled"].as_bool
+    return info["commentsEnabled"]?.try &.as_bool? || false
   end
 
   # Macros defining getters/setters for various types of data
@@ -318,7 +338,13 @@ def get_video(id, refresh = true, region = nil, force_refresh = false)
        video.schema_version != Video::SCHEMA_VERSION # cache control
       begin
         video = fetch_video(id, region)
-        Invidious::Database::Videos.update(video)
+        # Don't keep a minimal error record (often a transient block from
+        # YouTube) for the whole cache duration: retry on the next request.
+        if video.error_only?
+          Invidious::Database::Videos.delete(id)
+        else
+          Invidious::Database::Videos.update(video)
+        end
       rescue ex
         Invidious::Database::Videos.delete(id)
         raise ex
@@ -326,7 +352,7 @@ def get_video(id, refresh = true, region = nil, force_refresh = false)
     end
   else
     video = fetch_video(id, region)
-    Invidious::Database::Videos.insert(video) if !region
+    Invidious::Database::Videos.insert(video) if !region && !video.error_only?
   end
 
   return video

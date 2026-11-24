@@ -149,7 +149,8 @@ module Invidious::Routes::Embed
     #   PG_DB.exec("UPDATE users SET watched = array_append(watched, $1) WHERE email = $2", id, user.as(User).email)
     # end
 
-    if CONFIG.enable_user_notifications && notifications && notifications.includes? id
+    if CONFIG.enable_user_notifications && notifications && notifications.includes?(id) &&
+       video.unplayable_reason.nil?
       Invidious::Database::Users.remove_notification(user.as(User), id)
       env.get("user").as(User).notifications.delete(id)
       notifications.delete(id)
@@ -168,7 +169,16 @@ module Invidious::Routes::Embed
     video_streams = video.video_streams
     audio_streams = video.audio_streams
 
-    if audio_streams.empty? && !video.live_now
+    # Without any stream from the backend (e.g. no Invidious companion), only
+    # the SABR player can play the video, as it fetches the streams itself.
+    # Raw requests need a backend stream, they are handled below.
+    if video.no_backend_streams? && params.quality != "sabr" && !params.raw && !CONFIG.disabled?("dash")
+      env.params.query.delete_all("quality")
+      env.params.query["quality"] = "sabr"
+      return env.redirect "/embed/#{id}?#{env.params.query}"
+    end
+
+    if audio_streams.empty? && !video.live_now && video.reason.nil?
       if params.quality == "dash"
         env.params.query.delete_all("quality")
         return env.redirect "/embed/#{id}?#{env.params.query}"
@@ -196,6 +206,12 @@ module Invidious::Routes::Embed
     thumbnail = "/vi/#{video.id}/maxres.jpg"
 
     if params.raw
+      if reason = video.reason
+        return Errors.error_template(500, InfoException.new(video.subreason || reason))
+      elsif fmt_stream.empty?
+        return Errors.error_template(404, InfoException.new("No stream is available for this video on this instance."))
+      end
+
       url = fmt_stream[0]["url"].as_s
 
       fmt_stream.each do |fmt|

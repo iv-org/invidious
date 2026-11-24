@@ -81,8 +81,10 @@ module Invidious::Videos::Parser
       begin
         player_response = YoutubeAPI.next({"videoId": video_id, "params": ""})
       rescue ex
+        # Re-raise as is: a transient upstream failure must stay a server error
+        # (HTTP 500), not be turned into a 404.
         LOGGER.debug("extract_video_info: /next also failed for #{video_id}: #{ex.message}")
-        raise NotFoundException.new("Video unavailable")
+        raise ex
       end
       begin
         params = self.parse_video_info(video_id, player_response)
@@ -309,17 +311,17 @@ module Invidious::Videos::Parser
 
     allow_ratings = video_details["allowRatings"]?.try &.as_bool
     # When the microformat is missing (e.g. /next-only data) we can't know for
-    # sure, so optimistically assume the video is family safe.
+    # sure, so conservatively assume the video is not family safe.
     family_friendly = microformat["isFamilySafe"]?.try &.as_bool
-    family_friendly = true if family_friendly.nil?
+    family_friendly = false if family_friendly.nil?
     is_listed = video_details["isCrawlable"]?.try &.as_bool
     if is_listed.nil?
-      # Without videoDetails, infer from the "Unlisted" badge if present.
-      if video_badges = video_primary_renderer.try &.dig?("badges")
-        is_listed = !has_unlisted_badge?(video_badges)
-      else
-        is_listed = true
-      end
+      # Without videoDetails, infer from the "Unlisted" badge: /next shows it
+      # on unlisted videos (and no badge at all on most public videos).
+      # Defaulting to false would label every such video as "Unlisted" on the
+      # watch page.
+      video_badges = video_primary_renderer.try &.dig?("badges")
+      is_listed = !has_unlisted_badge?(video_badges)
     end
     is_upcoming = video_details["isUpcoming"]?.try &.as_bool
 

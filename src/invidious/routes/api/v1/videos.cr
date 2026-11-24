@@ -21,6 +21,12 @@ module Invidious::Routes::API::V1::Videos
       return Errors.error_json(500, ex)
     end
 
+    # Unplayable videos (except upcoming premieres) are an error, as before
+    # the watch page started rendering them.
+    if reason = video.unplayable_reason
+      return Errors.error_json(500, InfoException.new(HTML.unescape(video.subreason || reason)))
+    end
+
     return JSON.build do |json|
       Invidious::JSONify::APIv1.video(video, json, locale: locale, proxy: proxy)
     end
