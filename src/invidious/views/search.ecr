@@ -13,7 +13,13 @@
 <hr/>
 
 
-<%- if items.empty? -%>
+<%- if query.requires_age_verification? -%>
+<div class="h-box no-results-error">
+    <div>
+        <%= I18n.translate(locale, "search_message_requires_age_verification") %><br/><br/>
+    </div>
+</div>
+<%- elsif items.empty? -%>
 <div class="h-box no-results-error">
     <div>
         <%= I18n.translate(locale, "search_message_no_results") %><br/><br/>

@@ -20,6 +20,8 @@ module Invidious::Search
     property region : String?
     property channel : String = ""
 
+    getter? requires_age_verification : Bool = false
+
     # Flag that indicates if the smart search features have been disabled.
     @inhibit_ssf : Bool = false
 
@@ -124,7 +126,11 @@ module Invidious::Search
 
       case @type
       when .regular?, .playlist?
-        items = Processors.regular(self)
+        begin
+          items = Processors.regular(self)
+        rescue SearchRequiresAgeVerification
+          @requires_age_verification = true
+        end
         #
       when .channel?
         items = Processors.channel(self)

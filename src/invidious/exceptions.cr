@@ -56,3 +56,6 @@ class RedditIsDeprecated < InfoException
     return "Reddit comments have been removed from Invidious."
   end
 end
+
+class SearchRequiresAgeVerification < InfoException
+end
