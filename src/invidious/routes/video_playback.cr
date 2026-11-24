@@ -22,8 +22,11 @@ module Invidious::Routes::VideoPlayback
       host = "r#{fvip}---#{mns.pop}.googlevideo.com"
     end
 
-    # Sanity check, to avoid being used as an open proxy
-    if !host.matches?(/[\w-]+\.(?:googlevideo|c\.youtube)\.com/)
+    # Sanity check, to avoid being used as an open proxy.
+    # Anchored (`\A`/`\z`), so the hostname must consist *entirely* of a
+    # googlevideo.com / c.youtube.com address — an attacker-controlled suffix
+    # like `evil.googlevideo.com.attacker.net` must not pass.
+    if !host.matches?(/\A[\w-]+\.(?:googlevideo|c\.youtube)\.com\z/)
       return Errors.error_template(400, "Invalid \"host\" parameter.")
     end
 
