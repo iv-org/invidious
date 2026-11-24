@@ -1,18 +1,31 @@
 require "http"
 require "yaml"
-require "digest/sha1"
+require "digest/sha256"
 require "option_parser"
 require "colorize"
 
 # Script to fetch SABR (Server ABR) dependencies
 # These are pre-built bundles for client-side SABR streaming support
+#
+# Each file is checked against a pinned SHA-256 digest of the raw download
+# (before any post-processing), so a modified CDN response is rejected. When
+# bumping a version, update the digests (they match the files of the npm
+# package tarball).
 
 SABR_DEPENDENCIES = {
   "shaka-player" => {
     "version" => "5.3.6",
     "files"   => [
-      {"url" => "https://cdn.jsdelivr.net/npm/shaka-player@5.3.6/dist/shaka-player.ui.js", "dest" => "shaka-player.ui.js"},
-      {"url" => "https://cdn.jsdelivr.net/npm/shaka-player@5.3.6/dist/controls.css", "dest" => "controls.css"},
+      {
+        "url"    => "https://cdn.jsdelivr.net/npm/shaka-player@5.3.6/dist/shaka-player.ui.js",
+        "dest"   => "shaka-player.ui.js",
+        "sha256" => "54e0fa5abe72fc97f540a70ac3978e42f22d67a2b23963fdda57183a4a77ab11",
+      },
+      {
+        "url"    => "https://cdn.jsdelivr.net/npm/shaka-player@5.3.6/dist/controls.css",
+        "dest"   => "controls.css",
+        "sha256" => "72bd7fac17c47814bef30053c2e21ec65061fd224c70055cadd83e7fb2c1eefa",
+      },
     ],
   },
   # googlevideo, bgutils-js and youtubei.js are bundled locally from npm via
@@ -50,9 +63,7 @@ SABR_DEPENDENCIES.each do |dep_name, dep_info|
       end
 
       if config["version"].as_s != version
-        # Clean old files
-        Dir.glob("#{path}/*.js").each { |f| File.delete(f) }
-        Dir.glob("#{path}/*.css").each { |f| File.delete(f) }
+        # Old files are only removed once the new ones are downloaded and verified
         dependencies_to_install << dep_name
       end
     else
@@ -70,17 +81,31 @@ dependencies_to_install.each do |dep_name|
     files = dep_info["files"].as(Array(Hash(String, String)))
     dest_path = "#{sabr_dir}/#{dep_name}"
 
-    files.each do |file_info|
+    # Download and verify every file before touching the installed ones
+    downloads = files.map do |file_info|
       url = file_info["url"]
-      dest_file = file_info["dest"]
 
-      HTTP::Client.get(url) do |response|
-        if response.status_code == 200
-          File.write("#{dest_path}/#{dest_file}", response.body_io.gets_to_end)
-        else
+      content = HTTP::Client.get(url) do |response|
+        if response.status_code != 200
           raise Exception.new("Failed to fetch #{url}: HTTP #{response.status_code}")
         end
+        response.body_io.getb_to_end
       end
+
+      digest = Digest::SHA256.hexdigest(content)
+      if digest != file_info["sha256"]
+        raise Exception.new("SHA-256 mismatch for #{url}: expected #{file_info["sha256"]}, got #{digest}")
+      end
+
+      {file_info["dest"], content}
+    end
+
+    # Clean old files
+    Dir.glob("#{dest_path}/*.js").each { |f| File.delete(f) }
+    Dir.glob("#{dest_path}/*.css").each { |f| File.delete(f) }
+
+    downloads.each do |dest_file, content|
+      File.write("#{dest_path}/#{dest_file}", content)
     end
 
     update_versions_yaml(dep_name, version)
