@@ -165,10 +165,12 @@ module Invidious::Routes::Proxy
       end
     end
 
-    # Use Invidious' own User-Agent unless the client set one explicitly, instead
-    # of forwarding the viewer's browser User-Agent. For a Firefox User-Agent,
-    # www.youtube.com answers with more than 16 KB of headers, which exceeds
-    # HTTP::MAX_HEADERS_SIZE and fails with "Unexpected end of http response".
+    # Force a User-Agent: the one from __headers (the SABR player always sends
+    # YT_DEFAULT_USER_AGENT, or a client-specific one set by youtubei.js such as
+    # VISIONOS), else Invidious' own. The viewer's browser User-Agent request
+    # header is never forwarded: for a Firefox User-Agent, www.youtube.com answers
+    # with more than 16 KB of headers, which exceeds HTTP::MAX_HEADERS_SIZE
+    # ("Unexpected end of http response").
     request_headers["User-Agent"] ||= YT_DEFAULT_USER_AGENT
 
     # Set origin/referer for YouTube and Google domains (only if not already set)

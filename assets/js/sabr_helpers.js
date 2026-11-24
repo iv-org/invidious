@@ -17,6 +17,25 @@ window.SABRHelpers = (function () {
     // Query parameters the /proxy route reserves for itself.
     var RESERVED_PROXY_PARAMS = ['__host', '__path', '__headers'];
 
+    // User-Agent sent to YouTube for every proxied request (the same one the
+    // Invidious backend uses, rendered by the server in player.ecr). It is put
+    // in __headers for the proxy, and on the fetch itself too (only Firefox
+    // honours a custom User-Agent on fetch; Chrome silently keeps its own).
+    // A client-specific User-Agent set by youtubei.js (e.g. VISIONOS) is kept.
+    var FALLBACK_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36';
+
+    function getUserAgent() {
+        var container = document.getElementById('sabr-player-container');
+        return (container && container.dataset.userAgent) || FALLBACK_USER_AGENT;
+    }
+
+    // Returns a copy of `headers` (Headers or plain object) with a User-Agent.
+    function withUserAgent(headers) {
+        var result = new Headers(headers || undefined);
+        if (!result.has('user-agent')) result.set('user-agent', getUserAgent());
+        return result;
+    }
+
     /**
      * Get proxy configuration
      */
@@ -297,21 +316,11 @@ window.SABRHelpers = (function () {
         // Never let the upstream query override the proxy's own parameters.
         RESERVED_PROXY_PARAMS.forEach(function (name) { newUrl.searchParams.delete(name); });
 
-        if (headers) {
-            var headersArray = [];
-            if (headers instanceof Headers) {
-                headers.forEach(function (value, key) {
-                    headersArray.push([key, value]);
-                });
-            } else {
-                for (var key in headers) {
-                    if (Object.prototype.hasOwnProperty.call(headers, key)) {
-                        headersArray.push([key, headers[key]]);
-                    }
-                }
-            }
-            newUrl.searchParams.set('__headers', JSON.stringify(headersArray));
-        }
+        var headersArray = [];
+        withUserAgent(headers).forEach(function (value, key) {
+            headersArray.push([key, value]);
+        });
+        newUrl.searchParams.set('__headers', JSON.stringify(headersArray));
 
         newUrl.searchParams.set('__host', urlObj.host);
         newUrl.host = config.PROXY_HOST;
@@ -323,16 +332,15 @@ window.SABRHelpers = (function () {
     }
 
     /**
-     * Fetch through proxy. The request headers are serialized into __headers for the
-     * proxy to send upstream (the proxy supplies its own User-Agent unless one is set
-     * explicitly here).
+     * Fetch through proxy. The request headers, including the forced User-Agent, are
+     * serialized into __headers for the proxy to send upstream.
      * @param {string|URL|Request} input - URL to fetch
      * @param {RequestInit} init - Fetch init options
      * @returns {Promise<Response>}
      */
     async function fetchWithProxy(input, init) {
         var url = typeof input === 'string' ? new URL(input) : (input instanceof URL ? input : new URL(input.url));
-        var headers = new Headers(init?.headers || (input instanceof Request ? input.headers : undefined));
+        var headers = withUserAgent(init?.headers || (input instanceof Request ? input.headers : undefined));
         var requestInit = Object.assign({}, init, { headers: headers });
 
         var newUrl = proxyUrl(url, headers);
