@@ -1,5 +1,6 @@
 require "http"
 require "yaml"
+require "json"
 require "digest/sha256"
 require "option_parser"
 require "colorize"
@@ -46,6 +47,39 @@ end
 # Create the main sabr directory if it doesn't exist
 sabr_dir = "assets/js/sabr"
 Dir.mkdir_p(sabr_dir) unless Dir.exists?(sabr_dir)
+
+# The npm libraries are not fetched at build time: their bundles are built with
+# `npm run bundle-sabr` and committed. Make sure they match the versions pinned
+# in package.json, so a version bump can't silently keep serving old bundles.
+NPM_BUNDLES = {
+  "googlevideo" => "googlevideo/googlevideo.bundle.min.js",
+  "youtubei.js" => "youtubei.js/youtubei.bundle.min.js",
+  "bgutils-js"  => "bgutils-js/bgutils.bundle.min.js",
+}
+
+pinned_versions = JSON.parse(File.read("package.json"))["dependencies"].as_h
+outdated_bundles = [] of String
+
+NPM_BUNDLES.each do |dep_name, bundle_file|
+  pinned = pinned_versions[dep_name]?.try &.as_s
+  versions_path = "#{sabr_dir}/#{dep_name}/versions.yml"
+  bundled = File.exists?(versions_path) ? YAML.parse(File.read(versions_path))["version"]?.try &.as_s : nil
+
+  if pinned.nil?
+    outdated_bundles << "#{dep_name}: not pinned in package.json"
+  elsif !File.exists?("#{sabr_dir}/#{bundle_file}")
+    outdated_bundles << "#{dep_name}: #{sabr_dir}/#{bundle_file} is missing (package.json pins #{pinned})"
+  elsif bundled != pinned
+    outdated_bundles << "#{dep_name}: bundled #{bundled || "unknown version"}, but package.json pins #{pinned}"
+  end
+end
+
+if !outdated_bundles.empty?
+  STDERR.puts "#{"SABR".colorize(:blue)} bundles don't match package.json:"
+  outdated_bundles.each { |line| STDERR.puts "  - #{line}" }
+  STDERR.puts "Run `npm install && npm run bundle-sabr` to rebuild them, then commit the result."
+  exit(1)
+end
 
 dependencies_to_install = [] of String
 

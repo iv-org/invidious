@@ -167,6 +167,6 @@ end
 puts "#{"Checking".colorize(:green)} #{"SABR".colorize(:blue)} dependencies..."
 sabr_status = Process.run("crystal", ["run", "scripts/fetch-sabr-dependencies.cr"], output: STDOUT, error: STDERR)
 if !sabr_status.success?
-  STDERR.puts "#{"Failed".colorize(:red)} to fetch #{"SABR".colorize(:blue)} dependencies"
+  STDERR.puts "#{"SABR".colorize(:blue)} dependencies check #{"failed".colorize(:red)}"
   exit(1)
 end
