@@ -57,6 +57,10 @@ NPM_BUNDLES = {
   "bgutils-js"  => "bgutils-js/bgutils.bundle.min.js",
 }
 
+if !File.exists?("package.json")
+  STDERR.puts "#{"SABR".colorize(:blue)}: package.json is missing, it is needed to check the SABR bundles (copy it next to scripts/ and assets/)."
+  exit(1)
+end
 pinned_versions = JSON.parse(File.read("package.json"))["dependencies"].as_h
 outdated_bundles = [] of String
 

@@ -41,6 +41,8 @@ COPY ./.git/ ./.git/
 COPY ./scripts/ ./scripts/
 COPY ./assets/ ./assets/
 COPY ./videojs-dependencies.yml ./videojs-dependencies.yml
+# Pinned versions of the SABR npm bundles, checked at build time
+COPY ./package.json ./package.json
 
 RUN crystal spec -v --warnings all \
     --link-flags "-lxml2 -llzma"
