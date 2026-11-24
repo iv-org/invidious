@@ -182,7 +182,8 @@ module Invidious::Routes::Embed
       if params.quality == "dash"
         env.params.query.delete_all("quality")
         return env.redirect "/embed/#{id}?#{env.params.query}"
-      elsif params.listen
+      elsif params.listen && params.quality != "sabr"
+        # The SABR player fetches its own audio streams
         env.params.query.delete_all("listen")
         env.params.query["listen"] = "0"
         return env.redirect "/embed/#{id}?#{env.params.query}"

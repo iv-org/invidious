@@ -56,7 +56,8 @@ module Invidious::Routes::BeforeAll
       "font-src 'self' data:",
       "connect-src 'self' https://*.googleapis.com https://*.youtube.com " + COMPANION_CSP.companion_urls,
       "manifest-src 'self'",
-      "media-src 'self' blob: " + COMPANION_CSP.companion_urls,
+      # data: is used by Shaka (SABR player) for its placeholder text tracks
+      "media-src 'self' blob: data: " + COMPANION_CSP.companion_urls,
       "child-src 'self' blob:",
       "frame-src 'self'",
       "frame-ancestors " + frame_ancestors,

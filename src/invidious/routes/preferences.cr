@@ -80,6 +80,7 @@ module Invidious::Routes::PreferencesRoute
 
     quality_sabr = env.params.body["quality_sabr"]?.try &.as(String)
     quality_sabr ||= CONFIG.default_user_preferences.quality_sabr
+    quality_sabr = CONFIG.default_user_preferences.quality_sabr if !Invidious::Videos::SABR_CODECS.includes?(quality_sabr)
 
     volume = env.params.body["volume"]?.try &.as(String).to_i?
     volume ||= CONFIG.default_user_preferences.volume

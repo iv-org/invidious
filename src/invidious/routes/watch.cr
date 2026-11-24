@@ -133,7 +133,8 @@ module Invidious::Routes::Watch
           # "medium" player can't play either, SABR fetches its own streams.
           env.params.query["quality"] = fmt_stream.empty? ? "sabr" : "medium"
           return env.redirect "/watch?#{env.params.query}"
-        elsif params.listen
+        elsif params.listen && params.quality != "sabr"
+          # The SABR player fetches its own audio streams
           env.params.query.delete_all("listen")
           env.params.query["listen"] = "0"
           return env.redirect "/watch?#{env.params.query}"

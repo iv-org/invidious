@@ -1,6 +1,9 @@
 module Invidious::Videos
   extend self
 
+  # Codec preferences supported by the SABR player (`quality_sabr`)
+  SABR_CODECS = {"vp9", "av1", "h264"}
+
   struct VideoPreferences
     include JSON::Serializable
 
@@ -91,6 +94,8 @@ module Invidious::Videos
     quality ||= CONFIG.default_user_preferences.quality
     quality_dash ||= CONFIG.default_user_preferences.quality_dash
     quality_sabr ||= CONFIG.default_user_preferences.quality_sabr
+    # Only the codecs the SABR player knows; the value is printed in the page.
+    quality_sabr = "vp9" if !SABR_CODECS.includes?(quality_sabr)
     related_videos ||= CONFIG.default_user_preferences.related_videos.to_unsafe
     speed ||= CONFIG.default_user_preferences.speed
     video_loop ||= CONFIG.default_user_preferences.video_loop.to_unsafe
