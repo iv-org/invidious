@@ -58,6 +58,13 @@ var SABRPlayer = (function () {
   var playbackWebPoTokenContentBinding = null;
   var playbackWebPoTokenCreationLock = false;
 
+  var hlsAudioFormats = [];      // audio formats used to patch live HLS master playlists
+  var liveManifest = null;       // { uri, mimeType } of the current live stream, for recovery
+  var liveRecoveries = 0;
+  // Shaka's TS->MP4 transmuxer intermittently fails on YouTube live HLS segments
+  // (error 3018 TRANSMUXING_FAILED, CRITICAL), which leaves the video buffer empty.
+  // Reloading the live manifest recovers, so retry a few times.
+  var MAX_LIVE_RECOVERIES = 3;
   var sabrStream = null;         // handle returned by setupSabrScheme
   // Guards so per-player-instance listeners/filters are installed once, not once
   // per reload (loadVideo re-runs on every SABR reload).
@@ -307,14 +314,100 @@ var SABRPlayer = (function () {
 
     await player.attach(videoElement);
 
+    player.addEventListener('error', function (event) {
+      var err = event.detail;
+      console.error('[SABRPlayer]', 'Shaka error', err && err.code, err);
+      if (!err || err.severity !== shaka.util.Error.Severity.CRITICAL) return;
+      if (!isLive || !liveManifest || liveRecoveries >= MAX_LIVE_RECOVERIES) return;
+      liveRecoveries++;
+      console.warn('[SABRPlayer]', 'Reloading live stream after a critical error (attempt ' + liveRecoveries + '/' + MAX_LIVE_RECOVERIES + ')');
+      player.load(liveManifest.uri, undefined, liveManifest.mimeType).catch(function (e) {
+        console.error('[SABRPlayer]', 'Live stream reload failed', e);
+      });
+    });
+
     if (shaka.ui && shaka.ui.Overlay) {
       ui = new shaka.ui.Overlay(player, shakaContainer, videoElement);
-      ui.configure({
-        overflowMenuButtons: ['captions', 'quality', 'language', 'playback_rate', 'loop', 'picture_in_picture']
-      });
+      ui.configure({ overflowMenuButtons: overflowMenuButtons(false) });
     }
 
     return player;
+  }
+
+  // --- Live HLS master playlist patching (port of FreeTube's patchLiveHlsMainManifest, #9996) ---
+  // YouTube's live HLS master playlist doesn't declare the audio streams as EXT-X-MEDIA
+  // renditions, so shaka doesn't treat them as one audio track at different qualities
+  // (symptom: audio buffers but the video buffer stays empty and playback never starts).
+  var MIME_TYPE_CODECS_REGEX = /codecs="?([^"]+)"?/;
+  var HLS_AUDIO_PARAMS_ITAG_REGEX = /\/sgoap\/[^/]*?itag%3D(\d+)/;
+  // eslint-disable-next-line no-control-regex
+  var HLS_QUOTED_STRING_REGEX = /[\0-\u001F"\u007F-\u009F]/g;
+  var ITAG_139_SAMPLE_RATE = '22050';
+
+  function cleanHlsString(text) {
+    return text.trim().replace(HLS_QUOTED_STRING_REGEX, '');
+  }
+
+  function getAudioTrackName(format) {
+    if (format.audio_track && format.audio_track.display_name) return format.audio_track.display_name;
+    if (format.language) {
+      try {
+        var name = new Intl.DisplayNames('en-US', { type: 'language', languageDisplay: 'standard', fallback: 'none' }).of(format.language);
+        if (name !== undefined) return name;
+      } catch (e) {}
+    }
+    return 'Untitled';
+  }
+
+  function patchLiveHlsMainManifest(data, audioFormats) {
+    var lines = new TextDecoder().decode(data).trim().split('\n');
+    var linesToInsert = [];
+    var firstStreamIndex = -1;
+
+    for (var i = 0; i < lines.length; i++) {
+      if (lines[i].indexOf('#EXT-X-STREAM-INF:') !== 0) continue;
+      if (firstStreamIndex === -1) firstStreamIndex = i;
+
+      var itagMatch = (lines[i + 1] || '').match(HLS_AUDIO_PARAMS_ITAG_REGEX);
+      if (itagMatch !== null) {
+        var itag = parseInt(itagMatch[1], 10);
+        var format = audioFormats.find(function (f) { return f.itag === itag; });
+        // itag 139 is in the HLS manifest but usually not in the API response; it matches
+        // itag 140 except for half the sample rate.
+        if (!format && itag === 139) format = audioFormats.find(function (f) { return f.itag === 140; });
+
+        if (format) {
+          var sampleRate = itag === 139 && format.itag !== 139 ? ITAG_139_SAMPLE_RATE : format.audio_sample_rate.toFixed(0);
+          var codec = format.mime_type.match(MIME_TYPE_CODECS_REGEX)[1];
+          var groupId = codec.split('.', 1)[0] + '-' + format.audio_channels + '-' + (sampleRate || 0);
+          var mediaLine = '#EXT-X-MEDIA:TYPE=AUDIO,' +
+            'GROUP-ID="' + groupId + '",' +
+            'NAME="' + cleanHlsString(getAudioTrackName(format)) + '",' +
+            'LANGUAGE="' + (format.language ? cleanHlsString(format.language) : 'und') + '",' +
+            'DEFAULT=' + (format.is_original ? 'YES' : 'NO') + ',' +
+            'AUTOSELECT=' + (format.is_auto_dubbed ? 'NO' : 'YES') + ',' +
+            'CHANNELS=' + format.audio_channels.toFixed(0) + ',' +
+            'SAMPLE-RATE=' + sampleRate;
+
+          lines[i] = lines[i] + ',AUDIO=' + groupId;
+          if (linesToInsert.indexOf(mediaLine) === -1) linesToInsert.push(mediaLine);
+        }
+      }
+      // the next line is the URL line
+      i++;
+    }
+
+    if (linesToInsert.length === 0) return data;
+    Array.prototype.splice.apply(lines, [firstStreamIndex, 0].concat(linesToInsert));
+    lines.splice(1, 0, '#EXT-X-VERSION:7');
+    return new TextEncoder().encode(lines.join('\n') + '\n');
+  }
+
+  // YouTube's live streams carry no audio language metadata (only the same audio at two
+  // bitrates), so the language menu would just list "Undetermined" twice. Hide it for lives.
+  function overflowMenuButtons(live) {
+    var buttons = ['captions', 'quality', 'language', 'playback_rate', 'loop', 'picture_in_picture'];
+    return live ? buttons.filter(function (b) { return b !== 'language'; }) : buttons;
   }
 
   // Route non-sabr: requests (captions, storyboards, image tiles) through the
@@ -341,6 +434,16 @@ var SABRPlayer = (function () {
       var proxied = SABRHelpers.proxyUrl(url, request.headers || {});
       proxied.searchParams.set('alr', 'yes');
       request.uris[0] = proxied.toString();
+    });
+
+    networkingEngine.registerResponseFilter(function (type, response, context) {
+      if (
+        hlsAudioFormats.length > 0 &&
+        type === shaka.net.NetworkingEngine.RequestType.MANIFEST &&
+        context && context.type === shaka.net.NetworkingEngine.AdvancedRequestType.MASTER_PLAYLIST
+      ) {
+        response.data = patchLiveHlsMainManifest(response.data, hlsAudioFormats);
+      }
     });
   }
 
@@ -631,7 +734,7 @@ var SABRPlayer = (function () {
 
   async function loadVideo(videoId, containerElement, options) {
     options = options || {};
-    if (videoId !== currentVideoId) reloadCount = 0;
+    if (videoId !== currentVideoId) { reloadCount = 0; liveRecoveries = 0; }
     currentVideoId = videoId;
     currentLoadOptions = options;
     playbackWebPoToken = null;
@@ -714,7 +817,8 @@ var SABRPlayer = (function () {
         var reason = (videoInfo && videoInfo.playability_status && videoInfo.playability_status.reason) || 'Unknown error';
         throw new Error('Video unavailable: ' + reason);
       }
-      isLive = !!(videoInfo.basic_info && videoInfo.basic_info.is_live);
+      // Live and post-live DVR streams use YouTube's HLS/DASH manifest instead of SABR (like FreeTube).
+      isLive = !!(videoInfo.basic_info && (videoInfo.basic_info.is_live || videoInfo.basic_info.is_post_live_dvr));
 
       var streamingData = videoInfo.streaming_data;
       if (!streamingData) throw new Error('No streaming data available');
@@ -730,10 +834,16 @@ var SABRPlayer = (function () {
       };
 
       var manifestUri;
+      var manifestMimeType;
+      hlsAudioFormats = [];
       if (isLive) {
         // Live: don't route through the SABR parser yet; use HLS/DASH.
         manifestUri = streamingData.hls_manifest_url || streamingData.dash_manifest_url;
+        manifestMimeType = streamingData.hls_manifest_url ? 'application/x-mpegurl' : 'application/dash+xml';
         if (streamingData.hls_manifest_url) {
+          hlsAudioFormats = (streamingData.adaptive_formats || []).filter(function (f) {
+            return f.mime_type && f.mime_type.indexOf('audio/mp4') === 0;
+          });
           if (innertube.session && innertube.session.player && innertube.session.player.decipher) {
             try { streamingData.hls_manifest_url = await innertube.session.player.decipher(streamingData.hls_manifest_url); } catch (e) {}
           }
@@ -801,9 +911,11 @@ var SABRPlayer = (function () {
         startTime = getPlaybackPosition(videoId);
       }
 
-      var mimeType = (!isLive && manifestUri.indexOf('data:' + window.MANIFEST_TYPE_SABR) === 0)
-        ? window.MANIFEST_TYPE_SABR
-        : undefined;
+      liveManifest = isLive ? { uri: manifestUri, mimeType: manifestMimeType } : null;
+      if (ui) ui.configure({ overflowMenuButtons: overflowMenuButtons(isLive) });
+      var mimeType = isLive
+        ? manifestMimeType
+        : (manifestUri.indexOf('data:' + window.MANIFEST_TYPE_SABR) === 0 ? window.MANIFEST_TYPE_SABR : undefined);
       await player.load(manifestUri, isLive ? undefined : startTime, mimeType);
 
       // Don't auto-play on a reload that happened while the user had the video paused
