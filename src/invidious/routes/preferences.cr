@@ -14,6 +14,18 @@ module Invidious::Routes::PreferencesRoute
     locale = env.get("preferences").as(Preferences).locale
     referer = get_referer(env)
 
+    # A `quality` query param on the watch page overrides the saved player
+    # preference, so drop it, otherwise the newly saved player is never used.
+    referer_uri = URI.parse(referer)
+    if referer_uri.path == "/watch" && (referer_query = referer_uri.query)
+      referer_params = URI::Params.parse(referer_query)
+      if referer_params.has_key?("quality")
+        referer_params.delete_all("quality")
+        referer_uri.query = referer_params.to_s
+        referer = referer_uri.request_target
+      end
+    end
+
     video_loop = env.params.body["video_loop"]?.try &.as(String)
     video_loop ||= "off"
     video_loop = video_loop == "on"

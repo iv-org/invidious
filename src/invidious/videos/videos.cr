@@ -124,7 +124,7 @@ struct Video
   # Misc. methods
 
   def storyboards
-    container = info.dig?("storyboards") || JSON::Any.new("{}")
+    container = info.dig?("storyboards") || JSON::Any.new({} of String => JSON::Any)
     return IV::Videos::Storyboard.from_yt_json(container, self.length_seconds)
   end
 

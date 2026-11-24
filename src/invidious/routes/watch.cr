@@ -117,7 +117,9 @@ module Invidious::Routes::Watch
       if audio_streams.empty? && !video.live_now
         if params.quality == "dash"
           env.params.query.delete_all("quality")
-          env.params.query["quality"] = "medium"
+          # Without any stream from the backend (no Invidious companion), the
+          # "medium" player can't play either, SABR fetches its own streams.
+          env.params.query["quality"] = fmt_stream.empty? ? "sabr" : "medium"
           return env.redirect "/watch?#{env.params.query}"
         elsif params.listen
           env.params.query.delete_all("listen")
