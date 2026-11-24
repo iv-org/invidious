@@ -25,9 +25,9 @@
 
   function gv() { return window.googlevideo; }
 
-  // Concatenate a UMP part's chunks into a single Uint8Array.
-  function partBytes(part) {
-    var chunks = part.data.chunks;
+  // Concatenate a UMP part's chunks (googlevideo/ump CompositeBuffer) into a single Uint8Array.
+  function partBytes(data) {
+    var chunks = data.chunks;
     if (chunks.length === 1) return chunks[0];
     return gv().utils.concatenateChunks(chunks);
   }
@@ -104,6 +104,7 @@
       innertubeRequest: {
         enableCompression: true,
         encryptedClientKey: clientConfig.encryptedClientKey,
+        enableAdPlacementsPreroll: false,
         encryptedOnesieInnertubeRequest: enc.encrypted,
         hmac: enc.hmac,
         iv: enc.iv,
@@ -159,42 +160,49 @@
       headers: { 'accept': '*/*', 'content-type': 'application/octet-stream' },
       body: prepared.body
     });
-    var buffer = new Uint8Array(await resp.arrayBuffer());
-
-    // Parse the UMP stream: collect ONESIE_HEADER parts and attach their data.
-    var onesie = [];
-    new ump.UmpReader(new ump.CompositeBuffer([buffer])).read(function (part) {
-      if (part.type === protos.UMPPartId.ONESIE_HEADER) {
-        onesie.push(protos.OnesieHeader.decode(partBytes(part)));
-      } else if (part.type === protos.UMPPartId.ONESIE_DATA) {
-        if (onesie.length) onesie[onesie.length - 1].data = partBytes(part);
-      } else if (part.type === protos.UMPPartId.SABR_ERROR) {
-        try { console.error('[SABROnesie] SABR_ERROR', protos.SabrError.decode(partBytes(part))); } catch (e) {}
+    // Parse the UMP stream, keeping the ONESIE_DATA that follows the player-response header.
+    var lastHeader = null;
+    var header = null;
+    var responseData = null;
+    var umpReader = new ump.UmpReader({
+      onPart: function (partType, data) {
+        if (partType === protos.UMPPartId.ONESIE_HEADER) {
+          lastHeader = protos.OnesieHeader.decode(partBytes(data));
+        } else if (partType === protos.UMPPartId.ONESIE_DATA) {
+          if (lastHeader && lastHeader.type === protos.OnesieHeaderType.ONESIE_PLAYER_RESPONSE) {
+            header = lastHeader;
+            responseData = partBytes(data);
+          }
+          lastHeader = null;
+        } else if (partType === protos.UMPPartId.SABR_ERROR) {
+          try { console.error('[SABROnesie] SABR_ERROR', protos.SabrError.decode(partBytes(data))); } catch (e) {}
+        }
       }
     });
 
-    var header = null;
-    for (var i = 0; i < onesie.length; i++) {
-      if (onesie[i].type === protos.OnesieHeaderType.ONESIE_PLAYER_RESPONSE) { header = onesie[i]; break; }
-    }
-    if (!header) throw new Error('Onesie player response not found');
-    if (!header.cryptoParams) throw new Error('Onesie crypto params not found');
-
-    var responseData = header.data;
-
-    // Decompress (gzip) if requested.
-    if (responseData && header.cryptoParams.compressionType === protos.CompressionType.GZIP) {
-      var ds = new DecompressionStream('gzip');
-      var stream = new Blob([responseData]).stream().pipeThrough(ds);
-      responseData = new Uint8Array(await new Response(stream).arrayBuffer());
+    var reader = resp.body.getReader();
+    while (true) {
+      var chunk = await reader.read();
+      if (chunk.done) break;
+      await umpReader.feed(chunk.value);
     }
 
-    // Decrypt only if the response was encrypted (skipResponseEncryption=true means it usually isn't).
-    var iv = header.cryptoParams.iv;
-    var hmac = header.cryptoParams.hmac;
+    if (!header || !responseData) throw new Error('Onesie player response not found');
+
+    // skipResponseEncryption is set, so the response normally comes back in the clear;
+    // decrypt only if crypto params are actually present, then gunzip.
+    var cryptoParams = header.cryptoParams || {};
+    var iv = cryptoParams.iv;
+    var hmac = cryptoParams.hmac;
     var decrypted = (hmac && hmac.length && iv && iv.length)
       ? await SABRHelpers.decryptResponse(iv, hmac, responseData, clientConfig.clientKeyData)
       : responseData;
+
+    if (decrypted && cryptoParams.compressionType === protos.CompressionType.GZIP) {
+      var ds = new DecompressionStream('gzip');
+      var stream = new Blob([decrypted]).stream().pipeThrough(ds);
+      decrypted = new Uint8Array(await new Response(stream).arrayBuffer());
+    }
 
     var innerResponse = protos.OnesieInnertubeResponse.decode(decrypted);
     if (innerResponse.onesieProxyStatus !== protos.OnesieProxyStatus.OK) {

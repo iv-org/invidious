@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Bundle SABR libraries (googlevideo, youtubei.js, bgutils-js) using esbuild
+ * Bundle SABR libraries (googlevideo, youtubei.js, bgutils-js) from npm using esbuild
  * This creates properly bundled files with all necessary exports
  */
 
@@ -67,19 +67,49 @@ esbuild.build({
   process.exit(1);
 });
 
-// youtubei.js is fetched as a pre-built browser bundle from jsDelivr by
-// scripts/fetch-sabr-dependencies.cr (not bundled here), to avoid re-bundling
-// a large lib and clobbering the pre-built artifact.
-
-// Bundle bgutils-js
+// youtubei.js: minify the package's pre-built browser bundle (v18 no longer ships a
+// minified one).
 esbuild.build({
   ...commonEsbuildOptions,
-  entryPoints: [path.join(nodeModules, 'bgutils-js/dist/index.js')],
+  entryPoints: [path.join(nodeModules, 'youtubei.js/bundle/browser.js')],
+  outfile: path.join(outputDir, 'youtubei.js/youtubei.bundle.min.js'),
+  banner: { js: '// youtubei.js library - bundled with esbuild' }
+}).then(() => {
+  console.log('✓ youtubei.js bundled successfully');
+}).catch((err) => {
+  console.error('✗ youtubei.js bundling failed:', err);
+  process.exit(1);
+});
+
+// Bundle bgutils-js. v4 split the package into subpath exports (botguard, webpo,
+// utils) and dropped the BG namespace, so expose the pieces we use as one `BG` object.
+const bgutilsEntryContent = `
+import { BotGuardClient, parseChallengeData } from 'bgutils-js/botguard';
+import { WebPoMinter, createColdStartToken } from 'bgutils-js/webpo';
+import { buildURL, GOOG_API_KEY } from 'bgutils-js/utils';
+
+export const BG = { BotGuardClient, parseChallengeData, WebPoMinter, createColdStartToken, buildURL, GOOG_API_KEY };
+`;
+
+const bgutilsEntryPath = path.join(__dirname, 'temp-bgutils-entry.js');
+fs.writeFileSync(bgutilsEntryPath, bgutilsEntryContent);
+
+esbuild.build({
+  ...commonEsbuildOptions,
+  entryPoints: [bgutilsEntryPath],
   outfile: path.join(outputDir, 'bgutils-js/bgutils.bundle.min.js'),
   banner: { js: '// bgutils-js library - bundled with esbuild' }
 }).then(() => {
   console.log('✓ bgutils-js bundled successfully');
+  fs.unlinkSync(bgutilsEntryPath);
 }).catch((err) => {
   console.error('✗ bgutils-js bundling failed:', err);
+  try { fs.unlinkSync(bgutilsEntryPath); } catch (e) {}
   process.exit(1);
 });
+
+// Record the bundled versions next to the bundles.
+for (const name of ['googlevideo', 'bgutils-js', 'youtubei.js']) {
+  const { version } = JSON.parse(fs.readFileSync(path.join(nodeModules, name, 'package.json'), 'utf8'));
+  fs.writeFileSync(path.join(outputDir, name, 'versions.yml'), `---\nversion: ${version}\n`);
+}

@@ -4,7 +4,6 @@
 // Invidious is browser-sandboxed, so outbound fetches are routed through
 // SABRHelpers.fetchWithProxy (the Crystal /proxy route) instead of hitting
 // googlevideo directly.
-// Fixes the latent SABR_REDIRECT bug (write sabrStreamState.sabrUrl, not currentState.sabrUrl).
 // Exports window.setupSabrScheme.
 
 'use strict';
@@ -24,7 +23,7 @@
     return {
       itag: parseInt(parts[0], 10),
       lastModified: parts[1],
-      xtags: parts[2]
+      xtags: parts[2] && parts[2].length ? parts[2] : undefined
     };
   }
 
@@ -135,11 +134,12 @@
     return { sabrContexts: sabrContexts, unsentSabrContexts: unsentSabrContexts };
   }
 
-  function decodePart(part, decoder) {
-    if (!part.data.chunks.length) return undefined;
+  // data: googlevideo/ump CompositeBuffer handed to UmpReader's onPart callback.
+  function decodePart(data, decoder) {
+    if (!data.chunks.length) return undefined;
     try {
       var concatenateChunks = gv().utils.concatenateChunks;
-      var chunk = part.data.chunks.length === 1 ? part.data.chunks[0] : concatenateChunks(part.data.chunks);
+      var chunk = data.chunks.length === 1 ? data.chunks[0] : concatenateChunks(data.chunks);
       return decoder.decode(chunk);
     } catch (e) {
       return undefined;
@@ -179,7 +179,6 @@
     var ump = gv().ump;
     var utils = gv().utils;
     var UmpReader = ump.UmpReader;
-    var CompositeBuffer = ump.CompositeBuffer;
     var UMPPartId = protos.UMPPartId;
     var VideoPlaybackAbrRequest = protos.VideoPlaybackAbrRequest;
     var StreamProtectionStatus = protos.StreamProtectionStatus;
@@ -190,11 +189,9 @@
     var SabrContextUpdate = protos.SabrContextUpdate;
     var SabrContextWritePolicy = protos.SabrContextWritePolicy;
     var NextRequestPolicy = protos.NextRequestPolicy;
-    var PlaybackCookie = protos.PlaybackCookie;
     var ReloadPlaybackContext = protos.ReloadPlaybackContext;
 
     var response;
-    var chunkedDataBuffer = null;
     var responseDataChunks = [];
     var segmentComplete = false;
     var shouldRetry = false;
@@ -253,35 +250,20 @@
         }
       }
 
-      var sabrURL = new URL(currentState.sabrStreamState.sabrUrl);
-      sabrURL.searchParams.set('rn', String(currentState.sabrStreamState.requestNumber++));
-      // Stream through the Invidious proxy (CSP + CORS), honoring requestInit headers/body.
-      response = await proxyFetch(sabrURL.toString(), currentState.requestInit);
-
-      operationInputs.headersReceived({});
-
       var fmtId = formatIdFromString(operationInputs.formatIdString);
       var itag = fmtId.itag;
       var lastModified = fmtId.lastModified;
       var xtags = fmtId.xtags;
       var mediaHeaderId;
 
-      var reader = response.body.getReader();
-      var readObj = await reader.read();
-
-      while (!readObj.done && !currentState.abortStatus.finished) {
-        if (chunkedDataBuffer) {
-          chunkedDataBuffer.append(readObj.value);
-        } else {
-          chunkedDataBuffer = new CompositeBuffer([readObj.value]);
-        }
-
-        var remainingData = new UmpReader(chunkedDataBuffer).read(function (part) {
-          if (_dbg) { _dbgPartTypes[part.type] = (_dbgPartTypes[part.type] || 0) + 1; }
-          switch (part.type) {
+      var umpReader = new UmpReader({
+        onPart: function (partType, data) {
+          if (_dbg) { _dbgPartTypes[partType] = (_dbgPartTypes[partType] || 0) + 1; }
+          switch (partType) {
             case UMPPartId.STREAM_PROTECTION_STATUS: {
-              var streamProtectionStatus = decodePart(part, StreamProtectionStatus);
-              if (streamProtectionStatus && streamProtectionStatus.status === 3) {
+              var streamProtectionStatus = decodePart(data, StreamProtectionStatus);
+              if (!streamProtectionStatus) break;
+              if (streamProtectionStatus.status === 3) {
                 invalidPoToken = true;
                 if (streamProtectionStatus.maxRetries) {
                   currentState.attestationMaxRetries = streamProtectionStatus.maxRetries;
@@ -290,32 +272,26 @@
               break;
             }
             case UMPPartId.SABR_ERROR: {
-              var sabrError = decodePart(part, SabrError);
+              var sabrError = decodePart(data, SabrError);
               if (!sabrError) break;
               error = 'SABR Error: type: ' + sabrError.type + ', code: ' + sabrError.code;
               break;
             }
             case UMPPartId.SABR_REDIRECT: {
-              var sabrRedirect = decodePart(part, SabrRedirect);
-              if (!sabrRedirect) break;
-              // Match FreeTube EXACTLY: it writes currentState.sabrUrl (a field that does
-              // NOT exist on currentState), so the redirect URL is effectively ignored and
-              // every request keeps POSTing to the ORIGINAL server_abr_streaming_url
-              // (sabrStreamState.sabrUrl). Earlier we "fixed" this to follow the redirect,
-              // which pins the session to a specific CDN host (rrN---snXXX) that maintains a
-              // sequential cursor and returns 0 media when the client jumps/seeks. Following
-              // the redirect breaks seeking; ignoring it (as FreeTube does) keeps seeks working.
-              currentState.sabrUrl = sabrRedirect.url;
+              var sabrRedirect = decodePart(data, SabrRedirect);
+              if (!sabrRedirect || !sabrRedirect.url) break;
+              // Follow the redirect for all subsequent requests (FreeTube #9689).
+              currentState.sabrStreamState.sabrUrl = sabrRedirect.url;
               shouldRetry = true;
               break;
             }
             case UMPPartId.MEDIA_HEADER: {
               if (mediaHeaderId === undefined) {
-                var mediaHeader = decodePart(part, MediaHeader);
+                var mediaHeader = decodePart(data, MediaHeader);
                 if (!mediaHeader) break;
                 if (_dbg) {
                   try {
-                    _dbgHeaders.push({ itag: mediaHeader.formatId.itag, seq: mediaHeader.sequenceNumber, isInitSeg: !!mediaHeader.isInitSeg, start: mediaHeader.startMs, want: operationInputs.sequenceNumber });
+                    _dbgHeaders.push({ itag: mediaHeader.formatId.itag, seq: mediaHeader.segmentNum, isInitSeg: !!mediaHeader.isInitializationSegment, start: mediaHeader.startMs, want: operationInputs.sequenceNumber });
                   } catch (e) {}
                 }
                 if (
@@ -323,9 +299,9 @@
                   mediaHeader.formatId.lastModified === lastModified &&
                   mediaHeader.formatId.xtags === xtags
                 ) {
-                  if (operationInputs.isInit && mediaHeader.isInitSeg) {
+                  if (operationInputs.isInit && mediaHeader.isInitializationSegment) {
                     mediaHeaderId = mediaHeader.headerId;
-                  } else if (!operationInputs.isInit && mediaHeader.sequenceNumber === operationInputs.sequenceNumber) {
+                  } else if (!operationInputs.isInit && mediaHeader.segmentNum === operationInputs.sequenceNumber) {
                     mediaHeaderId = mediaHeader.headerId;
                   }
                 }
@@ -333,8 +309,8 @@
               break;
             }
             case UMPPartId.MEDIA: {
-              if (mediaHeaderId === part.data.getUint8(0)) {
-                var split = part.data.split(1);
+              if (mediaHeaderId === data.getUint8(0)) {
+                var split = data.split(1);
                 var remaining = split.remainingBuffer;
                 for (var k = 0; k < remaining.chunks.length; k++) {
                   responseDataChunks.push(remaining.chunks[k]);
@@ -343,7 +319,7 @@
               break;
             }
             case UMPPartId.MEDIA_END: {
-              if (mediaHeaderId === part.data.getUint8(0)) {
+              if (mediaHeaderId === data.getUint8(0)) {
                 segmentComplete = true;
                 currentState.abortStatus.finished = true;
                 currentState.abortController.abort();
@@ -351,11 +327,11 @@
               break;
             }
             case UMPPartId.NEXT_REQUEST_POLICY: {
-              var nextRequestPolicy = decodePart(part, NextRequestPolicy);
+              var nextRequestPolicy = decodePart(data, NextRequestPolicy);
               shouldRetry = true;
               shouldRetryDueToNextRequestPolicy = true;
               currentState.sabrStreamState.nextRequestPolicy = nextRequestPolicy;
-              currentState.abrRequest.streamerContext.playbackCookie = nextRequestPolicy?.playbackCookie ? PlaybackCookie.encode(nextRequestPolicy.playbackCookie).finish() : undefined;
+              currentState.abrRequest.streamerContext.playbackCookie = nextRequestPolicy?.playbackCookie;
               currentState.abrRequest.streamerContext.backoffTimeMs = nextRequestPolicy?.backoffTimeMs;
               break;
             }
@@ -363,7 +339,7 @@
               break;
             }
             case UMPPartId.SABR_CONTEXT_UPDATE: {
-              var sabrContextUpdate = decodePart(part, SabrContextUpdate);
+              var sabrContextUpdate = decodePart(data, SabrContextUpdate);
               if (_dbg) { try { console.log('[SABR_DBG] CTX_UPDATE', JSON.stringify({ decoded: !!sabrContextUpdate, type: sabrContextUpdate ? sabrContextUpdate.type : null, valueLen: sabrContextUpdate && sabrContextUpdate.value ? sabrContextUpdate.value.length : 0, sendByDefault: sabrContextUpdate ? sabrContextUpdate.sendByDefault : null, writePolicy: sabrContextUpdate ? sabrContextUpdate.writePolicy : null })); } catch (e) {} }
               if (!sabrContextUpdate) break;
               if (sabrContextUpdate.type !== undefined && sabrContextUpdate.value?.length) {
@@ -381,7 +357,7 @@
               break;
             }
             case UMPPartId.SABR_CONTEXT_SENDING_POLICY: {
-              var sabrContextSendingPolicy = decodePart(part, SabrContextSendingPolicy);
+              var sabrContextSendingPolicy = decodePart(data, SabrContextSendingPolicy);
               if (!sabrContextSendingPolicy) break;
               for (var i = 0; i < sabrContextSendingPolicy.startPolicy.length; i++) {
                 var startPolicy = sabrContextSendingPolicy.startPolicy[i];
@@ -404,7 +380,7 @@
               break;
             }
             case UMPPartId.RELOAD_PLAYER_RESPONSE: {
-              var reloadPlaybackContext = decodePart(part, ReloadPlaybackContext);
+              var reloadPlaybackContext = decodePart(data, ReloadPlaybackContext);
               if (!reloadPlaybackContext) break;
               currentState.sabrStreamState.playerReloadRequested = true;
               if (!currentState.abortController.signal.aborted) {
@@ -417,14 +393,22 @@
               break;
             }
           }
-        });
+        }
+      });
 
+      var sabrURL = new URL(currentState.sabrStreamState.sabrUrl);
+      sabrURL.searchParams.set('rn', String(currentState.sabrStreamState.requestNumber++));
+      // Stream through the Invidious proxy (CSP + CORS), honoring requestInit headers/body.
+      response = await proxyFetch(sabrURL.toString(), currentState.requestInit);
+
+      operationInputs.headersReceived({});
+
+      var reader = response.body.getReader();
+      var readObj = await reader.read();
+
+      while (!readObj.done && !currentState.abortStatus.finished) {
+        await umpReader.feed(readObj.value);
         if (!currentState.abortStatus.finished) {
-          if (remainingData) {
-            chunkedDataBuffer = remainingData.data;
-          } else {
-            chunkedDataBuffer = null;
-          }
           readObj = await reader.read();
         }
       }
@@ -581,7 +565,6 @@
     var utils = gv().utils;
     var base64ToU8 = utils.base64ToU8;
     var VideoPlaybackAbrRequest = protos.VideoPlaybackAbrRequest;
-    var PlaybackCookie = protos.PlaybackCookie;
     var EventEmitterLike = utils.EventEmitterLike;
 
     var eventEmitter = new EventEmitterLike();
@@ -680,18 +663,19 @@
           clientViewportHeight: getHeight(),
           clientViewportIsFlexible: false
         },
-        preferredAudioFormatIds: [audioFormatId],
-        preferredVideoFormatIds: [videoFormatId],
-        preferredSubtitleFormatIds: [],
-        selectedFormatIds: isInit ? [] : [audioFormatId, videoFormatId],
+        selectedAudioFormatIds: [audioFormatId],
+        selectedVideoFormatIds: [videoFormatId],
+        selectedCaptionFormatIds: [],
+        initializationFormatIds: isInit ? [] : [audioFormatId, videoFormatId],
         bufferedRanges: bufferedRanges,
         streamerContext: {
           poToken: poToken,
           clientInfo: clientInfo,
           sabrContexts: prepared.sabrContexts,
           unsentSabrContexts: prepared.unsentSabrContexts,
-          playbackCookie: sabrStreamState.nextRequestPolicy?.playbackCookie ? PlaybackCookie.encode(sabrStreamState.nextRequestPolicy.playbackCookie).finish() : undefined
+          playbackCookie: sabrStreamState.nextRequestPolicy?.playbackCookie
         },
+        ssapPlaybackInfos: [],
         field1000: [],
         videoPlaybackUstreamerConfig: videoPlaybackUstreamerConfig
       };

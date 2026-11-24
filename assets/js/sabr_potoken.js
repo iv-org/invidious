@@ -1,6 +1,7 @@
 /**
  * BotGuard Service - PoToken generation for SABR streaming
- * Ported from Kira project (https://github.com/LuanRT/kira)
+ * Ported from googlevideo's examples/sabr-shaka-example/src/BotguardService.ts
+ * (bgutils-js 4 API: BotGuardClient, parseChallengeData, WebPoMinter, createColdStartToken).
  * 
  * This module handles:
  * - BotGuard challenge fetching and processing
@@ -12,23 +13,17 @@
 'use strict';
 
 var BotguardService = (function() {
-    // WEB WAA request key. Note: the TV/living-room key 'Z1elNkAKLpSR3oPOUMSN' (used by
-    // youtube.com/tv) is rejected (null integrity token) when the Create/GenerateIT flow
-    // runs from our (non-youtube.com) origin, so we keep the WEB key which at least mints a
-    // token (though only StreamProtectionStatus=2/pending without a youtube.com origin).
+    // WEB WAA request key (same as googlevideo's example and bgutils-js).
     var WAA_REQUEST_KEY = 'O43z0dpjhgX20SCx4KAo';
-    // Use the API key from bgutils-js/Kira which has access to Web Anti-Abuse API
-    var GOOG_API_KEY = 'AIzaSyDyT5W0Jh49F30Pqqtyfdf7pDLFKLJoAnw';
+    // Web Anti-Abuse API key, exported by bgutils-js.
+    function googApiKey() {
+        return (typeof BG !== 'undefined' && BG.GOOG_API_KEY) || 'AIzaSyDyT5W0Jh49F30Pqqtyfdf7pDLFKLJoAnw';
+    }
     
     var botguardClient = null;
     var initializationPromise = null;
     var integrityTokenBasedMinter = null;
     var bgChallenge = null;
-    // InnerTube session context (client.visitorData, clientVersion, ...). Required to
-    // fetch a SESSION-BOUND BotGuard challenge from youtubei/v1/att/get. Without it the
-    // attestation is session-less and YouTube's SABR server marks the PO token
-    // StreamProtectionStatus=2 (pending) -> media stops at ~60s and seeks return no media.
-    var sessionContext = null;
 
     /**
      * Build URL for BotGuard API calls (using YouTube endpoint, not googleapis.com)
@@ -86,8 +81,7 @@ var BotguardService = (function() {
      * Initialize the BotGuard client
      * @returns {Promise<Object|undefined>}
      */
-    async function init(context) {
-        if (context) sessionContext = context;
+    async function init() {
         if (initializationPromise) {
             return await initializationPromise;
         }
@@ -125,23 +119,18 @@ var BotguardService = (function() {
         }
 
         try {
-            // TV / living-room (Cobalt) attestation via the generic WAA 'Create' endpoint
-            // with the TV request key. youtube.com/tv uses this key and its GenerateIT
-            // returns a VALID integrity token (index 0) - unlike the strict WEB att/get flow
-            // which is rejected (null) from a non-youtube origin. Testing whether the lenient
-            // TV attestation yields a StreamProtectionStatus=1 token from our origin.
             var challengeResponse = await fetchWithProxy(buildURL('Create', true), {
                 method: 'POST',
                 headers: {
                     'content-type': 'application/json+protobuf',
-                    'x-goog-api-key': GOOG_API_KEY,
+                    'x-goog-api-key': googApiKey(),
                     'x-user-agent': 'grpc-web-javascript/0.1'
                 },
                 body: JSON.stringify([WAA_REQUEST_KEY])
             });
 
             var challengeResponseData = await challengeResponse.json();
-            bgChallenge = BG.Challenge.parseChallengeData(challengeResponseData);
+            bgChallenge = BG.parseChallengeData(challengeResponseData);
 
             if (!bgChallenge) {
                 console.error('[BotguardService]', 'Failed to parse challenge data (Create)');
@@ -167,7 +156,7 @@ var BotguardService = (function() {
 
             // Create the BotGuard client
             botguardClient = await BG.BotGuardClient.create({
-                globalObj: globalThis,
+                globalObject: globalThis,
                 globalName: bgChallenge.globalName,
                 program: bgChallenge.program
             });
@@ -181,19 +170,14 @@ var BotguardService = (function() {
                     method: 'POST',
                     headers: {
                         'content-type': 'application/json+protobuf',
-                        'x-goog-api-key': GOOG_API_KEY,
+                        'x-goog-api-key': googApiKey(),
                         'x-user-agent': 'grpc-web-javascript/0.1'
                     },
                     body: JSON.stringify([WAA_REQUEST_KEY, botguardResponse])
                 });
 
                 var integrityTokenResponseData = await integrityTokenResponse.json();
-                // The att/get flow's GenerateIT returns e.g. [null, ttl, null, "<token>"]
-                // (token not always at index 0). Take the first string element.
-                var integrityToken = Array.isArray(integrityTokenResponseData)
-                    ? integrityTokenResponseData.find(function (x) { return typeof x === 'string' && x.length > 0; })
-                    : integrityTokenResponseData;
-                console.info('[BotguardService]', 'GenerateIT response shape:', JSON.stringify(integrityTokenResponseData.map(function (x) { return typeof x === 'string' ? 'str(' + x.length + ')' : x; })));
+                var integrityToken = Array.isArray(integrityTokenResponseData) ? integrityTokenResponseData[0] : undefined;
 
                 if (!integrityToken) {
                     console.error('[BotguardService]', 'Could not get integrity token. Interpreter Hash:', bgChallenge.interpreterHash);
@@ -220,7 +204,7 @@ var BotguardService = (function() {
             console.error('[BotguardService]', 'bgutils-js not loaded');
             return '';
         }
-        return BG.PoToken.generateColdStartToken(contentBinding);
+        return BG.createColdStartToken(contentBinding);
     }
 
     /**
@@ -268,8 +252,7 @@ var BotguardService = (function() {
      * Reinitialize BotGuard
      * @returns {Promise<Object|undefined>}
      */
-    async function reinit(context) {
-        if (context) sessionContext = context;
+    async function reinit() {
         if (initializationPromise) {
             return initializationPromise;
         }

@@ -9,21 +9,14 @@ require "colorize"
 
 SABR_DEPENDENCIES = {
   "shaka-player" => {
-    "version" => "5.1.10",
+    "version" => "5.3.6",
     "files"   => [
-      {"url" => "https://cdn.jsdelivr.net/npm/shaka-player@5.1.10/dist/shaka-player.ui.js", "dest" => "shaka-player.ui.js"},
-      {"url" => "https://cdn.jsdelivr.net/npm/shaka-player@5.1.10/dist/controls.css", "dest" => "controls.css"},
+      {"url" => "https://cdn.jsdelivr.net/npm/shaka-player@5.3.6/dist/shaka-player.ui.js", "dest" => "shaka-player.ui.js"},
+      {"url" => "https://cdn.jsdelivr.net/npm/shaka-player@5.3.6/dist/controls.css", "dest" => "controls.css"},
     ],
   },
-  # googlevideo + bgutils-js are bundled locally from npm via scripts/bundle-sabr-libs.js
-  # (no esm.sh fetch). youtubei.js is also bundled locally from npm, but we keep a
-  # pre-built jsDelivr copy as the esbuild entry for reproducibility.
-  "youtubei.js" => {
-    "version" => "17.0.1",
-    "files"   => [
-      {"url" => "https://cdn.jsdelivr.net/npm/youtubei.js@17.0.1/bundle/browser.js", "dest" => "youtubei.bundle.min.js"},
-    ],
-  },
+  # googlevideo, bgutils-js and youtubei.js are bundled locally from npm via
+  # scripts/bundle-sabr-libs.js (`npm run bundle-sabr`).
 }
 
 def update_versions_yaml(dep_name : String, version : String)
@@ -124,7 +117,7 @@ if File.exists?(shaka_css_path)
   puts "#{"Patched".colorize(:green)} Shaka CSS to use system fonts"
 end
 
-# Note: googlevideo and bgutils-js are now bundled locally from npm via
+# Note: googlevideo, bgutils-js and youtubei.js are bundled locally from npm via
 # scripts/bundle-sabr-libs.js (esbuild, platform: 'browser', with
 # process.env.NODE_ENV defined to 'production'). No esm.sh fetch or
 # post-patching is required.
