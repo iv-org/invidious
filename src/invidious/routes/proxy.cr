@@ -140,10 +140,11 @@ module Invidious::Routes::Proxy
       end
     end
 
-    # Copy user-agent if not already set
-    if !request_headers["User-Agent"]? && env.request.headers["User-Agent"]?
-      request_headers["User-Agent"] = env.request.headers["User-Agent"]
-    end
+    # Use Invidious' own User-Agent unless the client set one explicitly, instead
+    # of forwarding the viewer's browser User-Agent. For a Firefox User-Agent,
+    # www.youtube.com answers with more than 16 KB of headers, which exceeds
+    # HTTP::MAX_HEADERS_SIZE and fails with "Unexpected end of http response".
+    request_headers["User-Agent"] ||= YT_DEFAULT_USER_AGENT
 
     # Set origin/referer for YouTube and Google domains (only if not already set)
     if target_host.includes?("youtube") || target_host.includes?("googlevideo") || target_host.includes?("googleapis")
