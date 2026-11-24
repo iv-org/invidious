@@ -112,7 +112,8 @@ module Invidious::Videos
     vr_mode = vr_mode == 1
     save_player_pos = save_player_pos == 1
 
-    if CONFIG.disabled?("dash") && quality == "dash"
+    # SABR streams through the /proxy route, so it is disabled along with DASH
+    if CONFIG.disabled?("dash") && {"dash", "sabr"}.includes?(quality)
       quality = "high"
     end
 
