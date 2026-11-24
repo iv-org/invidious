@@ -23,7 +23,14 @@
   // Public WEB player API key used for the inner player request.
   var PLAYER_API_KEY = 'AIzaSyDCU8hByM-4DrUqRUYnGn-3llEO78bcxq8';
 
+  // Onesie is on the player-load path, so never let a stalled request block it.
+  var REQUEST_TIMEOUT_MS = 15000;
+
   function gv() { return window.googlevideo; }
+
+  function timeoutSignal(ms) {
+    return (typeof AbortSignal !== 'undefined' && AbortSignal.timeout) ? AbortSignal.timeout(ms) : undefined;
+  }
 
   // Concatenate a UMP part's chunks (googlevideo/ump CompositeBuffer) into a single Uint8Array.
   function partBytes(data) {
@@ -34,20 +41,26 @@
 
   // Ensure we have a googlevideo redirector base (e.g. https://rrX---snXXX.googlevideo.com).
   // Reuses the value preloaded into localStorage by SABRPlayer.initInnertube.
+  // Fetch the redirector URL and cache it (trimmed) in localStorage. Returns '' on failure.
+  async function fetchRedirectorUrl() {
+    var resp = await SABRHelpers.fetchWithProxy(
+      'https://redirector.googlevideo.com/initplayback?source=youtube&itag=0&pvi=0&pai=0&owc=yes&cmo:sensitive_content=yes&alr=yes&id=' + Math.round(Math.random() * 1e5),
+      { method: 'GET', signal: timeoutSignal(REQUEST_TIMEOUT_MS) }
+    );
+    if (!resp.ok) return '';
+    var url = (await resp.text()).trim();
+    if (url.indexOf('https://') !== 0) return '';
+    try { localStorage.setItem(SABRHelpers.REDIRECTOR_STORAGE_KEY, url); } catch (e) {}
+    return url;
+  }
+
   async function getRedirectorBase() {
     var stored = null;
-    try { stored = localStorage.getItem(SABRHelpers.REDIRECTOR_STORAGE_KEY); } catch (e) {}
-    if (!stored || !stored.startsWith('https://')) {
-      var resp = await SABRHelpers.fetchWithProxy(
-        'https://redirector.googlevideo.com/initplayback?source=youtube&itag=0&pvi=0&pai=0&owc=yes&cmo:sensitive_content=yes&alr=yes&id=' + Math.round(Math.random() * 1e5),
-        { method: 'GET' }
-      );
-      stored = (await resp.text()).trim();
-      if (stored.startsWith('https://')) {
-        try { localStorage.setItem(SABRHelpers.REDIRECTOR_STORAGE_KEY, stored); } catch (e) {}
-      }
+    try { stored = (localStorage.getItem(SABRHelpers.REDIRECTOR_STORAGE_KEY) || '').trim(); } catch (e) {}
+    if (!stored || stored.indexOf('https://') !== 0) {
+      stored = await fetchRedirectorUrl();
     }
-    if (!stored.startsWith('https://')) throw new Error('Invalid redirector response');
+    if (!stored) throw new Error('Invalid redirector response');
     return stored.split('/initplayback')[0];
   }
 
@@ -158,8 +171,10 @@
     var resp = await SABRHelpers.fetchWithProxy(url, {
       method: 'POST',
       headers: { 'accept': '*/*', 'content-type': 'application/octet-stream' },
-      body: prepared.body
+      body: prepared.body,
+      signal: timeoutSignal(REQUEST_TIMEOUT_MS)
     });
+    if (!resp.ok || !resp.body) throw new Error('Onesie request failed with HTTP status ' + resp.status);
     // Parse the UMP stream, keeping the ONESIE_DATA that follows the player-response header.
     var lastHeader = null;
     var header = null;
@@ -216,4 +231,5 @@
   }
 
   window.fetchOnesiePlayerResponse = fetchOnesiePlayerResponse;
+  window.fetchSabrRedirectorUrl = fetchRedirectorUrl;
 })();

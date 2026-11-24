@@ -20,178 +20,147 @@ var BotguardService = (function() {
         return (typeof BG !== 'undefined' && BG.GOOG_API_KEY) || 'AIzaSyDyT5W0Jh49F30Pqqtyfdf7pDLFKLJoAnw';
     }
     
+    var JNN_BASE_URL = 'https://www.youtube.com/api/jnn/v1/';
+
+    // State published only by a setup attempt that completed and was not disposed.
     var botguardClient = null;
-    var initializationPromise = null;
     var integrityTokenBasedMinter = null;
     var bgChallenge = null;
+    var initializationPromise = null;
+    // Bumped by dispose(): a setup attempt started under an older generation must
+    // not publish its client/minter (it shuts its own client down instead).
+    var generation = 0;
 
     /**
-     * Build URL for BotGuard API calls (using YouTube endpoint, not googleapis.com)
+     * Call the BotGuard (WAA) API through the Invidious proxy. YouTube's own
+     * endpoint is used instead of jnn-pa.googleapis.com.
      * @param {string} action - 'Create' or 'GenerateIT'
-     * @param {boolean} useTrustedEnv
-     * @returns {string}
-     */
-    function buildURL(action, useTrustedEnv) {
-        // Use YouTube's endpoint instead of googleapis.com to avoid CORS issues
-        var baseUrl = 'https://www.youtube.com/api/jnn/v1/';
-        return baseUrl + action;
-    }
-
-    /**
-     * Fetch with proxy support for CORS compliance
-     * All external URLs must go through the Invidious proxy to avoid CORS issues
-     * @param {string} url - URL to fetch
-     * @param {Object} options - Fetch options
+     * @param {Array} payload
      * @returns {Promise<Response>}
      */
-    async function fetchWithProxy(url, options) {
-        var parsedUrl = new URL(url);
-        var host = parsedUrl.host;
-        
-        // Build proxy URL with __host and __path parameters
-        // We use __path instead of putting the path in the URL to avoid issues with special chars like $
-        var proxyUrl = new URL('/proxy', window.location.origin);
-        proxyUrl.searchParams.set('__host', host);
-        proxyUrl.searchParams.set('__path', parsedUrl.pathname);
-        
-        // Copy original query parameters
-        parsedUrl.searchParams.forEach(function(value, key) {
-            proxyUrl.searchParams.set(key, value);
-        });
-        
-        // Pass custom headers through __headers parameter
-        if (options && options.headers) {
-            var headersArray = [];
-            for (var key in options.headers) {
-                if (options.headers.hasOwnProperty(key)) {
-                    headersArray.push([key, options.headers[key]]);
-                }
-            }
-            proxyUrl.searchParams.set('__headers', JSON.stringify(headersArray));
-        }
-        
-        // Make the proxied request (headers are passed through __headers param)
-        return fetch(proxyUrl.toString(), {
-            method: options?.method || 'GET',
-            body: options?.body
+    function fetchJnn(action, payload) {
+        return SABRHelpers.fetchWithProxy(JNN_BASE_URL + action, {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json+protobuf',
+                'x-goog-api-key': googApiKey(),
+                'x-user-agent': 'grpc-web-javascript/0.1'
+            },
+            body: JSON.stringify(payload)
         });
     }
 
     /**
-     * Initialize the BotGuard client
+     * Run the BotGuard interpreter in the global scope, like a classic script.
+     * Trust boundary: this is YouTube-supplied code and it runs with the page's
+     * privileges. It is only used on the WEB/Onesie debug path
+     * (window.SABR_PLAYER_CLIENT = 'WEB'). Indirect eval keeps it out of inline
+     * <script> tags, so the CSP needs 'unsafe-eval' but not 'unsafe-inline'.
+     * @param {string} code
+     */
+    function runInterpreter(code) {
+        (0, eval)(code);
+    }
+
+    function disposedError() {
+        var err = new Error('BotGuard was disposed during initialization');
+        err.disposed = true;
+        return err;
+    }
+
+    /**
+     * One BotGuard initialization attempt. Resolves with the acquired resources,
+     * or releases them and rejects.
+     * @param {number} gen - generation the attempt belongs to
+     * @returns {Promise<{client: Object, minter: Object, challenge: Object}>}
+     */
+    async function attemptInit(gen) {
+        function checkCurrent() {
+            if (gen !== generation) throw disposedError();
+        }
+
+        var client = null;
+        try {
+            var challengeResponse = await fetchJnn('Create', [WAA_REQUEST_KEY]);
+            var challenge = BG.parseChallengeData(await challengeResponse.json());
+            if (!challenge) throw new Error('Failed to parse challenge data (Create)');
+
+            var interpreterJavascript = challenge.interpreterJavascript &&
+                challenge.interpreterJavascript.privateDoNotAccessOrElseSafeScriptWrappedValue;
+            if (!interpreterJavascript) {
+                throw new Error('Could not get interpreter javascript. Interpreter Hash: ' + challenge.interpreterHash);
+            }
+
+            checkCurrent();
+            runInterpreter(interpreterJavascript);
+
+            client = await BG.BotGuardClient.create({
+                globalObject: globalThis,
+                globalName: challenge.globalName,
+                program: challenge.program
+            });
+            checkCurrent();
+
+            // Generate the integrity token and create the WebPO minter.
+            var webPoSignalOutput = [];
+            var botguardResponse = await client.snapshot({ webPoSignalOutput: webPoSignalOutput });
+            checkCurrent();
+
+            var integrityTokenResponse = await fetchJnn('GenerateIT', [WAA_REQUEST_KEY, botguardResponse]);
+            var integrityTokenResponseData = await integrityTokenResponse.json();
+            var integrityToken = Array.isArray(integrityTokenResponseData) ? integrityTokenResponseData[0] : undefined;
+            if (!integrityToken) {
+                throw new Error('Could not get integrity token. Interpreter Hash: ' + challenge.interpreterHash);
+            }
+
+            var minter = await BG.WebPoMinter.create({ integrityToken: integrityToken }, webPoSignalOutput);
+            checkCurrent();
+
+            return { client: client, minter: minter, challenge: challenge };
+        } catch (error) {
+            if (client) {
+                try { client.shutdown(); } catch (e) { /* ignore */ }
+            }
+            throw error;
+        }
+    }
+
+    /**
+     * Start (or join) an initialization attempt.
+     * @returns {Promise<Object|undefined>} the BotGuard client, or undefined on failure
+     */
+    function setup() {
+        if (initializationPromise) return initializationPromise;
+
+        if (typeof BG === 'undefined') {
+            console.error('[BotguardService]', 'bgutils-js not loaded');
+            return Promise.resolve(undefined);
+        }
+
+        var gen = generation;
+        var promise = attemptInit(gen).then(function (result) {
+            botguardClient = result.client;
+            integrityTokenBasedMinter = result.minter;
+            bgChallenge = result.challenge;
+            return botguardClient;
+        }, function (error) {
+            if (!error.disposed) console.error('[BotguardService]', 'Error initializing BotGuard:', error);
+            return undefined;
+        });
+        initializationPromise = promise;
+        promise.finally(function () {
+            if (initializationPromise === promise) initializationPromise = null;
+        });
+        return promise;
+    }
+
+    /**
+     * Initialize the BotGuard client (no-op when it is already initialized).
      * @returns {Promise<Object|undefined>}
      */
     async function init() {
-        if (initializationPromise) {
-            return await initializationPromise;
-        }
+        if (isInitialized()) return botguardClient;
         return setup();
-    }
-
-    /**
-     * Internal setup function
-     * @returns {Promise<Object|undefined>}
-     */
-    async function setup() {
-        if (initializationPromise) {
-            return await initializationPromise;
-        }
-
-        initializationPromise = _initBotguard();
-
-        try {
-            botguardClient = await initializationPromise;
-            return botguardClient;
-        } finally {
-            initializationPromise = null;
-        }
-    }
-
-    /**
-     * Internal BotGuard initialization
-     * @returns {Promise<Object|undefined>}
-     */
-    async function _initBotguard() {
-        // Check if BG (bgutils-js) is available
-        if (typeof BG === 'undefined') {
-            console.error('[BotguardService]', 'bgutils-js not loaded');
-            return undefined;
-        }
-
-        try {
-            var challengeResponse = await fetchWithProxy(buildURL('Create', true), {
-                method: 'POST',
-                headers: {
-                    'content-type': 'application/json+protobuf',
-                    'x-goog-api-key': googApiKey(),
-                    'x-user-agent': 'grpc-web-javascript/0.1'
-                },
-                body: JSON.stringify([WAA_REQUEST_KEY])
-            });
-
-            var challengeResponseData = await challengeResponse.json();
-            bgChallenge = BG.parseChallengeData(challengeResponseData);
-
-            if (!bgChallenge) {
-                console.error('[BotguardService]', 'Failed to parse challenge data (Create)');
-                return undefined;
-            }
-
-            var interpreterJavascript = bgChallenge.interpreterJavascript &&
-                bgChallenge.interpreterJavascript.privateDoNotAccessOrElseSafeScriptWrappedValue;
-
-            if (!interpreterJavascript) {
-                console.error('[BotguardService]', 'Could not get interpreter javascript. Interpreter Hash:', bgChallenge.interpreterHash);
-                return undefined;
-            }
-
-            // Inject the interpreter script if not already present
-            if (!document.getElementById(bgChallenge.interpreterHash)) {
-                var script = document.createElement('script');
-                script.type = 'text/javascript';
-                script.id = bgChallenge.interpreterHash;
-                script.textContent = interpreterJavascript;
-                document.head.appendChild(script);
-            }
-
-            // Create the BotGuard client
-            botguardClient = await BG.BotGuardClient.create({
-                globalObject: globalThis,
-                globalName: bgChallenge.globalName,
-                program: bgChallenge.program
-            });
-
-            // Generate integrity token and create WebPO minter
-            if (bgChallenge) {
-                var webPoSignalOutput = [];
-                var botguardResponse = await botguardClient.snapshot({ webPoSignalOutput: webPoSignalOutput });
-
-                var integrityTokenResponse = await fetchWithProxy(buildURL('GenerateIT', true), {
-                    method: 'POST',
-                    headers: {
-                        'content-type': 'application/json+protobuf',
-                        'x-goog-api-key': googApiKey(),
-                        'x-user-agent': 'grpc-web-javascript/0.1'
-                    },
-                    body: JSON.stringify([WAA_REQUEST_KEY, botguardResponse])
-                });
-
-                var integrityTokenResponseData = await integrityTokenResponse.json();
-                var integrityToken = Array.isArray(integrityTokenResponseData) ? integrityTokenResponseData[0] : undefined;
-
-                if (!integrityToken) {
-                    console.error('[BotguardService]', 'Could not get integrity token. Interpreter Hash:', bgChallenge.interpreterHash);
-                    return botguardClient;
-                }
-
-                integrityTokenBasedMinter = await BG.WebPoMinter.create({ integrityToken: integrityToken }, webPoSignalOutput);
-            }
-
-            return botguardClient;
-        } catch (error) {
-            console.error('[BotguardService]', 'Error initializing BotGuard:', error);
-            return undefined;
-        }
     }
 
     /**
@@ -228,24 +197,22 @@ var BotguardService = (function() {
     }
 
     /**
-     * Dispose of the BotGuard client
+     * Dispose of the BotGuard client. Also invalidates a pending initialization:
+     * it will release its own resources instead of publishing them.
      */
     function dispose() {
-        if (botguardClient && bgChallenge) {
+        generation++;
+        initializationPromise = null;
+        if (botguardClient) {
             try {
                 botguardClient.shutdown();
             } catch (e) {
                 // Ignore shutdown errors
             }
-            botguardClient = null;
-            integrityTokenBasedMinter = null;
-
-            var script = document.getElementById(bgChallenge.interpreterHash);
-            if (script) {
-                script.remove();
-            }
-            bgChallenge = null;
         }
+        botguardClient = null;
+        integrityTokenBasedMinter = null;
+        bgChallenge = null;
     }
 
     /**
