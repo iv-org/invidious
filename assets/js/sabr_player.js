@@ -6,8 +6,8 @@
  * - Registers FreeTube's sabr: networking scheme (sabr_scheme_plugin.js)
  * - Drives Shaka 5 via the application/sabr+json manifest parser
  *
- * PoToken is minted browser-side via bgutils-js BotGuard and proxied through
- * the Invidious /proxy route for CSP compliance.
+ * PoToken is minted browser-side via bgutils-js BotGuard (BotGuard/WAA requests
+ * are proxied through the Invidious /proxy route for CSP compliance).
  */
 
 'use strict';
@@ -35,10 +35,13 @@ var SABRPlayer = (function () {
   // returns the full ustreamerConfig. Onesie to be revisited separately.
   var BYPASS_ONESIE = false;
 
-  // bg-helper-server /generate endpoint. Mints an ATTESTED (StreamProtectionStatus=1)
-  // PO token server-side, where jsdom presents a youtube.com origin. In-browser BotGuard
-  // (Invidious origin) can only get status 2 (pending), so it's used only as a fallback.
-  var BG_HELPER_URL = 'http://127.0.0.1:4416/generate';
+  // InnerTube client used for the /player request. WebPO tokens minted from a
+  // non-youtube.com origin are never attested on the WEB client, and SABR then stops
+  // serving media after ~60s. googlevideo's sabr-shaka-example requests the player
+  // response with the VISIONOS client instead, which doesn't need an attested token.
+  // Overridable for debugging with window.SABR_PLAYER_CLIENT = 'WEB' (Onesie path).
+  var PLAYER_CLIENT = 'VISIONOS';
+  function playerClient() { return window.SABR_PLAYER_CLIENT || PLAYER_CLIENT; }
 
   // State
   var player = null;
@@ -115,12 +118,9 @@ var SABRPlayer = (function () {
 
       // Set up Platform.shim.eval for URL deciphering (browser bundle lacks Jinter).
       if (typeof Platform !== 'undefined' && Platform.shim) {
-        Platform.shim.eval = async function (data, env) {
-          var properties = [];
-          if (env.n) properties.push('n: exportedVars.nFunction("' + env.n + '")');
-          if (env.sig) properties.push('sig: exportedVars.sigFunction("' + env.sig + '")');
-          var code = data.output + '\nreturn { ' + properties.join(', ') + ' }';
-          return new Function(code)();
+        // youtubei.js >= 18 appends its own `return { n, sig }` to the player script output.
+        Platform.shim.eval = async function (data) {
+          return new Function(data.output)();
         };
         console.info('[SABRPlayer]', 'Platform.shim.eval configured for URL deciphering');
       } else {
@@ -130,15 +130,16 @@ var SABRPlayer = (function () {
       innertube = await Innertube.create({
         fetch: SABRHelpers.fetchWithProxy,
         retrieve_player: true,
-        generate_session_locally: true
+        // A locally generated visitorData is rejected on the VISIONOS client
+        // ("Sign in to confirm you're not a bot"); fetch a real session instead.
+        generate_session_locally: false
       });
 
-      // NOTE: the in-browser BotguardService is NOT eagerly initialized anymore. The PO
-      // token is minted by the bg-helper-server (/generate), where jsdom presents a
-      // youtube.com origin and the token actually attests. In-browser BotGuard could only
-      // ever produce a StreamProtectionStatus=2 (pending) token AND fired a redundant
-      // GenerateIT request on every video. It remains only as an on-demand fallback
-      // (mintContentWebPO -> BotguardService.reinit) if the helper is unreachable.
+      // Warm up BotGuard in the background so the WebPO token is ready by the time
+      // the player response arrives (only the WEB client needs one).
+      if (playerClient() === 'WEB') {
+        BotguardService.init().catch(function (e) { console.warn('[SABRPlayer]', 'BotGuard init failed', e); });
+      }
 
       // Preload the redirector URL.
       try {
@@ -195,62 +196,27 @@ var SABRPlayer = (function () {
     }
   }
 
+  // Mint a content-bound (video id) WebPO token in the browser with bgutils-js,
+  // like googlevideo's sabr-shaka-example. A cold-start token is kept as a fallback
+  // until BotGuard has produced an integrity token.
   async function mintContentWebPO() {
     if (!playbackWebPoTokenContentBinding || playbackWebPoTokenCreationLock) return;
     playbackWebPoTokenCreationLock = true;
     try {
       coldStartToken = BotguardService.mintColdStartToken(playbackWebPoTokenContentBinding);
-
-      // Prefer the bg-helper-server: it mints an ATTESTED token (youtube.com-origin jsdom).
-      // The token is bound to our session's visitorData, so we send that.
-      var sessionCtx = innertube && innertube.session && innertube.session.context;
-      var visitorData = sessionCtx && sessionCtx.client && sessionCtx.client.visitorData;
-      if (visitorData) {
-        var helperToken = await fetchHelperPoToken(visitorData, currentVideoId, sessionCtx);
-        if (helperToken) {
-          playbackWebPoToken = helperToken;
-          console.info('[SABRPlayer]', 'WebPO token from bg-helper (attested):', helperToken.substring(0, 30) + '...');
-          return;
-        }
-      }
-
-      // Fallback: in-browser BotGuard (only StreamProtectionStatus=2/pending, no youtube.com origin).
-      console.warn('[SABRPlayer]', 'bg-helper unavailable, falling back to in-browser BotGuard (unattested)');
-      if (!BotguardService.isInitialized()) {
-        await BotguardService.reinit(innertube && innertube.session && innertube.session.context);
-      }
+      // Non-WEB clients (VISIONOS) don't need an attested WebPO token; a cold start token is enough.
+      if (playerClient() !== 'WEB') return;
+      if (!BotguardService.isInitialized()) await BotguardService.reinit();
       if (BotguardService.isInitialized()) {
         playbackWebPoToken = await BotguardService.mintWebPoToken(decodeURIComponent(playbackWebPoTokenContentBinding));
-        console.info('[SABRPlayer]', 'WebPO token created (in-browser):', playbackWebPoToken ? playbackWebPoToken.substring(0, 30) + '...' : 'null');
+        console.info('[SABRPlayer]', 'WebPO token created for', playbackWebPoTokenContentBinding);
       } else {
-        console.warn('[SABRPlayer]', 'BotGuard still not initialized after reinit');
+        console.warn('[SABRPlayer]', 'BotGuard not initialized, using cold start token');
       }
     } catch (err) {
       console.error('[SABRPlayer]', 'Error minting WebPO token', err);
     } finally {
       playbackWebPoTokenCreationLock = false;
-    }
-  }
-
-  // Fetch an attested PO token from the bg-helper-server, bound to the video id
-  // (content binding, like FreeTube). The full InnerTube session context is sent so the
-  // helper's att/get challenge is session-bound to our visitorData.
-  async function fetchHelperPoToken(visitorData, videoId, context) {
-    try {
-      var resp = await fetch(BG_HELPER_URL, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ visitorData: visitorData, videoId: videoId, context: context })
-      });
-      if (!resp.ok) {
-        console.warn('[SABRPlayer]', 'bg-helper /generate returned', resp.status);
-        return null;
-      }
-      var data = await resp.json();
-      return data && data.poToken ? data.poToken : null;
-    } catch (err) {
-      console.warn('[SABRPlayer]', 'bg-helper /generate fetch failed', err && err.message);
-      return null;
     }
   }
 
@@ -260,24 +226,9 @@ var SABRPlayer = (function () {
   async function mintFreshPoToken() {
     if (!currentVideoId) return null;
     try {
-      // Re-mint via the bg-helper (attested), same as the initial mint. The in-browser
-      // BotguardService can't attest (no youtube.com origin) so it must NOT be used here —
-      // doing so threw BGError: PMD:Undefined and never satisfied the attestation.
-      var sessionCtx = innertube && innertube.session && innertube.session.context;
-      var visitorData = sessionCtx && sessionCtx.client && sessionCtx.client.visitorData;
-      var token = null;
-      if (visitorData) {
-        token = await fetchHelperPoToken(visitorData, currentVideoId, sessionCtx);
-      }
-      if (!token) {
-        // Fallback: in-browser (unattested) only if the helper is unreachable.
-        if (!BotguardService.isInitialized()) {
-          await BotguardService.reinit(sessionCtx);
-        }
-        if (BotguardService.isInitialized()) {
-          token = await BotguardService.mintWebPoToken(currentVideoId);
-        }
-      }
+      await BotguardService.reinit();
+      if (!BotguardService.isInitialized()) return null;
+      var token = await BotguardService.mintWebPoToken(currentVideoId);
       if (token) {
         playbackWebPoToken = token;
         console.info('[SABRPlayer]', 'Re-minted WebPO token after attestation request');
@@ -726,7 +677,22 @@ var SABRPlayer = (function () {
       // plain getInfo() if the onesie path is unavailable. Media still flows
       // over SABR (sabr_scheme_plugin.js) either way.
       var videoInfo;
-      try {
+      var cpn = SABRHelpers.generateRandomString(16);
+      if (playerClient() !== 'WEB') {
+        var directResponse = await innertube.actions.execute('/player', {
+          videoId: videoId,
+          contentCheckOk: true,
+          racyCheckOk: true,
+          client: playerClient(),
+          playbackContext: {
+            contentPlaybackContext: {
+              signatureTimestamp: innertube.session.player && innertube.session.player.signature_timestamp
+            }
+          }
+        });
+        videoInfo = new window.YT.VideoInfo([directResponse], innertube.actions, cpn);
+        console.info('[SABRPlayer]', 'Player response fetched with the ' + playerClient() + ' client');
+      } else try {
         if (BYPASS_ONESIE) {
           throw new Error('Onesie bypassed (BYPASS_ONESIE) - using plain WEB getInfo');
         }
@@ -737,7 +703,7 @@ var SABRPlayer = (function () {
         videoInfo = new window.YT.VideoInfo(
           [{ success: true, status_code: 200, data: playerResponse }],
           innertube.actions,
-          SABRHelpers.generateRandomString(16)
+          cpn
         );
         console.info('[SABRPlayer]', 'Player response fetched via Onesie (WEB)');
       } catch (onesieErr) {
