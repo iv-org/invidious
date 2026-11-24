@@ -1134,7 +1134,7 @@ private module Extractors
     # that needs age verification, forcing the user to rephrase
     # their search since there is no workaround for this.
     private def self.requires_age_verification(raw_items)
-      background_promo_renderer = raw_items.try &.[0].dig?("backgroundPromoRenderer")
+      background_promo_renderer = raw_items.first?.try &.dig?("backgroundPromoRenderer")
       background_promo_renderer_title = background_promo_renderer.try &.dig?("title", "runs", 0, "text").try &.as_s
 
       if title = background_promo_renderer_title
