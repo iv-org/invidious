@@ -409,21 +409,25 @@ var SABRPlayer = (function () {
   // Reload the live manifest after a critical error (or a failed recovery load), up to
   // MAX_LIVE_RECOVERIES times. `generation` ties the attempt to the load it recovers:
   // it stops once another video load or dispose() replaced it.
-  function recoverLive(generation) {
+  // `resume` is decided once, on the first attempt: a failed reload leaves the video
+  // paused (Shaka clears its source), so retries must not read that state again.
+  function recoverLive(generation, resume) {
     if (generation !== loadGeneration || !player) return;
     if (!isLive || !liveManifest || liveRecoveries >= MAX_LIVE_RECOVERIES) return;
     liveRecoveries++;
     console.warn('[SABRPlayer]', 'Reloading live stream after a critical error (attempt ' + liveRecoveries + '/' + MAX_LIVE_RECOVERIES + ')');
     // Resume playback after the reload unless the user had paused: the autoplay
     // choice only matters while playback hasn't started yet.
-    var resume = !!videoElement && (!videoElement.paused || (!hasPlayed && !!(currentLoadOptions && currentLoadOptions.autoplay)));
+    if (resume === undefined) {
+      resume = !!videoElement && (!videoElement.paused || (!hasPlayed && !!(currentLoadOptions && currentLoadOptions.autoplay)));
+    }
     player.load(liveManifest.uri, undefined, liveManifest.mimeType).then(function () {
       if (resume && generation === loadGeneration && videoElement) videoElement.play().catch(function () {});
     }, function (e) {
       // LOAD_INTERRUPTED: another load (or unload) replaced this one; nothing to retry.
       if (e && e.code === shaka.util.Error.Code.LOAD_INTERRUPTED) return;
       console.error('[SABRPlayer]', 'Live stream reload failed', e);
-      recoverLive(generation);
+      recoverLive(generation, resume);
     });
   }
 
