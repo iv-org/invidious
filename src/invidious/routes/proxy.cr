@@ -179,6 +179,10 @@ module Invidious::Routes::Proxy
     # mid-stream (backoff / reload / seek).
     begin
       client = HTTP::Client.new(target_url.host.not_nil!, tls: true)
+      # Use the configured IP family (`force_resolve`), defaulting to IPv4 like
+      # make_client does for the rest of the backend.
+      client.family = CONFIG.force_resolve
+      client.family = Socket::Family::INET if client.family == Socket::Family::UNSPEC
       # Route the googlevideo/youtubei egress through the configured proxy when set
       # (HTTP CONNECT or SOCKS5, e.g. to bypass a YouTube IP block on the instance's
       # own address). Uses the same dispatcher as the rest of the codebase.
