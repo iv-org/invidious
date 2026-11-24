@@ -130,12 +130,17 @@ var SABRPlayer = (function () {
       p.textContent = line;
       errorDiv.appendChild(p);
     });
-    var linkP = document.createElement('p');
-    var link = document.createElement('a');
-    link.href = dashFallbackUrl();
-    link.textContent = messages.tryDash;
-    linkP.appendChild(link);
-    errorDiv.appendChild(linkP);
+    // Only offer the DASH player when it can actually play the video (the server
+    // redirects DASH requests back to SABR when it has no stream of its own).
+    var container = document.getElementById('sabr-player-container');
+    if (!container || container.dataset.dashAvailable !== 'false') {
+      var linkP = document.createElement('p');
+      var link = document.createElement('a');
+      link.href = dashFallbackUrl();
+      link.textContent = messages.tryDash;
+      linkP.appendChild(link);
+      errorDiv.appendChild(linkP);
+    }
     return errorDiv;
   }
 

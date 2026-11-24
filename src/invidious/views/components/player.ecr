@@ -8,6 +8,7 @@
     <div id="sabr-player-container" class="sabr-player-container"
          data-video-id="<%= HTML.escape(video.id) %>"
          data-user-agent="<%= HTML.escape(YT_DEFAULT_USER_AGENT) %>"
+         data-dash-available="<%= video.dash_playable? %>"
          data-autoplay="<%= params.autoplay %>"
          data-video-loop="<%= params.video_loop %>"
          data-listen="<%= params.listen %>"

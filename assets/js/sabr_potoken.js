@@ -139,6 +139,12 @@ var BotguardService = (function() {
 
         var gen = generation;
         var promise = attemptInit(gen).then(function (result) {
+            // dispose() may have run after attemptInit's last check: never publish
+            // a stale attempt, release its client instead.
+            if (gen !== generation) {
+                try { result.client.shutdown(); } catch (e) { /* ignore */ }
+                return undefined;
+            }
             botguardClient = result.client;
             integrityTokenBasedMinter = result.minter;
             bgChallenge = result.challenge;

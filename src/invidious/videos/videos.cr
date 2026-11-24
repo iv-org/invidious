@@ -214,7 +214,14 @@ struct Video
   # True when the backend has no stream at all for a playable, non-live video
   # (e.g. without Invidious companion): only the SABR player can play it.
   def no_backend_streams? : Bool
-    self.reason.nil? && !self.live_now && self.fmt_stream.empty? && self.adaptive_fmts.empty?
+    return false if !self.reason.nil? || !self.fmt_stream.empty? || !self.adaptive_fmts.empty?
+    # A livestream is played from its HLS manifest
+    return !self.live_now || self.hls_manifest_url.nil?
+  end
+
+  # Whether the classic DASH player can play this video on this instance
+  def dash_playable? : Bool
+    !CONFIG.disabled?("dash") && !self.no_backend_streams?
   end
 
   def music : Array(VideoMusic)

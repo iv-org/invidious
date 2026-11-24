@@ -31,6 +31,14 @@ end
 class HTTP::Client
   property family : Socket::Family = Socket::Family::UNSPEC
 
+  # Forbid opening a new connection once the current one is closed. Used when
+  # the connection is a tunnel through an outbound proxy: HTTP::Client retries
+  # a failed request once on a fresh *direct* socket, which would bypass the
+  # proxy and expose the instance's IP address.
+  def disable_reconnect : Nil
+    @reconnect = false
+  end
+
   private def io
     io = @io
     return io if io

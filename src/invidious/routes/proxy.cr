@@ -243,7 +243,11 @@ module Invidious::Routes::Proxy
       # Route the googlevideo/youtubei egress through the configured proxy when set
       # (HTTP CONNECT or SOCKS5, e.g. to bypass a YouTube IP block on the instance's
       # own address). Uses the same dispatcher as the rest of the codebase.
-      configure_proxy(client) if CONFIG.http_proxy
+      if CONFIG.http_proxy
+        configure_proxy(client)
+        # Never let HTTP::Client's retry fall back to a direct connection
+        client.disable_reconnect
+      end
       client.connect_timeout = 10.seconds
       client.read_timeout = 30.seconds
       # Don't let HTTP::Client advertise its own Accept-Encoding; we forward the

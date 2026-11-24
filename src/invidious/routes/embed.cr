@@ -169,6 +169,11 @@ module Invidious::Routes::Embed
     video_streams = video.video_streams
     audio_streams = video.audio_streams
 
+    # No backend stream and SABR is disabled with DASH: nothing can play the video.
+    if video.no_backend_streams? && CONFIG.disabled?("dash") && !params.raw
+      return Errors.error_template(404, InfoException.new("This video can't be played on this instance: no video stream is available."))
+    end
+
     # Without any stream from the backend (e.g. no Invidious companion), only
     # the SABR player can play the video, as it fetches the streams itself.
     # Raw requests need a backend stream, they are handled below.
@@ -180,7 +185,10 @@ module Invidious::Routes::Embed
 
     if audio_streams.empty? && !video.live_now && video.reason.nil?
       if params.quality == "dash"
+        # Explicit quality: removing it would fall back to a saved "dash" preference
+        # and redirect here again.
         env.params.query.delete_all("quality")
+        env.params.query["quality"] = "medium"
         return env.redirect "/embed/#{id}?#{env.params.query}"
       elsif params.listen && params.quality != "sabr"
         # The SABR player fetches its own audio streams

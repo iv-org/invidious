@@ -113,6 +113,11 @@ module Invidious::Routes::Watch
     video_streams = video.video_streams
     audio_streams = video.audio_streams
 
+    # No backend stream and SABR is disabled with DASH: nothing can play the video.
+    if video.no_backend_streams? && CONFIG.disabled?("dash") && !params.raw
+      return Errors.error_template(404, InfoException.new("This video can't be played on this instance: no video stream is available."))
+    end
+
     # Without any stream from the backend (e.g. no Invidious companion), only
     # the SABR player can play the video, as it fetches the streams itself.
     # Raw requests need a backend stream, they are handled below.
