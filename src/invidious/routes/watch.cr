@@ -119,6 +119,8 @@ module Invidious::Routes::Watch
     if video.no_backend_streams? && params.quality != "sabr" && !params.raw && !CONFIG.disabled?("dash")
       env.params.query.delete_all("quality")
       env.params.query["quality"] = "sabr"
+      # `listen` was removed from the query above, keep an explicit audio-only choice
+      env.params.query["listen"] = "1" if params.listen
       return env.redirect "/watch?#{env.params.query}"
     end
 

@@ -65,6 +65,7 @@ var SABRPlayer = (function () {
   var loadedVideoId = null;
   var loadedDuration = 0;
   var savePositionsEnabled = false;
+  var hasPlayed = false;         // playback started at least once for the current load
   var loadGeneration = 0;        // bumped by every loadVideo()/dispose(), to drop stale async work
   var isLive = false;
   var innertube = null;
@@ -368,6 +369,7 @@ var SABRPlayer = (function () {
     videoElement.volume = getSavedVolume();
     videoElement.addEventListener('volumechange', function () { saveVolume(videoElement.volume); });
     videoElement.addEventListener('playing', function () {
+      hasPlayed = true;
       player.configure('abr.restrictions.maxHeight', Infinity);
       hideSpinner();
     });
@@ -412,8 +414,9 @@ var SABRPlayer = (function () {
     if (!isLive || !liveManifest || liveRecoveries >= MAX_LIVE_RECOVERIES) return;
     liveRecoveries++;
     console.warn('[SABRPlayer]', 'Reloading live stream after a critical error (attempt ' + liveRecoveries + '/' + MAX_LIVE_RECOVERIES + ')');
-    // Resume playback after the reload unless the user had paused.
-    var resume = !!videoElement && (!videoElement.paused || !!(currentLoadOptions && currentLoadOptions.autoplay));
+    // Resume playback after the reload unless the user had paused: the autoplay
+    // choice only matters while playback hasn't started yet.
+    var resume = !!videoElement && (!videoElement.paused || (!hasPlayed && !!(currentLoadOptions && currentLoadOptions.autoplay)));
     player.load(liveManifest.uri, undefined, liveManifest.mimeType).then(function () {
       if (resume && generation === loadGeneration && videoElement) videoElement.play().catch(function () {});
     }, function (e) {
@@ -871,6 +874,7 @@ var SABRPlayer = (function () {
   async function loadVideo(videoId, containerElement, options) {
     options = options || {};
     var generation = ++loadGeneration;
+    hasPlayed = false;
     // Positions are only saved against media that finished loading: record the
     // current one, then stop saving until this load completes.
     saveCurrentPosition();
@@ -1111,6 +1115,7 @@ var SABRPlayer = (function () {
 
   async function dispose() {
     loadGeneration++;
+    hasPlayed = false;
     saveCurrentPosition();
     stopPositionSaving();
     loadedVideoId = null;

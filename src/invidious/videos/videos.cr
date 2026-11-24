@@ -198,7 +198,16 @@ struct Video
   # upcoming premiere/livestream (whose metadata and countdown are displayed).
   def unplayable_reason : String?
     reason = self.reason
-    return if reason.nil? || reason.starts_with?("Premieres") || !self.premiere_timestamp.nil?
+    return if reason.nil? || reason.starts_with?("Premieres")
+
+    # Only an upcoming premiere/livestream (or one that hasn't started yet) is
+    # exempt: an ended broadcast also has a start timestamp, and its playback
+    # errors must not be hidden.
+    if timestamp = self.premiere_timestamp
+      status = info.dig?("playabilityStatus", "status").try &.as_s?
+      return if timestamp > Time.utc || status == "LIVE_STREAM_OFFLINE"
+    end
+
     return reason
   end
 
