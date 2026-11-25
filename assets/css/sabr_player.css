@@ -318,3 +318,37 @@
     border-color: transparent transparent transparent rgba(255, 255, 255, 0.9);
     filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.6));
 }
+
+/* Embeds: video title over the top of the player before playback and while paused */
+.sabr-embed-title {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 5;
+    padding: 0.6em 1em 1.5em;
+    background: linear-gradient(rgba(0, 0, 0, 0.7), transparent);
+    pointer-events: none;
+}
+
+.sabr-embed-title h1 {
+    margin: 0;
+    font-size: 1.4em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sabr-embed-title a {
+    color: #fff;
+    text-decoration: none;
+    pointer-events: auto;
+}
+
+.sabr-embed-title a:hover {
+    text-decoration: underline;
+}
+
+.sabr-embed-title-hidden {
+    display: none;
+}

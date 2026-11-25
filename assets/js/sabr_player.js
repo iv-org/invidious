@@ -429,7 +429,9 @@ var SABRPlayer = (function () {
         enableKeyboardPlaybackControls: false,
         // Right-click menu like youtube.com's, with its "Stats for nerds" equivalent:
         // Shaka's statistics panel, limited to what is meaningful for YouTube streams.
-        customContextMenu: true,
+        // Mobile keeps Shaka's touch defaults (no custom menu, double tap to seek,
+        // fullscreen on rotation).
+        customContextMenu: !ui.isMobile(),
         // Shaka's default items (loop, picture in picture, copy/save the video frame)
         // plus the statistics panel.
         contextMenuElements: ['statistics', 'loop', 'picture_in_picture', 'copy_video_frame', 'save_video_frame'],
@@ -440,7 +442,17 @@ var SABRPlayer = (function () {
           'bytesDownloaded', 'stallsDetected', 'gapsJumped'
         ]
       });
+
+      // Change the volume with the mouse wheel over the volume controls, like the
+      // classic player (5% per step).
+      shakaContainer.addEventListener('wheel', function (e) {
+        if (!e.target.closest || !e.target.closest('.shaka-volume-bar-container, .shaka-mute-button')) return;
+        e.preventDefault();
+        var step = e.deltaY < 0 ? 0.05 : (e.deltaY > 0 ? -0.05 : 0);
+        videoElement.volume = Math.min(1, Math.max(0, videoElement.volume + step));
+      }, { passive: false });
     }
+    applyCaptionStyle(getCaptionStyle());
 
     return player;
   }
@@ -949,6 +961,78 @@ var SABRPlayer = (function () {
 
   // Global keyboard shortcuts (YouTube-style). Shaka's built-in shortcuts only fire when a
   // control is focused, so we add a page-level handler. Ignored while typing in a field.
+  // --- Shortcuts shared with the classic player (player.js) ---
+
+  var PLAYBACK_RATES = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
+  // Caption style, changed with = / - (size), w (background) and o (text opacity),
+  // and kept per browser like video.js's text track settings.
+  var CAPTION_STYLE_KEY = 'sabr_caption_style';
+  var CAPTION_SCALES = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 3, 4];
+  var CAPTION_BACKGROUND_OPACITIES = [0, 0.5, 1];
+  var CAPTION_TEXT_OPACITIES = [0.5, 1];
+
+  function getCaptionStyle() {
+    try { return JSON.parse(localStorage.getItem(CAPTION_STYLE_KEY)) || {}; } catch (e) { return {}; }
+  }
+
+  function applyCaptionStyle(style) {
+    if (!player) return;
+    var config = {};
+    if (isFinite(style.fontScaleFactor)) config.fontScaleFactor = style.fontScaleFactor;
+    if (isFinite(style.backgroundOpacity)) {
+      config.backgroundColor = 'black';
+      config.backgroundOpacity = style.backgroundOpacity;
+    }
+    if (isFinite(style.fontOpacity)) config.fontOpacity = style.fontOpacity;
+    player.configure({ textDisplayer: config });
+  }
+
+  function changeCaptionStyle(key, values, defaultValue, step, wrap) {
+    var style = getCaptionStyle();
+    var index = values.indexOf(isFinite(style[key]) ? style[key] : defaultValue);
+    if (index === -1) index = values.indexOf(defaultValue);
+    index = wrap ? (index + step + values.length) % values.length : Math.min(values.length - 1, Math.max(0, index + step));
+    style[key] = values[index];
+    try { localStorage.setItem(CAPTION_STYLE_KEY, JSON.stringify(style)); } catch (e) {}
+    applyCaptionStyle(style);
+  }
+
+  // c: hide the shown captions, or show the last hidden (or the first) track.
+  var lastTextTrackId = null;
+  function toggleCaptions() {
+    var tracks = player.getTextTracks();
+    var active = tracks.find(function (t) { return t.active; });
+    if (active) {
+      lastTextTrackId = active.id;
+      player.selectTextTrack(null);
+      return;
+    }
+    var track = tracks.find(function (t) { return t.id === lastTextTrackId; }) || tracks[0];
+    if (track) player.selectTextTrack(track);
+  }
+
+  function changePlaybackRate(steps) {
+    var current = player.getPlaybackRate();
+    var index = PLAYBACK_RATES.indexOf(current);
+    if (index === -1) {
+      // Not a listed rate: start from the closest one
+      index = PLAYBACK_RATES.reduce(function (best, rate, i) {
+        return Math.abs(rate - current) < Math.abs(PLAYBACK_RATES[best] - current) ? i : best;
+      }, 0);
+    }
+    var rate = PLAYBACK_RATES[Math.min(PLAYBACK_RATES.length - 1, Math.max(0, index + steps))];
+    if (rate !== current) player.trickPlay(rate);
+  }
+
+  // , and . : pause and step one frame, at the video's frame rate when known.
+  function stepFrame(direction) {
+    videoElement.pause();
+    var variant = player.getVariantTracks().find(function (t) { return t.active; });
+    var fps = (variant && variant.frameRate) || 29.97;
+    var duration = isFinite(videoElement.duration) ? videoElement.duration : Infinity;
+    videoElement.currentTime = Math.min(duration, Math.max(0, videoElement.currentTime + direction / fps));
+  }
+
   function handleKeydown(e) {
     if (!player || !videoElement) return;
     if (e.ctrlKey || e.altKey || e.metaKey) return;
@@ -988,6 +1072,60 @@ var SABRPlayer = (function () {
       case 'f':
         if (document.fullscreenElement) { document.exitFullscreen(); }
         else if (shakaContainer && shakaContainer.requestFullscreen) { shakaContainer.requestFullscreen(); }
+        break;
+      case 'c':
+        toggleCaptions();
+        break;
+      case 'N':
+      case 'MediaTrackNext':
+        // next_video() is defined by watch.js (the next video of the page)
+        if (typeof window.next_video === 'function') window.next_video();
+        else handled = false;
+        break;
+      case ',':
+        stepFrame(-1);
+        break;
+      case '.':
+        stepFrame(1);
+        break;
+      case '>':
+        changePlaybackRate(1);
+        break;
+      case '<':
+        changePlaybackRate(-1);
+        break;
+      case '=':
+        changeCaptionStyle('fontScaleFactor', CAPTION_SCALES, 1, 1, false);
+        break;
+      case '-':
+        changeCaptionStyle('fontScaleFactor', CAPTION_SCALES, 1, -1, false);
+        break;
+      case 'w':
+        changeCaptionStyle('backgroundOpacity', CAPTION_BACKGROUND_OPACITIES, 0, 1, true);
+        break;
+      case 'o':
+        changeCaptionStyle('fontOpacity', CAPTION_TEXT_OPACITIES, 1, 1, true);
+        break;
+      // Media keys
+      case 'MediaPlayPause':
+        if (videoElement.paused) videoElement.play().catch(function () {}); else videoElement.pause();
+        break;
+      case 'MediaPlay':
+        videoElement.play().catch(function () {});
+        break;
+      case 'MediaPause':
+        videoElement.pause();
+        break;
+      case 'MediaStop':
+        videoElement.pause();
+        videoElement.currentTime = 0;
+        break;
+      case 'MediaFastForward':
+        videoElement.currentTime = Math.min(dur, videoElement.currentTime + 5);
+        break;
+      case 'MediaRewind':
+      case 'MediaTrackPrevious':
+        videoElement.currentTime = Math.max(0, videoElement.currentTime - 5);
         break;
       default:
         // number keys 0-9 -> seek to that fraction of the video
