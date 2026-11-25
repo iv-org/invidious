@@ -23,6 +23,8 @@
     var listeners = []; // { type, fn }
     var pendingTime = null;
     var pendingPlay = false;
+    // Seek deferred until the media has data (see attach), replaced by a newer seek
+    var deferredSeek = null;
 
     var player = {
         on: function (type, fn) {
@@ -43,6 +45,10 @@
             if (time === undefined) return video ? video.currentTime : (pendingTime || 0);
             var seconds = Number(time);
             if (!isFinite(seconds)) return player;
+            if (deferredSeek) {
+                video.removeEventListener('loadeddata', deferredSeek);
+                deferredSeek = null;
+            }
             if (video) video.currentTime = seconds;
             else pendingTime = seconds;
             return player;
@@ -171,6 +177,7 @@
     }
 
     window.SABRPagePlayer = {
+        hasPendingPlay: function () { return pendingPlay; },
         attach: function (videoElement) {
             if (!videoElement || video === videoElement) return;
             video = videoElement;
@@ -186,7 +193,11 @@
                 if (video.readyState >= 2) {
                     video.currentTime = seekTo;
                 } else {
-                    video.addEventListener('loadeddata', function () { video.currentTime = seekTo; }, { once: true });
+                    deferredSeek = function () {
+                        deferredSeek = null;
+                        video.currentTime = seekTo;
+                    };
+                    video.addEventListener('loadeddata', deferredSeek, { once: true });
                 }
             }
             if (pendingPlay) {

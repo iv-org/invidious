@@ -38,8 +38,13 @@ var BotguardService = (function() {
      * @param {Array} payload
      * @returns {Promise<Response>}
      */
+    // Deadline of a BotGuard request, body included: a stalled request must fail so
+    // the cleanup runs and a later call can retry.
+    var JNN_TIMEOUT_MS = 20000;
+
     function fetchJnn(action, payload) {
         return SABRHelpers.fetchWithProxy(JNN_BASE_URL + action, {
+            signal: AbortSignal.timeout(JNN_TIMEOUT_MS),
             method: 'POST',
             headers: {
                 'content-type': 'application/json+protobuf',

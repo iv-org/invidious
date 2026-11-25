@@ -184,6 +184,19 @@ if File.exists?(shaka_css_path)
   puts "#{"Patched".colorize(:green)} Shaka CSS to use system fonts"
 end
 
+# Post-process: drop Shaka's source map reference (the map isn't shipped, so
+# DevTools would report a failed load). Done after the SHA-256 check, which
+# covers the raw download.
+shaka_js_path = "#{sabr_dir}/shaka-player/shaka-player.ui.js"
+if File.exists?(shaka_js_path)
+  js_content = File.read(shaka_js_path)
+  stripped = js_content.gsub(/\n\/\/# sourceMappingURL=[^\n]*\s*\z/, "\n")
+  if stripped != js_content
+    File.write(shaka_js_path, stripped)
+    puts "#{"Patched".colorize(:green)} Shaka JS to remove the source map reference"
+  end
+end
+
 # Note: googlevideo, bgutils-js and youtubei.js are bundled locally from npm via
 # scripts/bundle-sabr-libs.js (esbuild, platform: 'browser', with
 # process.env.NODE_ENV defined to 'production'). No esm.sh fetch or

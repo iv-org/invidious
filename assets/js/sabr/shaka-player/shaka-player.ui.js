@@ -2610,4 +2610,3 @@ for(h=g.next();!h.done;h=g.next())h=h.value,h.language&&c.add(h.language),h.labe
 e.size>1&&!a.isSubMenuOpened)}function WW(a,b){return XW.includes(b)?a.localization.resolve("VIDEO_MAIN"):UW.includes(b)?a.localization.resolve("VIDEO_SIGN"):b}function VW(a,b,c){return c?c:(c=PT(b,a.localization,a.controls.h.preferIntlDisplayNames))?c:a.localization.resolve("UNRECOGNIZED_LANGUAGE")+" ("+b+")"}J("shaka.ui.VideoTypeSelection",SW);var XW=["","main"],UW=["sign","public.accessibility.sign-language-interpretation"];function YW(){}YW.prototype.create=function(a,b){return new SW(a,b)};
 nT("video_type",new YW);CS("video_type",new YW);}).call(exportTo,innerGlobal,innerGlobal,undefined);if(typeof exports!="undefined")for(var k in exportTo.shaka)exports[k]=exportTo.shaka[k];else if(typeof define=="function"&&define.amd)define(function(){return exportTo.shaka});else innerGlobal.shaka=exportTo.shaka})();
 
-//# sourceMappingURL=shaka-player.ui.map

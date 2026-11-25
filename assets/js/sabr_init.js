@@ -41,6 +41,7 @@
             volume: isFinite(volume) ? Math.min(Math.max(volume, 0), 100) / 100 : undefined,
             volumePreference: isFinite(parseInt(data.volumePreference, 10)) ? Math.min(Math.max(parseInt(data.volumePreference, 10), 0), 100) / 100 : undefined,
             controls: data.controls !== 'false',
+            livestreamsDisabled: data.livestreamsDisabled === 'true',
             preferredCaptions: parsePreferredCaptions(data.preferredCaptions),
             savePlayerPos: data.savePlayerPos === 'true',
             codecPreference: data.qualitySabr || 'vp9',
@@ -96,7 +97,13 @@
                 resolve();
             }
             button.addEventListener('click', release, { once: true });
-            // The page scripts' player.play() (e.g. a timestamp link) also starts loading
+            // The page scripts' player.play() (e.g. a timestamp link) also starts
+            // loading, including a call made before this gate existed.
+            if (window.SABRPagePlayer && SABRPagePlayer.hasPendingPlay()) {
+                options.autoplay = true;
+                resolve();
+                return;
+            }
             window.SABRReleaseStartGate = release;
             container.appendChild(button);
         });

@@ -323,7 +323,9 @@ var SABRPlayer = (function () {
   async function mintFreshPoToken() {
     var videoId = currentVideoId;
     var generation = loadGeneration;
-    if (!videoId) return null;
+    // BotGuard only runs on the WEB/Onesie path. Other clients (VISIONOS) don't use
+    // an attested token: the scheme handles a null token as a failed renewal.
+    if (!videoId || playerClient() !== 'WEB') return null;
     try {
       await BotguardService.reinit();
       if (!BotguardService.isInitialized()) return null;
@@ -442,15 +444,6 @@ var SABRPlayer = (function () {
           'bytesDownloaded', 'stallsDetected', 'gapsJumped'
         ]
       });
-
-      // Change the volume with the mouse wheel over the volume controls, like the
-      // classic player (5% per step).
-      shakaContainer.addEventListener('wheel', function (e) {
-        if (!e.target.closest || !e.target.closest('.shaka-volume-bar-container, .shaka-mute-button')) return;
-        e.preventDefault();
-        var step = e.deltaY < 0 ? 0.05 : (e.deltaY > 0 ? -0.05 : 0);
-        videoElement.volume = Math.min(1, Math.max(0, videoElement.volume + step));
-      }, { passive: false });
     }
     applyCaptionStyle(getCaptionStyle());
 
@@ -535,6 +528,8 @@ var SABRPlayer = (function () {
             !MIME_TYPE_CODECS_REGEX.test(format.mime_type || ''))) {
           format = null;
         }
+        // A variant that already has an audio group is left as it is
+        if (format && /[:,]AUDIO=/.test(lines[i])) format = null;
         if (format) {
           var sampleRate = itag === 139 && format.itag !== 139 ? ITAG_139_SAMPLE_RATE : format.audio_sample_rate.toFixed(0);
           var codec = format.mime_type.match(MIME_TYPE_CODECS_REGEX)[1];
@@ -613,9 +608,11 @@ var SABRPlayer = (function () {
     var tracks = player.getTextTracks();
     for (var i = 0; i < preferred.length; i++) {
       var wanted = preferred[i].toLowerCase();
+      // Name or full language tag first (pt-BR), then the base language (pt)
       var track = tracks.find(function (t) {
-        return (t.label || '').toLowerCase() === wanted ||
-          (t.language || '').toLowerCase().split('-')[0] === wanted;
+        return (t.label || '').toLowerCase() === wanted || (t.language || '').toLowerCase() === wanted;
+      }) || tracks.find(function (t) {
+        return (t.language || '').toLowerCase().split('-')[0] === wanted;
       });
       if (track) {
         // Shaka 5 shows a selected text track (there is no separate visibility toggle)
@@ -881,27 +878,6 @@ var SABRPlayer = (function () {
     return out;
   }
 
-  function buildChapters(videoInfo) {
-    var out = [];
-    var ch = videoInfo.chapters;
-    if (!ch || !ch.get) return out;
-    try {
-      var list = ch.get();
-      if (!list || !list.length) return out;
-      for (var i = 0; i < list.length; i++) {
-        var c = list[i];
-        out.push({
-          title: c.title || '',
-          startSeconds: c.start || 0,
-          endSeconds: c.end || (i + 1 < list.length ? (list[i + 1].start || 0) : 0)
-        });
-      }
-    } catch (e) {
-      // chapters not available for this video - harmless
-    }
-    return out;
-  }
-
   // Build a data:application/sabr+json manifest URI from a youtube.js VideoInfo.
   // Port of FreeTube's Watch.js#createLocalSabrManifest.
   function buildSabrManifest(videoInfo, poToken, clientInfo) {
@@ -944,7 +920,8 @@ var SABRPlayer = (function () {
       formats: formats,
       captions: buildCaptions(videoInfo),
       storyboards: buildStoryboards(videoInfo),
-      chapters: buildChapters(videoInfo)
+      // youtubei.js's VideoInfo doesn't expose chapters (yet): none are sent
+      chapters: []
     };
 
     return 'data:' + window.MANIFEST_TYPE_SABR + ',' + encodeURIComponent(JSON.stringify(sabrManifest));
@@ -1278,6 +1255,9 @@ var SABRPlayer = (function () {
     if (!savePositionsEnabled) clearPlaybackPositions();
 
     if (videoId !== currentVideoId) { reloadCount = 0; liveRecoveries = 0; }
+    // The previous live manifest belongs to the previous load: no recovery of it
+    // while this one loads.
+    liveManifest = null;
     currentVideoId = videoId;
     currentLoadOptions = options;
     playbackWebPoToken = null;
@@ -1300,11 +1280,15 @@ var SABRPlayer = (function () {
       // Network init chain: Innertube -> (WEB only) Onesie config -> PoToken.
       var netPromise = (async function () {
         if (!innertube) {
-          innertube = await initInnertube();
-          if (!innertube) throw new Error('Failed to initialize Innertube');
+          var session = await initInnertube();
+          if (!session) throw new Error('Failed to initialize Innertube');
+          // A newer load took over meanwhile: it uses its own session, don't replace it
+          if (generation !== loadGeneration) throw new Error('Load superseded');
+          innertube = session;
         }
         // The Onesie client config is only used by the WEB/Onesie path.
-        if (playerClient() === 'WEB' && !clientConfig) {
+        // fetchOnesieConfig() reuses a cached config until it expires.
+        if (playerClient() === 'WEB') {
           await fetchOnesieConfig();
         }
         // Mint a content-bound PoToken before getInfo so streaming_data includes
@@ -1370,6 +1354,11 @@ var SABRPlayer = (function () {
       // DVR replay keeps the requested start position.
       isLive = !!(basicInfo.is_live || basicInfo.is_post_live_dvr);
       var startAtLiveEdge = !!basicInfo.is_live;
+      // disable_proxy: livestreams. The SABR player plays lives through /proxy, so
+      // like the classic player, it doesn't play them on such an instance.
+      if (isLive && options.livestreamsDisabled) {
+        throw new Error('Livestreams are disabled on this instance.');
+      }
       isActiveLive = startAtLiveEdge;
 
       var streamingData = videoInfo.streaming_data;

@@ -284,10 +284,23 @@
           shouldReloadDueToBackoffLoop = true;
         } else {
           currentState.eventEmitter.emit('backoff-requested', { backoffMs: currentBackoffTimeMs });
-          await abortableDelay(currentBackoffTimeMs, currentState.abortController.signal);
+          // Restart the request timer before waiting, so the admitted wait and the
+          // request after it both fit in a full timeout (the check above compares
+          // the waits with the whole timeout).
           currentState.timeoutController?.resetTimeoutOnce();
+          await abortableDelay(currentBackoffTimeMs, currentState.abortController.signal);
           currentState.cumulativeBackOffTimeMs += currentBackoffTimeMs;
           currentState.cumulativeBackOffRequested += 1;
+
+          // Another request may have asked for a reload while this one waited
+          if (currentState.sabrStreamState.playerReloadRequested) {
+            throw createRecoverableNetworkError(ShakaError.Code.OPERATION_ABORTED, operationInputs.uri, operationInputs.requestType);
+          }
+          // ...or renewed the PO token / playback cookie: rebuild the body from the
+          // current stream state, like the URL read below.
+          currentState.abrRequest.streamerContext.poToken = currentState.sabrStreamState.poToken;
+          currentState.abrRequest.streamerContext.playbackCookie = currentState.sabrStreamState.nextRequestPolicy?.playbackCookie;
+          currentState.requestInit.body = VideoPlaybackAbrRequest.encode(currentState.abrRequest).finish();
         }
       }
       if (shouldReloadDueToBackoffLoop || currentState.cumulativeRetryDueToNextRequestPolicy >= 100) {

@@ -18,6 +18,7 @@
          data-volume-preference="<%= preferences.volume %>"
          data-controls="<%= params.controls %>"
          data-preload="<%= params.preload %>"
+         data-livestreams-disabled="<%= CONFIG.disabled?("livestreams") %>"
          data-poster="<%= HTML.escape(thumbnail) %>"
          data-preferred-captions="<%= HTML.escape(params.preferred_captions.reject(&.empty?).to_json) %>"
          data-speed="<%= params.speed %>"
