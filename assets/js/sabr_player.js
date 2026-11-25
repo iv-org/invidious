@@ -426,7 +426,17 @@ var SABRPlayer = (function () {
         // Playback shortcuts are owned by handleKeydown (page-wide). Shaka's own would
         // also fire while a control is focused and toggle e.g. mute twice. Shaka still
         // handles its menu/focus navigation (Tab, Escape).
-        enableKeyboardPlaybackControls: false
+        enableKeyboardPlaybackControls: false,
+        // Right-click menu like youtube.com's, with its "Stats for nerds" equivalent:
+        // Shaka's statistics panel, limited to what is meaningful for YouTube streams.
+        customContextMenu: true,
+        contextMenuElements: ['statistics', 'loop', 'picture_in_picture'],
+        statisticsList: [
+          'width', 'height', 'currentCodecs', 'streamBandwidth', 'estimatedBandwidth',
+          'droppedFrames', 'decodedFrames', 'corruptedFrames', 'bufferingTime',
+          'liveLatency', 'loadLatency', 'timeToFirstFrame', 'playTime', 'pauseTime',
+          'bytesDownloaded', 'stallsDetected', 'gapsJumped'
+        ]
       });
     }
 
