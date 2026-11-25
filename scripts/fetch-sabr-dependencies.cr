@@ -4,33 +4,30 @@ require "json"
 require "digest/sha256"
 require "option_parser"
 require "colorize"
+require "file_utils"
 
 # Script to fetch SABR (Server ABR) dependencies
-# These are pre-built bundles for client-side SABR streaming support
 #
-# Each file is checked against a pinned SHA-256 digest of the raw download
-# (before any post-processing), so a modified CDN response is rejected. When
-# bumping a version, update the digests (they match the files of the npm
-# package tarball).
+# Shaka Player is downloaded at build time from the npm registry, like the
+# video.js dependencies (scripts/fetch-player-dependencies.cr), and isn't
+# committed. The package tarball is checked against a pinned SHA-256 digest
+# before anything is extracted from it. When bumping the version, update the
+# digest: `curl -s https://registry.npmjs.org/shaka-player/-/shaka-player-X.Y.Z.tgz | sha256sum`.
+#
+# googlevideo, bgutils-js and youtubei.js are bundled locally from npm via
+# scripts/bundle-sabr-libs.js (`npm run bundle-sabr`) and committed: their npm
+# packages aren't browser bundles, and building them needs Node.
 
 SABR_DEPENDENCIES = {
   "shaka-player" => {
     "version" => "5.3.6",
-    "files"   => [
-      {
-        "url"    => "https://cdn.jsdelivr.net/npm/shaka-player@5.3.6/dist/shaka-player.ui.js",
-        "dest"   => "shaka-player.ui.js",
-        "sha256" => "54e0fa5abe72fc97f540a70ac3978e42f22d67a2b23963fdda57183a4a77ab11",
-      },
-      {
-        "url"    => "https://cdn.jsdelivr.net/npm/shaka-player@5.3.6/dist/controls.css",
-        "dest"   => "controls.css",
-        "sha256" => "72bd7fac17c47814bef30053c2e21ec65061fd224c70055cadd83e7fb2c1eefa",
-      },
-    ],
+    "sha256"  => "0405c850ad2e2da688c6aeb980dadac96b88f2b381724a775bc192375837c410",
+    # Files extracted from the package tarball: path in the tarball => destination
+    "files" => {
+      "package/dist/shaka-player.ui.js" => "shaka-player.ui.js",
+      "package/dist/controls.css"       => "controls.css",
+    },
   },
-  # googlevideo, bgutils-js and youtubei.js are bundled locally from npm via
-  # scripts/bundle-sabr-libs.js (`npm run bundle-sabr`).
 }
 
 def update_versions_yaml(dep_name : String, version : String)
@@ -100,11 +97,11 @@ SABR_DEPENDENCIES.each do |dep_name, dep_info|
         YAML.parse(file).as_h
       end
 
-      files = dep_info["files"].as(Array(Hash(String, String)))
+      files = dep_info["files"].as(Hash(String, String))
       if config["version"].as_s != version
         # Old files are only removed once the new ones are downloaded and verified
         dependencies_to_install << dep_name
-      elsif files.any? { |file_info| !File.exists?("#{path}/#{file_info["dest"]}") }
+      elsif files.values.any? { |dest| !File.exists?("#{path}/#{dest}") }
         # Same version, but a file is missing: download it again
         dependencies_to_install << dep_name
       end
@@ -120,34 +117,41 @@ dependencies_to_install.each do |dep_name|
   spawn do
     dep_info = SABR_DEPENDENCIES[dep_name]
     version = dep_info["version"].as(String)
-    files = dep_info["files"].as(Array(Hash(String, String)))
+    files = dep_info["files"].as(Hash(String, String))
     dest_path = "#{sabr_dir}/#{dep_name}"
+    url = "https://registry.npmjs.org/#{dep_name}/-/#{dep_name}-#{version}.tgz"
 
-    # Download and verify every file before touching the installed ones
-    downloads = files.map do |file_info|
-      url = file_info["url"]
-
-      content = HTTP::Client.get(url) do |response|
-        if response.status_code != 200
-          raise Exception.new("Failed to fetch #{url}: HTTP #{response.status_code}")
-        end
-        response.body_io.getb_to_end
+    tarball = HTTP::Client.get(url) do |response|
+      if response.status_code != 200
+        raise Exception.new("Failed to fetch #{url}: HTTP #{response.status_code}")
       end
-
-      digest = Digest::SHA256.hexdigest(content)
-      if digest != file_info["sha256"]
-        raise Exception.new("SHA-256 mismatch for #{url}: expected #{file_info["sha256"]}, got #{digest}")
-      end
-
-      {file_info["dest"], content}
+      response.body_io.getb_to_end
     end
 
-    # Clean old files
-    Dir.glob("#{dest_path}/*.js").each { |f| File.delete(f) }
-    Dir.glob("#{dest_path}/*.css").each { |f| File.delete(f) }
+    digest = Digest::SHA256.hexdigest(tarball)
+    if digest != dep_info["sha256"]
+      raise Exception.new("SHA-256 mismatch for #{url}: expected #{dep_info["sha256"]}, got #{digest}")
+    end
 
-    downloads.each do |dest_file, content|
-      File.write("#{dest_path}/#{dest_file}", content)
+    # Extract the needed files to a temporary directory, then replace the
+    # installed ones only once everything is extracted.
+    tmp_dir = File.tempname("sabr-#{dep_name}")
+    Dir.mkdir_p(tmp_dir)
+    begin
+      tarball_path = "#{tmp_dir}/package.tgz"
+      File.write(tarball_path, tarball)
+      status = Process.run("tar", ["-xzf", tarball_path, "-C", tmp_dir] + files.keys, error: Process::Redirect::Inherit)
+      raise Exception.new("Failed to extract #{url}") unless status.success?
+
+      # Clean old files
+      Dir.glob("#{dest_path}/*.js").each { |f| File.delete(f) }
+      Dir.glob("#{dest_path}/*.css").each { |f| File.delete(f) }
+
+      files.each do |source, dest|
+        File.copy("#{tmp_dir}/#{source}", "#{dest_path}/#{dest}")
+      end
+    ensure
+      FileUtils.rm_rf(tmp_dir)
     end
 
     update_versions_yaml(dep_name, version)
