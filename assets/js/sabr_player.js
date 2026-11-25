@@ -430,7 +430,9 @@ var SABRPlayer = (function () {
         // Right-click menu like youtube.com's, with its "Stats for nerds" equivalent:
         // Shaka's statistics panel, limited to what is meaningful for YouTube streams.
         customContextMenu: true,
-        contextMenuElements: ['statistics', 'loop', 'picture_in_picture'],
+        // Shaka's default items (loop, picture in picture, copy/save the video frame)
+        // plus the statistics panel.
+        contextMenuElements: ['statistics', 'loop', 'picture_in_picture', 'copy_video_frame', 'save_video_frame'],
         statisticsList: [
           'width', 'height', 'currentCodecs', 'streamBandwidth', 'estimatedBandwidth',
           'droppedFrames', 'decodedFrames', 'corruptedFrames', 'bufferingTime',
