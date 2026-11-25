@@ -36,6 +36,7 @@
             unavailable: data.i18nUnavailable,
             throttled: data.i18nThrottled,
             tryDash: data.i18nTryDash,
+            audioTrack: data.i18nAudioTrack,
             backoff: data.i18nBackoff
         };
     }

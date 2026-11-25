@@ -105,6 +105,7 @@ var SABRPlayer = (function () {
     unavailable: 'This video is currently unavailable via SABR.',
     throttled: 'YouTube is throttling this request.',
     tryDash: 'Try DASH player instead',
+    audioTrack: 'Audio track',
     backoff: 'Throttled by YouTube, retrying in {seconds} s…'
   };
   function setMessages(newMessages) {
@@ -398,6 +399,7 @@ var SABRPlayer = (function () {
     });
 
     if (shaka.ui && shaka.ui.Overlay) {
+      registerAudioTrackMenu();
       ui = new shaka.ui.Overlay(player, shakaContainer, videoElement);
       ui.configure({
         overflowMenuButtons: overflowMenuButtons(false),
@@ -509,8 +511,110 @@ var SABRPlayer = (function () {
   // YouTube's live streams carry no audio language metadata (only the same audio at two
   // bitrates), so the language menu would just list "Undetermined" twice. Hide it for lives.
   function overflowMenuButtons(live) {
-    var buttons = ['captions', 'quality', 'language', 'playback_rate', 'loop', 'picture_in_picture'];
-    return live ? buttons.filter(function (b) { return b !== 'language'; }) : buttons;
+    var buttons = ['captions', 'quality', 'sabr_audio_tracks', 'playback_rate', 'loop', 'picture_in_picture'];
+    return live ? buttons.filter(function (b) { return b !== 'sabr_audio_tracks'; }) : buttons;
+  }
+
+  // Audio track menu (port of FreeTube's AudioTrackSelection). Shaka's own language
+  // menu lists one entry per language + codec, and ignores labels: a video with
+  // original and "Stable Volume" (DRC) audio showed "French AAC" twice and "French
+  // Opus" twice. Here tracks are deduplicated by label, language, channel count and
+  // spatial audio (the codec is left to ABR), and shown by their label.
+  function deduplicateAudioTracks(tracks) {
+    var known = new Map();
+    tracks.forEach(function (track) {
+      var id = track.label + '_' + track.language + '_' + track.channelsCount + '_' + track.spatialAudio;
+      if (!known.has(id) || track.active) known.set(id, track);
+    });
+    return Array.from(known.values());
+  }
+
+  function audioTrackName(track) {
+    if (track.label) return track.label;
+    try {
+      return new Intl.DisplayNames([document.documentElement.lang || 'en', 'en'], { type: 'language' }).of(track.language);
+    } catch (e) {
+      return track.language;
+    }
+  }
+
+  var audioTrackMenuRegistered = false;
+  function registerAudioTrackMenu() {
+    if (audioTrackMenuRegistered || !shaka.ui || !shaka.ui.SettingsMenu || !shaka.ui.OverflowMenu) return;
+    audioTrackMenuRegistered = true;
+    var icons = shaka.ui.Enums.MaterialDesignSVGIcons;
+
+    class AudioTrackSelection extends shaka.ui.SettingsMenu {
+      constructor(parent, controls) {
+        super(parent, controls, icons.LANGUAGE);
+        this.button.classList.add('shaka-language-button', 'shaka-tooltip-status');
+        this.menu.classList.add('shaka-audio-languages');
+
+        var checkmark = new shaka.ui.Icon(null, icons.CHECKMARK).getSvgElement();
+        checkmark.classList.add('shaka-chosen-item');
+        checkmark.setAttribute('aria-hidden', 'true');
+        this.checkmark_ = checkmark;
+
+        this.backButton.ariaLabel = this.localization.resolve('BACK');
+        this.button.ariaLabel = messages.audioTrack;
+        this.nameSpan.textContent = messages.audioTrack;
+        this.backSpan.textContent = messages.audioTrack;
+
+        var update = this.updateAudioTracks_.bind(this);
+        ['loading', 'trackschanged', 'variantchanged', 'adaptation'].forEach(function (name) {
+          this.eventManager.listen(this.player, name, update);
+        }, this);
+        this.updateAudioTracks_();
+      }
+
+      checkAvailability() {
+        this.updateAudioTracks_();
+      }
+
+      updateAudioTracks_() {
+        var menu = this.menu;
+        var backButton = menu.querySelector('.shaka-back-to-overflow-button');
+        while (menu.firstChild) menu.removeChild(menu.firstChild);
+        if (backButton) menu.appendChild(backButton);
+
+        var tracks = deduplicateAudioTracks(this.player.getAudioTracks());
+        tracks.forEach(function (track) {
+          var button = document.createElement('button');
+          button.setAttribute('role', 'menuitemradio');
+          button.addEventListener('click', this.onAudioTrackSelected_.bind(this, track));
+          var span = document.createElement('span');
+          span.textContent = audioTrackName(track);
+          button.appendChild(span);
+          if (track.active) {
+            button.appendChild(this.checkmark_);
+            span.classList.add('shaka-chosen-item');
+            button.setAttribute('aria-checked', 'true');
+            this.currentSelection.textContent = span.textContent;
+          } else {
+            button.setAttribute('aria-checked', 'false');
+          }
+          menu.appendChild(button);
+        }, this);
+
+        this.button.setAttribute('shaka-status', this.currentSelection.textContent);
+        // Only worth a menu when there is an actual choice
+        this.button.classList.toggle('shaka-hidden', tracks.length < 2 || this.isSubMenuOpened);
+      }
+
+      onAudioTrackSelected_(track) {
+        // Let ABR pick the codec for this track
+        this.player.selectAudioTrack(Object.assign({}, track, { codecs: null }));
+        var config = { preferSpatialAudio: !!track.spatialAudio };
+        if (track.language && track.language !== 'und') config.preferredAudioLanguage = track.language;
+        if (track.label) config.preferredAudioLabel = track.label;
+        if (track.channelsCount) config.preferredAudioChannelCount = track.channelsCount;
+        this.player.configure(config);
+      }
+    }
+
+    shaka.ui.OverflowMenu.registerElement('sabr_audio_tracks', {
+      create: function (rootElement, controls) { return new AudioTrackSelection(rootElement, controls); }
+    });
   }
 
   // Route non-sabr: requests (captions, storyboards, image tiles) through the

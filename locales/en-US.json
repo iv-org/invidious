@@ -104,6 +104,7 @@
     "sabr_error_unavailable": "This video is currently unavailable via SABR.",
     "sabr_error_throttled": "YouTube is throttling this request.",
     "sabr_try_dash_player": "Try DASH player instead",
+    "sabr_audio_track": "Audio track",
     "sabr_backoff_retrying": "Throttled by YouTube, retrying in `x` s…",
     "preferences_volume_label": "Player volume: ",
     "preferences_comments_label": "Default comments: ",
