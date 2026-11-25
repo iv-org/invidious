@@ -133,8 +133,6 @@
 
 <% if use_sabr %>
     <!-- SABR Player dependencies -->
-    <link rel="preconnect" href="https://redirector.googlevideo.com">
-    <link rel="preconnect" href="https://www.youtube.com">
     <link rel="stylesheet" href="/css/sabr_player.css?v=<%= ASSET_COMMIT %>">
     <link rel="stylesheet" href="/js/sabr/shaka-player/controls.css?v=<%= ASSET_COMMIT %>">
     <script defer src="/js/sabr/shaka-player/shaka-player.ui.js?v=<%= ASSET_COMMIT %>"></script>
@@ -153,7 +151,7 @@
     <!-- video.js-like `player` (and `video_data`) for watch.js/embed.js/handlers.js; must run before them -->
     <script src="/js/sabr_page_player.js?v=<%= ASSET_COMMIT %>"></script>
     <!-- ES module loader for SABR libraries (youtubei.js, googlevideo, bgutils) -->
-    <script type="module" src="/js/sabr_loader.js?v=<%= ASSET_COMMIT %>"></script>
+    <script type="module" id="sabr-loader" src="/js/sabr_loader.js?v=<%= ASSET_COMMIT %>"></script>
 <% else %>
     <script src="/js/player.js?v=<%= ASSET_COMMIT %>"></script>
 <% end %>

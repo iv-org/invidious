@@ -138,10 +138,14 @@
   }
 
   // Ask the player to reload (escape hatch for retry loops), aborting this request chain.
+  // Stop the stream's requests and ask the player to reload. The `reload` event is
+  // emitted once per stream, even when the fetch was already aborted (e.g. by a
+  // MEDIA_END part in the same chunk).
   function requestPlayerReload(currentState) {
     currentState.sabrStreamState.playerReloadRequested = true;
-    if (!currentState.abortController.signal.aborted) {
-      currentState.abortController.abort();
+    if (!currentState.abortController.signal.aborted) currentState.abortController.abort();
+    if (!currentState.sabrStreamState.reloadEmitted) {
+      currentState.sabrStreamState.reloadEmitted = true;
       currentState.eventEmitter.emit('reload');
     }
   }
@@ -271,18 +275,19 @@
       var shouldReloadDueToBackoffLoop = false;
       if ((currentState.sabrStreamState.nextRequestPolicy?.backoffTimeMs || 0) > 0) {
         var currentBackoffTimeMs = currentState.sabrStreamState.nextRequestPolicy.backoffTimeMs;
-        currentState.eventEmitter.emit('backoff-requested', { backoffMs: currentBackoffTimeMs });
-        await abortableDelay(currentBackoffTimeMs, currentState.abortController.signal);
-        currentState.timeoutController?.resetTimeoutOnce();
-
-        // Account for the delay this request actually waited (another request may
-        // have replaced the shared policy meanwhile), and budget the same again for
-        // the next wait.
-        currentState.cumulativeBackOffTimeMs += currentBackoffTimeMs;
-        currentState.cumulativeBackOffRequested += 1;
         var timeoutMs = operationInputs.request.retryParameters.timeout;
-        if (currentState.cumulativeBackOffRequested >= 3 || (timeoutMs > 0 && timeoutMs <= (currentState.cumulativeBackOffTimeMs + currentBackoffTimeMs))) {
+        // Reload instead of waiting after repeated backoffs, or when this wait would
+        // bring the total waited time to the request timeout. A wait that fits is
+        // done, and the request is then sent.
+        if (currentState.cumulativeBackOffRequested >= 3 ||
+            (timeoutMs > 0 && timeoutMs <= currentState.cumulativeBackOffTimeMs + currentBackoffTimeMs)) {
           shouldReloadDueToBackoffLoop = true;
+        } else {
+          currentState.eventEmitter.emit('backoff-requested', { backoffMs: currentBackoffTimeMs });
+          await abortableDelay(currentBackoffTimeMs, currentState.abortController.signal);
+          currentState.timeoutController?.resetTimeoutOnce();
+          currentState.cumulativeBackOffTimeMs += currentBackoffTimeMs;
+          currentState.cumulativeBackOffRequested += 1;
         }
       }
       if (shouldReloadDueToBackoffLoop || currentState.cumulativeRetryDueToNextRequestPolicy >= 100) {
@@ -328,7 +333,8 @@
             case UMPPartId.MEDIA_HEADER: {
               if (mediaHeaderId === undefined) {
                 var mediaHeader = decodePart(data, MediaHeader);
-                if (!mediaHeader) break;
+                // A header without a format ID can't be the requested segment
+                if (!mediaHeader || !mediaHeader.formatId) break;
                 if (
                   mediaHeader.formatId.itag === itag &&
                   mediaHeader.formatId.lastModified === lastModified &&
@@ -416,11 +422,7 @@
             case UMPPartId.RELOAD_PLAYER_RESPONSE: {
               var reloadPlaybackContext = decodePart(data, ReloadPlaybackContext);
               if (!reloadPlaybackContext) break;
-              currentState.sabrStreamState.playerReloadRequested = true;
-              if (!currentState.abortController.signal.aborted) {
-                currentState.abortController.abort();
-                currentState.eventEmitter.emit('reload');
-              }
+              requestPlayerReload(currentState);
               break;
             }
             default: {

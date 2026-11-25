@@ -70,9 +70,11 @@ module Invidious::Videos::Parser
   def extract_video_info(video_id : String)
     # Fetch data from the player endpoint
     player_response = nil
+    player_failed = false
     begin
       player_response = YoutubeAPI.player(video_id: video_id)
     rescue ex
+      player_failed = true
       LOGGER.debug("extract_video_info: player endpoint failed for #{video_id}: #{ex.message}")
     end
 
@@ -95,6 +97,9 @@ module Invidious::Videos::Parser
         # stream itself via Innertube + browser-side PoToken. An informational
         # subreason is surfaced for non-SABR playback (which needs companion or
         # the local streams proxy).
+        # A failed player request (e.g. companion temporarily down) must not be
+        # cached as a complete record: see `Video#transient?`.
+        params["transientPlayerFailure"] = JSON::Any.new(true) if player_failed
         return params
       rescue ex
         LOGGER.debug("extract_video_info: parse from /next failed for #{video_id}: #{ex.message}")
@@ -106,7 +111,7 @@ module Invidious::Videos::Parser
 
     if playability_status != "OK"
       reason = player_response.dig?("playabilityStatus", "reason").try &.as_s
-      reason ||= player_response.dig?("playabilityStatus", "errorScreen", "playerErrorMessageRenderer", "reason", "simpleText").try &.as_s
+      reason ||= extract_text(player_response.dig?("playabilityStatus", "errorScreen", "playerErrorMessageRenderer", "reason"))
 
       subreason_main = player_response.dig?("playabilityStatus", "errorScreen", "playerErrorMessageRenderer", "subreason")
       subreason = subreason_main.try &.["simpleText"]?.try &.as_s

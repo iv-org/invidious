@@ -438,7 +438,7 @@ var SABRPlayer = (function () {
   // it stops once another video load or dispose() replaced it.
   // `resume` is decided once, on the first attempt: a failed reload leaves the video
   // paused (Shaka clears its source), so retries must not read that state again.
-  function recoverLive(generation, resume) {
+  function recoverLive(generation, resume, position) {
     if (generation !== loadGeneration || !player) return;
     if (!isLive || !liveManifest || liveRecoveries >= MAX_LIVE_RECOVERIES) return;
     liveRecoveries++;
@@ -447,14 +447,19 @@ var SABRPlayer = (function () {
     // choice only matters while playback hasn't started yet.
     if (resume === undefined) {
       resume = !!videoElement && (!videoElement.paused || (!hasPlayed && !!(currentLoadOptions && currentLoadOptions.autoplay)));
+      // A post-live DVR replay has a fixed timeline: resume where the viewer was. An
+      // active broadcast resumes at the live edge (no start position).
+      if (!isActiveLive && videoElement && isFinite(videoElement.currentTime) && videoElement.currentTime > 0) {
+        position = videoElement.currentTime;
+      }
     }
-    player.load(liveManifest.uri, undefined, liveManifest.mimeType).then(function () {
+    player.load(liveManifest.uri, position, liveManifest.mimeType).then(function () {
       if (resume && generation === loadGeneration && videoElement) videoElement.play().catch(function () {});
     }, function (e) {
       // LOAD_INTERRUPTED: another load (or unload) replaced this one; nothing to retry.
       if (e && e.code === shaka.util.Error.Code.LOAD_INTERRUPTED) return;
       console.error('[SABRPlayer]', 'Live stream reload failed', e);
-      recoverLive(generation, resume);
+      recoverLive(generation, resume, position);
     });
   }
 
@@ -985,6 +990,9 @@ var SABRPlayer = (function () {
 
   function wireSabrStream(loadFn) {
     if (!sabrStream) return;
+    // A reload request from a stream that a newer load replaced must not reload the
+    // new video.
+    var wiredGeneration = loadGeneration;
     sabrStream.onBackoffRequested(function (info) {
       var ms = info && info.backoffMs ? info.backoffMs : 0;
       console.warn('[SABRPlayer] SABR backoff requested:', ms, 'ms');
@@ -1002,6 +1010,7 @@ var SABRPlayer = (function () {
       }
     });
     sabrStream.onReloadOnce(function () {
+      if (wiredGeneration !== loadGeneration) return;
       reloadCount++;
       if (reloadCount >= MAX_RELOADS) {
         console.error('[SABRPlayer] SABR reload limit reached; giving up on video', currentVideoId);
@@ -1023,6 +1032,8 @@ var SABRPlayer = (function () {
       coldStartToken = null;
       try { BotguardService.dispose(); } catch (e) {}
       var reloadOptions = Object.assign({}, currentLoadOptions || {});
+      // The excerpt's own start (start=...) stays the loop start
+      if (reloadOptions.loopStart === undefined) reloadOptions.loopStart = reloadOptions.startTime;
       if (resumeAt !== undefined && resumeAt > 1) reloadOptions.startTime = resumeAt;
       // A server-requested reload resumes at the same position, in the same play/pause
       // state, loop and speed (the user may have changed them since the page loaded).
@@ -1073,7 +1084,8 @@ var SABRPlayer = (function () {
     if (endTimeReached) return;
     endTimeReached = true;
     if (videoElement.loop) {
-      videoElement.currentTime = currentLoadOptions.startTime || 0;
+      var loopStart = currentLoadOptions.loopStart !== undefined ? currentLoadOptions.loopStart : currentLoadOptions.startTime;
+      videoElement.currentTime = loopStart || 0;
     } else {
       videoElement.pause();
     }

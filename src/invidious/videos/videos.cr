@@ -194,6 +194,12 @@ struct Video
     !self.reason.nil? && !info.has_key?("title")
   end
 
+  # Extracted after a failed player request (e.g. Invidious companion temporarily
+  # down): only the metadata is known, so the record must not be cached.
+  def transient? : Bool
+    info["transientPlayerFailure"]?.try(&.as_bool?) || false
+  end
+
   # The reason why the video can't be played, or `nil` if it is playable or an
   # upcoming premiere/livestream (whose metadata and countdown are displayed).
   def unplayable_reason : String?
@@ -356,7 +362,7 @@ def get_video(id, refresh = true, region = nil, force_refresh = false)
         video = fetch_video(id, region)
         # Don't keep a minimal error record (often a transient block from
         # YouTube) for the whole cache duration: retry on the next request.
-        if video.error_only?
+        if video.error_only? || video.transient?
           Invidious::Database::Videos.delete(id)
         else
           Invidious::Database::Videos.update(video)
@@ -368,7 +374,7 @@ def get_video(id, refresh = true, region = nil, force_refresh = false)
     end
   else
     video = fetch_video(id, region)
-    Invidious::Database::Videos.insert(video) if !region && !video.error_only?
+    Invidious::Database::Videos.insert(video) if !region && !video.error_only? && !video.transient?
   end
 
   return video

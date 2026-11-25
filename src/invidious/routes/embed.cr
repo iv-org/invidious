@@ -149,8 +149,9 @@ module Invidious::Routes::Embed
     #   PG_DB.exec("UPDATE users SET watched = array_append(watched, $1) WHERE email = $2", id, user.as(User).email)
     # end
 
-    if CONFIG.enable_user_notifications && notifications && notifications.includes?(id) &&
-       video.unplayable_reason.nil?
+    # Keep the notification when no player can play the video on this instance
+    playable = video.unplayable_reason.nil? && !(video.no_backend_streams? && CONFIG.disabled?("dash"))
+    if CONFIG.enable_user_notifications && notifications && notifications.includes?(id) && playable
       Invidious::Database::Users.remove_notification(user.as(User), id)
       env.get("user").as(User).notifications.delete(id)
       notifications.delete(id)
@@ -180,6 +181,8 @@ module Invidious::Routes::Embed
     if video.no_backend_streams? && params.quality != "sabr" && !params.raw && !CONFIG.disabled?("dash")
       env.params.query.delete_all("quality")
       env.params.query["quality"] = "sabr"
+      # `playlist` was consumed above: keep the rest of the series
+      env.params.query["playlist"] = video_series.join(",") if video_series
       return env.redirect "/embed/#{id}?#{env.params.query}"
     end
 
@@ -188,7 +191,8 @@ module Invidious::Routes::Embed
         # Explicit quality: removing it would fall back to a saved "dash" preference
         # and redirect here again.
         env.params.query.delete_all("quality")
-        env.params.query["quality"] = "medium"
+        # Without progressive streams either, only SABR can play (like /watch)
+        env.params.query["quality"] = fmt_stream.empty? ? "sabr" : "medium"
         return env.redirect "/embed/#{id}?#{env.params.query}"
       elsif params.listen && params.quality != "sabr"
         # The SABR player fetches its own audio streams

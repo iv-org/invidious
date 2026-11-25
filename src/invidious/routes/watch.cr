@@ -61,15 +61,16 @@ module Invidious::Routes::Watch
     end
     env.params.query.delete_all("iv_load_policy")
 
-    # An unplayable video (rendered with its error) hasn't actually been watched
-    if watched && preferences.watch_history && video.unplayable_reason.nil?
+    # An unplayable video (rendered with its error, or refused below because no
+    # player can play it on this instance) hasn't actually been watched.
+    playable = video.unplayable_reason.nil? && !(video.no_backend_streams? && CONFIG.disabled?("dash"))
+    if watched && preferences.watch_history && playable
       Invidious::Database::Users.mark_watched(user.as(User), id)
     end
 
     # Keep the notification when the video can't be played (the error record is
     # rendered, but the user hasn't actually watched the video).
-    if CONFIG.enable_user_notifications && notifications && notifications.includes?(id) &&
-       video.unplayable_reason.nil?
+    if CONFIG.enable_user_notifications && notifications && notifications.includes?(id) && playable
       Invidious::Database::Users.remove_notification(user.as(User), id)
       env.get("user").as(User).notifications.delete(id)
       notifications.delete(id)

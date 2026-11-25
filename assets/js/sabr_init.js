@@ -89,11 +89,15 @@
             button.className = 'sabr-click-to-play';
             button.setAttribute('aria-label', 'Play');
             if (container.dataset.poster) button.style.backgroundImage = 'url("' + container.dataset.poster.replace(/["\\]/g, '') + '")';
-            button.addEventListener('click', function () {
+            function release() {
+                window.SABRReleaseStartGate = null;
                 button.remove();
                 options.autoplay = true;
                 resolve();
-            }, { once: true });
+            }
+            button.addEventListener('click', release, { once: true });
+            // The page scripts' player.play() (e.g. a timestamp link) also starts loading
+            window.SABRReleaseStartGate = release;
             container.appendChild(button);
         });
     }
@@ -138,6 +142,13 @@
 
     // sabr_loader.js (an ES module) runs after this script and reports the library
     // load result with an event; also check the state in case it already ran.
+    // sabr_loader.js itself failed to load (e.g. 404): it can't report anything
+    var loaderScript = document.getElementById('sabr-loader');
+    if (loaderScript) {
+        loaderScript.addEventListener('error', function () {
+            fail(new Error('The SABR loader script failed to load'));
+        });
+    }
     window.addEventListener('sabr-libs-loaded', start);
     window.addEventListener('sabr-libs-failed', function (e) { fail(e.detail); });
     if (window.SABR_LIBS_STATE === 'loaded') start();

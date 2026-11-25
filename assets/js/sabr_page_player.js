@@ -50,6 +50,8 @@
         play: function () {
             if (video) return video.play().catch(function () {});
             pendingPlay = true;
+            // preload=0: the player waits for a click before loading anything
+            if (typeof window.SABRReleaseStartGate === 'function') window.SABRReleaseStartGate();
             return Promise.resolve();
         },
         pause: function () {
@@ -73,8 +75,15 @@
             video = videoElement;
             listeners.forEach(function (listener) { video.addEventListener(listener.type, listener.fn); });
             if (pendingTime !== null) {
-                video.currentTime = pendingTime;
+                var seekTo = pendingTime;
                 pendingTime = null;
+                // Shaka seeks to the load's start position once the metadata is
+                // loaded: an earlier seek would be undone, so wait for the data.
+                if (video.readyState >= 2) {
+                    video.currentTime = seekTo;
+                } else {
+                    video.addEventListener('loadeddata', function () { video.currentTime = seekTo; }, { once: true });
+                }
             }
             if (pendingPlay) {
                 pendingPlay = false;
