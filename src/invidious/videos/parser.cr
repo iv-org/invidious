@@ -78,6 +78,18 @@ module Invidious::Videos::Parser
       LOGGER.debug("extract_video_info: player endpoint failed for #{video_id}: #{ex.message}")
     end
 
+    # Invidious companion answers with its own "ERROR" response while it can't
+    # serve requests yet (e.g. "Companion is starting", while its PO token minter
+    # isn't ready). Unlike a YouTube response, it has no `responseContext`. Treat
+    # it like a failed player request: the page is rendered from /next, so the
+    # SABR player (which doesn't need companion) can still play the video.
+    if player_response && !player_response["responseContext"]? &&
+       player_response.dig?("playabilityStatus", "status").try(&.as_s?) == "ERROR"
+      LOGGER.debug("extract_video_info: player backend not ready for #{video_id}: #{player_response.dig?("playabilityStatus", "reason")}")
+      player_response = nil
+      player_failed = true
+    end
+
     if player_response.nil?
       # Player endpoint failed (e.g. no companion). Try to get data from /next only.
       begin
