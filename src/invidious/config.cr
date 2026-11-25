@@ -35,7 +35,7 @@ struct ConfigPreferences
   property max_results : Int32 = 40
   property notifications_only : Bool = false
   property player_style : String = "invidious"
-  property quality : String = "dash"
+  property quality : String = "sabr"
   property quality_dash : String = "auto"
   property quality_sabr : String = "vp9"
   property quality_sabr_resolution : String = "auto"

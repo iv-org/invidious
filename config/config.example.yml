@@ -905,10 +905,14 @@ default_user_preferences:
   ##
   ## Default video quality.
   ##
-  ## Accepted values: dash, medium, small
-  ## Default: dash
+  ## "sabr" is the SABR player: the browser fetches the streams from
+  ## YouTube itself (through the /proxy route), so it doesn't need
+  ## Invidious companion. "dash", "medium" and "small" need it.
   ##
-  #quality: dash
+  ## Accepted values: sabr, dash, medium, small
+  ## Default: sabr
+  ##
+  #quality: sabr
 
   ##
   ## Default dash video quality.
