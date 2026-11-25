@@ -430,6 +430,8 @@ module Invidious::Routes::Feeds
         rescue
           next # skip this video since it raised an exception (e.g. it is a scheduled live event)
         end
+        # Only an error was extracted: no channel ID or title to save
+        next if video.error_only?
 
         video = ChannelVideo.new({
           id:                 id,

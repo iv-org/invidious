@@ -139,6 +139,7 @@ module Invidious::Helpers
           end
 
           video = get_video(video_id)
+          next if video.error_only?
           video.published = Time.unix(published)
           response = JSON.parse(video.to_json(locale, nil))
 

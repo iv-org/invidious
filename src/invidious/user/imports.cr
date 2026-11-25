@@ -59,6 +59,8 @@ struct Invidious::User
           rescue
             next
           end
+          # Only an error was extracted (e.g. during a YouTube block): nothing to save
+          next if video.error_only?
 
           playlist_video = PlaylistVideo.new({
             title:          video.title,
@@ -138,6 +140,8 @@ struct Invidious::User
             rescue
               next
             end
+            # Only an error was extracted (e.g. during a YouTube block): nothing to save
+            next if video.error_only?
 
             playlist_video = PlaylistVideo.new({
               title:          video.title,

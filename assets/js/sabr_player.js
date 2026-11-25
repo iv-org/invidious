@@ -14,6 +14,8 @@
 
 var SABRPlayer = (function () {
   var VOLUME_KEY = 'youtube_player_volume';
+  // The volume preference (0-1) the remembered volume was saved under
+  var VOLUME_PREFERENCE_KEY = 'sabr_player_volume_preference';
   // Same key and format as the classic player (assets/js/player.js), so both players
   // share the saved positions. Only used when the "save player position" preference is on.
   var PLAYBACK_POSITION_KEY = 'save_player_pos';
@@ -147,14 +149,23 @@ var SABRPlayer = (function () {
     return errorDiv;
   }
 
-  function getSavedVolume() {
+  // The remembered volume, unless the volume preference changed since it was saved
+  // (or nothing is remembered yet): then the preference applies.
+  function getSavedVolume(preference) {
+    var hasPreference = typeof preference === 'number' && isFinite(preference);
     try {
-      var v = localStorage.getItem(VOLUME_KEY);
-      return v ? parseFloat(v) : 1;
-    } catch (e) { return 1; }
+      var v = parseFloat(localStorage.getItem(VOLUME_KEY));
+      if (isFinite(v) && (!hasPreference || localStorage.getItem(VOLUME_PREFERENCE_KEY) === String(preference))) {
+        return Math.min(Math.max(v, 0), 1);
+      }
+    } catch (e) {}
+    return hasPreference ? preference : 1;
   }
-  function saveVolume(volume) {
-    try { localStorage.setItem(VOLUME_KEY, volume.toString()); } catch (e) {}
+  function saveVolume(volume, preference) {
+    try {
+      localStorage.setItem(VOLUME_KEY, volume.toString());
+      if (typeof preference === 'number' && isFinite(preference)) localStorage.setItem(VOLUME_PREFERENCE_KEY, String(preference));
+    } catch (e) {}
   }
   function getPlaybackPositions() {
     try {
@@ -331,7 +342,7 @@ var SABRPlayer = (function () {
     }
   }
 
-  async function initializeShakaPlayer(containerElement, listenMode, controls) {
+  async function initializeShakaPlayer(containerElement, listenMode, controls, volumePreference) {
     if (!shaka.Player.isBrowserSupported()) {
       throw new Error('Shaka Player is not supported in this browser');
     }
@@ -379,8 +390,8 @@ var SABRPlayer = (function () {
       }
     });
 
-    videoElement.volume = getSavedVolume();
-    videoElement.addEventListener('volumechange', function () { saveVolume(videoElement.volume); });
+    videoElement.volume = getSavedVolume(volumePreference);
+    videoElement.addEventListener('volumechange', function () { saveVolume(videoElement.volume, volumePreference); });
     videoElement.addEventListener('playing', function () {
       hasPlayed = true;
       player.configure('abr.restrictions.maxHeight', Infinity);
@@ -566,6 +577,25 @@ var SABRPlayer = (function () {
     player.selectVariantTrack(target, /* clearBuffer= */ true);
   }
 
+  // Preferred captions (the captions preference, or `subtitles` in the link): like the
+  // classic player, show the first track whose name or language matches, in order.
+  function applyCaptionPreference(preferred) {
+    if (!player || !preferred || preferred.length === 0) return;
+    var tracks = player.getTextTracks();
+    for (var i = 0; i < preferred.length; i++) {
+      var wanted = preferred[i].toLowerCase();
+      var track = tracks.find(function (t) {
+        return (t.label || '').toLowerCase() === wanted ||
+          (t.language || '').toLowerCase().split('-')[0] === wanted;
+      });
+      if (track) {
+        // Shaka 5 shows a selected text track (there is no separate visibility toggle)
+        player.selectTextTrack(track);
+        return;
+      }
+    }
+  }
+
   // Audio track menu (port of FreeTube's AudioTrackSelection). Shaka's own language
   // menu lists one entry per language + codec, and ignores labels: a video with
   // original and "Stable Volume" (DRC) audio showed "French AAC" twice and "French
@@ -624,11 +654,21 @@ var SABRPlayer = (function () {
 
       updateAudioTracks_() {
         var menu = this.menu;
+        var tracks = deduplicateAudioTracks(this.player.getAudioTracks());
+        // Quality changes (adaptation) fire often: only rebuild when the audio choices
+        // changed, so a keyboard user browsing the menu doesn't lose focus.
+        var signature = tracks.map(function (t) { return audioTrackName(t) + (t.active ? '*' : ''); }).join('|');
+        if (signature === this.signature_ && menu.childElementCount > 0) {
+          this.button.classList.toggle('shaka-hidden', tracks.length < 2 || this.isSubMenuOpened);
+          return;
+        }
+        this.signature_ = signature;
+        var hadFocus = menu.contains(document.activeElement);
+
         var backButton = menu.querySelector('.shaka-back-to-overflow-button');
         while (menu.firstChild) menu.removeChild(menu.firstChild);
         if (backButton) menu.appendChild(backButton);
 
-        var tracks = deduplicateAudioTracks(this.player.getAudioTracks());
         tracks.forEach(function (track) {
           var button = document.createElement('button');
           button.setAttribute('role', 'menuitemradio');
@@ -646,6 +686,12 @@ var SABRPlayer = (function () {
           }
           menu.appendChild(button);
         }, this);
+
+        // Like Shaka's own menus, move the focus back to the chosen item after a rebuild
+        if (hadFocus) {
+          var chosen = menu.querySelector('[aria-checked="true"]') || backButton;
+          if (chosen) chosen.focus();
+        }
 
         this.button.setAttribute('shaka-status', this.currentSelection.textContent);
         // Only worth a menu when there is an actual choice
@@ -1082,7 +1128,7 @@ var SABRPlayer = (function () {
       if (!player) {
         requestFiltersInstalled = false;
         loadedListenerInstalled = false;
-        shakaPromise = initializeShakaPlayer(containerElement, options.listen, options.controls !== false);
+        shakaPromise = initializeShakaPlayer(containerElement, options.listen, options.controls !== false, options.volumePreference);
       } else {
         player.configure('abr', DEFAULT_ABR_CONFIG);
         player.configure('manifest.disableVideo', !!options.listen);
@@ -1275,7 +1321,10 @@ var SABRPlayer = (function () {
       }
 
       applyPlaybackSettings(options);
-      if (!options.listen) applyQualityPreference(options.qualityPreference);
+      if (!options.listen) {
+        applyQualityPreference(options.qualityPreference);
+        applyCaptionPreference(options.preferredCaptions);
+      }
       loadedVideoId = videoId;
       loadedDuration = isActiveLive ? 0 : duration;
 

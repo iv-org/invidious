@@ -10,6 +10,15 @@
 (function() {
     var started = false;
 
+    function parsePreferredCaptions(json) {
+        try {
+            var list = JSON.parse(json || '[]');
+            return Array.isArray(list) ? list.filter(function (c) { return typeof c === 'string' && c; }) : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
     function readOptions(container) {
         var data = container.dataset;
         var query = new URLSearchParams(window.location.search);
@@ -30,7 +39,9 @@
             startTime: (hasStartParam || videoStart > 0) && isFinite(videoStart) ? videoStart : undefined,
             endTime: videoEnd > 0 ? videoEnd : undefined,
             volume: isFinite(volume) ? Math.min(Math.max(volume, 0), 100) / 100 : undefined,
+            volumePreference: isFinite(parseInt(data.volumePreference, 10)) ? Math.min(Math.max(parseInt(data.volumePreference, 10), 0), 100) / 100 : undefined,
             controls: data.controls !== 'false',
+            preferredCaptions: parsePreferredCaptions(data.preferredCaptions),
             savePlayerPos: data.savePlayerPos === 'true',
             codecPreference: data.qualitySabr || 'vp9',
             qualityPreference: data.qualitySabrResolution || 'auto'
@@ -69,6 +80,24 @@
         container.appendChild(errorDiv);
     }
 
+    // preload=0 without autoplay: show the poster and a play button, and only fetch
+    // anything (player response, media) once the viewer starts playback.
+    function waitForPlayClick(container, options) {
+        return new Promise(function (resolve) {
+            var button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'sabr-click-to-play';
+            button.setAttribute('aria-label', 'Play');
+            if (container.dataset.poster) button.style.backgroundImage = 'url("' + container.dataset.poster.replace(/["\\]/g, '') + '")';
+            button.addEventListener('click', function () {
+                button.remove();
+                options.autoplay = true;
+                resolve();
+            }, { once: true });
+            container.appendChild(button);
+        });
+    }
+
     async function start() {
         if (started) return;
         started = true;
@@ -79,12 +108,17 @@
             return;
         }
 
+        var options = readOptions(container);
+        if (container.dataset.preload === 'false' && !options.autoplay) {
+            await waitForPlayClick(container, options);
+        }
+
         try {
             // sabr_player.js is loaded separately from the libraries: report it missing
             // like any other startup failure.
             if (!window.SABRPlayer) throw new Error('The SABR player script failed to load');
             SABRPlayer.setMessages(readMessages(container));
-            var result = await SABRPlayer.loadVideo(container.dataset.videoId, container, readOptions(container));
+            var result = await SABRPlayer.loadVideo(container.dataset.videoId, container, options);
             console.info('[SABR]', 'Video loaded successfully', result.videoInfo?.basic_info?.title);
             // Connect the page scripts' `player` object (sabr_page_player.js) to the video.
             if (window.SABRPagePlayer) SABRPagePlayer.attach(result.videoElement);
