@@ -45,7 +45,8 @@ module Invidious::Routes::BeforeAll
 
     # TODO: Remove style-src's 'unsafe-inline', requires to remove all
     # inline styles (<style> [..] </style>, style=" [..] ")
-    # Note: googleapis.com and youtube.com are required for BotGuard/PoToken generation
+    # Note: the SABR player's YouTube requests (Innertube, BotGuard, media) all go
+    # through the same-origin /proxy route, so connect-src needs no Google host.
     # Note: the SABR player needs 'unsafe-eval', which is only added to the
     # pages that render it, see `allow_eval_for_sabr_player`.
     env.response.headers["Content-Security-Policy"] = {
@@ -54,7 +55,7 @@ module Invidious::Routes::BeforeAll
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data:",
       "font-src 'self' data:",
-      "connect-src 'self' https://*.googleapis.com https://*.youtube.com " + COMPANION_CSP.companion_urls,
+      "connect-src 'self' " + COMPANION_CSP.companion_urls,
       "manifest-src 'self'",
       # data: is used by Shaka (SABR player) for its placeholder text tracks
       "media-src 'self' blob: data: " + COMPANION_CSP.companion_urls,

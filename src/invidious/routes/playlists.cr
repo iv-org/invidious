@@ -342,6 +342,12 @@ module Invidious::Routes::Playlists
         end
       end
 
+      # Only an error was extracted (no metadata): there is nothing to add
+      if video.error_only?
+        ex = InfoException.new(HTML.unescape(video.subreason || video.reason || "Video unavailable"))
+        return redirect ? Errors.error_template(500, ex) : Errors.error_json(500, ex)
+      end
+
       playlist_video = PlaylistVideo.new({
         title:          video.title,
         id:             video.id,

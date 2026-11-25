@@ -39,6 +39,10 @@
     return format.xtags === 'CgcKAnZiEgEx';
   }
 
+  function hasRange(range) {
+    return !!range && isFinite(range.start) && isFinite(range.end) && range.end >= range.start;
+  }
+
   function createVodMediaSegmentIndex(url, response, format, stream, duration) {
     var mediaQuality = {
       contentType: stream.type,
@@ -499,8 +503,14 @@
       if (manifestData.formats[i].isVoiceBoost) hasVoiceBoostAudio = true;
     }
 
-    // Formats without a codecs parameter can't be played (or described to shaka).
-    var formats = manifestData.formats.filter(function (format) { return getCodecs(format) !== null; });
+    // Formats without a codecs parameter can't be played (or described to shaka), and
+    // formats without init/index ranges (e.g. OTF) can't build a segment index.
+    var formats = manifestData.formats.filter(function (format) {
+      return getCodecs(format) !== null && hasRange(format.initRange) && hasRange(format.indexRange);
+    });
+    if (!formats.some(function (f) { return f.mimeType.indexOf('audio/') === 0; })) {
+      throw new Error('No playable SABR format (no audio format with init/index ranges)');
+    }
 
     // Companion formats sent with each stream's SABR requests until shaka has an
     // active variant (see createMediaSegmentIndex). For audio-only playback the

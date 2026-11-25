@@ -60,6 +60,7 @@ esbuild.build({
   banner: { js: '// googlevideo library - bundled with esbuild' }
 }).then(() => {
   console.log('✓ googlevideo bundled successfully');
+  writeVersionMarker('googlevideo');
   fs.unlinkSync(googlevideoEntryPath);
 }).catch((err) => {
   console.error('✗ googlevideo bundling failed:', err);
@@ -76,6 +77,7 @@ esbuild.build({
   banner: { js: '// youtubei.js library - bundled with esbuild' }
 }).then(() => {
   console.log('✓ youtubei.js bundled successfully');
+  writeVersionMarker('youtubei.js');
 }).catch((err) => {
   console.error('✗ youtubei.js bundling failed:', err);
   process.exit(1);
@@ -101,6 +103,7 @@ esbuild.build({
   banner: { js: '// bgutils-js library - bundled with esbuild' }
 }).then(() => {
   console.log('✓ bgutils-js bundled successfully');
+  writeVersionMarker('bgutils-js');
   fs.unlinkSync(bgutilsEntryPath);
 }).catch((err) => {
   console.error('✗ bgutils-js bundling failed:', err);
@@ -108,8 +111,10 @@ esbuild.build({
   process.exit(1);
 });
 
-// Record the bundled versions next to the bundles.
-for (const name of ['googlevideo', 'bgutils-js', 'youtubei.js']) {
+// Record a library's bundled version next to its bundle. Only called once that
+// bundle was built: a failed build keeps the previous marker, so the build-time
+// check (scripts/fetch-sabr-dependencies.cr) still sees the old version.
+function writeVersionMarker(name) {
   const { version } = JSON.parse(fs.readFileSync(path.join(nodeModules, name, 'package.json'), 'utf8'));
   fs.writeFileSync(path.join(outputDir, name, 'versions.yml'), `---\nversion: ${version}\n`);
 }

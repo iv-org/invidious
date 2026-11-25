@@ -59,6 +59,9 @@ module Invidious::Routes::API::V1::Videos
       haltf env, 500
     end
 
+    # Unplayable videos are an error, as before the watch page started rendering them
+    haltf env, 500 if video.unplayable_reason
+
     captions = video.captions
 
     label = env.params.query["label"]?
@@ -198,6 +201,8 @@ module Invidious::Routes::API::V1::Videos
     rescue
       haltf env, 500
     end
+
+    haltf env, 500 if video.unplayable_reason
 
     width = env.params.query["width"]?.try &.to_i
     height = env.params.query["height"]?.try &.to_i
@@ -409,6 +414,10 @@ module Invidious::Routes::API::V1::Videos
       return Errors.error_json(500, ex)
     end
 
+    if reason = video.unplayable_reason
+      return Errors.error_json(500, InfoException.new(HTML.unescape(video.subreason || reason)))
+    end
+
     return JSON.build do |json|
       json.object do
         json.field "startTime", start_time
@@ -441,6 +450,10 @@ module Invidious::Routes::API::V1::Videos
         return Errors.error_json(404, ex)
       rescue ex
         return Errors.error_json(500, ex)
+      end
+
+      if reason = video.unplayable_reason
+        return Errors.error_json(500, InfoException.new(HTML.unescape(video.subreason || reason)))
       end
 
       response = JSON.build do |json|
@@ -481,6 +494,10 @@ module Invidious::Routes::API::V1::Videos
         return Errors.error_json(404, ex)
       rescue ex
         return Errors.error_json(500, ex)
+      end
+
+      if reason = video.unplayable_reason
+        return Errors.error_json(500, InfoException.new(HTML.unescape(video.subreason || reason)))
       end
 
       target_transcript = video.captions.select(&.name.== label)

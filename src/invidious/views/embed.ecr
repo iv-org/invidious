@@ -38,12 +38,12 @@
 %>
 </script>
 
-<% if video.reason.nil? %>
+<% if (unplayable_reason = video.unplayable_reason).nil? %>
 <%= rendered "components/player" %>
 <% else %>
 <p>
     <%= I18n.translate(preferences.locale, "error_from_youtube_unplayable") %>
-    <strong><%= video.reason %></strong>
+    <strong><%= unplayable_reason %></strong>
     <% if video.subreason %><br/><%= video.subreason %><% end %>
 </p>
 <% end %>

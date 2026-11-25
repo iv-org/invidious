@@ -41,6 +41,8 @@ function get_playlist(plid) {
 }
 
 addEventListener('load', function (e) {
+    // The page has no player when the video can't be played (only its error is shown).
+    if (typeof player === 'undefined') return;
     if (video_data.plid) {
         get_playlist(video_data.plid);
     } else if (video_data.video_series) {

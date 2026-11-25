@@ -100,8 +100,12 @@ SABR_DEPENDENCIES.each do |dep_name, dep_info|
         YAML.parse(file).as_h
       end
 
+      files = dep_info["files"].as(Array(Hash(String, String)))
       if config["version"].as_s != version
         # Old files are only removed once the new ones are downloaded and verified
+        dependencies_to_install << dep_name
+      elsif files.any? { |file_info| !File.exists?("#{path}/#{file_info["dest"]}") }
+        # Same version, but a file is missing: download it again
         dependencies_to_install << dep_name
       end
     else

@@ -17,6 +17,10 @@
         // the saved position, like in the classic player.
         var hasStartParam = query.has('t') || query.has('time_continue') || query.has('start');
         var videoStart = parseFloat(data.start);
+        var videoEnd = parseFloat(data.end);
+        // Like the start time, only an explicit volume in the link overrides the
+        // volume remembered by the player.
+        var volume = query.has('volume') ? parseInt(data.volume, 10) : NaN;
 
         return {
             autoplay: data.autoplay === 'true',
@@ -24,6 +28,9 @@
             listen: data.listen === 'true',
             speed: parseFloat(data.speed) || 1,
             startTime: (hasStartParam || videoStart > 0) && isFinite(videoStart) ? videoStart : undefined,
+            endTime: videoEnd > 0 ? videoEnd : undefined,
+            volume: isFinite(volume) ? Math.min(Math.max(volume, 0), 100) / 100 : undefined,
+            controls: data.controls !== 'false',
             savePlayerPos: data.savePlayerPos === 'true',
             codecPreference: data.qualitySabr || 'vp9',
             qualityPreference: data.qualitySabrResolution || 'auto'
@@ -72,9 +79,11 @@
             return;
         }
 
-        SABRPlayer.setMessages(readMessages(container));
-
         try {
+            // sabr_player.js is loaded separately from the libraries: report it missing
+            // like any other startup failure.
+            if (!window.SABRPlayer) throw new Error('The SABR player script failed to load');
+            SABRPlayer.setMessages(readMessages(container));
             var result = await SABRPlayer.loadVideo(container.dataset.videoId, container, readOptions(container));
             console.info('[SABR]', 'Video loaded successfully', result.videoInfo?.basic_info?.title);
             // Connect the page scripts' `player` object (sabr_page_player.js) to the video.

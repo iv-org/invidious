@@ -24,12 +24,15 @@
     return JSON.parse(JSON.stringify(obj));
   }
 
+  // "itag-lastModified-xtags": xtags is base64url, it can contain hyphens itself.
   function formatIdFromString(str) {
-    var parts = str.split('-');
+    var first = str.indexOf('-');
+    var second = first === -1 ? -1 : str.indexOf('-', first + 1);
+    var xtags = second === -1 ? '' : str.slice(second + 1);
     return {
-      itag: parseInt(parts[0], 10),
-      lastModified: parts[1],
-      xtags: parts[2] && parts[2].length ? parts[2] : undefined
+      itag: parseInt(first === -1 ? str : str.slice(0, first), 10),
+      lastModified: first === -1 ? undefined : str.slice(first + 1, second === -1 ? undefined : second),
+      xtags: xtags.length ? xtags : undefined
     };
   }
 
@@ -688,7 +691,7 @@
       }
 
       var drcEnabled = url.searchParams.has('drc') || !!(activeVariant && activeVariant.audioRoles.indexOf('drc') !== -1);
-      var enableVoiceBoost = url.searchParams.has('vb') || !!(activeVariant && activeVariant.audioRoles.indexOf('vb') !== -1);
+      var enableVoiceBoost = url.searchParams.has('vb') || !!(activeVariant && activeVariant.audioRoles.indexOf('voice-boost') !== -1);
       var resolution = streamIsVideo ? parseInt(url.searchParams.get('resolution'), 10) : undefined;
 
       var prepared = prepareSabrContexts(sabrStreamState);

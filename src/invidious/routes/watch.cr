@@ -61,7 +61,8 @@ module Invidious::Routes::Watch
     end
     env.params.query.delete_all("iv_load_policy")
 
-    if watched && preferences.watch_history
+    # An unplayable video (rendered with its error) hasn't actually been watched
+    if watched && preferences.watch_history && video.unplayable_reason.nil?
       Invidious::Database::Users.mark_watched(user.as(User), id)
     end
 
@@ -124,8 +125,9 @@ module Invidious::Routes::Watch
     if video.no_backend_streams? && params.quality != "sabr" && !params.raw && !CONFIG.disabled?("dash")
       env.params.query.delete_all("quality")
       env.params.query["quality"] = "sabr"
-      # `listen` was removed from the query above, keep an explicit audio-only choice
-      env.params.query["listen"] = "1" if params.listen
+      # `listen` was removed from the query above: keep the resolved choice, so an
+      # explicit listen=0 still overrides an audio-only preference
+      env.params.query["listen"] = params.listen ? "1" : "0"
       return env.redirect "/watch?#{env.params.query}"
     end
 
@@ -207,8 +209,8 @@ module Invidious::Routes::Watch
       invidious_companion = CONFIG.invidious_companion.sample
     end
 
-    # The SABR player is only rendered for playable videos
-    if params.quality == "sabr" && video.reason.nil?
+    # The SABR player is only rendered for playable videos (and upcoming premieres)
+    if params.quality == "sabr" && video.unplayable_reason.nil?
       Invidious::Routes::BeforeAll.allow_eval_for_sabr_player(env)
     end
 

@@ -325,6 +325,11 @@ module Invidious::Routes::API::V1::Authenticated
       return Errors.error_json(500, ex)
     end
 
+    # Only an error was extracted (no metadata): there is nothing to add
+    if video.error_only?
+      return Errors.error_json(500, InfoException.new(HTML.unescape(video.subreason || video.reason || "Video unavailable")))
+    end
+
     playlist_video = PlaylistVideo.new({
       title:          video.title,
       id:             video.id,

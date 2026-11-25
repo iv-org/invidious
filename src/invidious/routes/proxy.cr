@@ -62,6 +62,9 @@ module Invidious::Routes::Proxy
   # Maximum size of a POST body (SABR/Innertube requests are a few KB)
   MAX_BODY_SIZE = 2 * 1024 * 1024
 
+  # Upstream redirects followed for one request
+  MAX_REDIRECTS = 3
+
   def self.host_allowed?(host : String) : Bool
     ALLOWED_HOST_PATTERNS.any?(&.matches?(host))
   end
@@ -211,6 +214,7 @@ module Invidious::Routes::Proxy
 
     # Build a raw request so we control streaming + binary POST body.
     request = HTTP::Request.new(method, target_url.request_target, request_headers)
+    request_body = nil
 
     if method == "POST" && (body_io = env.request.body)
       if (env.request.content_length || 0) > MAX_BODY_SIZE
@@ -225,7 +229,8 @@ module Invidious::Routes::Proxy
         return "Request body too large."
       end
 
-      request.body = body.to_slice
+      request_body = body.to_slice
+      request.body = request_body
       request.content_length = body.size
     end
 
@@ -234,42 +239,68 @@ module Invidious::Routes::Proxy
     # scheme plugin can read UMP parts incrementally and abort a fetch
     # mid-stream (backoff / reload / seek).
     streaming = false
-    client = HTTP::Client.new(target_host, tls: true)
+    client = nil
     begin
-      # Use the configured IP family (`force_resolve`), defaulting to IPv4 like
-      # make_client does for the rest of the backend.
-      client.family = CONFIG.force_resolve
-      client.family = Socket::Family::INET if client.family == Socket::Family::UNSPEC
-      # Route the googlevideo/youtubei egress through the configured proxy when set
-      # (HTTP CONNECT or SOCKS5, e.g. to bypass a YouTube IP block on the instance's
-      # own address). Uses the same dispatcher as the rest of the codebase.
-      if CONFIG.http_proxy
-        configure_proxy(client)
-        # Never let HTTP::Client's retry fall back to a direct connection
-        client.disable_reconnect
-      end
-      client.connect_timeout = 10.seconds
-      client.read_timeout = 30.seconds
-      # Don't let HTTP::Client advertise its own Accept-Encoding; we forward the
-      # plugin's identity header and stream raw bytes.
-      client.compress = false
+      redirects = 0
+      loop do
+        client = new_upstream_client(target_host)
+        redirect_status = nil
+        location = nil
 
-      client.exec(request) do |response|
-        env.response.status_code = response.status_code
-
-        CONTENT_HEADERS.each do |header|
-          if value = response.headers[header]?
-            env.response.headers[header] = value
+        client.exec(request) do |response|
+          # Follow upstream redirects here, so the browser never gets a Google URL
+          # (and every hop goes through the same host checks and egress).
+          if response.status.redirection? && (loc = response.headers["Location"]?)
+            redirect_status = response.status
+            location = loc
+            next
           end
+
+          env.response.status_code = response.status_code
+
+          CONTENT_HEADERS.each do |header|
+            if value = response.headers[header]?
+              env.response.headers[header] = value
+            end
+          end
+
+          # Stream the upstream body through without buffering, so the client's
+          # UmpReader can consume parts as they arrive and so backoff/abort
+          # actually cancels the transfer.
+          # From here on the response headers may have been sent.
+          streaming = true
+          IO.copy(response.body_io, env.response.output)
+          env.response.output.flush
         end
 
-        # Stream the upstream body through without buffering, so the client's
-        # UmpReader can consume parts as they arrive and so backoff/abort
-        # actually cancels the transfer.
-        # From here on the response headers may have been sent.
-        streaming = true
-        IO.copy(response.body_io, env.response.output)
-        env.response.output.flush
+        break if location.nil? || redirect_status.nil?
+
+        client.close
+        redirects += 1
+        next_url = target_url.resolve(location)
+        next_host = next_url.host
+        if redirects > MAX_REDIRECTS || next_url.scheme != "https" || next_host.nil? ||
+           !host_allowed?(next_host) || (next_url.port || 443) != 443
+          LOGGER.warn("Proxy: refusing upstream redirect from #{target_host} (hop #{redirects})")
+          env.response.status_code = 502
+          return "Proxy error: upstream redirect not allowed."
+        end
+
+        target_host = next_host
+        target_url = next_url
+        headers = request.headers.dup
+        # Let HTTP::Client set the Host header of the new target
+        headers.delete("Host")
+        method = request.method
+        # Like browsers: 301/302/303 turn a POST into a GET without a body,
+        # 307/308 replay the request (and its body) as is.
+        if method == "POST" && {301, 302, 303}.includes?(redirect_status.code)
+          method = "GET"
+          request_body = nil
+          headers.delete("Content-Length")
+          headers.delete("Content-Type")
+        end
+        request = HTTP::Request.new(method, next_url.request_target, headers, request_body)
       end
       nil
     rescue ex
@@ -288,8 +319,31 @@ module Invidious::Routes::Proxy
         "Proxy error"
       end
     ensure
-      client.close
+      client.try &.close
     end
+  end
+
+  # Client for one upstream request, using the configured IP family and proxy.
+  private def self.new_upstream_client(host : String) : HTTP::Client
+    client = HTTP::Client.new(host, tls: true)
+    # Use the configured IP family (`force_resolve`), defaulting to IPv4 like
+    # make_client does for the rest of the backend.
+    client.family = CONFIG.force_resolve
+    client.family = Socket::Family::INET if client.family == Socket::Family::UNSPEC
+    # Route the googlevideo/youtubei egress through the configured proxy when set
+    # (HTTP CONNECT or SOCKS5, e.g. to bypass a YouTube IP block on the instance's
+    # own address). Uses the same dispatcher as the rest of the codebase.
+    if CONFIG.http_proxy
+      configure_proxy(client)
+      # Never let HTTP::Client's retry fall back to a direct connection
+      client.disable_reconnect
+    end
+    client.connect_timeout = 10.seconds
+    client.read_timeout = 30.seconds
+    # Don't let HTTP::Client advertise its own Accept-Encoding; we forward the
+    # plugin's identity header and stream raw bytes.
+    client.compress = false
+    client
   end
 
   private def self.build_query_without_proxy_params(params : HTTP::Params) : String?

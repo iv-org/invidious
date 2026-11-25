@@ -234,8 +234,8 @@ module Invidious::Routes::Embed
       invidious_companion = CONFIG.invidious_companion.sample
     end
 
-    # The SABR player is only rendered for playable videos
-    if params.quality == "sabr" && video.reason.nil?
+    # The SABR player is only rendered for playable videos (and upcoming premieres)
+    if params.quality == "sabr" && video.unplayable_reason.nil?
       Invidious::Routes::BeforeAll.allow_eval_for_sabr_player(env)
     end
 

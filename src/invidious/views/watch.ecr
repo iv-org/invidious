@@ -77,16 +77,17 @@ we're going to need to do it here in order to allow for translations.
 %>
 </script>
 
-<% if video.reason.nil? %>
+<% unplayable_reason = video.unplayable_reason %>
+<% if unplayable_reason.nil? %>
 <div id="player-container" class="h-box">
     <%= rendered "components/player" %>
 </div>
 <% end %>
 
 <div class="h-box">
-    <% if video.reason %>
+    <% if unplayable_reason %>
         <h3>
-            <%= I18n.translate(locale, "error_from_youtube_unplayable") %> <%= video.reason %>
+            <%= I18n.translate(locale, "error_from_youtube_unplayable") %> <%= unplayable_reason %>
         </h3>
         <% if video.subreason %>
         <p><%= video.subreason %></p>

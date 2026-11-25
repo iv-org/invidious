@@ -68,6 +68,8 @@ var SABRPlayer = (function () {
   var hasPlayed = false;         // playback started at least once for the current load
   var loadGeneration = 0;        // bumped by every loadVideo()/dispose(), to drop stale async work
   var isLive = false;
+  // An active broadcast (not a post-live DVR replay, which also plays from HLS).
+  var isActiveLive = false;
   var innertube = null;
   var clientConfig = null;
   var savePositionInterval = null;
@@ -170,7 +172,7 @@ var SABRPlayer = (function () {
   // Save the current position of the loaded video (no-op when the preference is off
   // or no load has completed). Like the classic player, the last 15 s aren't saved.
   function saveCurrentPosition() {
-    if (!savePositionsEnabled || !loadedVideoId || !videoElement || isLive) return;
+    if (!savePositionsEnabled || !loadedVideoId || !videoElement || isActiveLive) return;
     var time = Math.floor(videoElement.currentTime);
     if (!isFinite(time) || time < 1) return;
     if (loadedDuration > 0 && time > loadedDuration - 15) return;
@@ -308,11 +310,16 @@ var SABRPlayer = (function () {
   // sabr: scheme when the server answers with StreamProtectionStatus 3
   // (ATTESTATION_REQUIRED) and refuses to send any more media until we re-attest.
   async function mintFreshPoToken() {
-    if (!currentVideoId) return null;
+    var videoId = currentVideoId;
+    var generation = loadGeneration;
+    if (!videoId) return null;
     try {
       await BotguardService.reinit();
       if (!BotguardService.isInitialized()) return null;
-      var token = await BotguardService.mintWebPoToken(currentVideoId);
+      var token = await BotguardService.mintWebPoToken(videoId);
+      // Another load started meanwhile: the token belongs to a retired request, don't
+      // let it replace the new load's token.
+      if (generation !== loadGeneration) return null;
       if (token) {
         playbackWebPoToken = token;
         console.info('[SABRPlayer]', 'Re-minted WebPO token after attestation request');
@@ -324,7 +331,7 @@ var SABRPlayer = (function () {
     }
   }
 
-  async function initializeShakaPlayer(containerElement, listenMode) {
+  async function initializeShakaPlayer(containerElement, listenMode, controls) {
     if (!shaka.Player.isBrowserSupported()) {
       throw new Error('Shaka Player is not supported in this browser');
     }
@@ -382,9 +389,11 @@ var SABRPlayer = (function () {
     videoElement.addEventListener('waiting', function () { showSpinner(); });
     videoElement.addEventListener('canplay', function () { hideSpinner(); });
     videoElement.addEventListener('pause', saveCurrentPosition);
+    videoElement.addEventListener('timeupdate', enforceEndTime);
 
     // Page-level keyboard shortcuts (installed once per SABRPlayer instance).
-    if (!keydownInstalled) {
+    // controls=0: no playback shortcuts and no control overlay, like the classic player.
+    if (controls && !keydownInstalled) {
       document.addEventListener('keydown', handleKeydown);
       keydownInstalled = true;
     }
@@ -398,7 +407,7 @@ var SABRPlayer = (function () {
       recoverLive(loadGeneration);
     });
 
-    if (shaka.ui && shaka.ui.Overlay) {
+    if (controls && shaka.ui && shaka.ui.Overlay) {
       registerAudioTrackMenu();
       ui = new shaka.ui.Overlay(player, shakaContainer, videoElement);
       ui.configure({
@@ -481,6 +490,11 @@ var SABRPlayer = (function () {
         // itag 140 except for half the sample rate.
         if (!format && itag === 139) format = audioFormats.find(function (f) { return f.itag === 140; });
 
+        // Leave a rendition whose audio metadata is incomplete as it is.
+        if (format && (!isFinite(format.audio_channels) || (itag !== 139 && !isFinite(format.audio_sample_rate)) ||
+            !MIME_TYPE_CODECS_REGEX.test(format.mime_type || ''))) {
+          format = null;
+        }
         if (format) {
           var sampleRate = itag === 139 && format.itag !== 139 ? ITAG_139_SAMPLE_RATE : format.audio_sample_rate.toFixed(0);
           var codec = format.mime_type.match(MIME_TYPE_CODECS_REGEX)[1];
@@ -504,7 +518,13 @@ var SABRPlayer = (function () {
 
     if (linesToInsert.length === 0) return data;
     Array.prototype.splice.apply(lines, [firstStreamIndex, 0].concat(linesToInsert));
-    lines.splice(1, 0, '#EXT-X-VERSION:7');
+    // EXT-X-MEDIA with CHANNELS needs version 7; keep a single EXT-X-VERSION tag.
+    var versionIndex = lines.findIndex(function (line) { return line.indexOf('#EXT-X-VERSION:') === 0; });
+    if (versionIndex === -1) {
+      lines.splice(1, 0, '#EXT-X-VERSION:7');
+    } else if (!(parseInt(lines[versionIndex].slice('#EXT-X-VERSION:'.length), 10) >= 7)) {
+      lines[versionIndex] = '#EXT-X-VERSION:7';
+    }
     return new TextEncoder().encode(lines.join('\n') + '\n');
   }
 
@@ -960,8 +980,12 @@ var SABRPlayer = (function () {
       if (resumeAt !== undefined && resumeAt > 1) reloadOptions.startTime = resumeAt;
       // A server-requested reload resumes at the same position, in the same play/pause
       // state, loop and speed (the user may have changed them since the page loaded).
-      reloadOptions.startPaused = wasPaused;
-      reloadOptions.autoplay = !wasPaused;
+      // Before playback has started, the video is paused because nothing called play()
+      // yet: keep the requested autoplay instead of treating it as a user pause.
+      if (hasPlayed) {
+        reloadOptions.startPaused = wasPaused;
+        reloadOptions.autoplay = !wasPaused;
+      }
       if (videoElement) {
         reloadOptions.loop = videoElement.loop;
         reloadOptions.speed = videoElement.playbackRate;
@@ -993,7 +1017,24 @@ var SABRPlayer = (function () {
   }
 
   // Apply the page's playback settings (speed, loop) to the media element.
+  // The `end` parameter: at the end time, pause, or go back to the start of the
+  // excerpt when looping (like the classic player's end marker).
+  var endTimeReached = false;
+  function enforceEndTime() {
+    var endTime = currentLoadOptions && currentLoadOptions.endTime;
+    if (!endTime || !videoElement || loadedVideoId === null) return;
+    if (videoElement.currentTime < endTime) { endTimeReached = false; return; }
+    if (endTimeReached) return;
+    endTimeReached = true;
+    if (videoElement.loop) {
+      videoElement.currentTime = currentLoadOptions.startTime || 0;
+    } else {
+      videoElement.pause();
+    }
+  }
+
   function applyPlaybackSettings(options) {
+    if (typeof options.volume === 'number' && isFinite(options.volume)) videoElement.volume = options.volume;
     var speed = Number(options.speed);
     // Shaka drives the media element's rate (0 while buffering), so go through it.
     if (isFinite(speed) && speed > 0 && speed !== player.getPlaybackRate()) {
@@ -1041,7 +1082,7 @@ var SABRPlayer = (function () {
       if (!player) {
         requestFiltersInstalled = false;
         loadedListenerInstalled = false;
-        shakaPromise = initializeShakaPlayer(containerElement, options.listen);
+        shakaPromise = initializeShakaPlayer(containerElement, options.listen, options.controls !== false);
       } else {
         player.configure('abr', DEFAULT_ABR_CONFIG);
         player.configure('manifest.disableVideo', !!options.listen);
@@ -1112,12 +1153,16 @@ var SABRPlayer = (function () {
         var reason = (videoInfo && videoInfo.playability_status && videoInfo.playability_status.reason) || 'Unknown error';
         throw new Error('Video unavailable: ' + reason);
       }
+      // A newer load took over while this one waited for the player response: it
+      // must not touch the shared state (the catch below reports it as superseded).
+      if (generation !== loadGeneration) throw new Error('Load superseded');
       var basicInfo = videoInfo.basic_info || {};
       // Live and post-live DVR streams use YouTube's HLS/DASH manifest instead of SABR
       // (like FreeTube). Only an active broadcast starts at the live edge; a post-live
       // DVR replay keeps the requested start position.
       isLive = !!(basicInfo.is_live || basicInfo.is_post_live_dvr);
       var startAtLiveEdge = !!basicInfo.is_live;
+      isActiveLive = startAtLiveEdge;
 
       var streamingData = videoInfo.streaming_data;
       if (!streamingData) throw new Error('No streaming data available');
@@ -1158,6 +1203,9 @@ var SABRPlayer = (function () {
       }
 
       if (!manifestUri) throw new Error('Could not find a valid manifest URI');
+      // Check ownership again after the async steps above, before publishing the scheme,
+      // the manifest and the player configuration.
+      if (generation !== loadGeneration) throw new Error('Load superseded');
 
       // Register the sabr: scheme before loading (idempotent re-registration is fine).
       if (!isLive && window.setupSabrScheme && SABRPlayer._lastSabrData) {
@@ -1229,7 +1277,7 @@ var SABRPlayer = (function () {
       applyPlaybackSettings(options);
       if (!options.listen) applyQualityPreference(options.qualityPreference);
       loadedVideoId = videoId;
-      loadedDuration = isLive ? 0 : duration;
+      loadedDuration = isActiveLive ? 0 : duration;
 
       // Autoplay only when asked to; a server-requested reload that happened while the
       // user had the video paused stays paused (options.startPaused).
@@ -1239,7 +1287,7 @@ var SABRPlayer = (function () {
         });
       }
 
-      if (savePositionsEnabled && !isLive) {
+      if (savePositionsEnabled && !isActiveLive) {
         savePositionInterval = setInterval(function () {
           if (videoElement && !videoElement.paused) saveCurrentPosition();
         }, SAVE_POSITION_INTERVAL_MS);
