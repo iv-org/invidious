@@ -38,6 +38,7 @@ struct ConfigPreferences
   property quality : String = "dash"
   property quality_dash : String = "auto"
   property quality_sabr : String = "vp9"
+  property quality_sabr_resolution : String = "auto"
   property default_home : String? = "Popular"
   property feed_menu : Array(String) = ["Popular", "Trending", "Subscriptions", "Playlists"]
   property automatic_instance_redirect : Bool = false

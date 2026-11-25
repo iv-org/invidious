@@ -74,7 +74,16 @@
             <% end %>
 
             <% if !CONFIG.disabled?("dash") %>
-                <div class="pure-control-group" id="sabr-codec-group" style="<%= preferences.quality == "sabr" ? "" : "display:none;" %>">
+                <div class="pure-control-group sabr-preference" style="<%= preferences.quality == "sabr" ? "" : "display:none;" %>">
+                    <label for="quality_sabr_resolution"><%= I18n.translate(locale, "preferences_quality_sabr_resolution_label") %></label>
+                    <select name="quality_sabr_resolution" id="quality_sabr_resolution">
+                        <% Invidious::Videos::SABR_RESOLUTIONS.each do |option| %>
+                            <option value="<%= option %>" <% if preferences.quality_sabr_resolution == option %> selected <% end %>><%= I18n.translate(locale, "preferences_quality_dash_option_" + option) %></option>
+                        <% end %>
+                    </select>
+                </div>
+
+                <div class="pure-control-group sabr-preference" id="sabr-codec-group" style="<%= preferences.quality == "sabr" ? "" : "display:none;" %>">
                     <label for="quality_sabr"><%= I18n.translate(locale, "preferences_quality_sabr_label") %></label>
                     <select name="quality_sabr" id="quality_sabr">
                         <% {"vp9", "av1", "h264"}.each do |option| %>

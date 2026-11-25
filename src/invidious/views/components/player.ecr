@@ -16,6 +16,7 @@
          data-speed="<%= params.speed %>"
          data-save-player-pos="<%= params.save_player_pos %>"
          data-quality-sabr="<%= HTML.escape(sabr_codec) %>"
+         data-quality-sabr-resolution="<%= HTML.escape(params.quality_sabr_resolution) %>"
          data-i18n-load-failed="<%= HTML.escape(I18n.translate(locale, "sabr_error_load_failed")) %>"
          data-i18n-unavailable="<%= HTML.escape(I18n.translate(locale, "sabr_error_unavailable")) %>"
          data-i18n-throttled="<%= HTML.escape(I18n.translate(locale, "sabr_error_throttled")) %>"

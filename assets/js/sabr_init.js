@@ -25,7 +25,8 @@
             speed: parseFloat(data.speed) || 1,
             startTime: (hasStartParam || videoStart > 0) && isFinite(videoStart) ? videoStart : undefined,
             savePlayerPos: data.savePlayerPos === 'true',
-            codecPreference: data.qualitySabr || 'vp9'
+            codecPreference: data.qualitySabr || 'vp9',
+            qualityPreference: data.qualitySabrResolution || 'auto'
         };
     }
 

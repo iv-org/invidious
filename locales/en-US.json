@@ -96,6 +96,7 @@
     "preferences_quality_dash_option_360p": "360p",
     "preferences_quality_dash_option_240p": "240p",
     "preferences_quality_dash_option_144p": "144p",
+    "preferences_quality_sabr_resolution_label": "Preferred SABR video quality: ",
     "preferences_quality_sabr_label": "Preferred SABR video codec: ",
     "preferences_quality_sabr_option_vp9": "VP9 (default)",
     "preferences_quality_sabr_option_av1": "AV1",

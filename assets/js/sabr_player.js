@@ -515,6 +515,37 @@ var SABRPlayer = (function () {
     return live ? buttons.filter(function (b) { return b !== 'sabr_audio_tracks'; }) : buttons;
   }
 
+  // Video quality preference (quality_sabr_resolution), with the same rules as the
+  // classic DASH player: "auto" keeps ABR; "best"/"worst" pin the highest/lowest
+  // quality; a height pins the highest quality at or below it (the lowest one when
+  // none is). The audio track in use is kept. Choosing "Auto" in the player's
+  // quality menu turns ABR back on.
+  function applyQualityPreference(quality) {
+    if (!player || !quality || quality === 'auto') return;
+    var all = player.getVariantTracks();
+    var active = all.find(function (t) { return t.active; });
+    if (!active) return;
+    var tracks = all.filter(function (t) {
+      return t.height && t.originalAudioId === active.originalAudioId;
+    }).sort(function (a, b) { return (a.height - b.height) || (a.bandwidth - b.bandwidth); });
+    if (tracks.length === 0) return;
+
+    var target;
+    if (quality === 'best') {
+      target = tracks[tracks.length - 1];
+    } else if (quality === 'worst') {
+      target = tracks[0];
+    } else {
+      var maxHeight = parseInt(quality, 10);
+      if (!isFinite(maxHeight)) return;
+      var fitting = tracks.filter(function (t) { return t.height <= maxHeight; });
+      target = fitting.length ? fitting[fitting.length - 1] : tracks[0];
+    }
+
+    player.configure('abr.enabled', false);
+    player.selectVariantTrack(target, /* clearBuffer= */ true);
+  }
+
   // Audio track menu (port of FreeTube's AudioTrackSelection). Shaka's own language
   // menu lists one entry per language + codec, and ignores labels: a video with
   // original and "Stable Volume" (DRC) audio showed "French AAC" twice and "French
@@ -983,6 +1014,7 @@ var SABRPlayer = (function () {
    * @param {number} [options.startTime] - explicit start position (seconds)
    * @param {boolean} [options.savePlayerPos] - save/restore the playback position
    * @param {string} [options.codecPreference] - 'vp9' | 'av1' | 'h264'
+   * @param {string} [options.qualityPreference] - 'auto' | 'best' | 'worst' | '1080p', ...
    */
   async function loadVideo(videoId, containerElement, options) {
     options = options || {};
@@ -1195,6 +1227,7 @@ var SABRPlayer = (function () {
       }
 
       applyPlaybackSettings(options);
+      if (!options.listen) applyQualityPreference(options.qualityPreference);
       loadedVideoId = videoId;
       loadedDuration = isLive ? 0 : duration;
 

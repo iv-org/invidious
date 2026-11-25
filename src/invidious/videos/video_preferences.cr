@@ -4,6 +4,9 @@ module Invidious::Videos
   # Codec preferences supported by the SABR player (`quality_sabr`)
   SABR_CODECS = {"vp9", "av1", "h264"}
 
+  # Video quality preferences of the SABR player (`quality_sabr_resolution`), like DASH's
+  SABR_RESOLUTIONS = {"auto", "best", "4320p", "2160p", "1440p", "1080p", "720p", "480p", "360p", "240p", "144p", "worst"}
+
   struct VideoPreferences
     include JSON::Serializable
 
@@ -21,6 +24,7 @@ module Invidious::Videos
     property quality : String
     property quality_dash : String
     property quality_sabr : String
+    property quality_sabr_resolution : String
     property raw : Bool
     property region : String?
     property related_videos : Bool
@@ -48,6 +52,7 @@ module Invidious::Videos
     quality = query["quality"]?
     quality_dash = query["quality_dash"]?
     quality_sabr = query["quality_sabr"]?
+    quality_sabr_resolution = query["quality_sabr_resolution"]?
     region = query["region"]?
     related_videos = query["related_videos"]?.try { |q| (q == "true" || q == "1").to_unsafe }
     speed = query["speed"]?.try &.rchop("x").to_f?
@@ -72,6 +77,7 @@ module Invidious::Videos
       quality ||= preferences.quality
       quality_dash ||= preferences.quality_dash
       quality_sabr ||= preferences.quality_sabr
+      quality_sabr_resolution ||= preferences.quality_sabr_resolution
       related_videos ||= preferences.related_videos.to_unsafe
       speed ||= preferences.speed
       video_loop ||= preferences.video_loop.to_unsafe
@@ -96,6 +102,8 @@ module Invidious::Videos
     quality_sabr ||= CONFIG.default_user_preferences.quality_sabr
     # Only the codecs the SABR player knows; the value is printed in the page.
     quality_sabr = "vp9" if !SABR_CODECS.includes?(quality_sabr)
+    quality_sabr_resolution ||= CONFIG.default_user_preferences.quality_sabr_resolution
+    quality_sabr_resolution = "auto" if !SABR_RESOLUTIONS.includes?(quality_sabr_resolution)
     related_videos ||= CONFIG.default_user_preferences.related_videos.to_unsafe
     speed ||= CONFIG.default_user_preferences.speed
     video_loop ||= CONFIG.default_user_preferences.video_loop.to_unsafe
@@ -145,31 +153,32 @@ module Invidious::Videos
     controls = controls >= 1
 
     params = VideoPreferences.new({
-      annotations:        annotations,
-      preload:            preload,
-      autoplay:           autoplay,
-      comments:           comments,
-      continue:           continue,
-      continue_autoplay:  continue_autoplay,
-      controls:           controls,
-      listen:             listen,
-      local:              local,
-      player_style:       player_style,
-      preferred_captions: preferred_captions,
-      quality:            quality,
-      quality_dash:       quality_dash,
-      quality_sabr:       quality_sabr,
-      raw:                raw,
-      region:             region,
-      related_videos:     related_videos,
-      speed:              speed,
-      video_end:          video_end,
-      video_loop:         video_loop,
-      extend_desc:        extend_desc,
-      video_start:        video_start,
-      volume:             volume,
-      vr_mode:            vr_mode,
-      save_player_pos:    save_player_pos,
+      annotations:             annotations,
+      preload:                 preload,
+      autoplay:                autoplay,
+      comments:                comments,
+      continue:                continue,
+      continue_autoplay:       continue_autoplay,
+      controls:                controls,
+      listen:                  listen,
+      local:                   local,
+      player_style:            player_style,
+      preferred_captions:      preferred_captions,
+      quality:                 quality,
+      quality_dash:            quality_dash,
+      quality_sabr:            quality_sabr,
+      quality_sabr_resolution: quality_sabr_resolution,
+      raw:                     raw,
+      region:                  region,
+      related_videos:          related_videos,
+      speed:                   speed,
+      video_end:               video_end,
+      video_loop:              video_loop,
+      extend_desc:             extend_desc,
+      video_start:             video_start,
+      volume:                  volume,
+      vr_mode:                 vr_mode,
+      save_player_pos:         save_player_pos,
     })
 
     return params

@@ -82,6 +82,12 @@ module Invidious::Routes::PreferencesRoute
     quality_sabr ||= CONFIG.default_user_preferences.quality_sabr
     quality_sabr = CONFIG.default_user_preferences.quality_sabr if !Invidious::Videos::SABR_CODECS.includes?(quality_sabr)
 
+    quality_sabr_resolution = env.params.body["quality_sabr_resolution"]?.try &.as(String)
+    quality_sabr_resolution ||= CONFIG.default_user_preferences.quality_sabr_resolution
+    if !Invidious::Videos::SABR_RESOLUTIONS.includes?(quality_sabr_resolution)
+      quality_sabr_resolution = CONFIG.default_user_preferences.quality_sabr_resolution
+    end
+
     volume = env.params.body["volume"]?.try &.as(String).to_i?
     volume ||= CONFIG.default_user_preferences.volume
 
@@ -187,6 +193,7 @@ module Invidious::Routes::PreferencesRoute
       quality:                     quality,
       quality_dash:                quality_dash,
       quality_sabr:                quality_sabr,
+      quality_sabr_resolution:     quality_sabr_resolution,
       default_home:                default_home,
       feed_menu:                   feed_menu,
       automatic_instance_redirect: automatic_instance_redirect,
