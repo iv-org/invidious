@@ -37,6 +37,8 @@ struct ConfigPreferences
   property player_style : String = "invidious"
   property quality : String = "dash"
   property quality_dash : String = "auto"
+  property quality_sabr : String = "vp9"
+  property quality_sabr_resolution : String = "auto"
   property default_home : String? = "Popular"
   property feed_menu : Array(String) = ["Popular", "Trending", "Subscriptions", "Playlists"]
   property automatic_instance_redirect : Bool = false
@@ -309,7 +311,7 @@ class Config
         end
       end
     else
-      puts("WARNING: Invidious companion is required to view and playback videos. For more information see https://docs.invidious.io/installation/")
+      puts("WARNING: Without Invidious companion, videos can only be played with the SABR player (quality=sabr): the DASH, medium/small qualities, downloads and the video streams of the API need it. For more information see https://docs.invidious.io/installation/")
     end
 
     # HMAC_key is mandatory

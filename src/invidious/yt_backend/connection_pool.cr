@@ -104,9 +104,11 @@ struct CompanionConnectionPool
   end
 end
 
+YT_DEFAULT_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"
+
 def add_yt_headers(request, no_cookies)
   request.headers.delete("User-Agent") if request.headers["User-Agent"] == "Crystal"
-  request.headers["User-Agent"] ||= "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"
+  request.headers["User-Agent"] ||= YT_DEFAULT_USER_AGENT
 
   request.headers["Accept-Charset"] ||= "ISO-8859-1,utf-8;q=0.7,*;q=0.7"
   request.headers["Accept"] ||= "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"

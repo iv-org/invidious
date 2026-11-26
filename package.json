@@ -1,0 +1,14 @@
+{
+  "name": "invidious-sabr",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "bundle-sabr": "node scripts/bundle-sabr-libs.js"
+  },
+  "dependencies": {
+    "googlevideo": "5.0.1"
+  },
+  "devDependencies": {
+    "esbuild": "0.27.2"
+  }
+}

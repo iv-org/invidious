@@ -149,7 +149,9 @@ module Invidious::Routes::Embed
     #   PG_DB.exec("UPDATE users SET watched = array_append(watched, $1) WHERE email = $2", id, user.as(User).email)
     # end
 
-    if CONFIG.enable_user_notifications && notifications && notifications.includes? id
+    # Keep the notification when no player can play the video on this instance
+    playable = video.unplayable_reason.nil? && !(video.no_backend_streams? && CONFIG.disabled?("dash"))
+    if CONFIG.enable_user_notifications && notifications && notifications.includes?(id) && playable
       Invidious::Database::Users.remove_notification(user.as(User), id)
       env.get("user").as(User).notifications.delete(id)
       notifications.delete(id)
@@ -168,11 +170,32 @@ module Invidious::Routes::Embed
     video_streams = video.video_streams
     audio_streams = video.audio_streams
 
-    if audio_streams.empty? && !video.live_now
+    # No backend stream and SABR is disabled with DASH: nothing can play the video.
+    if video.no_backend_streams? && CONFIG.disabled?("dash") && !params.raw
+      return Errors.error_template(404, InfoException.new("This video can't be played on this instance: no video stream is available."))
+    end
+
+    # Without any stream from the backend (e.g. no Invidious companion), only
+    # the SABR player can play the video, as it fetches the streams itself.
+    # Raw requests need a backend stream, they are handled below.
+    if video.no_backend_streams? && params.quality != "sabr" && !params.raw && !CONFIG.disabled?("dash")
+      env.params.query.delete_all("quality")
+      env.params.query["quality"] = "sabr"
+      # `playlist` was consumed above: keep the rest of the series
+      env.params.query["playlist"] = video_series.join(",") if video_series
+      return env.redirect "/embed/#{id}?#{env.params.query}"
+    end
+
+    if audio_streams.empty? && !video.live_now && video.reason.nil?
       if params.quality == "dash"
+        # Explicit quality: removing it would fall back to a saved "dash" preference
+        # and redirect here again.
         env.params.query.delete_all("quality")
+        # Without progressive streams either, only SABR can play (like /watch)
+        env.params.query["quality"] = fmt_stream.empty? ? "sabr" : "medium"
         return env.redirect "/embed/#{id}?#{env.params.query}"
-      elsif params.listen
+      elsif params.listen && params.quality != "sabr"
+        # The SABR player fetches its own audio streams
         env.params.query.delete_all("listen")
         env.params.query["listen"] = "0"
         return env.redirect "/embed/#{id}?#{env.params.query}"
@@ -196,6 +219,12 @@ module Invidious::Routes::Embed
     thumbnail = "/vi/#{video.id}/maxres.jpg"
 
     if params.raw
+      if reason = video.reason
+        return Errors.error_template(500, InfoException.new(video.subreason || reason))
+      elsif fmt_stream.empty?
+        return Errors.error_template(404, InfoException.new("No stream is available for this video on this instance."))
+      end
+
       url = fmt_stream[0]["url"].as_s
 
       fmt_stream.each do |fmt|
@@ -207,6 +236,11 @@ module Invidious::Routes::Embed
 
     if CONFIG.invidious_companion.present?
       invidious_companion = CONFIG.invidious_companion.sample
+    end
+
+    # The SABR player is only rendered for playable videos (and upcoming premieres)
+    if params.quality == "sabr" && video.unplayable_reason.nil?
+      Invidious::Routes::BeforeAll.allow_eval_for_sabr_player(env)
     end
 
     rendered "embed"

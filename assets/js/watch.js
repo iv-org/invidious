@@ -32,7 +32,11 @@ function next_video() {
     location.assign(url.pathname + url.search);
 }
 
+// The page has no player when the video can't be played (only its error is shown).
+var has_player = typeof player !== 'undefined';
+
 function continue_autoplay(event) {
+    if (!has_player) return;
     if (event.target.checked) {
         player.on('ended', next_video);
     } else {
@@ -65,7 +69,7 @@ function get_playlist(plid) {
         on200: function (response) {
             playlist.innerHTML = response.playlistHtml;
 
-            if (!response.nextVideo) return;
+            if (!response.nextVideo || !has_player) return;
 
             var nextVideo = document.getElementById(response.nextVideo);
             nextVideo.parentNode.parentNode.scrollTop = nextVideo.offsetTop;
@@ -101,7 +105,7 @@ function get_playlist(plid) {
     });
 }
 
-if (video_data.play_next) {
+if (video_data.play_next && has_player) {
     player.on('ended', function () {
         var url = new URL('https://example.com/watch?v=' + video_data.next_video);
 

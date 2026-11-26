@@ -45,6 +45,10 @@ module Invidious::Routes::BeforeAll
 
     # TODO: Remove style-src's 'unsafe-inline', requires to remove all
     # inline styles (<style> [..] </style>, style=" [..] ")
+    # Note: the SABR player's YouTube requests (Innertube, BotGuard, media) all go
+    # through the same-origin /proxy route, so connect-src needs no Google host.
+    # Note: the SABR player needs 'unsafe-eval', which is only added to the
+    # pages that render it, see `allow_eval_for_sabr_player`.
     env.response.headers["Content-Security-Policy"] = {
       "default-src 'none'",
       "script-src 'self'",
@@ -53,7 +57,8 @@ module Invidious::Routes::BeforeAll
       "font-src 'self' data:",
       "connect-src 'self' " + COMPANION_CSP.companion_urls,
       "manifest-src 'self'",
-      "media-src 'self' blob: " + COMPANION_CSP.companion_urls,
+      # data: is used by Shaka (SABR player) for its placeholder text tracks
+      "media-src 'self' blob: data: " + COMPANION_CSP.companion_urls,
       "child-src 'self' blob:",
       "frame-src 'self'",
       "frame-ancestors " + frame_ancestors,
@@ -146,5 +151,18 @@ module Invidious::Routes::BeforeAll
     end
 
     env.set "current_page", URI.encode_www_form(current_page)
+  end
+
+  # Adds 'unsafe-eval' to the `script-src` directive of the response's CSP.
+  #
+  # Only call this for responses that render the SABR player (watch and embed
+  # pages with `quality=sabr`): youtubei.js deciphers the stream URLs and runs
+  # the BotGuard interpreter with `new Function`/indirect eval. It must never be
+  # enabled site-wide, and inline scripts stay forbidden.
+  def allow_eval_for_sabr_player(env)
+    csp = env.response.headers["Content-Security-Policy"]?
+    return if csp.nil? || csp.includes?("'unsafe-eval'")
+
+    env.response.headers["Content-Security-Policy"] = csp.sub("script-src 'self'", "script-src 'self' 'unsafe-eval'")
   end
 end

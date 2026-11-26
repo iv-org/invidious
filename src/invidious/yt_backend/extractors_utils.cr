@@ -66,6 +66,19 @@ rescue ex
   return false
 end
 
+def has_unlisted_badge?(badges : JSON::Any?) : Bool
+  return false if badges.nil?
+
+  badges.as_a.any? do |badge|
+    badge.dig?("metadataBadgeRenderer", "icon", "iconType").try &.as_s? == "PRIVACY_UNLISTED"
+  end
+rescue ex
+  LOGGER.debug("Unable to parse video badges. Got exception: #{ex.message}")
+  LOGGER.trace("Video badges data: #{badges.to_json}")
+
+  return false
+end
+
 # This function extracts SearchVideo items from a Category.
 # Categories are commonly returned in search results and trending pages.
 def extract_category(category : Category) : Array(SearchVideo)

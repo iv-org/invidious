@@ -20,11 +20,16 @@
                 e.preventDefault();
                 var time = t.getAttribute('data-jump-time');
                 player.currentTime(time);
-                // The player_html5_api element is the Video.JS player ID.
-                document.getElementById('player_html5_api').scrollIntoView({
-                  behavior: 'smooth',
-                  block: 'start'
-                });
+                // The player_html5_api element is the Video.JS player ID
+                // (sabr-player-container with the SABR player).
+                var player_element = document.getElementById('player_html5_api') ||
+                    document.getElementById('sabr-player-container');
+                if (player_element) {
+                    player_element.scrollIntoView({
+                      behavior: 'smooth',
+                      block: 'start'
+                    });
+                }
                 player.play();
                 break;
             case 'get_youtube_replies':

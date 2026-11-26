@@ -77,7 +77,7 @@ struct Video
   end
 
   def post_live_dvr
-    return info["isPostLiveDvr"].as_bool
+    return info["isPostLiveDvr"]?.try(&.as_bool?) || false
   end
 
   def premiere_timestamp : Time?
@@ -124,7 +124,7 @@ struct Video
   # Misc. methods
 
   def storyboards
-    container = info.dig?("storyboards") || JSON::Any.new("{}")
+    container = info.dig?("storyboards") || JSON::Any.new({} of String => JSON::Any)
     return IV::Videos::Storyboard.from_yt_json(container, self.length_seconds)
   end
 
@@ -167,7 +167,7 @@ struct Video
   end
 
   def genre_url : String?
-    info["genreUcid"].try &.as_s? ? "/channel/#{info["genreUcid"]}" : nil
+    info["genreUcid"]?.try &.as_s?.try { |ucid| "/channel/#{ucid}" }
   end
 
   def vr? : Bool?
@@ -179,11 +179,59 @@ struct Video
   end
 
   def reason : String?
-    info["reason"]?.try &.as_s
+    # Use `as_s?` so a JSON `null` (stored by some error paths) yields `nil`
+    # instead of raising a TypeCastError.
+    info["reason"]?.try &.as_s?
+  end
+
+  def subreason : String?
+    info["subreason"]?.try &.as_s?
+  end
+
+  # True for the minimal record built when YouTube refuses to play the video
+  # and no metadata could be extracted (only version, reason and subreason).
+  def error_only? : Bool
+    !self.reason.nil? && !info.has_key?("title")
+  end
+
+  # Extracted after a failed player request (e.g. Invidious companion temporarily
+  # down): only the metadata is known, so the record must not be cached.
+  def transient? : Bool
+    info["transientPlayerFailure"]?.try(&.as_bool?) || false
+  end
+
+  # The reason why the video can't be played, or `nil` if it is playable or an
+  # upcoming premiere/livestream (whose metadata and countdown are displayed).
+  def unplayable_reason : String?
+    reason = self.reason
+    return if reason.nil? || reason.starts_with?("Premieres")
+
+    # Only an upcoming premiere/livestream (or one that hasn't started yet) is
+    # exempt: an ended broadcast also has a start timestamp, and its playback
+    # errors must not be hidden.
+    if timestamp = self.premiere_timestamp
+      status = info.dig?("playabilityStatus", "status").try &.as_s?
+      return if timestamp > Time.utc || status == "LIVE_STREAM_OFFLINE"
+    end
+
+    return reason
+  end
+
+  # True when the backend has no stream at all for a playable, non-live video
+  # (e.g. without Invidious companion): only the SABR player can play it.
+  def no_backend_streams? : Bool
+    return false if !self.reason.nil? || !self.fmt_stream.empty? || !self.adaptive_fmts.empty?
+    # A livestream is played from its HLS manifest
+    return !self.live_now || self.hls_manifest_url.nil?
+  end
+
+  # Whether the classic DASH player can play this video on this instance
+  def dash_playable? : Bool
+    !CONFIG.disabled?("dash") && !self.no_backend_streams?
   end
 
   def music : Array(VideoMusic)
-    info["music"].as_a.map do |music_json|
+    (info["music"]?.try &.as_a? || [] of JSON::Any).map do |music_json|
       VideoMusic.new(
         music_json["song"].as_s,
         music_json["album"].as_s,
@@ -195,7 +243,7 @@ struct Video
 
   # Returns true if comments are enabled on the video
   def comments?
-    return info["commentsEnabled"].as_bool
+    return info["commentsEnabled"]?.try &.as_bool? || false
   end
 
   # Macros defining getters/setters for various types of data
@@ -312,7 +360,13 @@ def get_video(id, refresh = true, region = nil, force_refresh = false)
        video.schema_version != Video::SCHEMA_VERSION # cache control
       begin
         video = fetch_video(id, region)
-        Invidious::Database::Videos.update(video)
+        # Don't keep a minimal error record (often a transient block from
+        # YouTube) for the whole cache duration: retry on the next request.
+        if video.error_only? || video.transient?
+          Invidious::Database::Videos.delete(id)
+        else
+          Invidious::Database::Videos.update(video)
+        end
       rescue ex
         Invidious::Database::Videos.delete(id)
         raise ex
@@ -320,7 +374,7 @@ def get_video(id, refresh = true, region = nil, force_refresh = false)
     end
   else
     video = fetch_video(id, region)
-    Invidious::Database::Videos.insert(video) if !region
+    Invidious::Database::Videos.insert(video) if !region && !video.error_only? && !video.transient?
   end
 
   return video
@@ -331,25 +385,9 @@ rescue DB::Error
 end
 
 def fetch_video(id, region)
+  # `extract_video_info` always returns a hash (it raises `NotFoundException`
+  # for genuinely unavailable videos), so there is no nil case to handle here.
   info = Invidious::Videos::Parser.extract_video_info(video_id: id)
-
-  if info.nil?
-    raise InfoException.new("Invidious companion is not available. \
-    Video playback cannot continue. \
-    If you are the administrator of this instance, install Invidious companion \
-    following the installation instructions \
-    <a href=\"https://docs.invidious.io/installation/\">https://docs.invidious.io/installation/</a>")
-  end
-
-  if reason = info["reason"]?
-    if reason == "Video unavailable"
-      raise NotFoundException.new(reason.as_s || "")
-    elsif !reason.as_s.starts_with? "Premieres"
-      # dont error when it's a premiere.
-      # we already parsed most of the data and display the premiere date
-      raise InfoException.new(reason.as_s || "")
-    end
-  end
 
   video = Video.new({
     id:      id,

@@ -14,6 +14,18 @@ module Invidious::Routes::PreferencesRoute
     locale = env.get("preferences").as(Preferences).locale
     referer = get_referer(env)
 
+    # A `quality` query param on the watch page overrides the saved player
+    # preference, so drop it, otherwise the newly saved player is never used.
+    referer_uri = URI.parse(referer)
+    if referer_uri.path == "/watch" && (referer_query = referer_uri.query)
+      referer_params = URI::Params.parse(referer_query)
+      if referer_params.has_key?("quality")
+        referer_params.delete_all("quality")
+        referer_uri.query = referer_params.to_s
+        referer = referer_uri.request_target
+      end
+    end
+
     video_loop = env.params.body["video_loop"]?.try &.as(String)
     video_loop ||= "off"
     video_loop = video_loop == "on"
@@ -65,6 +77,16 @@ module Invidious::Routes::PreferencesRoute
 
     quality_dash = env.params.body["quality_dash"]?.try &.as(String)
     quality_dash ||= CONFIG.default_user_preferences.quality_dash
+
+    quality_sabr = env.params.body["quality_sabr"]?.try &.as(String)
+    quality_sabr ||= CONFIG.default_user_preferences.quality_sabr
+    quality_sabr = CONFIG.default_user_preferences.quality_sabr if !Invidious::Videos::SABR_CODECS.includes?(quality_sabr)
+
+    quality_sabr_resolution = env.params.body["quality_sabr_resolution"]?.try &.as(String)
+    quality_sabr_resolution ||= CONFIG.default_user_preferences.quality_sabr_resolution
+    if !Invidious::Videos::SABR_RESOLUTIONS.includes?(quality_sabr_resolution)
+      quality_sabr_resolution = CONFIG.default_user_preferences.quality_sabr_resolution
+    end
 
     volume = env.params.body["volume"]?.try &.as(String).to_i?
     volume ||= CONFIG.default_user_preferences.volume
@@ -170,6 +192,8 @@ module Invidious::Routes::PreferencesRoute
       player_style:                player_style,
       quality:                     quality,
       quality_dash:                quality_dash,
+      quality_sabr:                quality_sabr,
+      quality_sabr_resolution:     quality_sabr_resolution,
       default_home:                default_home,
       feed_menu:                   feed_menu,
       automatic_instance_redirect: automatic_instance_redirect,
