@@ -740,6 +740,26 @@ var SABRPlayer = (function () {
     });
   }
 
+  // YouTube's WebVTT captions (fmt=vtt) carry cue settings like "align:start
+  // position:0%", which Shaka honors: the captions stick to the left of the video.
+  // The classic player gets its captions from /api/v1/captions, without cue
+  // settings, so they are centered: drop the settings to show them the same way.
+  var VTT_CUE_TIMING_REGEX = /^(\s*(?:\d+:)?\d{2}:\d{2}\.\d{3}\s+-->\s+(?:\d+:)?\d{2}:\d{2}\.\d{3})[^\r\n]*/gm;
+
+  function isYouTubeCaptionResponse(response) {
+    try {
+      return new URL(response.uri).pathname.endsWith('/api/timedtext');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function centerCaptionCues(data) {
+    var text = new TextDecoder().decode(data);
+    if (text.replace(/^\uFEFF/, '').indexOf('WEBVTT') !== 0) return data;
+    return new TextEncoder().encode(text.replace(VTT_CUE_TIMING_REGEX, '$1'));
+  }
+
   // Route non-sabr: requests (captions, storyboards, image tiles) through the
   // Invidious /proxy so they satisfy CSP. The sabr: scheme is handled
   // separately by setupSabrScheme and also routes through /proxy internally.
@@ -765,6 +785,10 @@ var SABRPlayer = (function () {
     });
 
     networkingEngine.registerResponseFilter(function (type, response, context) {
+      if (isYouTubeCaptionResponse(response)) {
+        response.data = centerCaptionCues(response.data);
+        return;
+      }
       if (
         hlsAudioFormats.length > 0 &&
         type === shaka.net.NetworkingEngine.RequestType.MANIFEST &&
