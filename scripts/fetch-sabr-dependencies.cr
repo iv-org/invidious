@@ -8,24 +8,45 @@ require "file_utils"
 
 # Script to fetch SABR (Server ABR) dependencies
 #
-# Shaka Player is downloaded at build time from the npm registry, like the
-# video.js dependencies (scripts/fetch-player-dependencies.cr), and isn't
-# committed. The package tarball is checked against a pinned SHA-256 digest
-# before anything is extracted from it. When bumping the version, update the
-# digest: `curl -s https://registry.npmjs.org/shaka-player/-/shaka-player-X.Y.Z.tgz | sha256sum`.
+# Shaka Player, youtubei.js and bgutils-js are downloaded at build time from the
+# npm registry, like the video.js dependencies (scripts/fetch-player-dependencies.cr),
+# and aren't committed. Their packages already contain files a browser can load
+# as they are. Each package tarball is checked against a pinned SHA-256 digest
+# before anything is extracted from it. When bumping a version, update the
+# digest: `curl -s https://registry.npmjs.org/NAME/-/NAME-X.Y.Z.tgz | sha256sum`.
 #
-# googlevideo, bgutils-js and youtubei.js are bundled locally from npm via
-# scripts/bundle-sabr-libs.js (`npm run bundle-sabr`) and committed: their npm
-# packages aren't browser bundles, and building them needs Node.
+# googlevideo is bundled locally from npm via scripts/bundle-sabr-libs.js
+# (`npm run bundle-sabr`) and committed: its package is made of modules that
+# import @bufbuild/protobuf, which a browser can't resolve without a bundler.
 
 SABR_DEPENDENCIES = {
   "shaka-player" => {
     "version" => "5.3.6",
     "sha256"  => "0405c850ad2e2da688c6aeb980dadac96b88f2b381724a775bc192375837c410",
-    # Files extracted from the package tarball: path in the tarball => destination
+    # Files or directories extracted from the package tarball: path in the
+    # tarball => destination
     "files" => {
       "package/dist/shaka-player.ui.js" => "shaka-player.ui.js",
       "package/dist/controls.css"       => "controls.css",
+    },
+  },
+  "youtubei.js" => {
+    "version" => "18.3.0",
+    "sha256"  => "ffcdab3af8b05c66ee5b38475928c5cacbc603018eca64d846a1693729994dd8",
+    # The package's self-contained browser bundle
+    "files" => {
+      "package/bundle/browser.js" => "browser.js",
+    },
+  },
+  "bgutils-js" => {
+    "version" => "4.0.3",
+    "sha256"  => "4ae4a52040c5b3a77452ccf5fa7c2edeee36bbfc84e37943ad9b61d85293bb9b",
+    # ES modules without dependencies. They import each other with relative
+    # paths, so they go to a directory named after the version: a version bump
+    # changes their URLs (static assets are cached for a long time). The entry
+    # module bgutils.js is written below.
+    "files" => {
+      "package/dist" => "{version}",
     },
   },
 }
@@ -45,13 +66,11 @@ end
 sabr_dir = "assets/js/sabr"
 Dir.mkdir_p(sabr_dir) unless Dir.exists?(sabr_dir)
 
-# The npm libraries are not fetched at build time: their bundles are built with
-# `npm run bundle-sabr` and committed. Make sure they match the versions pinned
-# in package.json, so a version bump can't silently keep serving old bundles.
+# googlevideo isn't fetched at build time: its bundle is built with
+# `npm run bundle-sabr` and committed. Make sure it matches the version pinned
+# in package.json, so a version bump can't silently keep serving an old bundle.
 NPM_BUNDLES = {
   "googlevideo" => "googlevideo/googlevideo.bundle.min.js",
-  "youtubei.js" => "youtubei.js/youtubei.bundle.min.js",
-  "bgutils-js"  => "bgutils-js/bgutils.bundle.min.js",
 }
 
 if !File.exists?("package.json")
@@ -97,7 +116,7 @@ SABR_DEPENDENCIES.each do |dep_name, dep_info|
         YAML.parse(file).as_h
       end
 
-      files = dep_info["files"].as(Hash(String, String))
+      files = dep_info["files"].as(Hash(String, String)).transform_values(&.gsub("{version}", version))
       if config["version"].as_s != version
         # Old files are only removed once the new ones are downloaded and verified
         dependencies_to_install << dep_name
@@ -117,7 +136,7 @@ dependencies_to_install.each do |dep_name|
   spawn do
     dep_info = SABR_DEPENDENCIES[dep_name]
     version = dep_info["version"].as(String)
-    files = dep_info["files"].as(Hash(String, String))
+    files = dep_info["files"].as(Hash(String, String)).transform_values(&.gsub("{version}", version))
     dest_path = "#{sabr_dir}/#{dep_name}"
     url = "https://registry.npmjs.org/#{dep_name}/-/#{dep_name}-#{version}.tgz"
 
@@ -143,12 +162,27 @@ dependencies_to_install.each do |dep_name|
       status = Process.run("tar", ["-xzf", tarball_path, "-C", tmp_dir] + files.keys, error: Process::Redirect::Inherit)
       raise Exception.new("Failed to extract #{url}") unless status.success?
 
-      # Clean old files
-      Dir.glob("#{dest_path}/*.js").each { |f| File.delete(f) }
-      Dir.glob("#{dest_path}/*.css").each { |f| File.delete(f) }
+      # Clean old files (the .gitignore stays)
+      Dir.children(dest_path).each do |child|
+        FileUtils.rm_rf("#{dest_path}/#{child}") unless child == ".gitignore"
+      end
 
       files.each do |source, dest|
-        File.copy("#{tmp_dir}/#{source}", "#{dest_path}/#{dest}")
+        if Dir.exists?("#{tmp_dir}/#{source}")
+          FileUtils.cp_r("#{tmp_dir}/#{source}", "#{dest_path}/#{dest}")
+        else
+          File.copy("#{tmp_dir}/#{source}", "#{dest_path}/#{dest}")
+        end
+      end
+
+      # Only the JavaScript and CSS are served: drop source maps and type
+      # declarations, and the references to the maps (DevTools would report a
+      # failed load). Done after the SHA-256 check, which covers the download.
+      Dir.glob("#{dest_path}/**/*.{map,ts}").each { |f| File.delete(f) }
+      Dir.glob("#{dest_path}/**/*.js").each do |js_path|
+        content = File.read(js_path)
+        stripped = content.gsub(/\n\/\/# sourceMappingURL=[^\n]*\s*\z/, "\n")
+        File.write(js_path, stripped) if stripped != content
       end
     ensure
       FileUtils.rm_rf(tmp_dir)
@@ -188,20 +222,22 @@ if File.exists?(shaka_css_path)
   puts "#{"Patched".colorize(:green)} Shaka CSS to use system fonts"
 end
 
-# Post-process: drop Shaka's source map reference (the map isn't shipped, so
-# DevTools would report a failed load). Done after the SHA-256 check, which
-# covers the raw download.
-shaka_js_path = "#{sabr_dir}/shaka-player/shaka-player.ui.js"
-if File.exists?(shaka_js_path)
-  js_content = File.read(shaka_js_path)
-  stripped = js_content.gsub(/\n\/\/# sourceMappingURL=[^\n]*\s*\z/, "\n")
-  if stripped != js_content
-    File.write(shaka_js_path, stripped)
-    puts "#{"Patched".colorize(:green)} Shaka JS to remove the source map reference"
-  end
+# bgutils-js entry module: the pieces the player uses, as one `BG` object
+# (sabr_loader.js imports it). Its imports point to the versioned directory.
+bgutils_version = SABR_DEPENDENCIES["bgutils-js"]["version"].as(String)
+bgutils_entry = <<-JS
+  // Generated by scripts/fetch-sabr-dependencies.cr
+  import { BotGuardClient, parseChallengeData } from './#{bgutils_version}/exports/botguard.js';
+  import { WebPoMinter, createColdStartToken } from './#{bgutils_version}/exports/webpo.js';
+  import { buildURL, GOOG_API_KEY } from './#{bgutils_version}/exports/utils.js';
+
+  export const BG = { BotGuardClient, parseChallengeData, WebPoMinter, createColdStartToken, buildURL, GOOG_API_KEY };
+
+  JS
+bgutils_entry_path = "#{sabr_dir}/bgutils-js/bgutils.js"
+if !File.exists?(bgutils_entry_path) || File.read(bgutils_entry_path) != bgutils_entry
+  File.write(bgutils_entry_path, bgutils_entry)
 end
 
-# Note: googlevideo, bgutils-js and youtubei.js are bundled locally from npm via
-# scripts/bundle-sabr-libs.js (esbuild, platform: 'browser', with
-# process.env.NODE_ENV defined to 'production'). No esm.sh fetch or
-# post-patching is required.
+# Note: googlevideo is bundled locally from npm via scripts/bundle-sabr-libs.js
+# (esbuild, platform: 'browser'). No esm.sh fetch or post-patching is required.

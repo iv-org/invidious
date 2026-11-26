@@ -14,10 +14,16 @@
  * The result is also kept in window.SABR_LIBS_STATE ('loaded' | 'failed').
  */
 
+// Static assets are cached for a long time: pass this module's own `?v=<commit>`
+// on, so a new Invidious version doesn't keep serving cached library files.
+var assetVersion = new URL(import.meta.url).search;
+
 Promise.all([
-  import('/js/sabr/youtubei.js/youtubei.bundle.min.js'),
-  import('/js/sabr/googlevideo/googlevideo.bundle.min.js'),
-  import('/js/sabr/bgutils-js/bgutils.bundle.min.js')
+  // youtubei.js and bgutils-js are downloaded from npm at build time,
+  // googlevideo is bundled with `npm run bundle-sabr`.
+  import('/js/sabr/youtubei.js/browser.js' + assetVersion),
+  import('/js/sabr/googlevideo/googlevideo.bundle.min.js' + assetVersion),
+  import('/js/sabr/bgutils-js/bgutils.js' + assetVersion)
 ]).then(function (modules) {
   var youtubei = modules[0];
 

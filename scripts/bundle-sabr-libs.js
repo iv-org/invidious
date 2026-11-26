@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 
 /**
- * Bundle SABR libraries (googlevideo, youtubei.js, bgutils-js) from npm using esbuild
- * This creates properly bundled files with all necessary exports
+ * Bundle googlevideo from npm using esbuild, for the SABR player.
+ *
+ * Only googlevideo needs it: its package is made of modules that import
+ * @bufbuild/protobuf. youtubei.js and bgutils-js are downloaded from npm at build
+ * time by scripts/fetch-sabr-dependencies.cr, as browsers can load them as they are.
  */
 
 import * as esbuild from 'esbuild';
@@ -18,8 +21,6 @@ const outputDir = path.join(__dirname, '../assets/js/sabr');
 
 // Ensure output directories exist
 fs.mkdirSync(path.join(outputDir, 'googlevideo'), { recursive: true });
-fs.mkdirSync(path.join(outputDir, 'youtubei.js'), { recursive: true });
-fs.mkdirSync(path.join(outputDir, 'bgutils-js'), { recursive: true });
 
 // Create a custom entry point that exposes the googlevideo namespaces the
 // SABR scheme plugin / manifest parser need (ump, utils, protos) as a single
@@ -65,49 +66,6 @@ esbuild.build({
 }).catch((err) => {
   console.error('✗ googlevideo bundling failed:', err);
   try { fs.unlinkSync(googlevideoEntryPath); } catch (e) {}
-  process.exit(1);
-});
-
-// youtubei.js: minify the package's pre-built browser bundle (v18 no longer ships a
-// minified one).
-esbuild.build({
-  ...commonEsbuildOptions,
-  entryPoints: [path.join(nodeModules, 'youtubei.js/bundle/browser.js')],
-  outfile: path.join(outputDir, 'youtubei.js/youtubei.bundle.min.js'),
-  banner: { js: '// youtubei.js library - bundled with esbuild' }
-}).then(() => {
-  console.log('✓ youtubei.js bundled successfully');
-  writeVersionMarker('youtubei.js');
-}).catch((err) => {
-  console.error('✗ youtubei.js bundling failed:', err);
-  process.exit(1);
-});
-
-// Bundle bgutils-js. v4 split the package into subpath exports (botguard, webpo,
-// utils) and dropped the BG namespace, so expose the pieces we use as one `BG` object.
-const bgutilsEntryContent = `
-import { BotGuardClient, parseChallengeData } from 'bgutils-js/botguard';
-import { WebPoMinter, createColdStartToken } from 'bgutils-js/webpo';
-import { buildURL, GOOG_API_KEY } from 'bgutils-js/utils';
-
-export const BG = { BotGuardClient, parseChallengeData, WebPoMinter, createColdStartToken, buildURL, GOOG_API_KEY };
-`;
-
-const bgutilsEntryPath = path.join(__dirname, 'temp-bgutils-entry.js');
-fs.writeFileSync(bgutilsEntryPath, bgutilsEntryContent);
-
-esbuild.build({
-  ...commonEsbuildOptions,
-  entryPoints: [bgutilsEntryPath],
-  outfile: path.join(outputDir, 'bgutils-js/bgutils.bundle.min.js'),
-  banner: { js: '// bgutils-js library - bundled with esbuild' }
-}).then(() => {
-  console.log('✓ bgutils-js bundled successfully');
-  writeVersionMarker('bgutils-js');
-  fs.unlinkSync(bgutilsEntryPath);
-}).catch((err) => {
-  console.error('✗ bgutils-js bundling failed:', err);
-  try { fs.unlinkSync(bgutilsEntryPath); } catch (e) {}
   process.exit(1);
 });
 

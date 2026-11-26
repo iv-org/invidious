@@ -6,9 +6,7 @@
     "bundle-sabr": "node scripts/bundle-sabr-libs.js"
   },
   "dependencies": {
-    "googlevideo": "5.0.1",
-    "youtubei.js": "18.3.0",
-    "bgutils-js": "4.0.3"
+    "googlevideo": "5.0.1"
   },
   "devDependencies": {
     "esbuild": "0.27.2"
