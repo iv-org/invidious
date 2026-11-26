@@ -72,6 +72,9 @@ var SABRPlayer = (function () {
   var isLive = false;
   // An active broadcast (not a post-live DVR replay, which also plays from HLS).
   var isActiveLive = false;
+  // Last position reached during playback, for live recovery: a critical error
+  // can reset the media element's current time before recovery reads it.
+  var lastPlaybackTime = 0;
   var innertube = null;
   var clientConfig = null;
   var savePositionInterval = null;
@@ -403,6 +406,9 @@ var SABRPlayer = (function () {
     videoElement.addEventListener('canplay', function () { hideSpinner(); });
     videoElement.addEventListener('pause', saveCurrentPosition);
     videoElement.addEventListener('timeupdate', enforceEndTime);
+    videoElement.addEventListener('timeupdate', function () {
+      if (videoElement.currentTime > 0) lastPlaybackTime = videoElement.currentTime;
+    });
 
     // Page-level keyboard shortcuts (installed once per SABRPlayer instance).
     // controls=0: no playback shortcuts and no control overlay, like the classic player.
@@ -466,8 +472,10 @@ var SABRPlayer = (function () {
       resume = !!videoElement && (!videoElement.paused || (!hasPlayed && !!(currentLoadOptions && currentLoadOptions.autoplay)));
       // A post-live DVR replay has a fixed timeline: resume where the viewer was. An
       // active broadcast resumes at the live edge (no start position).
-      if (!isActiveLive && videoElement && isFinite(videoElement.currentTime) && videoElement.currentTime > 0) {
-        position = videoElement.currentTime;
+      if (!isActiveLive && videoElement) {
+        var current = isFinite(videoElement.currentTime) ? videoElement.currentTime : 0;
+        if (current > 0) position = current;
+        else if (lastPlaybackTime > 0) position = lastPlaybackTime;
       }
     }
     player.load(liveManifest.uri, position, liveManifest.mimeType).then(function () {
@@ -561,6 +569,20 @@ var SABRPlayer = (function () {
       lines[versionIndex] = '#EXT-X-VERSION:7';
     }
     return new TextEncoder().encode(lines.join('\n') + '\n');
+  }
+
+  // YouTube's HLS audio-only segments ("goap" URLs) are raw AAC with an ID3
+  // timestamp, but their URLs end in "/file/seg.ts". Shaka picks its MPEG-TS
+  // converter from that extension and fails on them (error 3018), which made
+  // live streams and post-live replays reload every few seconds. googlevideo
+  // ignores that file name, so name them "seg.aac": Shaka then uses its AAC
+  // converter. Video segments ("govp") are real MPEG-TS and stay as they are.
+  var HLS_AUDIO_SEGMENT_REGEX = /^(.*\/goap\/.*\/file\/seg)\.ts$/gm;
+
+  function patchHlsAudioSegmentNames(data) {
+    var text = new TextDecoder().decode(data);
+    if (text.indexOf('#EXTM3U') === -1 || text.indexOf('/goap/') === -1) return data;
+    return new TextEncoder().encode(text.replace(HLS_AUDIO_SEGMENT_REGEX, '$1.aac'));
   }
 
   // YouTube's live streams carry no audio language metadata (only the same audio at two
@@ -795,6 +817,12 @@ var SABRPlayer = (function () {
         context && context.type === shaka.net.NetworkingEngine.AdvancedRequestType.MASTER_PLAYLIST
       ) {
         response.data = patchLiveHlsMainManifest(response.data, hlsAudioFormats);
+      }
+      if (
+        type === shaka.net.NetworkingEngine.RequestType.MANIFEST &&
+        context && context.type === shaka.net.NetworkingEngine.AdvancedRequestType.MEDIA_PLAYLIST
+      ) {
+        response.data = patchHlsAudioSegmentNames(response.data);
       }
     });
   }
@@ -1282,6 +1310,7 @@ var SABRPlayer = (function () {
     // The previous live manifest belongs to the previous load: no recovery of it
     // while this one loads.
     liveManifest = null;
+    lastPlaybackTime = 0;
     currentVideoId = videoId;
     currentLoadOptions = options;
     playbackWebPoToken = null;
