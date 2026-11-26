@@ -159,7 +159,9 @@ dependencies_to_install.each do |dep_name|
     begin
       tarball_path = "#{tmp_dir}/package.tgz"
       File.write(tarball_path, tarball)
-      status = Process.run("tar", ["-xzf", tarball_path, "-C", tmp_dir] + files.keys, error: Process::Redirect::Inherit)
+      # Extract the whole (small) tarball: BusyBox tar (Alpine, Docker builds)
+      # can't select a directory by name when the archive has no entry for it.
+      status = Process.run("tar", ["-xzf", tarball_path, "-C", tmp_dir], error: Process::Redirect::Inherit)
       raise Exception.new("Failed to extract #{url}") unless status.success?
 
       # Clean old files (the .gitignore stays)
