@@ -134,6 +134,8 @@
             // Connect the page scripts' `player` object (sabr_page_player.js) to the video.
             if (window.SABRPagePlayer) SABRPagePlayer.attach(result.videoElement);
         } catch (error) {
+            // LOAD_INTERRUPTED: a newer load replaced this one, it isn't a failure
+            if (error && window.shaka && error.code === shaka.util.Error.Code.LOAD_INTERRUPTED) return;
             console.error('[SABR]', 'Failed to load video:', error);
             showError(container, error && error.message);
         }

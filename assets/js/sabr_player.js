@@ -128,6 +128,14 @@ var SABRPlayer = (function () {
     return url.pathname + url.search + url.hash;
   }
 
+  // Show an error over the player, replacing any error already shown there (a
+  // reload can fail after the reload limit already showed one).
+  function showErrorDisplay(lines) {
+    if (!shakaContainer) return;
+    shakaContainer.querySelectorAll('.sabr-error-display').forEach(function (el) { el.remove(); });
+    shakaContainer.appendChild(createErrorDisplay(lines));
+  }
+
   // Error overlay: one paragraph per line (plain text), then a link to the DASH player.
   function createErrorDisplay(lines) {
     var errorDiv = document.createElement('div');
@@ -1193,9 +1201,7 @@ var SABRPlayer = (function () {
       reloadCount++;
       if (reloadCount >= MAX_RELOADS) {
         console.error('[SABRPlayer] SABR reload limit reached; giving up on video', currentVideoId);
-        if (shakaContainer) {
-          shakaContainer.appendChild(createErrorDisplay([messages.unavailable, messages.throttled]));
-        }
+        showErrorDisplay([messages.unavailable, messages.throttled]);
         return;
       }
       console.warn('[SABRPlayer] SABR reload requested by server; re-loading video (attempt ' + reloadCount + '/' + MAX_RELOADS + ')');
@@ -1228,8 +1234,11 @@ var SABRPlayer = (function () {
       }
       if (currentVideoId && loadFn) {
         loadFn(currentVideoId, shakaContainer, reloadOptions).catch(function (e) {
+          // LOAD_INTERRUPTED (7001): another load (or an unload) replaced this one.
+          // That isn't a failure, the newer load reports its own outcome.
+          if (e && e.code === shaka.util.Error.Code.LOAD_INTERRUPTED) return;
           console.error('[SABRPlayer]', 'SABR reload failed', e);
-          if (shakaContainer) shakaContainer.appendChild(createErrorDisplay([messages.loadFailed, e && e.message]));
+          showErrorDisplay([messages.loadFailed, e && e.message]);
         });
       }
     });
