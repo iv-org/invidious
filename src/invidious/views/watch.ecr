@@ -350,6 +350,7 @@ we're going to need to do it here in order to allow for translations.
                         </div>
                     <% end %>
 
+                    <div id="related-videos">
                     <% video.related_videos.each do |rv| %>
                         <% if rv["id"]? %>
                             <div class="pure-u-1">
@@ -394,6 +395,10 @@ we're going to need to do it here in order to allow for translations.
                             </div>
                         <% end %>
                     <% end %>
+                    </div>
+                    <div id="related-videos-error" class="h-box" hidden></div>
+                    <div id="related-videos-loading" hidden>...</div>
+                    <div id="related-videos-sentinel" data-video-id="<%= video.id %>" data-continuation="<%= video.related_videos_continuation %>" data-listen="<%= params.listen %>"></div>
                 </div>
             <% end %>
         </div>
@@ -401,3 +406,4 @@ we're going to need to do it here in order to allow for translations.
 </div>
 <script src="/js/comments.js?v=<%= ASSET_COMMIT %>"></script>
 <script src="/js/watch.js?v=<%= ASSET_COMMIT %>"></script>
+<script src="/js/related_videos.js?v=<%= ASSET_COMMIT %>"></script>

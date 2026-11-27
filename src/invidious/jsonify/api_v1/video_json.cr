@@ -278,6 +278,10 @@ module Invidious::JSONify::APIv1
           end
         end
       end
+
+      if continuation = video.related_videos_continuation
+        json.field "recommendedVideosContinuation", continuation
+      end
     end
   end
 

@@ -55,6 +55,145 @@ module Invidious::Videos::Parser
     }
   end
 
+  def parse_lockup_related_video(item_contents : JSON::Any) : Hash(String, JSON::Any)?
+    return nil if item_contents["contentType"]?.try(&.as_s) != "LOCKUP_CONTENT_TYPE_VIDEO"
+
+    video_id = item_contents["contentId"]?.try &.as_s
+    return nil if !video_id
+
+    metadata = item_contents.dig?("metadata", "lockupMetadataViewModel")
+    title = metadata.try &.dig?("title", "content").try &.as_s || ""
+
+    author = ""
+    ucid = ""
+    author_verified = false
+    view_count_text = nil
+    published = nil
+
+    if metadata_rows = metadata.try &.dig?("metadata", "contentMetadataViewModel", "metadataRows").try &.as_a
+      metadata_rows.each do |row|
+        parts = row["metadataParts"]?.try &.as_a
+        next if !parts
+
+        parts.each do |part|
+          text = part.dig?("text", "content").try &.as_s
+          next if !text
+
+          accessibility_label = part["accessibilityLabel"]?.try &.as_s || ""
+
+          if author.empty? && (part.dig?("text", "commandRuns") || part.dig?("text", "attachmentRuns"))
+            author = text
+            ucid = part.dig?("text", "commandRuns", 0, "onTap", "innertubeCommand", "browseEndpoint", "browseId").try &.as_s || ucid
+            author_verified = part.dig?("text", "attachmentRuns").try(&.as_a).try &.any? { |run|
+              run.dig?("element", "type", "imageType", "image", "sources", 0, "clientResource", "imageName").try(&.as_s) == "CHECK_CIRCLE_FILLED"
+            } || author_verified
+          end
+
+          if view_count_text.nil? && (accessibility_label.includes?("view") || text.includes?("view") || accessibility_label.includes?("watching") || text.includes?("watching"))
+            view_count_text = text
+          end
+
+          if published.nil? && (text.includes?("ago") || accessibility_label.includes?("ago"))
+            begin
+              published = decode_date(text).to_rfc3339.to_s
+            rescue
+            end
+          end
+        end
+      end
+    end
+
+    if ucid.empty?
+      ucid = metadata.try &.dig?("image", "decoratedAvatarViewModel", "rendererContext", "commandContext", "onTap", "innertubeCommand", "browseEndpoint", "browseId").try &.as_s || ""
+    end
+
+    if author.empty?
+      author = metadata.try &.dig?("image", "decoratedAvatarViewModel", "a11yLabel").try(&.as_s).try(&.lchop("Go to channel ")) || ""
+    end
+
+    short_view_count = short_text_to_number(view_count_text || "0").to_s
+
+    length_seconds = "0"
+    if badge = item_contents.dig?("contentImage", "thumbnailViewModel", "overlays", 0, "thumbnailBottomOverlayViewModel", "badges", 0, "thumbnailBadgeViewModel", "text")
+      length_text = badge.as_s
+      if length_text != "LIVE"
+        length_seconds = decode_length_seconds(length_text).to_s
+      end
+    end
+
+    {
+      "id"               => JSON::Any.new(video_id),
+      "title"            => JSON::Any.new(title),
+      "author"           => JSON::Any.new(author),
+      "ucid"             => JSON::Any.new(ucid),
+      "length_seconds"   => JSON::Any.new(length_seconds),
+      "short_view_count" => JSON::Any.new(short_view_count),
+      "author_verified"  => JSON::Any.new(author_verified ? "true" : "false"),
+      "published"        => JSON::Any.new(published || ""),
+    }
+  end
+
+  def parse_related_videos_continuation(continuation : String)
+    initial_data = YoutubeAPI.next(continuation)
+
+    items = [] of Hash(String, JSON::Any)
+    next_continuation = nil
+
+    containers = [] of Array(JSON::Any)
+
+    if on_response_received_endpoints = initial_data["onResponseReceivedEndpoints"]?
+      on_response_received_endpoints.as_a.each do |endpoint|
+        if action = endpoint["appendContinuationItemsAction"]?
+          if continuation_items = action["continuationItems"]?
+            containers << continuation_items.as_a
+          end
+        elsif action = endpoint["reloadContinuationItemsCommand"]?
+          if continuation_items = action["continuationItems"]?
+            containers << continuation_items.as_a
+          end
+        end
+      end
+    end
+
+    if continuation_contents = initial_data["continuationContents"]?
+      if continuation_items = continuation_contents.dig?("itemSectionContinuation", "contents")
+        containers << continuation_items.as_a
+      elsif continuation_items = continuation_contents.dig?("sectionListContinuation", "contents")
+        containers << continuation_items.as_a
+      end
+    end
+
+    if containers.empty?
+      if continuation_items = initial_data.dig?("appendContinuationItemsAction", "continuationItems")
+        containers << continuation_items.as_a
+      end
+    end
+
+    containers.flatten.each do |element|
+      if item = element["compactVideoRenderer"]?
+        related_video = self.parse_related_video(item)
+        items << related_video if related_video
+      elsif rich = element["richItemRenderer"]?
+        if item = rich.dig?("content", "compactVideoRenderer")
+          related_video = self.parse_related_video(item)
+          items << related_video if related_video
+        elsif lockup = rich.dig?("content", "lockupViewModel")
+          if parsed = parse_lockup_related_video(lockup)
+            items << parsed
+          end
+        end
+      elsif lockup = element["lockupViewModel"]?
+        if parsed = parse_lockup_related_video(lockup)
+          items << parsed
+        end
+      elsif item = element["continuationItemRenderer"]?
+        next_continuation ||= item.dig?("continuationEndpoint", "continuationCommand", "token").try &.as_s
+      end
+    end
+
+    {items, next_continuation}
+  end
+
   def extract_video_info(video_id : String)
     # Fetch data from the player endpoint
     player_response = YoutubeAPI.player(video_id: video_id)
@@ -243,6 +382,7 @@ module Invidious::Videos::Parser
     LOGGER.debug("extract_video_info: parsing related videos...")
 
     related = [] of JSON::Any
+    related_videos_continuation = nil
 
     # Parse "compactVideoRenderer" items (under secondary results)
     secondary_results = main_results
@@ -251,6 +391,8 @@ module Invidious::Videos::Parser
       if item = element["compactVideoRenderer"]?
         related_video = self.parse_related_video(item)
         related << JSON::Any.new(related_video) if related_video
+      elsif item = element["continuationItemRenderer"]?
+        related_videos_continuation ||= item.dig?("continuationEndpoint", "continuationCommand", "token").try &.as_s
       end
     end
 
@@ -441,7 +583,8 @@ module Invidious::Videos::Parser
       "keywords"         => JSON::Any.new(keywords.map { |v| JSON::Any.new(v) }),
       "isPostLiveDvr"    => JSON::Any.new(post_live_dvr),
       # Related videos
-      "relatedVideos" => JSON::Any.new(related),
+      "relatedVideos"             => JSON::Any.new(related),
+      "relatedVideosContinuation" => JSON::Any.new(related_videos_continuation),
       # Description
       "description"      => JSON::Any.new(description || ""),
       "descriptionHtml"  => JSON::Any.new(description_html || "<p></p>"),
