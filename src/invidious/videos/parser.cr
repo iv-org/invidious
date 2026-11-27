@@ -28,6 +28,18 @@ module Invidious::Videos::Parser
 
     ucid = channel_info.try { |ci| HelperExtractors.get_browse_id(ci) }
 
+    # Collaborations use a dialog command instead of linking the combined
+    # byline directly to a channel. Use the first listed collaborator as the
+    # destination while preserving YouTube's combined author label.
+    if ucid.try &.empty?
+      ucid = channel_info.try &.dig?(
+        "navigationEndpoint", "showDialogCommand", "panelLoadingStrategy",
+        "inlineContent", "dialogViewModel", "customContent", "listViewModel",
+        "listItems", 0, "listItemViewModel", "rendererContext", "commandContext",
+        "onTap", "innertubeCommand", "browseEndpoint", "browseId"
+      ).try &.as_s
+    end
+
     short_view_count = related.try do |r|
       HelperExtractors.get_short_view_count(r).to_s
     end
