@@ -41,7 +41,9 @@ if (player_data.aspect_ratio) {
 
 var embed_url = new URL(location);
 embed_url.searchParams.delete('v');
-var short_url = location.origin + '/' + video_data.id + embed_url.search;
+var share_url = new URL(location.href);
+share_url.pathname = '/watch';
+share_url.searchParams.set('v', video_data.id);
 embed_url = location.origin + '/embed/' + video_data.id + embed_url.search;
 
 var save_player_pos_key = 'save_player_pos';
@@ -189,7 +191,7 @@ var shareOptions = {
     socials: ['fbFeed', 'tw', 'reddit', 'email'],
 
     get url() {
-        return addCurrentTimeToURL(short_url);
+        return addCurrentTimeToURL(share_url);
     },
     title: player_data.title,
     description: player_data.description,
