@@ -25,7 +25,7 @@ module Invidious::Database::Channels
         SQL
     end
 
-    PG_DB.exec(request, args: channel_array)
+    DATABASE.exec(request, args: channel_array)
   end
 
   # -------------------
@@ -39,7 +39,7 @@ module Invidious::Database::Channels
       WHERE id = $2
       SQL
 
-    PG_DB.exec(request, author, id)
+    DATABASE.exec(request, author, id)
   end
 
   def update_subscription_time(id : String)
@@ -49,7 +49,7 @@ module Invidious::Database::Channels
       WHERE id = $1
       SQL
 
-    PG_DB.exec(request, id)
+    DATABASE.exec(request, id)
   end
 
   def update_mark_deleted(id : String)
@@ -59,7 +59,7 @@ module Invidious::Database::Channels
       WHERE id = $1
       SQL
 
-    PG_DB.exec(request, id)
+    DATABASE.exec(request, id)
   end
 
   # -------------------
@@ -72,7 +72,7 @@ module Invidious::Database::Channels
       WHERE id = $1
       SQL
 
-    return PG_DB.query_one?(request, id, as: InvidiousChannel)
+    return DATABASE.query_one?(request, id, as: InvidiousChannel)
   end
 
   def select(ids : Array(String)) : Array(InvidiousChannel)?
@@ -83,7 +83,7 @@ module Invidious::Database::Channels
       WHERE id = ANY($1)
       SQL
 
-    return PG_DB.query_all(request, ids, as: InvidiousChannel)
+    return DATABASE.query_all(request, ids, as: InvidiousChannel)
   end
 end
 
@@ -114,7 +114,7 @@ module Invidious::Database::ChannelVideos
       RETURNING (xmax=0) AS was_insert
       SQL
 
-    return PG_DB.query_one(request, *video.to_tuple, as: Bool)
+    return DATABASE.query_one(request, *video.to_tuple, as: Bool)
   end
 
   # -------------------
@@ -130,7 +130,7 @@ module Invidious::Database::ChannelVideos
       ORDER BY published DESC
       SQL
 
-    return PG_DB.query_all(request, ids, as: ChannelVideo)
+    return DATABASE.query_all(request, ids, as: ChannelVideo)
   end
 
   def select_notfications(ucid : String, since : Time) : Array(ChannelVideo)
@@ -141,7 +141,7 @@ module Invidious::Database::ChannelVideos
       LIMIT 15
       SQL
 
-    return PG_DB.query_all(request, ucid, since, as: ChannelVideo)
+    return DATABASE.query_all(request, ucid, since, as: ChannelVideo)
   end
 
   def select_popular_videos : Array(ChannelVideo)
@@ -153,6 +153,6 @@ module Invidious::Database::ChannelVideos
       ORDER BY ucid, published DESC
       SQL
 
-    PG_DB.query_all(request, as: ChannelVideo)
+    DATABASE.query_all(request, as: ChannelVideo)
   end
 end

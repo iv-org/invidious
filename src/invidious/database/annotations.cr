@@ -10,7 +10,7 @@ module Invidious::Database::Annotations
       ON CONFLICT DO NOTHING
       SQL
 
-    PG_DB.exec(request, id, annotations)
+    DATABASE.exec(request, id, annotations)
   end
 
   def select(id : String) : Annotation?
@@ -19,6 +19,6 @@ module Invidious::Database::Annotations
       WHERE id = $1
       SQL
 
-    return PG_DB.query_one?(request, id, as: Annotation)
+    return DATABASE.query_one?(request, id, as: Annotation)
   end
 end

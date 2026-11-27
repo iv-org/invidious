@@ -23,7 +23,7 @@ module Invidious::Database::Users
         SQL
     end
 
-    PG_DB.exec(request, args: user_array)
+    DATABASE.exec(request, args: user_array)
   end
 
   def delete(user : User)
@@ -32,7 +32,7 @@ module Invidious::Database::Users
       WHERE email = $1
       SQL
 
-    PG_DB.exec(request, user.email)
+    DATABASE.exec(request, user.email)
   end
 
   # -------------------
@@ -46,7 +46,7 @@ module Invidious::Database::Users
       WHERE email = $2
       SQL
 
-    PG_DB.exec(request, user.watched, user.email)
+    DATABASE.exec(request, user.watched, user.email)
   end
 
   def mark_watched(user : User, vid : String)
@@ -56,7 +56,7 @@ module Invidious::Database::Users
       WHERE email = $2
       SQL
 
-    PG_DB.exec(request, vid, user.email)
+    DATABASE.exec(request, vid, user.email)
   end
 
   def mark_unwatched(user : User, vid : String)
@@ -66,7 +66,7 @@ module Invidious::Database::Users
       WHERE email = $2
       SQL
 
-    PG_DB.exec(request, vid, user.email)
+    DATABASE.exec(request, vid, user.email)
   end
 
   def clear_watch_history(user : User)
@@ -76,7 +76,7 @@ module Invidious::Database::Users
       WHERE email = $1
       SQL
 
-    PG_DB.exec(request, user.email)
+    DATABASE.exec(request, user.email)
   end
 
   # -------------------
@@ -90,7 +90,7 @@ module Invidious::Database::Users
       WHERE email = $2
       SQL
 
-    PG_DB.exec(request, user.subscriptions, user.email)
+    DATABASE.exec(request, user.subscriptions, user.email)
   end
 
   def subscribe_channel(user : User, ucid : String)
@@ -101,7 +101,7 @@ module Invidious::Database::Users
       WHERE email = $2
       SQL
 
-    PG_DB.exec(request, ucid, user.email)
+    DATABASE.exec(request, ucid, user.email)
   end
 
   def unsubscribe_channel(user : User, ucid : String)
@@ -112,7 +112,7 @@ module Invidious::Database::Users
       WHERE email = $2
       SQL
 
-    PG_DB.exec(request, ucid, user.email)
+    DATABASE.exec(request, ucid, user.email)
   end
 
   # -------------------
@@ -127,7 +127,7 @@ module Invidious::Database::Users
       WHERE $2 = ANY(subscriptions)
       SQL
 
-    PG_DB.exec(request, video_ids, channel_id)
+    DATABASE.exec(request, video_ids, channel_id)
   end
 
   def remove_notification(user : User, vid : String)
@@ -137,7 +137,7 @@ module Invidious::Database::Users
       WHERE email = $2
       SQL
 
-    PG_DB.exec(request, vid, user.email)
+    DATABASE.exec(request, vid, user.email)
   end
 
   def clear_notifications(user : User)
@@ -147,7 +147,7 @@ module Invidious::Database::Users
       WHERE email = $1
       SQL
 
-    PG_DB.exec(request, user.email)
+    DATABASE.exec(request, user.email)
   end
 
   # -------------------
@@ -161,7 +161,7 @@ module Invidious::Database::Users
       WHERE $1 = ANY(subscriptions)
       SQL
 
-    PG_DB.exec(request, channel_id)
+    DATABASE.exec(request, channel_id)
   end
 
   def update_preferences(user : User)
@@ -171,7 +171,7 @@ module Invidious::Database::Users
       WHERE email = $2
       SQL
 
-    PG_DB.exec(request, user.preferences.to_json, user.email)
+    DATABASE.exec(request, user.preferences.to_json, user.email)
   end
 
   def update_password(user : User, pass : String)
@@ -181,7 +181,7 @@ module Invidious::Database::Users
       WHERE email = $2
       SQL
 
-    PG_DB.exec(request, pass, user.email)
+    DATABASE.exec(request, pass, user.email)
   end
 
   # -------------------
@@ -194,7 +194,7 @@ module Invidious::Database::Users
       WHERE email = $1
       SQL
 
-    return PG_DB.query_one?(request, email, as: User)
+    return DATABASE.query_one?(request, email, as: User)
   end
 
   # Same as select, but can raise an exception
@@ -204,7 +204,7 @@ module Invidious::Database::Users
       WHERE email = $1
       SQL
 
-    return PG_DB.query_one(request, email, as: User)
+    return DATABASE.query_one(request, email, as: User)
   end
 
   def select(*, token : String) : User?
@@ -213,7 +213,7 @@ module Invidious::Database::Users
       WHERE token = $1
       SQL
 
-    return PG_DB.query_one?(request, token, as: User)
+    return DATABASE.query_one?(request, token, as: User)
   end
 
   def select_notifications(user : User) : Array(String)
@@ -223,6 +223,6 @@ module Invidious::Database::Users
       WHERE email = $1
       SQL
 
-    return PG_DB.query_one(request, user.email, as: Array(String))
+    return DATABASE.query_one(request, user.email, as: Array(String))
   end
 end

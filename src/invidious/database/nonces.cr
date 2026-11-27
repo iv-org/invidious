@@ -14,7 +14,7 @@ module Invidious::Database::Nonces
       ON CONFLICT DO NOTHING
       SQL
 
-    PG_DB.exec(request, nonce, expire)
+    DATABASE.exec(request, nonce, expire)
   end
 
   def delete_expired
@@ -23,7 +23,7 @@ module Invidious::Database::Nonces
       WHERE expire < now()
       SQL
 
-    PG_DB.exec(request)
+    DATABASE.exec(request)
   end
 
   # -------------------
@@ -37,7 +37,7 @@ module Invidious::Database::Nonces
       WHERE nonce = $2
       SQL
 
-    PG_DB.exec(request, Time.utc(1990, 1, 1), nonce)
+    DATABASE.exec(request, Time.utc(1990, 1, 1), nonce)
   end
 
   # -------------------
@@ -50,6 +50,6 @@ module Invidious::Database::Nonces
       WHERE nonce = $1
       SQL
 
-    return PG_DB.query_one?(request, nonce, as: {String, Time})
+    return DATABASE.query_one?(request, nonce, as: {String, Time})
   end
 end
