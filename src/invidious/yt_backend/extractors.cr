@@ -723,7 +723,7 @@ private module Parsers
               next
             end
 
-            metadata_parts = row.dig("metadataParts").try &.as_a
+            metadata_parts = row.dig?("metadataParts").try &.as_a
 
             if view_count_text.nil?
               view_count_text = metadata_parts.try &.find { |item| item["icon"]?.nil? && item.dig?("text", "content").try &.as_s.includes?("views") }
