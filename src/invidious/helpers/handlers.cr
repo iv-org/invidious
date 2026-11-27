@@ -50,7 +50,30 @@ class Kemal::ExceptionHandler
 
   private def call_exception_with_status_code(context : HTTP::Server::Context, exception : Exception, status_code : Int32)
     return if context.response.closed?
-    return if exclude_match? context
+
+    # Invidious excludes the status code error handlers from running on the api routes
+    # meaning that we are unable to redirect /api/v1/storyboards/sb/... to the right location
+    # within a 404 handler. As a quick fix we'll match it here.
+    #
+    # For future reference this is also why the API will always return a 200 status code
+    # even when a route could not be found.
+    #
+    # TODO: In the future there should be dedicated status code error handlers for the api.
+    #
+    if exclude_match?(context)
+      if status_code == 404
+        # Only necessary on Crystal versions >= 1.16.0
+        {% if compare_versions(Crystal::VERSION, "1.16.0") >= 0 %}
+          if HOST_URL.empty? && context.request.path.starts_with?("/api/v1/storyboards/sb")
+            return context.redirect "#{context.request.path[19..]}?#{context.params.query}", status_code: 302
+          end
+
+          return
+        {% end %}
+      end
+
+      return
+    end
 
     if !Kemal.config.error_handlers.empty? && Kemal.config.error_handlers.has_key?(status_code)
       context.response.content_type = "text/html" unless context.response.headers.has_key?("Content-Type")
