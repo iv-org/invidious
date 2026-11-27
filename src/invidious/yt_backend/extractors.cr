@@ -1121,7 +1121,25 @@ private module Extractors
         end
       end
 
-      return raw_items.flatten
+      raw_items = raw_items.flatten
+
+      requires_age_verification(raw_items)
+
+      return raw_items
+    end
+
+    # 2026-11-24: Youtube started to return a new page that shows
+    # a "Confirm your age" when doing suggestive searches.
+    # This detects that message to set the query as a query
+    # that needs age verification, forcing the user to rephrase
+    # their search since there is no workaround for this.
+    private def self.requires_age_verification(raw_items)
+      background_promo_renderer = raw_items.first?.try &.dig?("backgroundPromoRenderer")
+      background_promo_renderer_title = background_promo_renderer.try &.dig?("title", "runs", 0, "text").try &.as_s
+
+      if title = background_promo_renderer_title
+        raise SearchRequiresAgeVerification.new if title == "Confirm your age"
+      end
     end
 
     def self.extractor_name

@@ -9,6 +9,9 @@ module Invidious::Routes::API::V1::Search
 
     begin
       search_results = query.process
+      if query.requires_age_verification?
+        return Errors.error_json(400, "Youtube requires age verification for this search. Try rephrasing your search query to get results.")
+      end
     rescue ex
       return Errors.error_json(400, ex)
     end

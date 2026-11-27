@@ -193,6 +193,7 @@
     "search_message_no_results": "No results found.",
     "search_message_change_filters_or_query": "Try widening your search query and/or changing the filters.",
     "search_message_use_another_instance": "You can also <a href=\"`x`\">search on another instance</a>.",
+    "search_message_requires_age_verification": "Youtube requires age verification for this search. Try rephrasing your search query to get results.",
     "Hide annotations": "Hide annotations",
     "Show annotations": "Show annotations",
     "Genre: ": "Genre: ",
