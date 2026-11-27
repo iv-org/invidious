@@ -1,0 +1,32 @@
+## <%=version%>
+<% unless is_patch_release %>
+### Wrap up
+<% end %>
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
+<% unless is_patch_release %>
+### New features & important changes
+#### For users
+  - Praesent a orci non elit interdum faucibus ut placerat dui
+  - Aenean sit amet dolor at felis tempus eleifend
+#### For instance owners
+  - Donec consequat magna sit amet fringilla posuere.
+  - Fusce a augue quis neque iaculis dignissim
+#### For developers
+  - Nam sed elit a metus congue sagittis.
+  - Sed sollicitudin eros et rhoncus pharetra.
+
+### Bugs fixed
+#### User-side
+  - Mauris vitae leo elementum, molestie metus in, tristique lorem.
+  - Cras nec elit a sapien consectetur tristique.
+#### For instance owners
+  - Nunc cursus velit ut finibus facilisis.
+  - Nullam et mi vel felis aliquet euismod eu vel lacus.
+#### For developers
+  - Nulla elementum dui a ex tristique, non imperdiet ante finibus.
+  - Aliquam in sem quis velit efficitur efficitur.
+<% end -%>
+
+### Full list of pull requests merged since the last release (newest first)
+
+<%= prs.join('\n') %>
