@@ -25,8 +25,6 @@
     "Import NewPipe subscriptions (.json)": "Inportatu NewPipeko harpidetzak (.json)",
     "Import NewPipe data (.zip)": "Inportatu NewPipeko datuak (.zip)",
     "Export": "Esportatu",
-    "Export subscriptions as OPML": "Esportatu harpidetzak OPML bezala",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "Esportatu harpidetzak OPML bezala (NewPipe eta FreeTuberako)",
     "Export data as JSON": "Esportatu Invidious datuak JSON gisa",
     "Delete account?": "Kontua ezabatu?",
     "History": "Historia",
