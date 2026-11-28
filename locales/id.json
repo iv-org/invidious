@@ -31,8 +31,6 @@
     "Import NewPipe subscriptions (.json)": "Impor langganan NewPipe (.json)",
     "Import NewPipe data (.zip)": "Impor data NewPipe (.zip)",
     "Export": "Ekspor",
-    "Export subscriptions as OPML": "Ekspor langganan sebagai OPML",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "Ekspor langganan sebagai OPML (untuk NewPipe & FreeTube)",
     "Export data as JSON": "Ekspor data Invidious sebagai JSON",
     "Delete account?": "Hapus akun?",
     "History": "Riwayat",
@@ -489,7 +487,5 @@
     "timeline_parse_error_show_technical_details": "Tampilkan detail teknis",
     "dmca_content": "Video ini tidak dapat diunduh di instansi ini karena adanya surat pelanggaran DMCA/hak cipta yang dikirimkan kepada administrator instansi.",
     "comments_youtube_disabled_text": "Komentar Youtube dimatikan di video ini",
-    "comments_youtube_disabled_try_reddit": "Coba komentar reddit?",
-    "comments_invidious_disabled_text": "Komentar disembunyikan sesuai preferensi pengguna",
-    "comments_youtube_disabled_try_reddit_no_js": "Hai! Sepertinya Anda menonaktifkan JavaScript. Meskipun pengunggah telah menonaktifkan komentar YouTube, Anda masih dapat mengklik di sini untuk mencoba dan melihat komentar Reddit, perlu diingat bahwa komentarnya mungkin memerlukan waktu sedikit lebih lama untuk dimuat."
+    "comments_invidious_disabled_text": "Komentar disembunyikan sesuai preferensi pengguna"
 }
