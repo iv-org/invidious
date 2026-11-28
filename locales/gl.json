@@ -51,8 +51,6 @@
     "Import NewPipe subscriptions (.json)": "Importar subscricións de NewPipe (.json)",
     "Import NewPipe data (.zip)": "Importar datos de NewPipe (.zip)",
     "Export": "Exportar",
-    "Export subscriptions as OPML": "Exportar subscricións como OPML",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "Exportar subscricións como OPML (para NewPipe e FreeTube)",
     "Export data as JSON": "Exportar datos de Invidious como JSON",
     "Delete account?": "Quere borrar a conta?",
     "History": "Historial",
@@ -506,7 +504,5 @@
     "preferences_search_privacy_label": "Privacidade da busca: ",
     "preferences_search_privacy_description": "Activar esta preferencia impedira cas túas consultas de busca se garden no historial do navegador.",
     "comments_youtube_disabled_text": "Os comentarios de YouTube están desactivados neste vídeo",
-    "comments_youtube_disabled_try_reddit": "Probar cos comentarios de Reddit?",
-    "comments_invidious_disabled_text": "Os comentarios están ocultos segundo as preferencias do usuario",
-    "comments_youtube_disabled_try_reddit_no_js": "Ola! Parece que tes JavaScript desactivado. Aínda ca persoa que subiu as imaxes desactivou os comentarios de YouTube, podes premer aquí para tentar ver os comentarios de Reddit; ten en conta que poden tardar un pouco máis en cargar."
+    "comments_invidious_disabled_text": "Os comentarios están ocultos segundo as preferencias do usuario"
 }
