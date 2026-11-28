@@ -49,8 +49,6 @@
     "Import NewPipe subscriptions (.json)": "Importer des abonnements NewPipe (.json)",
     "Import NewPipe data (.zip)": "Importer des données NewPipe (.zip)",
     "Export": "Exporter",
-    "Export subscriptions as OPML": "Exporter les abonnements au format OPML",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "Exporter les abonnements au format OPML (pour NewPipe & FreeTube)",
     "Export data as JSON": "Exporter les données Invidious au format JSON",
     "Delete account?": "Êtes-vous sûr de vouloir supprimer votre compte ?",
     "History": "Historique",
@@ -522,8 +520,6 @@
     "preferences_search_privacy_description": "Activer cette options empêchera que vos recherches soient enregistrées dans l'historique de votre navigateur.",
     "Livestreams": "Diffusion Live",
     "comments_youtube_disabled_text": "Les commentaires YouTube ont été déactiver sur cette vidéo",
-    "comments_youtube_disabled_try_reddit": "Essayer les commentaires reddit ?",
     "comments_invidious_disabled_text": "Les commentaires ont été masqués conformément aux préférences de l'utilisateur",
-    "comments_youtube_disabled_try_reddit_no_js": "Bonjour ! Il semblerait que votre JavaScript soit désactivé. Même si la section commentaire a été fermé par l'auteur, vous pouvez toujours consulter les commentaires Reddit, ils pourraient cependant prendre plus de temps à charger.",
     "dmca_content": "Cette vidéo ne peux pas être téléchargé sur cette instance à cause de la lettre de DMCA/copyright envoyé à l'administrateur de l'instance."
 }
