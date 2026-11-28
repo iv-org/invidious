@@ -26,8 +26,6 @@
     "Import NewPipe subscriptions (.json)": "NewPipe Aboneliklerini İçe Aktar (.json)",
     "Import NewPipe data (.zip)": "NewPipe Verilerini İçe Aktar (.zip)",
     "Export": "Dışa Aktar",
-    "Export subscriptions as OPML": "Abonelikleri OPML Olarak Dışa Aktar",
-    "Export subscriptions as OPML (for NewPipe & FreeTube)": "Abonelikleri OPML Olarak Dışa Aktar (NewPipe ve FreeTube İçin)",
     "Export data as JSON": "İnvidious Verilerini JSON Olarak Dışa Aktar",
     "Delete account?": "Hesap silinsin mi?",
     "History": "Geçmiş",
@@ -506,5 +504,9 @@
     "preferences_search_privacy_label": "Arama gizliliği: ",
     "preferences_search_privacy_description": "Bu ayarı etkinleştirdiğinizde, arama sorgularınız tarayıcı geçmişinize kaydedilmez.",
     "comments_youtube_disabled_text": "Bu videoda YouTube yorumları devre dışı bırakıldı",
-    "comments_invidious_disabled_text": "Kullanıcı tercihlerine göre yorumlar gizlendi"
+    "comments_invidious_disabled_text": "Kullanıcı tercihlerine göre yorumlar gizlendi",
+    "Export subscriptions as OPML (for FreeTube)": "Abonelikleri OPML Olarak Dışa Aktar (FreeTube İçin)",
+    "Export subscriptions as JSON (for NewPipe)": "Abonelikleri JSON Olarak Dışa Aktar (NewPipe İçin)",
+    "channel_tab_shows_label": "Gösteriler",
+    "video_details_ai_made": "YZ ile yapılan video?:"
 }
